@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: docker | My Octopress Blog]]></title>
+  <title><![CDATA[Category: docker | Galoisplusplus]]></title>
   <link href="http://yszheda.github.io/blog/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://yszheda.github.io/blog/"/>
-  <updated>2020-05-06T20:50:53+08:00</updated>
+  <updated>2020-05-06T20:55:06+08:00</updated>
   <id>http://yszheda.github.io/blog/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[Galoisplusplus]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
