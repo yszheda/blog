@@ -1,0 +1,577 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: cuda | My Octopress Blog]]></title>
+  <link href="http://yszheda.github.io/blog/blog/categories/cuda/atom.xml" rel="self"/>
+  <link href="http://yszheda.github.io/blog/"/>
+  <updated>2020-05-06T20:46:12+08:00</updated>
+  <id>http://yszheda.github.io/blog/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[cudaErrorCudartUnloading问题排查及建议方案]]></title>
+    <link href="http://yszheda.github.io/blog/blog/2018/05/22/cudaErrorCudartUnloading/"/>
+    <updated>2018-05-22T22:00:00+08:00</updated>
+    <id>http://yszheda.github.io/blog/blog/2018/05/22/cudaErrorCudartUnloading</id>
+    <content type="html"><![CDATA[<p>最近一段时间一直在负责做我厂神经网络前向框架库的优化，前几天接了一个bug report，报错信息大体是这样的：</p>
+
+<pre><code>Program hit cudaErrorCudartUnloading (error 29) due to "driver shutting down" on CUDA API call to cudaFreeHost.
+</code></pre>
+
+<p>同样的库链接出来的可执行文件，有的会出现这种问题有的不会，一开始让我很自然以为是使用库的应用程序出了bug。排除了这种可能之后，这句话最后的<code>cudaFreeHost</code>又让我想当然地以为是个内存相关的问题，折腾了一阵后才发现方向又双叒叕错了。而且我发现，无论我在报错的那段代码前使用任何CUDA runtime API，都会出现这个错误。
+后来在网上查找相关信息，以下的bug report虽然没有具体解决方案，但相似的call stack让我怀疑这和我遇到的是同一个问题，而且也让我把怀疑的目光聚焦在"driver shutting down"而非<code>cudaFreeHost</code>上。</p>
+
+<ul>
+<li><p><a href="https://github.com/opencv/opencv/issues/7816">https://github.com/opencv/opencv/issues/7816</a></p></li>
+<li><p><a href="https://github.com/BVLC/caffe/issues/6281">https://github.com/BVLC/caffe/issues/6281</a></p></li>
+<li><p><a href="https://stackoverflow.com/questions/40979060/cudaerrorcudartunloading-error-29-due-to-driver-shutting-down">https://stackoverflow.com/questions/40979060/cudaerrorcudartunloading-error-29-due-to-driver-shutting-down</a></p></li>
+<li><p><a href="https://github.com/NVlabs/SASSI/issues/4">https://github.com/NVlabs/SASSI/issues/4</a></p></li>
+<li><p><a href="https://blog.csdn.net/jobbofhe/article/details/79386160">https://blog.csdn.net/jobbofhe/article/details/79386160</a></p></li>
+</ul>
+
+
+<h1>强制阻止"driver shutting down"？</h1>
+
+<p>首先一个看似理所当然的思路是：我们能否在使用CUDA API时防止CUDA driver不被shutdown呢？问题在于"driver shutting down"究竟指的是什么？如果从<code>cudaErrorCudartUnloading</code>的字面意思来讲，很可能是指cuda_runtime的library被卸载了。
+由于我们用的是动态链接库，于是我尝试在报错的地方前加上<code>dlopen</code>强制加载<code>libcuda_runtime.so</code>。改完后马上发现不对，如果是动态库被卸载，理应是调用CUDA API时发现相关symbol都没有定义才对，而不应该是可以正常调用动态库的函数、然后返回error code这样的runtime error现象。
+此外，我通过<code>strace</code>发现，还有诸如<code>libcuda.so</code>、<code>libnvidia-fatbinaryloader.so</code>之类的动态库会被加载，都要试一遍并不现实。何况和CUDA相关的动态库并不少（可参考<a href="http://us.download.nvidia.com/XFree86/Linux-x86/367.35/README/installedcomponents.html">《NVIDIA Accelerated Linux Graphics Driver README and Installation Guide》中的“Chapter 5. Listing of Installed Components”</a>），不同的程序依赖的动态库也不尽相同，上述做法即使可行，也很难通用。</p>
+
+<p>无独有偶，在nvidia开发者论坛上也有开发者有<a href="https://devtalk.nvidia.com/default/topic/1019780/?comment=5191690">类似的想法</a>，被官方人士否定了：</p>
+
+<blockquote><p>For instance, can I have my class maintain certain variables/handles that will force cuda run time library to stay loaded.</p>
+
+<p>No. It is a bad design practice to put calls to the CUDA runtime API in constructors that may run before main and destructors that may run after main.</p></blockquote>
+
+<h1>如何使CUDA runtime API正常运作？</h1>
+
+<p>对于CUDA应用程序开发者而言，我们通常是通过调用CUDA runtime API来向GPU设备下达我们的指令。所以首先让我们来看，在程序中调用CUDA runtime API时，有什么角色参与了进来。我从<a href="http://www.cudahandbook.com/">Nicholas Wilt的《The CUDA Handbook》</a>中借了一张图：</p>
+
+<p>{% img /images/cudaErrorCudartUnloading/CUDA-software-layers.png %}</p>
+
+<p>我们可以看到，主要的角色有：运行在操作系统的User Mode下的CUDART(CUDA Runtime) library（对于动态库来说就是上文提到的<code>libcuda_runtime.so</code>）和CUDA driver library（对于动态库来说就是上文提到的<code>libcuda.so</code>），还有运行在Kernel Mode下的CUDA driver内核模块。众所周知，我们的CUDA应用程序是运行在操作系统的User Mode下的，无法直接操作GPU硬件，在操作系统中有权控制GPU硬件的是运行在Kernel Mode下的内核模块（OT一下，作为CUDA使用者，我们很少能感觉到这些内核模块的存在，也它们许最有存在感的时候就是我们遇上<code>Driver/library version mismatch</code>错误了XD）。在Linux下我们可以通过<code>lsmod | grep nvidia</code>来查看这些内核模块，通常有管理Unified Memory的<code>nvidia_uvm</code>、Linux内核<a href="https://dri.freedesktop.org/wiki/DRM/">Direct Rendering Manager</a>显示驱动<code>nvidia_drm</code>、还有<code>nvidia_modeset</code>。与这些内核模块沟通的是运行在User Mode下的CUDA driver library，我们所调用的CUDA runtime API会被CUDART library转换成一系列CUDA driver API，交由CUDA driver library这个连接CUDA内核模块与其他运行在User Mode下CUDA library的中介。</p>
+
+<p>那么，要使CUDA runtime API所表示的指令能被正常传达到GPU，就需要上述角色都能通力协作了。这就自然引发一个问题：在我们的程序运行的时候，这些角色什么时候开始/结束工作？它们什么时候被初始化？我们不妨<code>strace</code>看一下CUDA应用程序的系统调用：
+首先，<code>libcuda_runtime.so</code>、<code>libcuda.so</code>、<code>libnvidia-fatbinaryloader.so</code>等动态库被加载。当前被加载进内核的内核模块列表文件<code>/proc/modules</code>被读取，由于<code>nvidia_uvm</code>、<code>nvidia_drm</code>等模块之前已被加载，所以不需要额外<code>insmod</code>。接下来，设备参数文件<code>/proc/driver/nvidia/params</code>被读取，相关的设备——如<code>/dev/nvidia0</code>（GPU卡0）、<code>/dev/nvidia-uvm</code>（看名字自然与Unified Memory有关，可能是Pascal体系Nvidia GPU的Page Migration Engine）、<code>/dev/nvidiactl</code>等——被打开，并通过<code>ioctl</code>初始化设定。（此外，还有home目录下<code>~/.nv/ComputeCache</code>的一些文件被使用，这个目录是用来缓存PTX伪汇编JIT编译后的二进制文件fat binaries，与我们当前的问题无关，感兴趣的朋友可参考<a href="https://devblogs.nvidia.com/cuda-pro-tip-understand-fat-binaries-jit-caching/">Mark Harris的《CUDA Pro Tip: Understand Fat Binaries and JIT Caching》</a>。）要使CUDA runtime API能被正常执行，需要完成上述动态库的加载、内核模块的加载和GPU设备设置。</p>
+
+<p>但以上还只是从系统调用角度来探究的一个必要条件，还有一个条件写过CUDA的朋友应该不陌生，那就是CUDA context（如果你没印象了，可以回顾一下CUDA官方指南中讲<a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#initialization">初始化</a>和<a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#context">context</a>的部分）。我们都知道：所有CUDA的资源（包括分配的内存、CUDA event等等）和操作都只在CUDA context内有效；在第一次调用CUDA runtime API时，如果当前设备没有创建CUDA context，新的context会被创建出来作为当前设备的primary context。这些操作对于CUDA runtime API使用者来说是不透明的，那么又是谁做的呢？让我来引用一下<a href="https://stackoverflow.com/questions/35815597/cuda-call-fails-in-destructor">SOF上某个问题下</a>community wiki的标准答案：</p>
+
+<blockquote><p>The CUDA front end invoked by nvcc silently adds a lot of boilerplate code and translation unit scope objects which perform CUDA context setup and teardown. That code must run before any API calls which rely on a CUDA context can be executed. If your object containing CUDA runtime API calls in its destructor invokes the API after the context is torn down, your code may fail with a runtime error.</p></blockquote>
+
+<p>这段话提供了几个信息：一是<code>nvcc</code>插入了一些代码来完成的CUDA context的创建和销毁所需要做的准备工作，二是CUDA context销毁之后再调用CUDA runtime API就可能会出现runtime error这样的未定义行为（Undefined Behaviour，简称UB）。</p>
+
+<p>接下来让我们来稍微深入地探究一下。我们有若干<code>.cu</code>文件通过<code>nvcc</code>编译后产生的<code>.o</code>文件，还有这些<code>.o</code>文件链接后生成的可执行文件<code>exe</code>。我们通过<code>nm</code>等工具去查看这些<code>.o</code>文件，不难发现这些文件的代码段中都被插入了一个以<code>__sti____cudaRegisterAll_</code>为名字前缀的函数。我们在<code>gdb &lt;exe&gt;</code>中对其中函数设置断点再单步调试，可以看到类似这样的call stack：</p>
+
+<pre><code>(gdb) bt
+#0  0x00002aaab16695c0 in __cudaRegisterFatBinary () at /usr/local/cuda/lib64/libcudart.so.8.0
+#1  0x00002aaaaad3eee1 in __sti____cudaRegisterAll_53_tmpxft_000017c3_00000000_19_im2col_compute_61_cpp1_ii_a0760701() ()
+    at /tmp/tmpxft_000017c3_00000000-4_im2col.compute_61.cudafe1.stub.c:98
+#2  0x00002aaaaaaba3a3 in _dl_init_internal () at /lib64/ld-linux-x86-64.so.2
+#3  0x00002aaaaaaac46a in _dl_start_user () at /lib64/ld-linux-x86-64.so.2
+#4  0x0000000000000001 in  ()
+#5  0x00007fffffffe2a8 in  ()
+#6  0x0000000000000000 in  ()
+</code></pre>
+
+<p>再执行若干步，call stack就变成：</p>
+
+<pre><code>(gdb) bt
+#0  0x00002aaab16692b0 in __cudaRegisterFunction () at /usr/local/cuda/lib64/libcudart.so.8.0
+#1  0x00002aaaaad3ef3e in __sti____cudaRegisterAll_53_tmpxft_000017c3_00000000_19_im2col_compute_61_cpp1_ii_a0760701() (__T263=0x7c4b30)
+    at /tmp/tmpxft_000017c3_00000000-4_im2col.compute_61.cudafe1.stub.c:97
+#2  0x00002aaaaad3ef3e in __sti____cudaRegisterAll_53_tmpxft_000017c3_00000000_19_im2col_compute_61_cpp1_ii_a0760701() ()
+    at /tmp/tmpxft_000017c3_00000000-4_im2col.compute_61.cudafe1.stub.c:98
+#3  0x00002aaaaaaba3a3 in _dl_init_internal () at /lib64/ld-linux-x86-64.so.2
+#4  0x00002aaaaaaac46a in _dl_start_user () at /lib64/ld-linux-x86-64.so.2
+#5  0x0000000000000001 in  ()
+#6  0x00007fffffffe2a8 in  ()
+#7  0x0000000000000000 in  ()
+</code></pre>
+
+<pre><code>(gdb) bt
+#0  0x00002aaaaae8ea20 in atexit () at XXX.so
+#1  0x00002aaaaaaba3a3 in _dl_init_internal () at /lib64/ld-linux-x86-64.so.2
+#2  0x00002aaaaaaac46a in _dl_start_user () at /lib64/ld-linux-x86-64.so.2
+#3  0x0000000000000001 in  ()
+#4  0x00007fffffffe2a8 in  ()
+#5  0x0000000000000000 in  ()
+</code></pre>
+
+<p>那么CUDA context何时被创建完成呢？通过对<code>cuInit</code>设置断点可以发现，与官方指南的描述一致，也就是在进入<code>main</code>函数之后调用第一个CUDA runtime API的时候：</p>
+
+<pre><code>(gdb) bt
+#0  0x00002aaab1ab7440 in cuInit () at /lib64/libcuda.so.1
+#1  0x00002aaab167add5 in  () at /usr/local/cuda/lib64/libcudart.so.8.0
+#2  0x00002aaab167ae31 in  () at /usr/local/cuda/lib64/libcudart.so.8.0
+#3  0x00002aaabe416bb0 in pthread_once () at /lib64/libpthread.so.0
+#4  0x00002aaab16ad919 in  () at /usr/local/cuda/lib64/libcudart.so.8.0
+#5  0x00002aaab167700a in  () at /usr/local/cuda/lib64/libcudart.so.8.0
+#6  0x00002aaab167aceb in  () at /usr/local/cuda/lib64/libcudart.so.8.0
+#7  0x00002aaab16a000a in cudaGetDevice () at /usr/local/cuda/lib64/libcudart.so.8.0
+...
+#10 0x0000000000405d77 in main(int, char**) (argc=&lt;optimized out&gt;, argv=&lt;optimized out&gt;)
+</code></pre>
+
+<p>其中，和context创建相关的若干函数就在<code>${CUDA_PATH}/include/crt/host_runtime.h</code>中声明过：</p>
+
+<pre><code class="cpp">#define __cudaRegisterBinary(X)                                                   \
+        __cudaFatCubinHandle = __cudaRegisterFatBinary((void*)&amp;__fatDeviceText); \
+        { void (*callback_fp)(void **) =  (void (*)(void **))(X); (*callback_fp)(__cudaFatCubinHandle); }\
+        atexit(__cudaUnregisterBinaryUtil)
+
+
+extern "C" {
+extern void** CUDARTAPI __cudaRegisterFatBinary(
+  void *fatCubin
+);
+
+extern void CUDARTAPI __cudaUnregisterFatBinary(
+  void **fatCubinHandle
+);
+
+extern void CUDARTAPI __cudaRegisterFunction(
+        void   **fatCubinHandle,
+  const char    *hostFun,
+        char    *deviceFun,
+  const char    *deviceName,
+        int      thread_limit,
+        uint3   *tid,
+        uint3   *bid,
+        dim3    *bDim,
+        dim3    *gDim,
+        int     *wSize
+);
+}
+
+static void **__cudaFatCubinHandle;
+
+static void __cdecl __cudaUnregisterBinaryUtil(void)
+{
+  ____nv_dummy_param_ref((void *)&amp;__cudaFatCubinHandle);
+  __cudaUnregisterFatBinary(__cudaFatCubinHandle);
+}
+</code></pre>
+
+<p>但这些函数都没有文档，<a href="http://people.cs.pitt.edu/~yongli/notes/gpgpu/GPGPUSIMNotes.html">Yong Li博士写的《GPGPU-SIM Code Study》</a>稍微详细一些，我就直接贴过来了：</p>
+
+<blockquote><p>The simplest way to look at how nvcc compiles the ECS (Execution Configuration Syntax) and manages kernel code is to use nvcc’s <code>--cuda</code> switch. This generates a .cu.c file that can be compiled and linked without any support from NVIDIA proprietary tools. It can be thought of as CUDA source files in open source C. Inspection of this file verified how the ECS is managed, and showed how kernel code was managed.</p>
+
+<ol>
+<li><p>Device code is embedded as a fat binary object in the executable’s <code>.rodata</code> section. It has variable length depending on the kernel code.</p></li>
+<li><p>For each kernel, a host function with the same name as the kernel is added to the source code.</p></li>
+<li><p>Before <code>main(..)</code> is called, a function called <code>cudaRegisterAll(..)</code> performs the following work:</p></li>
+</ol>
+
+
+<p>• Calls a registration function, <code>cudaRegisterFatBinary(..)</code>, with a void pointer to the fat binary data. This is where we can access the kernel code directly.</p>
+
+<p>• For each kernel in the source file, a device function registration function, <code>cudaRegisterFunction(..)</code>, is called. With the list of parameters is a pointer to the function mentioned in step 2.</p>
+
+<ol>
+<li>As aforementioned, each ECS is replaced with the following function calls from the execution management category of the CUDA runtime API.</li>
+</ol>
+
+
+<p>• <code>cudaConfigureCall(..)</code> is called once to set up the launch configuration.</p>
+
+<p>• The function from the second step is called. This calls another function, in which, <code>cudaSetupArgument(..)</code> is called once for each kernel parameter. Then, <code>cudaLaunch(..)</code> launches the kernel with a pointer to the function from the second step.</p>
+
+<ol>
+<li>An unregister function, <code>cudaUnregisterBinaryUtil(..)</code>, is called with a handle to the fatbin data on program exit.</li>
+</ol>
+</blockquote>
+
+<p>其中，<code>cudaConfigureCall</code>、<code>cudaSetupArgument</code>、<code>cudaLaunch</code>在CUDA7.5以后已经“过气”（deprecated）了，由于这些并不是在进入<code>main</code>函数之前会被调用的API，我们可以不用管。我们需要关注的是，在<code>main</code>函数被调用之前，<code>nvcc</code>加入的内部初始化代码做了以下几件事情（我们可以结合上面<code>host_runtime.h</code>头文件暴露出的接口和相关call stack来确认）：</p>
+
+<ol>
+<li>通过<code>__cudaRegisterFatBinary</code>注册fat binary入口函数。这是CUDA context创建的准备工作之一，如果在<code>__cudaRegisterFatBinary</code>执行之前调用CUDA runtime API很可能也会出现UB。SOF上就有这样一个问题，题主在<code>static</code>对象构造函数中调用了kernel函数，结果就出现了"invalid device function"错误，SOF上的<a href="https://stackoverflow.com/questions/24869167/trouble-launching-cuda-kernels-from-static-initialization-code/24883665#24883665">CUDA大神talonmies的答案</a>就探究了<code>static</code>对象构造函数和<code>__cudaRegisterFatBinary</code>的调用顺序及其产生的问题，非常推荐一读。</li>
+<li>通过<code>__cudaRegisterFunction</code>注册每个device的kernel函数</li>
+<li>通过<code>atexit</code>注册<code>__cudaUnregisterBinaryUtil</code>的注销函数。这个函数是CUDA context销毁的清理工作之一，前面提到，CUDA context销毁之后CUDA runtime API就很可能无法再被正常使用了，换言之，如果CUDA runtime API在<code>__cudaUnregisterBinaryUtil</code>执行完后被调用就有可能是UB。而<code>__cudaUnregisterBinaryUtil</code>在什么时候被调用又是符合<a href="http://en.cppreference.com/w/cpp/utility/program/atexit"><code>atexit</code></a>规则的——在<code>main</code>函数执行完后程序<code>exit</code>的某阶段被调用（<code>main</code>函数的执行过程可以参考<a href="http://umumble.com/blogs/development/the-thorny-path-of-hello-world/">这篇文章</a>）——这也是我们理解和解决<code>cudaErrorCudartUnloading</code>问题的关键之处。</li>
+</ol>
+
+
+<p>{% img /images/cudaErrorCudartUnloading/main-procedure.png %}</p>
+
+<h1>一切皆全局对象之过</h1>
+
+<p>吃透本码渣上述啰里啰唆的理论后，再通过代码来排查<code>cudaErrorCudartUnloading</code>问题就简单了。原来，竟和之前提过的<a href="https://stackoverflow.com/questions/35815597/cuda-call-fails-in-destructor">SOF上的问题</a>相似，我们代码中也使用了一个全局<code>static</code> singleton对象，在singleton对象的析构函数中调用CUDA runtime API来执行释放内存等操作。而我们知道，<code>static</code>对象是在<code>main</code>函数执行完后<code>exit</code>进行析构的，而之前提到<code>__cudaUnregisterBinaryUtil</code>也是在这个阶段被调用，这两者的顺序是未定义的。如果<code>__cudaUnregisterBinaryUtil</code>等清理context的操作在<code>static</code>对象析构之前就调用了，就会产生<code>cudaErrorCudartUnloading</code>报错。这种UB也解释了，为何之前我们的库链接出来的不同可执行文件，有的会出现这个问题而有的不会。</p>
+
+<h1>解决方案</h1>
+
+<p>在github上搜<code>cudaErrorCudartUnloading</code>相关的patch，处理方式也是五花八门，这里姑且列举几种。</p>
+
+<h2>跳过<code>cudaErrorCudartUnloading</code>检查</h2>
+
+<p>比如<a href="https://github.com/arrayfire/arrayfire/pull/170">arrayfire项目的这个patch</a>。可以，这很佛系（滑稽）</p>
+
+<pre><code class="cpp">-    CUDA_CHECK(cudaFree(ptr));
++    cudaError_t err = cudaFree(ptr);
++    if (err != cudaErrorCudartUnloading) // see issue #167
++        CUDA_CHECK(err);
+</code></pre>
+
+<h2>干脆把可能会有<code>cudaErrorCudartUnloading</code>的CUDA runtime API去掉</h2>
+
+<p>比如kaldi项目的<a href="https://github.com/kaldi-asr/kaldi/issues/2178">这个issue</a>和<a href="https://github.com/kaldi-asr/kaldi/pull/2185">PR</a>。论佛系，谁都不服就服你（滑稽）</p>
+
+<h2>把CUDA runtime API放到一个独立的de-initialisation、finalize之类的接口，让用户在<code>main</code>函数<code>return</code>前调用</h2>
+
+<p>比如MXNet项目的<code>MXNotifyShutdown</code>（参见：<a href="https://github.com/apache/incubator-mxnet/blob/master/src/c_api/c_api.cc">c_api.cc</a>）。佛系了辣么久总算看到了一种符合本程序员审美的“优雅”方案（滑稽）</p>
+
+<p>恰好在SOF另一个问题中，talonmies大神（啊哈，又是talonmies大神！）在<a href="https://stackoverflow.com/questions/16979982/cuda-streams-destruction-and-cudadevicereset/16982503?noredirect=1#comment24536013_16982503">留言</a>里也表达了一样的意思，不能赞同更多啊：</p>
+
+<blockquote><p>The obvious answer is don&rsquo;t put CUDA API calls in the destructor. In your class you have an explicit intialisation method not called through the constructor, so why not have an explicit de-initialisation method as well? That way scope becomes a non-issue</p></blockquote>
+
+<p>上面的方案虽然“优雅”，但对于库维护者却有多了一层隐忧：万一加了个接口，使用者要撕逼呢？（滑稽）万一使用者根本就不鸟你，没在<code>main</code>函数<code>return</code>前调用呢？要说别人打开方式不对，人家还可以说是库的实现不够稳健把你批判一通呢。如果你也有这种隐忧，请接着看接下来的“黑科技”。</p>
+
+<h2>土法黑科技（滑稽）</h2>
+
+<p>首先，CUDA runtime API还是不能放在全局对象析构函数中，那么应该放在什么地方才合适呢？毕竟我们不知道库使用者最后用的是哪个API啊？不过，我们却可以知道库使用者使用什么API时是在<code>main</code>函数的作用域，那个时候是可以创建有效的CUDA context、正常使用CUDA runtime API的。这又和我们析构函数中调用的CUDA runtime API有什么关系呢？你可能还记得吧，前边提到<code>nvcc</code>加入的内部初始化代码通过<code>atexit</code>注册<code>__cudaUnregisterBinaryUtil</code>的注销函数，我们自然也可以如法炮制：</p>
+
+<pre><code class="cpp">// 首先调用一个“无害”的CUDA runtime API，确保在调用`atexit`之前CUDA context已被创建
+// 这样就确保我们通过`atexit`注册的函数在CUDA context相关的销毁函数（例如`__cudaUnregisterBinaryUtil`）之前就被执行
+// “无害”的CUDA runtime API？这里指不会造成影响内存占用等副作用的函数，我采用了`cudaGetDeviceCount`
+// 《The CUDA Handbook》中推荐使用`cudaFree(0);`来完成CUDART初始化CUDA context的过程，这也是可以的
+int gpu_num;
+cudaError_t err = cudaGetDeviceCount(&amp;gpu_num);
+
+std::atexit([](){
+    // 调用原来在全局对象析构函数中的CUDA runtime API
+});
+</code></pre>
+
+<p>那么，应该在哪个地方插入上面的代码呢？解铃还须系铃人，我们的<code>cudaErrorCudartUnloading</code>问题出在<code>static</code> singleton对象身上，但以下singleton的惰性初始化却也给了我们提供了一个绝佳的入口：</p>
+
+<pre><code class="cpp">// OT一下，和本中老年人一样上了年纪的朋友可能知道
+// 以前在C++中要实现线程安全的singleton有多蛋疼
+// 有诸如Double-Checked Locking之类略恶心的写法
+// 但自打用了C++11之后啊，腰不酸了,背不疼了,腿啊也不抽筋了,码代码也有劲儿了（滑稽）
+// 以下实现在C++11标准中是保证线程安全的
+static Singleton&amp; instance()
+{
+     static Singleton s;
+     return s;
+}
+</code></pre>
+
+<p>因为库使用者只会在<code>main</code>函数中通过这个接口使用singleton对象，所以只要在这个接口初始化CUDA context并用<code>atexit</code>注册清理函数就可以辣！当然，作为一位严谨的库作者，你也许会问：不能对库使用者抱任何幻想，万一别人在某个全局变量初始化时调用了呢？Bingo！我只能说目前我们的业务流程可以让库使用者不会想这么写来恶心自己而已&hellip;（捂脸）万一真的有这么作的使用者，这种方法就失效了，使用者会遇到和<a href="https://stackoverflow.com/questions/24869167/trouble-launching-cuda-kernels-from-static-initialization-code">前面提到的SOF某问题</a>相似的报错。毕竟，黑科技也不是万能的啊！</p>
+
+<h1>后记</h1>
+
+<p>解决完<code>cudaErrorCudartUnloading</code>这个问题之后，又接到新的救火任务，排查一个使用加密狗API导致的程序闪退问题。加密狗和<code>cudaErrorCudartUnloading</code>两个问题看似风马牛不相及，本质竟然也是相似的：又是一样的UB现象；又是全局对象；又是在全局对象构造和析构时调用了加密狗API，和加密狗内部的初始化和销毁函数的执行顺序未定义。看来，不乱挖坑还是要有基本的常识——在使用外设设备相关的接口时，要保证在<code>main</code>函数的作用域里啊！</p>
+
+<h1>参考资料</h1>
+
+<ul>
+<li><a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html">《CUDA官方指南》</a></li>
+<li><a href="http://www.cudahandbook.com/">Nicholas Wilt的《The CUDA Handbook》</a></li>
+<li><a href="http://us.download.nvidia.com/XFree86/Linux-x86/367.35/README/installedcomponents.html">《NVIDIA Accelerated Linux Graphics Driver README and Installation Guide》中的“Chapter 5. Listing of Installed Components”</a></li>
+<li><a href="https://devblogs.nvidia.com/cuda-pro-tip-understand-fat-binaries-jit-caching/">CUDA Pro Tip: Understand Fat Binaries and JIT Caching</a></li>
+<li><a href="http://people.cs.pitt.edu/~yongli/notes/gpgpu/GPGPUSIMNotes.html">Yong Li博士写的《GPGPU-SIM Code Study》</a></li>
+<li><a href="http://umumble.com/blogs/development/the-thorny-path-of-hello-world/">The thorny path of Hello World</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[加速CUDA中的一类特殊矩阵乘法]]></title>
+    <link href="http://yszheda.github.io/blog/blog/2014/06/23/optimizing-special-matrix-multiplication-in-cuda/"/>
+    <updated>2014-06-23T20:56:00+08:00</updated>
+    <id>http://yszheda.github.io/blog/blog/2014/06/23/optimizing-special-matrix-multiplication-in-cuda</id>
+    <content type="html"><![CDATA[<p>矩阵乘法是利用GPU加速一般运算的经典范例，在NVIDIA官方的<a href="http://docs.nvidia.com/cuda/cuda-c-programming-guide">CUDA C Programming Guide</a>和<a href="http://docs.nvidia.com/cuda/cuda-c-best-practices-guide">CUDA C Best Practices Guide</a>也都有示范代码来说明如何加速矩阵乘法。本渣这里要介绍的是如何加速矩阵乘法的一类特殊情况——大小悬殊的两个矩阵的乘法。</p>
+
+<p>这里稍稍碎碎念一会，其实这个主题主要来自本渣的论文，而本渣所做的主要是用GPU来加速Reed-Solomon Codes的编解码。这种编解码的过程是矩阵乘法，照例说可以直接使用<a href="https://developer.nvidia.com/cublas">cuBLAS</a>等实现矩阵乘法的CUDA library来做。但由于Reed-Solomon Codes所用到的运算都是定义在伽罗华域（Galois Field）中的，不同于普通的实数运算，所以无法直接调用<a href="https://developer.nvidia.com/cublas">cuBLAS</a>等library。不巧，这些library所开放的API又不允许operator overloading，再加上矩阵乘法的source code也没有开源（<a href="http://icl.cs.utk.edu/magma/">MAGMA</a>倒是个<del>open source</del>公布了代码的library，但是它对矩阵乘法的实现只是调用<a href="https://developer.nvidia.com/cublas">cuBLAS</a>的函数、外加优化某些特殊情况罢了），这使得本渣需要自力更生去琢磨如何加速Reed-Solomon Codes编解码的矩阵乘法。在完成实现之后，本渣发现不少技术细节不足以登学术论文的大雅之堂，于是就想把它们记录进这篇技术文章中。
+在我们的Reed-Solomon Codes的实际应用场景中，用到的是以8-bit byte为一个数值单位的矩阵，矩阵乘法通常是一个小矩阵乘以一个扁长的大矩阵的形式：小矩阵的行数和列数一般不超过三位数，大矩阵的行数即为小矩阵的列数，而大矩阵的列数一般大于百万的数量级。
+虽然本渣的优化主要根据这些实际情况来做，但优化的技巧仍可以拓展到一般的小矩阵乘以大矩阵的情况的。</p>
+
+<!--
+大小悬殊的两个矩阵进行相乘，因此本渣的优化也主要针对小矩阵乘以大矩阵这种矩阵乘法的特殊情况。
+-->
+
+
+<p>在介绍本渣<del>独特</del>的优化技巧之前，让我们先从最简单的做法回顾起：</p>
+
+<!-- more -->
+
+
+<h2>最naive的实现</h2>
+
+<p>下图显示了矩阵乘法的最一般做法：</p>
+
+<p>{% img /images/mm-CUDA/without-tiling.png %}</p>
+
+<p>CUDA pseudo-code如下：</p>
+
+<pre><code class="c++">// input matrix A and B, compute product matrix C
+// A: A_height x A_width
+// B: A_width x B_width
+// C: A_height x B_width
+__global__ void matrix_mul(unsigned char *A, unsigned char *B, unsigned char *C, int A_height, int A_width, int B_width)
+{
+    int bx = blockIdx.x;
+    int by = blockIdx.y;
+    int tx = threadIdx.x;
+    int ty = threadIdx.y;
+    int row, col;
+    // 由于矩阵B列的数目远大于GPU的grid size，所以需要以下的while循环。
+    do {
+        unsigned char product = 0;
+        row = by * blockDim.y + ty;
+        col = bx * blockDim.x + tx;
+        if (row &lt; A_height &amp;&amp; col &lt; B_width) {
+            for (int i = 0; i &lt; A_width; i++) {
+                // 这里姑且假设+和*这两个operator已被overload成Galois Field的加法和乘法。
+                product += A[row * A_width + i] * B[i * B_width + col];
+            }
+            C[row * B_width + col] = product;
+        }
+        bx += gridDim.x;
+        col = bx * blockDim.x + tx;
+    } while (col &lt; B_width);
+}
+</code></pre>
+
+<p>这种最一般的做法不好的原因，一方面是因为矩阵的元素（也就是图中绿色的小方格）是存在GPU的global memory（global memory其实是off-chip的DRAM，access它需要400到800cycles）之中的，而这种做法需要大量access这些元素，因而也造成了大量的global memory transactions；另一方面，这种做法在access矩阵B的元素用了column major的方式，这种方式的locality差，会导致较高的cache missrate。</p>
+
+<h2>Square-Tiling Algorithm</h2>
+
+<p>针对最一般的做法的优化是一种很普遍的算法，有的文献（如Hennessy and Patterson的经典教材《Computer Architecture: A Quantitative Approach》）称为blocking，有的（如CUDA的offical guide）称之为tiling。如下图所示，黄色正方形被称为tile，因此我们这里也称这种algorithm为square-tiling算法。</p>
+
+<p>{% img /images/mm-CUDA/square-tiling.png %}</p>
+
+<p>CUDA pseudo-code如下，在CUDA offical guide上也可以看到类似范例：</p>
+
+<pre><code class="c++">// input matrix A and B, compute product matrix C
+// A: A_height x A_width
+// B: A_width x B_width
+// C: A_height x B_width
+__global__ void matrix_mul(unsigned char *A, unsigned char *B, unsigned char *C, int A_height, int A_width, int B_width)
+{
+    // TILE_SIZE是一个macro
+    __shared__ unsigned char rowVector[TILE_SIZE][TILE_SIZE];
+    __shared__ unsigned char colVector[TILE_SIZE][TILE_SIZE];
+    int bx = blockIdx.x;
+    int by = blockIdx.y;
+    int tx = threadIdx.x;
+    int ty = threadIdx.y;
+    int row, col;
+    // 由于矩阵B列的数目远大于GPU的grid size，所以需要以下的while循环。
+    do {
+        unsigned char product = 0;
+        row = by * TILE_SIZE + ty;
+        col = bx * TILE_SIZE + tx;
+        __syncthreads();
+
+        if (row &lt; A_height &amp;&amp; col &lt; B_width) {
+            // TILE_SIZE可能比A的宽度大，所以需要额外引入bound这个变量来保证不越界。
+            for (int i = 0; i &lt; (int) (ceil((float) A_width / TILE_SIZE)); i++) {
+                int bound = min(A_width, TILE_SIZE);
+                for (int j = tx; j &lt; bound; j += blockDim.x) {
+                    rowVector[ty][j] = A[row * A_width + i * bound + j];
+                }
+                for (int j = ty; j &lt; bound; j += blockDim.y) {
+                    colVector[j][tx] = B[col + (i * bound + j) * B_width];
+                }
+                __syncthreads();
+                for (int j = 0; j &lt; bound; j++) {
+                    // 这里姑且假设+和*这两个operator已被overload成Galois Field的加法和乘法。
+                    product += rowVector[ty][j] * colVector[j][tx];
+                }
+            }
+            C[row * B_width + col] = product;
+        }
+        bx += gridDim.x;
+        col = bx * blockDim.x + tx;
+    } while (col &lt; B_width);
+}
+</code></pre>
+
+<p>这里简单解释一下以上的代码：矩阵A和矩阵B的tile中的元素会从global memory中被load进shared memory（shared memory是on-chip的SRAM，access它需要40个cycles左右），之后在计算中就直接在shared memory中进行access。
+access shared memory的latency要比access global memory的latency低得多。
+tiling algorithm用shared memory作为memory access的cache，既可以改善locality，又可以reuse cache中的elements，从而降低global memory transactions的数量。</p>
+
+<p>但是，square-tiling algorithm应对的一般是矩阵A和B的大小接近的情况，对于Reed-Solomon codes实际编解码的情况并不适用。
+因此，我们还需要对tile的形状进行generalization。</p>
+
+<h2>一般化的Tiling Algorithm</h2>
+
+<p>我的generalization如下图所示：
+{% img /images/mm-CUDA/tiling.png %}</p>
+
+<p>如何调整tile大小的参数（tileWidthRow, tileWidthCol, tileDepth）属于paper的范畴，这里略去不谈，只讲如何写代码。</p>
+
+<p>最简单粗暴的方式是用三个macro：
+```c++
+// input matrix A and B, compute product matrix C
+// A: A_height x A_width
+// B: A_width x B_width
+// C: A_height x B_width
+<strong>global</strong> void matrix_mul(unsigned char <em>A, unsigned char </em>B, unsigned char *C, int A_height, int A_width, int B_width)
+{
+    // TILE_WIDTH_ROW, TILE_WIDTH_COL, TILE_DEPTH都是macro
+    <strong>shared</strong> unsigned char rowVector[TILE_WIDTH_ROW][TILE_DEPTH];
+    <strong>shared</strong> unsigned char colVector[TILE_DEPTH][TILE_WIDTH_COL];
+    int bx = blockIdx.x;
+    int by = blockIdx.y;
+    int tx = threadIdx.x;
+    int ty = threadIdx.y;
+    int row, col;
+    // 由于矩阵B列的数目远大于GPU的grid size，所以需要以下的while循环。
+    do {
+        unsigned char product = 0;
+        row = by * TILE_WIDTH_ROW + ty;
+        col = bx * TILE_WIDTH_COL + tx;
+        __syncthreads();</p>
+
+<pre><code>    if (row &lt; A_height &amp;&amp; col &lt; B_width) {
+        for (int i = 0; i &lt; (int) (ceil((float) A_width / TILE_DEPTH)); i++) {
+            int bound = min(A_width, TILE_DEPTH);
+            for (int j = tx; j &lt; bound; j += blockDim.x) {
+                rowVector[ty][j] = A[row * A_width + i * bound + j];
+            }
+            for (int j = ty; j &lt; bound; j += blockDim.y) {
+                colVector[j][tx] = B[col + (i * bound + j) * B_width];
+            }
+            __syncthreads();
+            for (int j = 0; j &lt; bound; j++) {
+                // 这里姑且假设+和*这两个operator已被overload成Galois Field的加法和乘法。
+                product += rowVector[ty][j] * colVector[j][tx];
+            }
+            __syncthreads();
+        }
+        C[row * B_width + col] = product;
+    }
+    bx += gridDim.x;
+    col = bx * blockDim.x + tx;
+} while (col &lt; B_width);
+</code></pre>
+
+<p>}
+```</p>
+
+<p>这种方式需要在compile time确定三个参数的大小，显然无法满足实际需要。
+本渣的做法是以parameter来代替前面三个macro，当然，这就需要管理一整块shared memory了。
+CUDA pseudo-code如下：</p>
+
+<pre><code class="c++">// input matrix A and B, compute product matrix C
+// A: A_height x A_width
+// B: A_width x B_width
+// C: A_height x B_width
+__global__ void matrix_mul(unsigned char *A, unsigned char *B, unsigned char *C, int A_height, int A_width, int B_width, int tileWidthRow, int tileWidthCol, int tileDepth)
+{
+    extern __shared__ unsigned char sMem[];
+    int rowVectorSize = tileWidthRow * tileDepth;
+    int bx = blockIdx.x;
+    int by = blockIdx.y;
+    int tx = threadIdx.x;
+    int ty = threadIdx.y;
+    int row, col;
+    // 由于矩阵B列的数目远大于GPU的grid size，所以需要以下的while循环。
+    do {
+        unsigned char product = 0;
+        row = by * tileWidthRow + ty;
+        col = bx * tileWidthCol + tx;
+        __syncthreads();
+
+        if (row &lt; A_height &amp;&amp; col &lt; B_width) {
+            // 由于参数可以被runtime决定，这里无需再考虑tileDepth比A的宽度大的情况。
+            for (int j = tx; j &lt; tileDepth; j += blockDim.x) {
+                sMem[ty * tileDepth + j] = A[row * A_width + j];
+            }
+            for (int j = ty; j &lt; tileDepth; j += blockDim.y) {
+                sMem[rowVectorSize + j * tileWidthCol + tx] = B[col + j * B_width];
+            }
+            __syncthreads();
+            // 这里姑且假设+和*这两个operator已被overload成Galois Field的加法和乘法。
+            for (int j = 0; j &lt; tileDepth; j++) {
+                product += sMem[ty * tileDepth + j] * sMem[rowVectorSize + j * tileWidthCol + tx];
+            }
+            __syncthreads();
+            C[row * B_width + col] = product;
+        }
+        bx += gridDim.x;
+        col = bx * blockDim.x + tx;
+    } while (col &lt; B_width);
+}
+</code></pre>
+
+<h2>进一步的优化</h2>
+
+<p>前面提到，Reed-Solomon Codes的矩阵是以8-bit byte为一个数值单位。对于矩阵B的每一行可以被word-aligned的情况，本渣还可以做进一步的优化，以减少ALU的operations数量和global memory transactions。</p>
+
+<p>我们的第一个观察着重于对elements所执行的加法运算。原来的做法是两个8-bit byte相加，但是在GPU中，ALU的操作数和结果的寄存器是32-bit的。我们的做法是在做加法前把4个byte包裹到一个word的寄存器中，保证每次ALU所用的寄存器都被充分使用。</p>
+
+<p>我们的第二个观察是：之前的做法在把矩阵B黄色矩形的elements从global memory load到shared memory的过程中，是一个一个byte同时load进来的，而8-bit是global memory transactions的最低单位（global memory transactions支持8-bit, 16-bit, 32-bit, 64-bit, 128-bit）。我们应该想办法让它每次load更多的bit，从而减少transactions的数量。</p>
+
+<p>在我的实现中，我采用了template以适应word的宽度不同的情况。
+CUDA pseudo-code如下：
+```c++
+// input matrix A and B, compute product matrix C
+// A: A_height x A_width
+// B: A_width x B_width
+// C: A_height x B_width
+template <typename T>
+<strong>global</strong> void matrix_mul(unsigned char <em>A, T </em>B, T *C, int A_height, int A_width, int B_width, int tileWidthRow, int tileWidthCol, int tileDepth)
+{
+    extern <strong>shared</strong> unsigned char sMemBytes[];
+    extern <strong>shared</strong> T sMemWords[];
+    int rowVectorSize = (int) (ceil((float) tileWidthRow * tileDepth / sizeof(T))) * sizeof(T);
+    int bx = blockIdx.x;
+    int by = blockIdx.y;
+    int tx = threadIdx.x;
+    int ty = threadIdx.y;
+    int row, col;
+    // 由于矩阵B列的数目远大于GPU的grid size，所以需要以下的while循环。
+    do {
+        T product = 0;
+        row = by * tileWidthRow + ty;
+        col = bx * tileWidthCol + tx;
+        __syncthreads();</p>
+
+<pre><code>    if (row &lt; A_height &amp;&amp; col &lt; B_width) {
+        // 由于参数可以被runtime决定，这里无需再考虑tileDepth比A的宽度大的情况。
+        for (int j = tx; j &lt; tileDepth; j += blockDim.x) {
+            sMemBytes[ty * tileDepth + j] = A[row * A_width + j];
+        }
+        for (int j = ty; j &lt; tileDepth; j += blockDim.y) {
+            sMemWords[rowVectorSize / sizeof(T) + j * tileWidthCol + tx] = B[col + j * B_width];
+        }
+        __syncthreads();
+        // 这里姑且假设+和*这两个operator已被overload成Galois Field的加法和乘法。
+        for (int j = 0; j &lt; tileDepth; j++) {
+            T C_word_item = 0;
+            unsigned char *C_byte_item = (unsigned char *) &amp;C_word_item;
+            for (int k = 0; k &lt; sizeof(T); k++) {
+                C_byte_item[k] += sMemBytes[ty * tileDepth + j] * sMemBytes[rowVectorSize + (j * tileWidthCol + tx) * sizeof(T) + k];
+            }
+            product += C_word_item;
+        }
+        __syncthreads();
+        C[row * B_width + col] = product;
+    }
+    bx += gridDim.x;
+    col = bx * blockDim.x + tx;
+} while (col &lt; B_width);
+</code></pre>
+
+<p>}
+```</p>
+
+<p>这里简要说明一下，以下两个pointer(sMemBytes和sMemWords)实际上指向同一块内存地址（这个性质请参考各类CUDA入门资料）。这里declare两次是为了方便用不同的类型对同一块内存进行操作。
+<code>c++
+    extern __shared__ unsigned char sMemBytes[];
+    extern __shared__ T sMemWords[];
+</code></p>
+
+<h2>后记</h2>
+
+<p>本渣已通过了答辩，本文所涉及的内容可以参考本渣答辩时的<a href="http://yszheda.github.io/GPU-RSCode/thesis?transition=none#/5">slides</a>，里面做了一些动画。</p>
+]]></content>
+  </entry>
+  
+</feed>

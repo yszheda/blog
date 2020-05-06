@@ -1,0 +1,1305 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: tech | My Octopress Blog]]></title>
+  <link href="http://yszheda.github.io/blog/blog/categories/tech/atom.xml" rel="self"/>
+  <link href="http://yszheda.github.io/blog/"/>
+  <updated>2020-05-06T20:46:12+08:00</updated>
+  <id>http://yszheda.github.io/blog/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[cudaErrorCudartUnloading问题排查及建议方案]]></title>
+    <link href="http://yszheda.github.io/blog/blog/2018/05/22/cudaErrorCudartUnloading/"/>
+    <updated>2018-05-22T22:00:00+08:00</updated>
+    <id>http://yszheda.github.io/blog/blog/2018/05/22/cudaErrorCudartUnloading</id>
+    <content type="html"><![CDATA[<p>最近一段时间一直在负责做我厂神经网络前向框架库的优化，前几天接了一个bug report，报错信息大体是这样的：</p>
+
+<pre><code>Program hit cudaErrorCudartUnloading (error 29) due to "driver shutting down" on CUDA API call to cudaFreeHost.
+</code></pre>
+
+<p>同样的库链接出来的可执行文件，有的会出现这种问题有的不会，一开始让我很自然以为是使用库的应用程序出了bug。排除了这种可能之后，这句话最后的<code>cudaFreeHost</code>又让我想当然地以为是个内存相关的问题，折腾了一阵后才发现方向又双叒叕错了。而且我发现，无论我在报错的那段代码前使用任何CUDA runtime API，都会出现这个错误。
+后来在网上查找相关信息，以下的bug report虽然没有具体解决方案，但相似的call stack让我怀疑这和我遇到的是同一个问题，而且也让我把怀疑的目光聚焦在"driver shutting down"而非<code>cudaFreeHost</code>上。</p>
+
+<ul>
+<li><p><a href="https://github.com/opencv/opencv/issues/7816">https://github.com/opencv/opencv/issues/7816</a></p></li>
+<li><p><a href="https://github.com/BVLC/caffe/issues/6281">https://github.com/BVLC/caffe/issues/6281</a></p></li>
+<li><p><a href="https://stackoverflow.com/questions/40979060/cudaerrorcudartunloading-error-29-due-to-driver-shutting-down">https://stackoverflow.com/questions/40979060/cudaerrorcudartunloading-error-29-due-to-driver-shutting-down</a></p></li>
+<li><p><a href="https://github.com/NVlabs/SASSI/issues/4">https://github.com/NVlabs/SASSI/issues/4</a></p></li>
+<li><p><a href="https://blog.csdn.net/jobbofhe/article/details/79386160">https://blog.csdn.net/jobbofhe/article/details/79386160</a></p></li>
+</ul>
+
+
+<h1>强制阻止"driver shutting down"？</h1>
+
+<p>首先一个看似理所当然的思路是：我们能否在使用CUDA API时防止CUDA driver不被shutdown呢？问题在于"driver shutting down"究竟指的是什么？如果从<code>cudaErrorCudartUnloading</code>的字面意思来讲，很可能是指cuda_runtime的library被卸载了。
+由于我们用的是动态链接库，于是我尝试在报错的地方前加上<code>dlopen</code>强制加载<code>libcuda_runtime.so</code>。改完后马上发现不对，如果是动态库被卸载，理应是调用CUDA API时发现相关symbol都没有定义才对，而不应该是可以正常调用动态库的函数、然后返回error code这样的runtime error现象。
+此外，我通过<code>strace</code>发现，还有诸如<code>libcuda.so</code>、<code>libnvidia-fatbinaryloader.so</code>之类的动态库会被加载，都要试一遍并不现实。何况和CUDA相关的动态库并不少（可参考<a href="http://us.download.nvidia.com/XFree86/Linux-x86/367.35/README/installedcomponents.html">《NVIDIA Accelerated Linux Graphics Driver README and Installation Guide》中的“Chapter 5. Listing of Installed Components”</a>），不同的程序依赖的动态库也不尽相同，上述做法即使可行，也很难通用。</p>
+
+<p>无独有偶，在nvidia开发者论坛上也有开发者有<a href="https://devtalk.nvidia.com/default/topic/1019780/?comment=5191690">类似的想法</a>，被官方人士否定了：</p>
+
+<blockquote><p>For instance, can I have my class maintain certain variables/handles that will force cuda run time library to stay loaded.</p>
+
+<p>No. It is a bad design practice to put calls to the CUDA runtime API in constructors that may run before main and destructors that may run after main.</p></blockquote>
+
+<h1>如何使CUDA runtime API正常运作？</h1>
+
+<p>对于CUDA应用程序开发者而言，我们通常是通过调用CUDA runtime API来向GPU设备下达我们的指令。所以首先让我们来看，在程序中调用CUDA runtime API时，有什么角色参与了进来。我从<a href="http://www.cudahandbook.com/">Nicholas Wilt的《The CUDA Handbook》</a>中借了一张图：</p>
+
+<p>{% img /images/cudaErrorCudartUnloading/CUDA-software-layers.png %}</p>
+
+<p>我们可以看到，主要的角色有：运行在操作系统的User Mode下的CUDART(CUDA Runtime) library（对于动态库来说就是上文提到的<code>libcuda_runtime.so</code>）和CUDA driver library（对于动态库来说就是上文提到的<code>libcuda.so</code>），还有运行在Kernel Mode下的CUDA driver内核模块。众所周知，我们的CUDA应用程序是运行在操作系统的User Mode下的，无法直接操作GPU硬件，在操作系统中有权控制GPU硬件的是运行在Kernel Mode下的内核模块（OT一下，作为CUDA使用者，我们很少能感觉到这些内核模块的存在，也它们许最有存在感的时候就是我们遇上<code>Driver/library version mismatch</code>错误了XD）。在Linux下我们可以通过<code>lsmod | grep nvidia</code>来查看这些内核模块，通常有管理Unified Memory的<code>nvidia_uvm</code>、Linux内核<a href="https://dri.freedesktop.org/wiki/DRM/">Direct Rendering Manager</a>显示驱动<code>nvidia_drm</code>、还有<code>nvidia_modeset</code>。与这些内核模块沟通的是运行在User Mode下的CUDA driver library，我们所调用的CUDA runtime API会被CUDART library转换成一系列CUDA driver API，交由CUDA driver library这个连接CUDA内核模块与其他运行在User Mode下CUDA library的中介。</p>
+
+<p>那么，要使CUDA runtime API所表示的指令能被正常传达到GPU，就需要上述角色都能通力协作了。这就自然引发一个问题：在我们的程序运行的时候，这些角色什么时候开始/结束工作？它们什么时候被初始化？我们不妨<code>strace</code>看一下CUDA应用程序的系统调用：
+首先，<code>libcuda_runtime.so</code>、<code>libcuda.so</code>、<code>libnvidia-fatbinaryloader.so</code>等动态库被加载。当前被加载进内核的内核模块列表文件<code>/proc/modules</code>被读取，由于<code>nvidia_uvm</code>、<code>nvidia_drm</code>等模块之前已被加载，所以不需要额外<code>insmod</code>。接下来，设备参数文件<code>/proc/driver/nvidia/params</code>被读取，相关的设备——如<code>/dev/nvidia0</code>（GPU卡0）、<code>/dev/nvidia-uvm</code>（看名字自然与Unified Memory有关，可能是Pascal体系Nvidia GPU的Page Migration Engine）、<code>/dev/nvidiactl</code>等——被打开，并通过<code>ioctl</code>初始化设定。（此外，还有home目录下<code>~/.nv/ComputeCache</code>的一些文件被使用，这个目录是用来缓存PTX伪汇编JIT编译后的二进制文件fat binaries，与我们当前的问题无关，感兴趣的朋友可参考<a href="https://devblogs.nvidia.com/cuda-pro-tip-understand-fat-binaries-jit-caching/">Mark Harris的《CUDA Pro Tip: Understand Fat Binaries and JIT Caching》</a>。）要使CUDA runtime API能被正常执行，需要完成上述动态库的加载、内核模块的加载和GPU设备设置。</p>
+
+<p>但以上还只是从系统调用角度来探究的一个必要条件，还有一个条件写过CUDA的朋友应该不陌生，那就是CUDA context（如果你没印象了，可以回顾一下CUDA官方指南中讲<a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#initialization">初始化</a>和<a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#context">context</a>的部分）。我们都知道：所有CUDA的资源（包括分配的内存、CUDA event等等）和操作都只在CUDA context内有效；在第一次调用CUDA runtime API时，如果当前设备没有创建CUDA context，新的context会被创建出来作为当前设备的primary context。这些操作对于CUDA runtime API使用者来说是不透明的，那么又是谁做的呢？让我来引用一下<a href="https://stackoverflow.com/questions/35815597/cuda-call-fails-in-destructor">SOF上某个问题下</a>community wiki的标准答案：</p>
+
+<blockquote><p>The CUDA front end invoked by nvcc silently adds a lot of boilerplate code and translation unit scope objects which perform CUDA context setup and teardown. That code must run before any API calls which rely on a CUDA context can be executed. If your object containing CUDA runtime API calls in its destructor invokes the API after the context is torn down, your code may fail with a runtime error.</p></blockquote>
+
+<p>这段话提供了几个信息：一是<code>nvcc</code>插入了一些代码来完成的CUDA context的创建和销毁所需要做的准备工作，二是CUDA context销毁之后再调用CUDA runtime API就可能会出现runtime error这样的未定义行为（Undefined Behaviour，简称UB）。</p>
+
+<p>接下来让我们来稍微深入地探究一下。我们有若干<code>.cu</code>文件通过<code>nvcc</code>编译后产生的<code>.o</code>文件，还有这些<code>.o</code>文件链接后生成的可执行文件<code>exe</code>。我们通过<code>nm</code>等工具去查看这些<code>.o</code>文件，不难发现这些文件的代码段中都被插入了一个以<code>__sti____cudaRegisterAll_</code>为名字前缀的函数。我们在<code>gdb &lt;exe&gt;</code>中对其中函数设置断点再单步调试，可以看到类似这样的call stack：</p>
+
+<pre><code>(gdb) bt
+#0  0x00002aaab16695c0 in __cudaRegisterFatBinary () at /usr/local/cuda/lib64/libcudart.so.8.0
+#1  0x00002aaaaad3eee1 in __sti____cudaRegisterAll_53_tmpxft_000017c3_00000000_19_im2col_compute_61_cpp1_ii_a0760701() ()
+    at /tmp/tmpxft_000017c3_00000000-4_im2col.compute_61.cudafe1.stub.c:98
+#2  0x00002aaaaaaba3a3 in _dl_init_internal () at /lib64/ld-linux-x86-64.so.2
+#3  0x00002aaaaaaac46a in _dl_start_user () at /lib64/ld-linux-x86-64.so.2
+#4  0x0000000000000001 in  ()
+#5  0x00007fffffffe2a8 in  ()
+#6  0x0000000000000000 in  ()
+</code></pre>
+
+<p>再执行若干步，call stack就变成：</p>
+
+<pre><code>(gdb) bt
+#0  0x00002aaab16692b0 in __cudaRegisterFunction () at /usr/local/cuda/lib64/libcudart.so.8.0
+#1  0x00002aaaaad3ef3e in __sti____cudaRegisterAll_53_tmpxft_000017c3_00000000_19_im2col_compute_61_cpp1_ii_a0760701() (__T263=0x7c4b30)
+    at /tmp/tmpxft_000017c3_00000000-4_im2col.compute_61.cudafe1.stub.c:97
+#2  0x00002aaaaad3ef3e in __sti____cudaRegisterAll_53_tmpxft_000017c3_00000000_19_im2col_compute_61_cpp1_ii_a0760701() ()
+    at /tmp/tmpxft_000017c3_00000000-4_im2col.compute_61.cudafe1.stub.c:98
+#3  0x00002aaaaaaba3a3 in _dl_init_internal () at /lib64/ld-linux-x86-64.so.2
+#4  0x00002aaaaaaac46a in _dl_start_user () at /lib64/ld-linux-x86-64.so.2
+#5  0x0000000000000001 in  ()
+#6  0x00007fffffffe2a8 in  ()
+#7  0x0000000000000000 in  ()
+</code></pre>
+
+<pre><code>(gdb) bt
+#0  0x00002aaaaae8ea20 in atexit () at XXX.so
+#1  0x00002aaaaaaba3a3 in _dl_init_internal () at /lib64/ld-linux-x86-64.so.2
+#2  0x00002aaaaaaac46a in _dl_start_user () at /lib64/ld-linux-x86-64.so.2
+#3  0x0000000000000001 in  ()
+#4  0x00007fffffffe2a8 in  ()
+#5  0x0000000000000000 in  ()
+</code></pre>
+
+<p>那么CUDA context何时被创建完成呢？通过对<code>cuInit</code>设置断点可以发现，与官方指南的描述一致，也就是在进入<code>main</code>函数之后调用第一个CUDA runtime API的时候：</p>
+
+<pre><code>(gdb) bt
+#0  0x00002aaab1ab7440 in cuInit () at /lib64/libcuda.so.1
+#1  0x00002aaab167add5 in  () at /usr/local/cuda/lib64/libcudart.so.8.0
+#2  0x00002aaab167ae31 in  () at /usr/local/cuda/lib64/libcudart.so.8.0
+#3  0x00002aaabe416bb0 in pthread_once () at /lib64/libpthread.so.0
+#4  0x00002aaab16ad919 in  () at /usr/local/cuda/lib64/libcudart.so.8.0
+#5  0x00002aaab167700a in  () at /usr/local/cuda/lib64/libcudart.so.8.0
+#6  0x00002aaab167aceb in  () at /usr/local/cuda/lib64/libcudart.so.8.0
+#7  0x00002aaab16a000a in cudaGetDevice () at /usr/local/cuda/lib64/libcudart.so.8.0
+...
+#10 0x0000000000405d77 in main(int, char**) (argc=&lt;optimized out&gt;, argv=&lt;optimized out&gt;)
+</code></pre>
+
+<p>其中，和context创建相关的若干函数就在<code>${CUDA_PATH}/include/crt/host_runtime.h</code>中声明过：</p>
+
+<pre><code class="cpp">#define __cudaRegisterBinary(X)                                                   \
+        __cudaFatCubinHandle = __cudaRegisterFatBinary((void*)&amp;__fatDeviceText); \
+        { void (*callback_fp)(void **) =  (void (*)(void **))(X); (*callback_fp)(__cudaFatCubinHandle); }\
+        atexit(__cudaUnregisterBinaryUtil)
+
+
+extern "C" {
+extern void** CUDARTAPI __cudaRegisterFatBinary(
+  void *fatCubin
+);
+
+extern void CUDARTAPI __cudaUnregisterFatBinary(
+  void **fatCubinHandle
+);
+
+extern void CUDARTAPI __cudaRegisterFunction(
+        void   **fatCubinHandle,
+  const char    *hostFun,
+        char    *deviceFun,
+  const char    *deviceName,
+        int      thread_limit,
+        uint3   *tid,
+        uint3   *bid,
+        dim3    *bDim,
+        dim3    *gDim,
+        int     *wSize
+);
+}
+
+static void **__cudaFatCubinHandle;
+
+static void __cdecl __cudaUnregisterBinaryUtil(void)
+{
+  ____nv_dummy_param_ref((void *)&amp;__cudaFatCubinHandle);
+  __cudaUnregisterFatBinary(__cudaFatCubinHandle);
+}
+</code></pre>
+
+<p>但这些函数都没有文档，<a href="http://people.cs.pitt.edu/~yongli/notes/gpgpu/GPGPUSIMNotes.html">Yong Li博士写的《GPGPU-SIM Code Study》</a>稍微详细一些，我就直接贴过来了：</p>
+
+<blockquote><p>The simplest way to look at how nvcc compiles the ECS (Execution Configuration Syntax) and manages kernel code is to use nvcc’s <code>--cuda</code> switch. This generates a .cu.c file that can be compiled and linked without any support from NVIDIA proprietary tools. It can be thought of as CUDA source files in open source C. Inspection of this file verified how the ECS is managed, and showed how kernel code was managed.</p>
+
+<ol>
+<li><p>Device code is embedded as a fat binary object in the executable’s <code>.rodata</code> section. It has variable length depending on the kernel code.</p></li>
+<li><p>For each kernel, a host function with the same name as the kernel is added to the source code.</p></li>
+<li><p>Before <code>main(..)</code> is called, a function called <code>cudaRegisterAll(..)</code> performs the following work:</p></li>
+</ol>
+
+
+<p>• Calls a registration function, <code>cudaRegisterFatBinary(..)</code>, with a void pointer to the fat binary data. This is where we can access the kernel code directly.</p>
+
+<p>• For each kernel in the source file, a device function registration function, <code>cudaRegisterFunction(..)</code>, is called. With the list of parameters is a pointer to the function mentioned in step 2.</p>
+
+<ol>
+<li>As aforementioned, each ECS is replaced with the following function calls from the execution management category of the CUDA runtime API.</li>
+</ol>
+
+
+<p>• <code>cudaConfigureCall(..)</code> is called once to set up the launch configuration.</p>
+
+<p>• The function from the second step is called. This calls another function, in which, <code>cudaSetupArgument(..)</code> is called once for each kernel parameter. Then, <code>cudaLaunch(..)</code> launches the kernel with a pointer to the function from the second step.</p>
+
+<ol>
+<li>An unregister function, <code>cudaUnregisterBinaryUtil(..)</code>, is called with a handle to the fatbin data on program exit.</li>
+</ol>
+</blockquote>
+
+<p>其中，<code>cudaConfigureCall</code>、<code>cudaSetupArgument</code>、<code>cudaLaunch</code>在CUDA7.5以后已经“过气”（deprecated）了，由于这些并不是在进入<code>main</code>函数之前会被调用的API，我们可以不用管。我们需要关注的是，在<code>main</code>函数被调用之前，<code>nvcc</code>加入的内部初始化代码做了以下几件事情（我们可以结合上面<code>host_runtime.h</code>头文件暴露出的接口和相关call stack来确认）：</p>
+
+<ol>
+<li>通过<code>__cudaRegisterFatBinary</code>注册fat binary入口函数。这是CUDA context创建的准备工作之一，如果在<code>__cudaRegisterFatBinary</code>执行之前调用CUDA runtime API很可能也会出现UB。SOF上就有这样一个问题，题主在<code>static</code>对象构造函数中调用了kernel函数，结果就出现了"invalid device function"错误，SOF上的<a href="https://stackoverflow.com/questions/24869167/trouble-launching-cuda-kernels-from-static-initialization-code/24883665#24883665">CUDA大神talonmies的答案</a>就探究了<code>static</code>对象构造函数和<code>__cudaRegisterFatBinary</code>的调用顺序及其产生的问题，非常推荐一读。</li>
+<li>通过<code>__cudaRegisterFunction</code>注册每个device的kernel函数</li>
+<li>通过<code>atexit</code>注册<code>__cudaUnregisterBinaryUtil</code>的注销函数。这个函数是CUDA context销毁的清理工作之一，前面提到，CUDA context销毁之后CUDA runtime API就很可能无法再被正常使用了，换言之，如果CUDA runtime API在<code>__cudaUnregisterBinaryUtil</code>执行完后被调用就有可能是UB。而<code>__cudaUnregisterBinaryUtil</code>在什么时候被调用又是符合<a href="http://en.cppreference.com/w/cpp/utility/program/atexit"><code>atexit</code></a>规则的——在<code>main</code>函数执行完后程序<code>exit</code>的某阶段被调用（<code>main</code>函数的执行过程可以参考<a href="http://umumble.com/blogs/development/the-thorny-path-of-hello-world/">这篇文章</a>）——这也是我们理解和解决<code>cudaErrorCudartUnloading</code>问题的关键之处。</li>
+</ol>
+
+
+<p>{% img /images/cudaErrorCudartUnloading/main-procedure.png %}</p>
+
+<h1>一切皆全局对象之过</h1>
+
+<p>吃透本码渣上述啰里啰唆的理论后，再通过代码来排查<code>cudaErrorCudartUnloading</code>问题就简单了。原来，竟和之前提过的<a href="https://stackoverflow.com/questions/35815597/cuda-call-fails-in-destructor">SOF上的问题</a>相似，我们代码中也使用了一个全局<code>static</code> singleton对象，在singleton对象的析构函数中调用CUDA runtime API来执行释放内存等操作。而我们知道，<code>static</code>对象是在<code>main</code>函数执行完后<code>exit</code>进行析构的，而之前提到<code>__cudaUnregisterBinaryUtil</code>也是在这个阶段被调用，这两者的顺序是未定义的。如果<code>__cudaUnregisterBinaryUtil</code>等清理context的操作在<code>static</code>对象析构之前就调用了，就会产生<code>cudaErrorCudartUnloading</code>报错。这种UB也解释了，为何之前我们的库链接出来的不同可执行文件，有的会出现这个问题而有的不会。</p>
+
+<h1>解决方案</h1>
+
+<p>在github上搜<code>cudaErrorCudartUnloading</code>相关的patch，处理方式也是五花八门，这里姑且列举几种。</p>
+
+<h2>跳过<code>cudaErrorCudartUnloading</code>检查</h2>
+
+<p>比如<a href="https://github.com/arrayfire/arrayfire/pull/170">arrayfire项目的这个patch</a>。可以，这很佛系（滑稽）</p>
+
+<pre><code class="cpp">-    CUDA_CHECK(cudaFree(ptr));
++    cudaError_t err = cudaFree(ptr);
++    if (err != cudaErrorCudartUnloading) // see issue #167
++        CUDA_CHECK(err);
+</code></pre>
+
+<h2>干脆把可能会有<code>cudaErrorCudartUnloading</code>的CUDA runtime API去掉</h2>
+
+<p>比如kaldi项目的<a href="https://github.com/kaldi-asr/kaldi/issues/2178">这个issue</a>和<a href="https://github.com/kaldi-asr/kaldi/pull/2185">PR</a>。论佛系，谁都不服就服你（滑稽）</p>
+
+<h2>把CUDA runtime API放到一个独立的de-initialisation、finalize之类的接口，让用户在<code>main</code>函数<code>return</code>前调用</h2>
+
+<p>比如MXNet项目的<code>MXNotifyShutdown</code>（参见：<a href="https://github.com/apache/incubator-mxnet/blob/master/src/c_api/c_api.cc">c_api.cc</a>）。佛系了辣么久总算看到了一种符合本程序员审美的“优雅”方案（滑稽）</p>
+
+<p>恰好在SOF另一个问题中，talonmies大神（啊哈，又是talonmies大神！）在<a href="https://stackoverflow.com/questions/16979982/cuda-streams-destruction-and-cudadevicereset/16982503?noredirect=1#comment24536013_16982503">留言</a>里也表达了一样的意思，不能赞同更多啊：</p>
+
+<blockquote><p>The obvious answer is don&rsquo;t put CUDA API calls in the destructor. In your class you have an explicit intialisation method not called through the constructor, so why not have an explicit de-initialisation method as well? That way scope becomes a non-issue</p></blockquote>
+
+<p>上面的方案虽然“优雅”，但对于库维护者却有多了一层隐忧：万一加了个接口，使用者要撕逼呢？（滑稽）万一使用者根本就不鸟你，没在<code>main</code>函数<code>return</code>前调用呢？要说别人打开方式不对，人家还可以说是库的实现不够稳健把你批判一通呢。如果你也有这种隐忧，请接着看接下来的“黑科技”。</p>
+
+<h2>土法黑科技（滑稽）</h2>
+
+<p>首先，CUDA runtime API还是不能放在全局对象析构函数中，那么应该放在什么地方才合适呢？毕竟我们不知道库使用者最后用的是哪个API啊？不过，我们却可以知道库使用者使用什么API时是在<code>main</code>函数的作用域，那个时候是可以创建有效的CUDA context、正常使用CUDA runtime API的。这又和我们析构函数中调用的CUDA runtime API有什么关系呢？你可能还记得吧，前边提到<code>nvcc</code>加入的内部初始化代码通过<code>atexit</code>注册<code>__cudaUnregisterBinaryUtil</code>的注销函数，我们自然也可以如法炮制：</p>
+
+<pre><code class="cpp">// 首先调用一个“无害”的CUDA runtime API，确保在调用`atexit`之前CUDA context已被创建
+// 这样就确保我们通过`atexit`注册的函数在CUDA context相关的销毁函数（例如`__cudaUnregisterBinaryUtil`）之前就被执行
+// “无害”的CUDA runtime API？这里指不会造成影响内存占用等副作用的函数，我采用了`cudaGetDeviceCount`
+// 《The CUDA Handbook》中推荐使用`cudaFree(0);`来完成CUDART初始化CUDA context的过程，这也是可以的
+int gpu_num;
+cudaError_t err = cudaGetDeviceCount(&amp;gpu_num);
+
+std::atexit([](){
+    // 调用原来在全局对象析构函数中的CUDA runtime API
+});
+</code></pre>
+
+<p>那么，应该在哪个地方插入上面的代码呢？解铃还须系铃人，我们的<code>cudaErrorCudartUnloading</code>问题出在<code>static</code> singleton对象身上，但以下singleton的惰性初始化却也给了我们提供了一个绝佳的入口：</p>
+
+<pre><code class="cpp">// OT一下，和本中老年人一样上了年纪的朋友可能知道
+// 以前在C++中要实现线程安全的singleton有多蛋疼
+// 有诸如Double-Checked Locking之类略恶心的写法
+// 但自打用了C++11之后啊，腰不酸了,背不疼了,腿啊也不抽筋了,码代码也有劲儿了（滑稽）
+// 以下实现在C++11标准中是保证线程安全的
+static Singleton&amp; instance()
+{
+     static Singleton s;
+     return s;
+}
+</code></pre>
+
+<p>因为库使用者只会在<code>main</code>函数中通过这个接口使用singleton对象，所以只要在这个接口初始化CUDA context并用<code>atexit</code>注册清理函数就可以辣！当然，作为一位严谨的库作者，你也许会问：不能对库使用者抱任何幻想，万一别人在某个全局变量初始化时调用了呢？Bingo！我只能说目前我们的业务流程可以让库使用者不会想这么写来恶心自己而已&hellip;（捂脸）万一真的有这么作的使用者，这种方法就失效了，使用者会遇到和<a href="https://stackoverflow.com/questions/24869167/trouble-launching-cuda-kernels-from-static-initialization-code">前面提到的SOF某问题</a>相似的报错。毕竟，黑科技也不是万能的啊！</p>
+
+<h1>后记</h1>
+
+<p>解决完<code>cudaErrorCudartUnloading</code>这个问题之后，又接到新的救火任务，排查一个使用加密狗API导致的程序闪退问题。加密狗和<code>cudaErrorCudartUnloading</code>两个问题看似风马牛不相及，本质竟然也是相似的：又是一样的UB现象；又是全局对象；又是在全局对象构造和析构时调用了加密狗API，和加密狗内部的初始化和销毁函数的执行顺序未定义。看来，不乱挖坑还是要有基本的常识——在使用外设设备相关的接口时，要保证在<code>main</code>函数的作用域里啊！</p>
+
+<h1>参考资料</h1>
+
+<ul>
+<li><a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html">《CUDA官方指南》</a></li>
+<li><a href="http://www.cudahandbook.com/">Nicholas Wilt的《The CUDA Handbook》</a></li>
+<li><a href="http://us.download.nvidia.com/XFree86/Linux-x86/367.35/README/installedcomponents.html">《NVIDIA Accelerated Linux Graphics Driver README and Installation Guide》中的“Chapter 5. Listing of Installed Components”</a></li>
+<li><a href="https://devblogs.nvidia.com/cuda-pro-tip-understand-fat-binaries-jit-caching/">CUDA Pro Tip: Understand Fat Binaries and JIT Caching</a></li>
+<li><a href="http://people.cs.pitt.edu/~yongli/notes/gpgpu/GPGPUSIMNotes.html">Yong Li博士写的《GPGPU-SIM Code Study》</a></li>
+<li><a href="http://umumble.com/blogs/development/the-thorny-path-of-hello-world/">The thorny path of Hello World</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[ARM NEON编程初探——一个简单的BGR888转YUV444实例详解]]></title>
+    <link href="http://yszheda.github.io/blog/blog/2017/06/10/use-arm-neon-to-accelerate-bgr888-to-yuv444/"/>
+    <updated>2017-06-10T13:00:00+08:00</updated>
+    <id>http://yszheda.github.io/blog/blog/2017/06/10/use-arm-neon-to-accelerate-bgr888-to-yuv444</id>
+    <content type="html"><![CDATA[<p>最近在学习ARM的SIMD指令集<a href="https://developer.arm.com/technologies/neon">NEON</a>，发现这方面的资料真是太少了，我便来给NEON凑凑人气，姑且以这篇入门文章来分享一些心得吧。</p>
+
+<p>学习一门新技术，总是有一些经典是绕不开的，对于NEON来说，这份必备的武林秘籍自然就是ARM官方的《NEON Programmer&rsquo;s Guide》（以下简称Guide）啦。别看这份Guide有四百多页，其实只有一百来页是正文，后面都是供查阅的手册，通读一番还是不难的。所以这里我也就不打算把Guide里的内容翻译过来敷衍了事了。在此我想借一个简单例子，展示我是如何把一个没采用NEON的普通程序改写为NEON程序、中间又是如何debug、如何调优的。当然，作为一枚ARM小白，我接触NEON指令集毕竟也才两周左右时间，错误在所难免，还请各位方家多多指正。</p>
+
+<!-- more -->
+
+
+<h1>BGR888ToYUV444</h1>
+
+<p>在众多并行操作模式（Map, Reduce, Scatter, Stencil等）中，最简单的也许要算Map了，所以我选了一个Map的例子——BGR888转YUV444。这两者都是颜色空间的格式：前者表示一个像素有B、G、R三个颜色通道，每个通道占8-bit，在内存中按照<code>B G R</code>的顺序从高位到低位排列；后者表示一个像素有Y、U、V三个通道，每个通道也是8-bit（444仅指Y、U、V的采样率比值为4:4:4，其他类型的采样率还有YUV422、YUV420），我们也假设它在内存中按照<code>V U Y</code>的顺序从高位到低位排列。如何把BGR888格式转成YUV444呢？根据<a href="https://en.wikipedia.org/wiki/YUV">wiki</a>上的转换公式，我们可以写出如下代码（很显然，这是一一对应，典型的Map模式）：</p>
+
+<pre><code class="c">void BGR888ToYUV444(unsigned char *yuv, unsigned char *bgr, int pixel_num)
+{
+    int i;
+    for (i = 0; i &lt; pixel_num; ++i) {
+        uint8_t r = bgr[i * 3];
+        uint8_t g = bgr[i * 3 + 1];
+        uint8_t b = bgr[i * 3 + 2];
+
+        uint8_t y = 0.299 * r + 0.587 * g + 0.114 * b;
+        uint8_t u = -0.169 * r - 0.331 * g + 0.5 * b + 128;
+        uint8_t v = 0.5 * r - 0.419 * g - 0.081 * b + 128;
+
+        yuv[i * 3] = y;
+        yuv[i * 3 + 1] = u;
+        yuv[i * 3 + 2] = v;
+    }
+}
+</code></pre>
+
+<p>这段代码的意思很简单，我们遍历所有像素，每次把B、G、R三个通道的值从内存中加载进来，再做浮点数乘法和加减法，得到Y、U、V的值，写入相应的内存中。那么，使用NEON可以怎样帮助这段程序跑得更快呢？</p>
+
+<p>前面提到，NEON是一种SIMD（Single Instruction Multiple Data）指令，也就是说，NEON可以把若干源（source）操作数（operand）打包放到一个源寄存器中，对他们执行相同的操作，产生若干目的（dest）操作数，这种方式也叫向量化（vectorization）。这样的话，能打包多少数据同时做运算就取决于寄存器位宽，在ARMv7的NEON unit中，register file总大小是1024-bit，可以划分为16个128-bit的Q-register（Quadword register）或者32个64-bit的D-register（Dualword register），也就是说，最长的寄存器位宽是128-bit（详见Guide第一章）。以上面的R888ToYUV444函数为例，假设我们采用32-bit单精度浮点数float来做浮点运算，那么我们可以 把最多<code>128/32=4</code>个浮点数打包放到Q-register中做SIMD运算，一次拿4个BGR算出4个YUV，从而提高吞吐量，减少loop次数。</p>
+
+<p>（细心的看官可能会问到双精度浮点数double的运算吧？遗憾的是，根据Guide，NEON并不支持double，你可以考虑使用<a href="https://en.wikipedia.org/wiki/ARM_architecture#VFP">VFP/Vector Floating Point</a>，但<a href="https://stackoverflow.com/questions/4097034/arm-cortex-a8-whats-the-difference-between-vfp-and-neon">VFP并非SIMD单元</a>）。</p>
+
+<h1>从浮点运算到整型运算</h1>
+
+<p>那么，我们还可以继续提高向量化程度吗？如果我们回头看<a href="https://en.wikipedia.org/wiki/YUV">wiki</a>，我们会发现在早期不支持浮点操作的SIMD处理器中，使用了如下整型运算来把BGR转成YUV：</p>
+
+<pre><code class="c">// Refer to: https://en.wikipedia.org/wiki/YUV (Full swing for BT.601)
+void BGR888ToYUV444(unsigned char *yuv, unsigned char *bgr, int pixel_num)
+{
+    int i;
+    for (i = 0; i &lt; pixel_num; ++i) {
+        uint8_t r = bgr[i * 3];
+        uint8_t g = bgr[i * 3 + 1];
+        uint8_t b = bgr[i * 3 + 2];
+
+        // 1. Multiply transform matrix (Y′: unsigned, U/V: signed)
+        uint16_t y_tmp = 76 * r + 150 * g + 29 * b;
+        int16_t u_tmp = -43 * r - 84 * g + 127 * b;
+        int16_t v_tmp = 127 * r - 106 * g - 21 * b;
+
+        // 2. Scale down ("&gt;&gt;8") to 8-bit values with rounding ("+128") (Y′: unsigned, U/V: signed)
+        y_tmp = (y_tmp + 128) &gt;&gt; 8;
+        u_tmp = (u_tmp + 128) &gt;&gt; 8;
+        v_tmp = (v_tmp + 128) &gt;&gt; 8;
+
+        // 3. Add an offset to the values to eliminate any negative values (all results are 8-bit unsigned)
+        yuv[i * 3] = (uint8_t) y_tmp;
+        yuv[i * 3 + 1] = (uint8_t) (u_tmp + 128);
+        yuv[i * 3 + 2] = (uint8_t) (v_tmp + 128);
+    }
+}
+</code></pre>
+
+<p>从这段代码我们不难发现，32-bit的float运算被16-bit的加减、乘法和移位运算所代替。这样的话，我们可以把最多<code>128/16=8</code>个整型数放到Q-register中做SIMD运算，一次拿8个BGR算出8个YUV，把向量化程度再提一倍。使用整型运算还有一个好处：一般而言，整型运算指令所需要的时钟周期少于浮点运算的时钟周期。所以，我以这段代码为基准（baseline），用NEON来加速它。（细心的看官也许已经看到我说法中的纰漏：虽然单个整型指令的周期小于单个相同运算的浮点指令的周期，但整型版本的BGR888ToYUV444比起浮点版本的多了移位和加法的overhead，指令数目是不同的，总的时钟周期不一定就短。Good point! 看官不妨看完本文后也用NEON改写浮点版本练练手，两相比较就不难得出最终的结论啦XD）</p>
+
+<h1>NEON Intrinsics</h1>
+
+<p>接下来可以着手写NEON代码了。个人推荐新手先别急着一上来就写汇编，NEON提供了intrinsics，其实就是一套可在C/C++中调用的函数API，编译器会代劳把这些intrinsics转成NEON指令（详见Guide的第四章），这样就方便一些。我用NEON intrinsics改写的<code>BGR888ToYUV444</code>函数如下：</p>
+
+<pre><code class="c">void BGR888ToYUV444(unsigned char * __restrict__ yuv, unsigned char * __restrict__ bgr, int pixel_num)
+{
+    const uint8x8_t u8_zero = vdup_n_u8(0);
+    const uint16x8_t u16_rounding = vdupq_n_u16(128);
+    const int16x8_t s16_rounding = vdupq_n_s16(128);
+    const int8x16_t s8_rounding = vdupq_n_s8(128);
+
+    int count = pixel_num / 16;
+
+    int i;
+    for (i = 0; i &lt; count; ++i) {
+        // Load bgr
+        uint8x16x3_t pixel_bgr = vld3q_u8(bgr);
+
+        uint8x8_t high_r = vget_high_u8(pixel_bgr.val[0]);
+        uint8x8_t low_r = vget_low_u8(pixel_bgr.val[0]);
+        uint8x8_t high_g = vget_high_u8(pixel_bgr.val[1]);
+        uint8x8_t low_g = vget_low_u8(pixel_bgr.val[1]);
+        uint8x8_t high_b = vget_high_u8(pixel_bgr.val[2]);
+        uint8x8_t low_b = vget_low_u8(pixel_bgr.val[2]);
+        int16x8_t signed_high_r = vreinterpretq_s16_u16(vaddl_u8(high_r, u8_zero));
+        int16x8_t signed_low_r = vreinterpretq_s16_u16(vaddl_u8(low_r, u8_zero));
+        int16x8_t signed_high_g = vreinterpretq_s16_u16(vaddl_u8(high_g, u8_zero));
+        int16x8_t signed_low_g = vreinterpretq_s16_u16(vaddl_u8(low_g, u8_zero));
+        int16x8_t signed_high_b = vreinterpretq_s16_u16(vaddl_u8(high_b, u8_zero));
+        int16x8_t signed_low_b = vreinterpretq_s16_u16(vaddl_u8(low_b, u8_zero));
+
+        // NOTE:
+        // declaration may not appear after executable statement in block
+        uint16x8_t high_y;
+        uint16x8_t low_y;
+        uint8x8_t scalar = vdup_n_u8(76);
+        int16x8_t high_u;
+        int16x8_t low_u;
+        int16x8_t signed_scalar = vdupq_n_s16(-43);
+        int16x8_t high_v;
+        int16x8_t low_v;
+        uint8x16x3_t pixel_yuv;
+        int8x16_t u;
+        int8x16_t v;
+
+        // 1. Multiply transform matrix (Y′: unsigned, U/V: signed)
+        high_y = vmull_u8(high_r, scalar);
+        low_y = vmull_u8(low_r, scalar);
+
+        high_u = vmulq_s16(signed_high_r, signed_scalar);
+        low_u = vmulq_s16(signed_low_r, signed_scalar);
+
+        signed_scalar = vdupq_n_s16(127);
+        high_v = vmulq_s16(signed_high_r, signed_scalar);
+        low_v = vmulq_s16(signed_low_r, signed_scalar);
+
+        scalar = vdup_n_u8(150);
+        high_y = vmlal_u8(high_y, high_g, scalar);
+        low_y = vmlal_u8(low_y, low_g, scalar);
+
+        signed_scalar = vdupq_n_s16(-84);
+        high_u = vmlaq_s16(high_u, signed_high_g, signed_scalar);
+        low_u = vmlaq_s16(low_u, signed_low_g, signed_scalar);
+
+        signed_scalar = vdupq_n_s16(-106);
+        high_v = vmlaq_s16(high_v, signed_high_g, signed_scalar);
+        low_v = vmlaq_s16(low_v, signed_low_g, signed_scalar);
+
+        scalar = vdup_n_u8(29);
+        high_y = vmlal_u8(high_y, high_b, scalar);
+        low_y = vmlal_u8(low_y, low_b, scalar);
+
+        signed_scalar = vdupq_n_s16(127);
+        high_u = vmlaq_s16(high_u, signed_high_b, signed_scalar);
+        low_u = vmlaq_s16(low_u, signed_low_b, signed_scalar);
+
+        signed_scalar = vdupq_n_s16(-21);
+        high_v = vmlaq_s16(high_v, signed_high_b, signed_scalar);
+        low_v = vmlaq_s16(low_v, signed_low_b, signed_scalar);
+
+        // 2. Scale down ("&gt;&gt;8") to 8-bit values with rounding ("+128") (Y′: unsigned, U/V: signed)
+        // 3. Add an offset to the values to eliminate any negative values (all results are 8-bit unsigned)
+
+        high_y = vaddq_u16(high_y, u16_rounding);
+        low_y = vaddq_u16(low_y, u16_rounding);
+
+        high_u = vaddq_s16(high_u, s16_rounding);
+        low_u = vaddq_s16(low_u, s16_rounding);
+
+        high_v = vaddq_s16(high_v, s16_rounding);
+        low_v = vaddq_s16(low_v, s16_rounding);
+
+        pixel_yuv.val[0] = vcombine_u8(vqshrn_n_u16(low_y, 8), vqshrn_n_u16(high_y, 8));
+
+        u = vcombine_s8(vqshrn_n_s16(low_u, 8), vqshrn_n_s16(high_u, 8));
+
+        v = vcombine_s8(vqshrn_n_s16(low_v, 8), vqshrn_n_s16(high_v, 8));
+
+        u = vaddq_s8(u, s8_rounding);
+        pixel_yuv.val[1] = vreinterpretq_u8_s8(u);
+
+        v = vaddq_s8(v, s8_rounding);
+        pixel_yuv.val[2] = vreinterpretq_u8_s8(v);
+
+        // Store
+        vst3q_u8(yuv, pixel_yuv);
+
+        bgr += 3 * 16;
+        yuv += 3 * 16;
+    }
+
+    // Handle leftovers
+    for (i = count * 16; i &lt; pixel_num; ++i) {
+        uint8_t r = bgr[i * 3];
+        uint8_t g = bgr[i * 3 + 1];
+        uint8_t b = bgr[i * 3 + 2];
+
+        uint16_t y_tmp = 76 * r + 150 * g + 29 * b;
+        int16_t u_tmp = -43 * r - 84 * g + 127 * b;
+        int16_t v_tmp = 127 * r - 106 * g - 21 * b;
+
+        y_tmp = (y_tmp + 128) &gt;&gt; 8;
+        u_tmp = (u_tmp + 128) &gt;&gt; 8;
+        v_tmp = (v_tmp + 128) &gt;&gt; 8;
+
+        yuv[i * 3] = (uint8_t) y_tmp;
+        yuv[i * 3 + 1] = (uint8_t) (u_tmp + 128);
+        yuv[i * 3 + 2] = (uint8_t) (v_tmp + 128);
+    }
+}
+</code></pre>
+
+<p>这个函数中大部分都是很常用的NEON intrinsics，看官不妨结合查阅Guide的附录D自行熟悉，这里我仅针对几个点解释一下：</p>
+
+<ul>
+<li><p>我用<code>vld3q_u8</code>指令从内存一次加载16个像素（也就是<code>uint8_t</code>类型的B、G、R三个通道的数值），将各个通道的16个数值放到一个Q-register中（也就是用了三个Q-register，每个分别存放16个B、16个G和16个R），<code>vst3q_u8</code>的写入操作也是类似的，这充分利用128-bit的带宽，使内存存取（memory access）的次数尽可能少。但是，后边运算的向量化程度其实仍然不变，只能同时进行8个16-bit整型运算，也就是说，对于运算的部分，理想加速比（speedup）是8而非16。（当然，一次从内存加载多少数据是一个design choice，没有绝对的答案，看官也可以尝试别的方式XD）</p></li>
+<li><p>对于像素个数不能被16整除的情况，可能会有剩下的1到15个像素没被上述NEON代码处理到，这里我把它们称作leftovers，简单粗暴地跑了之前的for循环。其实leftover的情况如果占比高的话，还有更高明的处理方式，请各位看官参见Guide的6.2 Handling non-multiple array lengths一节。</p></li>
+<li><p>我把Y通道计算的一部分放到一起，稍作解释，其他的很多运算都是类似的：</p></li>
+</ul>
+
+
+<pre><code class="c">// 复制8个值为128的uint16_t类型整数到某个Q-register，该Q-register对应的C变量是u16_rounding
+const uint16x8_t u16_rounding = vdupq_n_u16(128);
+// 复制8个值为128的uint8_t类型整数到某个D-register，该D-register对应的C变量是scalar
+uint8x8_t scalar = vdup_n_u8(76);
+// pixel_bgr.val[0]为一个Q-register，16个uint8_t类型的数，对应R通道
+// pixel_bgr.val[1]为一个Q-register，16个uint8_t类型的数，对应G通道
+// pixel_bgr.val[2]为一个Q-register，16个uint8_t类型的数，对应B通道
+uint8x16x3_t pixel_bgr = vld3q_u8(bgr);
+// 一个Q-register对应有两个D-register
+// 这是拿到对应R通道的Q-register高位的D-register，有8个R值
+// 参见Guide中Register overlap一节（这部分内容很重要！）
+// 其他如low_r、high_g的情况相似，这里从略
+uint8x8_t high_r = vget_high_u8(pixel_bgr.val[0]);
+// 对8个R值执行乘76操作
+// vmull是变长指令（常以单词末尾额外的L作为标记），源操作数是两个uint8x8_t的向量，目的操作数是uint16x8_t的向量
+// 到这一步：Y = R * 76
+// low_y的情况类似，从略
+high_y = vmull_u8(high_r, scalar);
+// 把scalar的8个128改为8个150
+scalar = vdup_n_u8(150);
+// 执行乘加运算
+// 到这一步：Y = R * 76 + G * 150
+high_y = vmlal_u8(high_y, high_g, scalar);
+// 把scalar的8个150改为8个29
+scalar = vdup_n_u8(29);
+// 执行乘加运算
+// 到这一步：Y = R * 76 + G * 150 + B * 29
+high_y = vmlal_u8(high_y, high_b, scalar);
+// 到这一步：Y = (R * 76 + G * 150 + B * 29) + 128
+high_y = vaddq_u16(high_y, u16_rounding);
+// vqshrn_n_u16是变窄指令（常以单词末尾额外的N作为标记，N为Narrow），将uint16x8_t的向量压缩为uint8x8_t
+// 到这一步：Y = ((R * 76 + G * 150 + B * 29) + 128) &gt;&gt; 8
+// vcombine_u8用于将两个D-register的值组装到一个Q-register中
+pixel_yuv.val[0] = vcombine_u8(vqshrn_n_u16(low_y, 8), vqshrn_n_u16(high_y, 8));
+</code></pre>
+
+<ul>
+<li><p>看官也许已经注意到了，在前面的<code>BGR888ToYUV444</code>函数中，我并非像上面的代码一样，将一个通道的运算放到一块，而是有意将Y、U、V三个通道的运算打散搅在一起。这是为了尽可能减少data dependency所引起的stall，这也是优化NEON代码需要着重考虑的方向之一。</p></li>
+<li><p>对NEON稍有了解的细心看官可能会问：乘法和加法所需要的128、76等常数为何不用立即数——例如NEON的<code>vmul_n</code>——而是采用先批量复制常数到向量再做向量运算？这是因为我们很多运算的源操作数是<code>int8x8_t</code>或<code>uint8x8_t</code>的向量，<code>vmul_n</code>等API很不幸不支持这种格式。这里也良心提醒看官，写NEON intrinsics或者汇编一定要对照Guide后面的附录列出的格式，否则编译器常常会报一些风马牛不相及的错误，把人往坑里带——我当初可是各种踩坑各种在不相关的地方纠结啊555&hellip;</p></li>
+</ul>
+
+
+<h2>交叉编译及debug</h2>
+
+<p>说到编译和debug，这里再良心提醒几点——如果看官早就知道了，那就权当我这好久没碰过嵌入式开发的小白在碎碎念好了：</p>
+
+<ul>
+<li><p>一定要注意编译器EABI的版本！一定要注意编译器EABI的版本！一定要注意编译器EABI的版本！EABI指的是<a href="https://en.wikipedia.org/wiki/Application_binary_interface">Embedded-Application Binary Interface</a>，我在这个白痴问题上浪费了不少时间，一定要把重要事情说三遍&hellip;</p>
+
+<ul>
+<li><p>一个需要注意的地方是gnueabi和androideabi的不一样。我最开始遇到的一个问题就是：把一个编译出来的可执行文件拷到开发板上，设了可执行权限，结果在运行时却出现「No such file or directory」，略诡异啊。用<code>strace</code>追踪发现是<code>exec</code>系统调用报的错，<code>exec</code>会根据可执行文件（在Linux系下是ELF）的<code>.interp</code>段运行相应的loader，由该loader做动态链接，再到可执行文件的入口地址开始执行。其实这时候用<code>readelf -l &lt;program&gt; | grep interpreter</code>查看ELF的loader地址，再看看设备上有没有该文件，基本可以确定EABI有没有用对了，但逗逼如我强行搞了个软链接[捂脸]&hellip;后来才发现是在Makefile里用gnueabi系的编译器编译Android程序，但其实编译Android程序还是直接用<code>ndk</code>才是王道啊！</p></li>
+<li><p>另一个需要注意的是float-abi。<code>gcc</code>中有一个选项<code>-mfloat-abi</code>，可选<code>soft</code>/<code>softfp</code>/<code>hardfp</code>：<code>soft</code>和后两者的区别是编译器不会生成浮点指令，浮点操作完全由软件实现；相比之下，<code>hardfp</code>走了另一个极端，浮点操作完全由硬件实现，效率最高；<code>softfp</code>则是走中间路线，它有着和<code>hardfp</code>完全不一样的calling convention——<code>hardfp</code>通过<code>VFP</code>来传浮点参数，而<code>softfp</code>还是通过整型寄存器来传参，和<code>soft</code>是一致的。因此，<code>softfp</code>编译的程序和<code>hardfp</code>编译的程序是互不兼容的，如果你把它们链接到一块，会出现「uses VFP register arguments, output does not」的报错。</p></li>
+</ul>
+</li>
+<li><p>需要使用正确的编译参数才能支持NEON。如果前面提到的<code>-mfloat-abi</code>指定了<code>soft</code>，那么就不支持NEON了。另外还常常需要<code>-mfpu=neon</code>来指定<a href="https://en.wikipedia.org/wiki/Floating-point_unit">FPU(Floating-Point Unit)</a>是NEON Unit。具体的编译参数详见Guide第二章。</p></li>
+<li><p>可以使用<code>gdb</code>远程调试ARM设备上的程序：</p></li>
+</ul>
+
+
+<p>1.在设备上启动<code>gdbserver</code>（假设在6666端口吧，哈哈我比较喜欢6666）：
+```</p>
+
+<h1><program>是程序名</h1>
+
+<h1><arg>是程序参数</h1>
+
+<p>$ gdbserver localhost:6666 <program> <arg>
+```</p>
+
+<p>2.在连接设备的主机（host）上启动对应EABI的<code>gdb</code>：
+```
+$ adb forward tcp:6666 tcp:6666</p>
+
+<h1><program>是程序名</h1>
+
+<p>$ gdb <program>
+(gdb) target remote :6666
+```</p>
+
+<p>3.和<code>gdbserver</code>连接上后，就可以在主机端的<code>gdb</code>执行各种debug操作了。对于NEON程序，我们常常想查看NEON Unit的register file，可以采用下面的命令：
+<code>
+(gdb) info all-registers
+</code></p>
+
+<h1>NEON汇编</h1>
+
+<p>虽然有了NEON intrinsics程序，但编译器<del>很笨很笨的</del>生成的汇编代码常常不尽如人意。要想发挥NEON指令集的最大威力，我们还需练就优化汇编这一上乘武功。好在有了intrinsics代码，我们可以“偷看”编译器或<code>objdump</code>的<code>-S</code>生成的“答案”，无需自己从头写汇编代码。当然，一开始看<code>-O3</code>优化过的汇编代码还是有点懵逼的，我个人比较偏好先看<code>-O0</code>（竟然和intrinsics的相差无几！）和<code>-O1</code>版的，以此为基准，再看看<code>-O2</code>和<code>-O3</code>，猜猜做了哪些优化，加以借鉴。本着这一思路，我用汇编又改写了一版<code>BGR888ToYUV444</code>，其中大部分汇编指令是由之前的intrinsics代码演化过来的，所以我这里也在注释标上了对应的intrinsics代码：</p>
+
+<pre><code class="c">void BGR888ToYUV444(unsigned char * __restrict__ yuv, unsigned char * __restrict__ bgr, int pixel_num)
+{
+    int count = pixel_num / 16;
+
+    asm volatile(
+            // const uint16x8_t u16_rounding = vdupq_n_u16(128);
+            // const int16x8_t s16_rounding = vdupq_n_s16(128);
+            "VMOV.I16 q3,#0x80\t\n"
+            // const int8x16_t s8_rounding = vdupq_n_s8(128);
+            "VMOV.I8  q4,#0x80\t\n"
+
+            // i = 0
+            "MOV      r2,#0\t\n"
+
+            "LOOP: \t\n"
+
+            // uint8x16x3_t pixel_bgr = vld3q_u8(bgr);
+            "ADD      r12,r1,#0x18\t\n"
+            "VLD3.8   {d0,d2,d4},[r1]\t\n"
+            "VLD3.8   {d1,d3,d5},[r12]\t\n"
+
+            // // bgr += 3 * 16;
+            // "ADD      r1,r1,#0x30\t\n"
+
+            // // i++
+            // "ADD      r2,r2,#1\t\n"
+
+            // int16x8_t signed_high_r = vreinterpretq_s16_u16(vmovl_u8(high_r));
+            // int16x8_t signed_low_r = vreinterpretq_s16_u16(vmovl_u8(low_r));
+            // int16x8_t signed_high_g = vreinterpretq_s16_u16(vmovl_u8(high_g));
+            // int16x8_t signed_low_g = vreinterpretq_s16_u16(vmovl_u8(low_g));
+            // int16x8_t signed_high_b = vreinterpretq_s16_u16(vmovl_u8(high_b));
+            // int16x8_t signed_low_b = vreinterpretq_s16_u16(vmovl_u8(low_b));
+            "VMOVL.U8 q5,d0\t\n"
+            "VMOVL.U8 q6,d1\t\n"
+            "VMOVL.U8 q7,d2\t\n"
+            "VMOVL.U8 q8,d3\t\n"
+            "VMOVL.U8 q9,d4\t\n"
+            "VMOVL.U8 q10,d5\t\n"
+
+            // uint8x8_t scalar = vdup_n_u8(76);
+            // high_y = vmull_u8(high_r, scalar);
+            // low_y = vmull_u8(low_r, scalar);
+            "VMOV.I8  d26,#0x4c\t\n"
+            "VMULL.U8 q11,d0,d26\t\n"
+            "VMULL.U8 q12,d1,d26\t\n"
+
+            // scalar = vdup_n_u8(150);
+            // high_y = vmlal_u8(high_y, high_g, scalar);
+            // low_y = vmlal_u8(low_y, low_g, scalar);
+            "VMOV.I8  d26,#0x96\t\n"
+            "VMLAL.U8 q11,d2,d26\t\n"
+            "VMLAL.U8 q12,d3,d26\t\n"
+
+            // scalar = vdup_n_u8(29);
+            // high_y = vmlal_u8(high_y, high_b, scalar);
+            // low_y = vmlal_u8(low_y, low_b, scalar);
+            "VMOV.I8  d26,#0x1d\t\n"
+            "VMLAL.U8 q11,d4,d26\t\n"
+            "VMLAL.U8 q12,d5,d26\t\n"
+
+            // int16x8_t signed_scalar = vdupq_n_s16(-43);
+            // high_u = vmulq_s16(signed_high_r, signed_scalar);
+            // low_u = vmulq_s16(signed_low_r, signed_scalar);
+            "VMVN.I16 q1,#0x2a\t\n"
+            "VMUL.I16 q13,q5,q1\t\n"
+            "VMUL.I16 q14,q6,q1\t\n"
+
+            // signed_scalar = vdupq_n_s16(127);
+            // high_v = vmulq_s16(signed_high_r, signed_scalar);
+            // low_v = vmulq_s16(signed_low_r, signed_scalar);
+            "VMOV.I16 q2,#0x7f\t\n"
+            "VMUL.I16 q15,q5,q2\t\n"
+            "VMUL.I16 q0,q6,q2\t\n"
+
+            // signed_scalar = vdupq_n_s16(-84);
+            // high_u = vmlaq_s16(high_u, signed_high_g, signed_scalar);
+            // low_u = vmlaq_s16(low_u, signed_low_g, signed_scalar);
+            "VMVN.I16 q1,#0x53\t\n"
+            "VMLA.I16 q13,q7,q1\t\n"
+            "VMLA.I16 q14,q8,q1\t\n"
+
+            // signed_scalar = vdupq_n_s16(-106);
+            // high_v = vmlaq_s16(high_v, signed_high_g, signed_scalar);
+            // low_v = vmlaq_s16(low_v, signed_low_g, signed_scalar);
+            "VMVN.I16 q2,#0x69\t\n"
+            "VMLA.I16 q15,q7,q2\t\n"
+            "VMLA.I16 q0,q8,q2\t\n"
+
+            // signed_scalar = vdupq_n_s16(127);
+            // high_u = vmlaq_s16(high_u, signed_high_b, signed_scalar);
+            // low_u = vmlaq_s16(low_u, signed_low_b, signed_scalar);
+            "VMOV.I16 q1,#0x7f\t\n"
+            "VMLA.I16 q13,q9,q1\t\n"
+            "VMLA.I16 q14,q10,q1\t\n"
+
+            // signed_scalar = vdupq_n_s16(-21);
+            // high_v = vmlaq_s16(high_v, signed_high_b, signed_scalar);
+            // low_v = vmlaq_s16(low_v, signed_low_b, signed_scalar);
+            "VMVN.I16 q2,#0x14\t\n"
+            "VMLA.I16 q15,q9,q2\t\n"
+            "VMLA.I16 q0,q10,q2\t\n"
+
+            // high_y = vaddq_u16(high_y, u16_rounding);
+            // low_y = vaddq_u16(low_y, u16_rounding);
+            "VADD.I16 q11,q11,q3\t\n"
+            "VADD.I16 q12,q12,q3\t\n"
+
+            // high_u = vaddq_s16(high_u, s16_rounding);
+            // low_u = vaddq_s16(low_u, s16_rounding);
+            "VADD.I16 q13,q13,q3\t\n"
+            "VADD.I16 q14,q14,q3\t\n"
+
+            // high_v = vaddq_s16(high_v, s16_rounding);
+            // low_v = vaddq_s16(low_v, s16_rounding);
+            "VADD.I16 q15,q15,q3\t\n"
+            "VADD.I16 q0,q0,q3\t\n"
+
+            // pixel_yuv.val[0] = vcombine_u8(vqshrn_n_u16(low_y, 8), vqshrn_n_u16(high_y, 8));
+            "VQSHRN.U16 d10,q11,#8\t\n"
+            "VQSHRN.U16 d11,q12,#8\t\n"
+
+            // u = vcombine_s8(vqshrn_n_s16(low_u, 8), vqshrn_n_s16(high_u, 8));
+            "VQSHRN.S16 d12,q13,#8\t\n"
+            "VQSHRN.S16 d13,q14,#8\t\n"
+
+            // v = vcombine_s8(vqshrn_n_s16(low_v, 8), vqshrn_n_s16(high_v, 8));
+            "VQSHRN.S16 d14,q15,#8\t\n"
+            "VQSHRN.S16 d15,q0,#8\t\n"
+
+            // u = vaddq_s8(u, s8_rounding);
+            // v = vaddq_s8(v, s8_rounding);
+            "VADD.I8  q6,q6,q4\t\n"
+            "VADD.I8  q7,q7,q4\t\n"
+
+            // vst3q_u8(yuv, pixel_yuv);
+            "ADD      r12,r0,#0x18\t\n"
+            "VST3.8   {d10,d12,d14},[r0]\t\n"
+            "VST3.8   {d11,d13,d15},[r12]\t\n"
+            // bgr += 3 * 16;
+            // yuv += 3 * 16;
+            "ADD      r1,r1,#0x30\t\n"
+            "ADD      r0,r0,#0x30\t\n"
+            // i++
+            "ADD      r2,r2,#1\t\n"
+            // i &lt; count
+            "CMP      r2,r3\t\n"
+            "BLT      LOOP\t\n"
+            : [r0] "+r" (yuv), [r1] "+r" (bgr), [r3] "+r" (count)
+            :
+            : "r2", "memory", "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9", "d10", "d11", "d12", "d13", "d14", "d15", "d16", "d17", "d18", "d19", "d20", "d21", "d22", "d23", "d24", "d25", "d26", "d27", "d28", "d29", "d30", "d31"
+            );
+
+
+    // Handle leftovers
+    int i;
+    for (i = count * 16; i &lt; pixel_num; ++i) {
+        uint8_t r = bgr[i * 3];
+        uint8_t g = bgr[i * 3 + 1];
+        uint8_t b = bgr[i * 3 + 2];
+
+        uint16_t y_tmp = 76 * r + 150 * g + 29 * b;
+        int16_t u_tmp = -43 * r - 84 * g + 127 * b;
+        int16_t v_tmp = 127 * r - 106 * g - 21 * b;
+
+        y_tmp = (y_tmp + 128) &gt;&gt; 8;
+        u_tmp = (u_tmp + 128) &gt;&gt; 8;
+        v_tmp = (v_tmp + 128) &gt;&gt; 8;
+
+        yuv[i * 3] = (uint8_t) y_tmp;
+        yuv[i * 3 + 1] = (uint8_t) (u_tmp + 128);
+        yuv[i * 3 + 2] = (uint8_t) (v_tmp + 128);
+    }
+}
+</code></pre>
+
+<h2>GCC内联汇编</h2>
+
+<p>这里我用到了GCC内联汇编，其基本结构如下：</p>
+
+<pre><code>asm [volatile] ( AssemblerTemplate 
+                 : OutputOperands 
+                 [ : InputOperands
+                 [ : Clobbers ] ])
+</code></pre>
+
+<p>其中，关键字<code>volatile</code>表示禁止编译器对这段汇编代码进行优化以避免编译器优化——你想啊，要是信任编译器优化效果的话，我们也不必手撸汇编了，不是么XD <code>AssemblerTemplate</code>自然是汇编代码部分了。<code>OutputOperands</code>和<code>InputOperands</code>是指定输出和输入的操作数，前面的代码在<code>OutputOperands</code>一栏中指定了输出和输入（指针<code>yuv</code>可读写，存放于<code>r0</code>寄存器；指针<code>bgr</code>可读写，存放于<code>r1</code>寄存器；变量<code>count</code>可读写，存放于<code>r3</code>寄存器）：</p>
+
+<pre><code>            : [r0] "+r" (yuv), [r1] "+r" (bgr), [r3] "+r" (count)
+            :
+</code></pre>
+
+<p><code>Clobbers</code>一栏用来告诉编译器这段内联汇编代码会改变的操作数。如果操作数是在寄存器，编译器会做保护，在执行内联汇编代码前save它的值，在执行内联汇编代码后restore；如果操作数是在内存、编译器在执行内联汇编代码前曾把内存的值cache在寄存器的话，编译器会把寄存器的值flush回内存，再执行内联汇编代码，下次直接从内存读取，从而保证操作数数值的正确性。在上一段代码中，我们会修改的操作数是循环中的自增变量<code>i</code>所在的寄存器<code>r2</code>、内存和32个D寄存器（这32个D寄存器我才懒得一个个敲呢，当然是录了个vim宏啦XD）：</p>
+
+<pre><code>            : "r2", "memory", "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9", "d10", "d11", "d12", "d13", "d14", "d15", "d16", "d17", "d18", "d19", "d20", "d21", "d22", "d23", "d24", "d25", "d26", "d27", "d28", "d29", "d30", "d31"
+</code></pre>
+
+<p>更多关于GCC内联汇编的内容可参考：</p>
+
+<ul>
+<li><p><a href="http://www.ethernut.de/en/documents/arm-inline-asm.html">ARM GCC Inline Assembler Cookbook</a></p></li>
+<li><p><a href="https://gcc.gnu.org/onlinedocs/gcc/Using-Assembly-Language-with-C.html">How to Use Inline Assembly Language in C Code</a></p></li>
+</ul>
+
+
+<h2>从intrinsics到汇编</h2>
+
+<p>把intrinsics代码改成汇编的一个关键之处，是如何把C/C++里的变量名高效对应到寄存器。我在用<code>gcc</code>生成汇编代码时就发现，编译器对我这段intrinsics代码使用的实际Q-register超过16个，所以需要不断save/restore寄存器的值来重复使用寄存器。其实我们可以通过巧妙的排布寄存器来减少不必要的save/restore，这也是我写NEON汇编最开始想优化的一个点。在上面的BGR888ToYUV444程序中，我用Q0、Q1、Q2分别保存R、G、B的三个<code>uint8x16_t</code>向量，用Q3保存值为128的<code>int16x8_t</code>向量常量，用Q4保存值为128的<code>int8x16_t</code>向量常量。首先计算Y通道，把中间计算结果的两个<code>uint16x8_t</code>向量分别存到Q11和Q12。这个时候要计算U和V通道了，需要把数值从<code>uint8_t</code>类型转成<code>int16_t</code>，所以我把R通道的D0拷到Q5、D1拷到Q6（还记得Q0寄存器就是由D0和D1组成的吧？），把G通道的D2拷到Q7、D3拷到Q8，把R通道的D4拷到Q9、D5拷到Q10，之后便不再需要用Q0、Q1、Q2来保存R、G、B了。我们再把U通道中间计算结果的两个<code>int16x8_t</code>向量分别存到Q13和Q14，把V通道中间计算结果的两个<code>int16x8_t</code>向量分别存到Q15和Q0（还记得Q0可以被覆写吗？），这样就完美把16个Q寄存器/32个D寄存器都用了个遍，不需要额外save/restore。</p>
+
+<h2>如何debug汇编代码</h2>
+
+<p>写程序总是绕不开debug问题？那么如何debug NEON汇编呢？可以在汇编代码中使用<a href="http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0801c/pge1427897654274.html">断点指令BRK</a>，这样在<code>gdb</code>中就能在断点处停下来，执行相关debug操作了。要让程序继续运行只需增加PC跳过<code>BRK</code>即可。</p>
+
+<p>另外，有一个图形化的<a href="https://szeged.github.io/nevada/">网页调试器</a>值得安利一下，这对于新手来说是很用户友好很实用的工具。</p>
+
+<h2>继续优化</h2>
+
+<p>个人认为，在写intrinsics程序的阶段就要力求用尽可能少的intrinsics来实现功能，这样能保证生成的汇编指令尽可能精简。在指令足够精简之后，一项最重要的工作就是instruction reordering/scheduling，减少诸如RAW、WAW等memory dependency引起的stall。</p>
+
+<p>这个时候你需要对每条指令重要阶段的时钟周期了然于心。如何查到相关资料呢？你可以到<a href="http://infocenter.arm.com/help/index.jsp">ARM 信息中心</a>，查你所用的ARM处理器的Technical Reference Manual，其中就有一章Instruction Cycle Timing。另外，WebShaker为Cortex A8做了一个网页版<a href="http://pulsar.webshaker.net/ccc/index.php?lng=us">Cycle Counter for Cortex A8</a>，如果你在使用这一处理器，这是一个很值得使用和参考的工具。</p>
+
+<p>最后，对于实际处理器的NEON汇编调优，考虑到ARM指令和NEON指令走的是不同流水线、dual issue（详见Guide第五章）等等因素，如何达到最优scheduling仍是很有挑战性的问题。个人觉得，像我这种小白，还是需要有intruction-level profiler来定位性能热点进行优化，可惜目前为止尚未找到趁手的工具。另外，以前我在玩CUDA时，有不少不错的tutorial（CUDA玩家想必都会看过的要算Mark Harris的parallel reduction了）给出了step-by-step的优化思路、指标和方法，对新手快速上手CUDA、并迅速应用到新问题上很有帮助。但ARM在这方面确实很欠缺，即使是Guide里的三章Examples，也多半是告诉了最终答案而没有思路和方法。如果有ARM大神知道如何做step-by-step性能分析和优化，还望多多赐教。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[my tech talk of "the basics and design of Lua table"]]></title>
+    <link href="http://yszheda.github.io/blog/blog/2016/11/13/my-lua-tech-talks/"/>
+    <updated>2016-11-13T13:00:00+08:00</updated>
+    <id>http://yszheda.github.io/blog/blog/2016/11/13/my-lua-tech-talks</id>
+    <content type="html"><![CDATA[<p>前段时间厂里开始搞技术分享，这个月恰好CTO大大钦定了我，让我讲Docker。不过我自己一想，厂里大多数是码农，讲Docker这种偏运维的话题的话，大家可能平常用不到，也不感兴趣；恰好前段时间我在看Lua源代码，我厂技术部门要么是Lua码农，要么也是会C和C艹的，我不妨讲一讲Lua中最重要的类型之一table的基本用法及设计、实现的C代码，这样便能兼顾两种人群了。当然，Lua table能讲的话题特别多，我主要还是介绍基础为主，源代码部分我自己也做了一些简化。这里我分享下这次的slides，希望Lua老司机们多多指点：</p>
+
+<!-- more -->
+
+
+
+
+<object type="text/html" data="https://yszheda.github.io/lua-table-talk/" style="width:100%; height:600px;">
+<p><a href="https://yszheda.github.io/lua-table-talk/">the basics and design of Lua table</a></p>
+</object>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[RNN(Recurrent Neural Networks)的有趣实验]]></title>
+    <link href="http://yszheda.github.io/blog/blog/2016/08/17/have-fun-with-rnn/"/>
+    <updated>2016-08-17T10:12:00+08:00</updated>
+    <id>http://yszheda.github.io/blog/blog/2016/08/17/have-fun-with-rnn</id>
+    <content type="html"><![CDATA[<p>前段时间fracting兄分享了<a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">Andrej Karpathy一篇介绍RNN(Recurrent Neural Networks)的文章</a>，我看了之后觉得非常有趣，也用作者Andrej Karpathy写的<a href="https://github.com/karpathy/char-rnn">char-rnn</a>跑了一些实验玩玩。</p>
+
+<h1>代码实验</h1>
+
+<p>作为码农，我最开始自然地想到用<code>rnn</code>来训练代码啦！</p>
+
+<h2>lua源代码</h2>
+
+<p>我把lua-5.2.3的代码都写到一个文件里作为训练数据。<code>lua</code>的代码实在是太精炼了，竟然1M不到，只有544K！我没有更改<code>char-rnn</code>的默认参数，跑完了所有的50个<code>epoch</code>。取样时我一下就把<code>temperature</code>设为1（<code>temperature</code>是一个0到1的参数，越大随机性越高，设为1也就是机器原创性最好的条件了），结果还是比我想象中的好很多：</p>
+
+<pre><code>LUA_API const char *lua_string(lua_State *L, int toidx);
+LUAI_FUNC void luaV_op (lua_State *L);
+
+LUA_API void  (lua_setloge) (lua_State *L, lua_Degrawiol) set) {
+  int i;
+  for (i = n - "indininple")";
+  for (p = luaL_int(func, nup+n, nup), &amp;winzed);
+  return ts;
+}
+
+
+LUA_API void lua_touserdata (lua_State *L, int nargp) {
+  lua_CFunction fo = h-&gt;next;  /* path list of `must the stack is string */
+  while (p-&gt;cactconul == NA_JUMP) {  /* remove result back */
+      lua_xmove(L, 1);  /* remove functions in empty liblering */
+      if (!(!ass_epp(lua_Number)(e) - 1))
+        lua_pop(L, 1, 1, i, o2);  /* remove it informed is name */
+      else {
+        lua_getuserval(L, idx2a(L), nvalue(o));
+      lua_pushvalue(L, unsupvalue);
+          return finuserode(L, nargs, ns);
+          finit = strchr(*(s, p, lewvalues));
+        lua_pushliteral(L, "tobove");
+        tb = uv-&gt;u.l.pastpvarsing; i++)  /* logits avoid strings */
+        lua_Number k = luaL_checkint(L, 2, 1), lua_isnumber(L, idx) != 0)
+                            const char *p, expdesc v, int skiZc, L-&gt;clock, int);
+      if (lua_getisteop(L, i) != LUA_REGERMADDER) {  /* no move
+(followed framaling) */
+        L-&gt;oldpc = size_t, L-&gt;stack + G(L)-&gt;currentline;
+      checknext(ls, TK_EOS, NO_JUMP);
+    i &gt;= casch_k == NO_ORTENS sizeof(char + 1));
+    switch (ls-&gt;cause)
+      luai_writh(g));
+    j-&gt;basstring = NOPribig/ gch(o)-&gt;marked;  /* an open unsigned
+instect tocome */
+    lua_pushvalue(L, -1);  /* put to use name */
+  }
+  else {
+    int nvars[i] = g-&gt;gcvalue[g-- &lt; data = orr.in_PAXTABL;
+lua_pushbouceran(L, v2);  /* value stack */
+        sav_char_(luaL_optint(L, strfrot));
+  c = sig_meth (level) {
+      prongc = (**s == '-');
+      else {
+        break;
+    }
+    case GCSsweep = mode;  /* skip liblare `next' */
+    if (gnodead(t, a)) {  /* called old return */
+      lua_pushstring(L, name);
+      setnilvalue(o);
+  }
+  else {
+    while (l &lt; l)
+      closeL;
+      return NULL;
+    }
+    ttydebuffield(L, LUA_FINTFOCLEN);  /* signed invalid of capture is
+a sunpting */
+    setsvalue2s(L, L, luaL_checkinteger)(L, 1), LUA_TFuLLEA) +
+(L-&gt;size = LUA_RIDS);  /* elual library operand matched (filencat) */
+    if (stmp) res = rowninizers[i]; i-valid */
+    makes = 0;
+    }
+    if (l &lt;= i &lt; args) {
+    luaL_addchar(&amp;b, collectar(s, n, 1));
+    if (lua_isnoneornil(L, 2))  /* not noting thave arguments */
+      /* stat -&gt; == L-&gt;ci-&gt;nexps - '?' */
+      if (fermst = 1) {
+      if (luaS_eqstr(luaL_checknumber(L, 1))) {
+        if (*(s != k &gt;&gt; 2] || ttisstring(g-&gt;GCasbertocaum(L)) != 0 &amp;&amp;
+!luaD_freall(L, hvars(luaL_len(p, 0));
+      break;
+    }
+    case LC_LOADG2(L); lua_pushcclosure(L, idx12x(f));
+    setobj2s(L,
+                 "L_callint " function");
+                                               singleballstatis);
+  shrint (lua_tointeger(L, 1), luaT_gettmotableark, (lua__collok(L, 1,
+0, 2))) == l2);
+  return 1;
+}
+
+
+static int db_setret (lua_State *L) {
+  int status = lua_load(L, lua_tointeger(L, L, "cnonal "-") " too pvarial be
+* with number of yi-valid function");
+  (func == LUA_TFUNCTI NUM: baset2(obj2gco(k));
+  checkStaceenstarn(l, nvalue(o));
+  api_incr_top(L);
+  lua_unlock(L);
+}
+
+
+LUA_API const char *lua_pushstring (lua_State *L, int n, const char *e) {
+  const char *msg = lua_tolstring(L, -1, &amp;ls);
+  lua_unlock(L);
+  if (status == LUA_OK) dectal(SeEMASK);
+  return 1;
+}
+
+
+static void pushfunccall (lua_State *L) {
+  Labell check;
+   lua_assert(argv[i] == LUA_TTABLE);  /* table to compert */
+}
+</code></pre>
+
+<p>采样结果比较像的是：</p>
+
+<ul>
+<li><p>结构体和函数命名。有相当一部分和<code>lua</code>源代码是一样的，例如<code>LUA_API</code>、<code>LUAI_FUNC</code>、<code>lua_State</code>、<code>lua_pushvalue</code>、<code>luaL_checkint</code>等等。即使是rnn自造的，也有一些挺符合规范的，例如<code>lua_string</code>、<code>luaV_op</code>，几乎可以以假乱真。一个稍微差一点的例子是<code>luaT_gettmotableark</code>，尽管末尾造的词看不出意义，但仍然符合<code>lua</code>源代码里API的命名规则：<code>lua${一个大写字母表示API类型}_${方法名}</code>（例如<code>lua</code>源代码里，<code>table</code>类型的API叫做<code>luaT_xxx</code>，<code>string</code>类型的叫做<code>luaS_xxx</code>，<code>lua</code>虚拟机的API叫做<code>luaV_xxx</code>）。</p></li>
+<li><p><code>lua</code> API中经常用状态机结构体指针作为参数传递，<code>rnn</code>采样的结果中，也经常以<code>lua_State *L</code>作为函数定义的第一个参数，在调用函数时也常常以<code>L</code>作为第一个传入的参数。</p></li>
+</ul>
+
+
+<p>比较不理想的是：</p>
+
+<ul>
+<li><p>括号、双引号不成对而引起的语法错误。</p></li>
+<li><p>上下文的语义相关性差，例如上面那段代码最后的函数<code>pushfunccall</code>，传入参数<code>L</code>是没有被用到的，里面用到的<code>argv</code>并没有被声明。</p></li>
+</ul>
+
+
+<h2>cocos2d-x源代码</h2>
+
+<p>我用<code>cocos2d-x</code>的源代码做了实验。<code>cocos2d-x</code>的代码就臃肿得多了，合起来有32M。由于数据较大，我训练时就把<code>rnn_size</code>调高，设了700，<code>num_layers</code>设了2。一开始用CPU训练，特别慢，中途我就弃疗了。后来把OpenCL配置好，用集显来训练，比原来大概快了一倍——毕竟是集显没多少核，所以无法达到10倍的加速比，要是能用以前实验室的K20X跑就好了。</p>
+
+<p>这个实验跑得特别慢，我中间机器还重启过，重跑了<code>train.lua</code>，目前只跑了11.32个<code>epoch</code>。所以采样结果就不太理想了，要么是一大段注释，要么各种语法错误，这应该跟<code>cocos2d-x</code>的代码风格和采用<code>C</code>、<code>C++</code>、<code>lua</code>、<code>Python</code>、<code>Objective-C</code>等多种语言也有关系。我把<code>temperature</code>设为0.5才出来下面东拼西凑得稍微像样的结果：</p>
+
+<pre><code>/* &lt;/key&gt; TE'Casting C++ Transfer SQLite core constraints.
+
+ */
+
+typedef struct SPender {
+
+    /*! The return code for the content of the content of the control
+object may be passed to the first character. "
+
+                                              no tileset -- called
+requested to not support android definitions are allocated as the ba
+
+ckup processed to any this
+
+        * directory.
+
+     */
+
+    std::string getControllerDataBits() const;
+
+
+
+    /** @brief Retrieves a GLProgram with the specified name of the
+current position of the container.
+
+     * @param vector The new z-order of the key of this node below.
+
+     *  @param contains The integer key for the key.
+
+     *  @return the integer key for setting the key to write to the
+key for the key.
+
+     *  @param[in]          the number of the key of the key.
+
+    */
+
+    virtual void visit(const char* target, int defaultValueCount);
+
+
+
+    /** create a new function with an automatic code from a loader to
+the ceater's container with a dictionary, the format of the first
+
+ in the writer. The tile did the
+
+        types since they are not supported
+
+    */
+
+    bool onFloat;
+
+    /*! The cropping to allow the third particular after the width, in
+screen coordinates. The value must be the offset to the interfac
+
+e to disk.
+
+     */
+
+    void setUniformValue(const std::string &amp;url);
+
+    /** @brief Returns the number of tilesets the one node's container
+window, it means the default world set is the standard orientati
+
+on, the director will be returned.
+
+     *  @return The number of elements also returns NULL.
+
+     *  @return An autorelease object pointer, or a NULL pointer.
+
+    */
+
+    inline const char* getTileGID() const { return _restoreOriginalFrame; };
+
+    inline Vec2 _projection;
+
+    std::string _subStepping;
+</code></pre>
+
+<h1>自然语言实验</h1>
+
+<h2>英文文章</h2>
+
+<p>我写了个很简单的爬虫去爬一个<a href="http://www.musicweb-international.com/">英文音乐网站</a>上的乐评文章，完整地爬了1.8G，但后来我发现：这个网站的样式有改版，而我是通过<code>css</code>去筛选乐评的，导致里面有些数据有问题。这个网站上的乐评基本是碟评，我最开始也想到把碟的标题、曲目和乐评都抓出来一起训练，但后来也是因为网页样式不够统一而作罢，只抓了乐评的内容。最后用的数据大概只有两千多篇乐评文章，12M，所有的内容我都过了一遍，删掉了其中有问题的数据——因为当时不知道有问题的数据大概长啥样，只用正则表达式很简单地筛掉了完全没有出现英文字符的数据，所以这两千多条数据我竟然是很蠢地人肉看的orz&hellip;</p>
+
+<p>训练时把<code>rnn_size</code>设到了300，一共训练了50个<code>epoch</code>。采样时我传了一些音乐家的名字作为<code>-primetext</code>参数，不过奇怪的是，产生的文本并不是我所想的“命题作文”，里面包含我所设定的音乐家名字的很少。</p>
+
+<p>下面是<code>temperature</code>为0.8时产生的一些文本：</p>
+
+<pre><code>                    John Eliot Gardiners' music has been recorded by Machiavey
+                Brahms and the Telarc hand. Here, though it seems the
+‘death’ with Ian Walton in the soloist
+                        sounds truly resigned as Bartók in . The
+                      assurance composer brings to the narrative evocation
+                      climax. There’s much lovely theme for Mass
+                    and of the Boris. All composers look forward to
+her cycles, and the notes that sticed him much snob-is off-air points
+out.  The detailed and the Canzonetta (Sheher
+                    is in the collective for distribution for the
+                      father to the and spirit of the composer’s voice from DG
+                    many Greeks.
+                  The last piece is rather than true to the programme
+                    for their top recommendation. Add to Ireland’s
+                      first performance has one of the most slight lovely small
+                      performances of Parama Mozdianic’s music as well
+as composer and should
+                        write and there is little of its own
+individual aspects. The recording of both the recording by Royal Eleno
+Stevens, the disc
+                      () “…Better and far criticised into the second
+movement – most popular of a composer
+                        to summarise what was able to depict the way
+through it with
+                    introspective substance to the rest of the most
+                      enjoyable theme. It is worth a major prelude, he
+had been a versatile, subdued violinist who points out with
+                    the end of the Sarah and of the Roman concerto for
+                    a performance in the late CD arrangement of the
+soloist which make the strange
+                    music that tells the sounds to create in the
+                      change of rare and warm long, romantic partnership.
+                      So too much of it all recently is perfectly
+contradictoned, for me,
+                      but the harmonies are in the more prominent
+                music at the start to “Goldsmith” because
+                    the result is not as if not merely moving in the
+first two sessions. From there  were my repeat that one may seem like
+a position appear to be listening to my beef?” Protestating the
+                concert-half and the same text – making “destinal” the
+use of the innocent
+                performances in the pleasure of the piece,
+                      but there was a time to convince the ‘allegro
+                    from the shameful of the experience as the price
+of the piece’ (the
+                      most movement of Byrd
+                    John Carroll) and his own sights of the first movement from
+                      his opera too. This was the earlier half of the
+text. So this is long realised
+                    from one of the best deserts projects which work very well
+                    as like yourself, I should even prevent the
+correct paces on a prejudice and clear that can also work certainly
+                    - a compelling performance as principal force and
+his live performers in
+                    the shadow of the work. This is the disc of the talking.
+                      This was a well-used recording …. Yet for this
+                      recording has more intense from a disc amasted
+the Roman Bale’s choir,
+                        a pastoral player from the following ‘Composer’ (tr.
+                      8) the first slow piece all low delicate and
+intense and stunning and then chosen music.
+</code></pre>
+
+<pre><code>These are composers that would say that John Williams has said that
+happily should be struck by the singers of the score for a sequel
+evocative and character of several Scarlatti.
+  The score is also released and with the price of the separately
+sopranctic piece and making a case of practical distinction with the
+'methoy of information a tragically devout and distant and generally
+small exploration).  Strobbe injustice that the sound is subtly but
+distanced over flat illustrate scores by the score by Glennie twistens
+and the preceding musicians who are uncommonly detailed with much of
+the original MGM track. Debney writes down the score, it is, as this
+classic opera, Supermulation player
+  of Bernard Herrmann and the writing of the Sinfonia (Herberton Koon
+&amp; Glyniform Graham) where he wrote some composers, and is a pleasant
+work for very little before I think I am of completely different
+settings of the score it is, in the background forty band of score for
+ and , one of the most original excerpts only a revelation to warning
+you without
+computer use I don’t certainly is
+be creating a small sound. Morricone’s ‘Discovery’ is all the same
+passages featuring luxurial taste. \rAOr tradition and Victoria’s
+sampled confusion from the cinema setting.
+His admirable period of recognizably derivatives recalling its
+subject. Highly recommended.
+</code></pre>
+
+<p>整篇还是比较前言不搭后语，但是单看句子还是比较通顺的，也用了不少音乐家的名字（Gardiner、Brahms、Scarlatti）、厂牌名（Telarc、DG）和音乐术语（Canzonetta、Sinfonia）。</p>
+
+<h2>中文古诗词</h2>
+
+<p>我觉得中国古诗词是极好的数据集：</p>
+
+<ul>
+<li><p>我对把文学作品当做机器学习的数据集也很感兴趣，很好奇最后会产生什么样的“作品”。</p></li>
+<li><p>个人认为机器对于处理structed data更为在行，而在文学中，古典诗词无疑是很有规律的。相比之下，散文、小说等现代文学总归是太散了些。</p></li>
+<li><p>还有其他一些规律性很强的文体，例如日本的俳句和川柳，但我朝的古诗词起码我们能看得懂——字啊！</p></li>
+</ul>
+
+
+<p>接下来就是从哪里获得数据的问题了。虽然电子书网站不少，不难下载到这方面文本的txt，但这种txt有些问题我不太满意：</p>
+
+<ul>
+<li><p>会把某些字拆开，例如把“勖”写成“冒力”。</p></li>
+<li><p>会插入一些注解，但我并不想把注释加到训练数据里面。</p></li>
+</ul>
+
+
+<p>后来我发现<a href="http://ctext.org/">Chinese Text Project</a>上有一些资源，而且并没有上述问题，所以我也写了一个简单的<a href="https://github.com/yszheda/ctext_crawler">爬虫</a>去爬《全唐诗》。不过该网站禁止使用自动下载软件，我最开始忘了调爬虫的<code>DOWNLOAD_DELAY</code>参数，所以在爬了一些数据后就被封了&hellip;后来又用代理继续爬，总共爬了2.7M（4794首诗），每首诗按照如下格式存成了json文件：</p>
+
+<pre><code>   {
+      "title" : "《寄溫飛卿箋紙》",
+      "content" : "\n三十六鱗充使時，數番猶得裹相思。\n待將袍襖重抄了，盡寫襄陽播掿詞。",
+      "author" : " 段成式著"
+   },
+</code></pre>
+
+<p>我用<code>char-rnn</code>训练了50个<code>epoch</code>，诗人<code>rnn</code>在脾气最大（<code>temperature</code>为1）时所作的大作如果集结出版，就叫它<a href="https://coding.net/u/GaloisPlusPlus/p/galoisplusplus/git/raw/source/source/downloads/code/rnn/quantangshi-sample.json">《循神网诗选》</a>（循神网=循环神经网络=Recurrent Neural Networks=RNN）吧XDD</p>
+
+<p>《循神网诗选》中，标题和署名是模仿得最难以分辨的，能一眼看出是机器胡诌的极少——例如有一则标题很长的诗。但是诗的内容总体就是胡言乱语了。不过还有一些有意思的句子：“萬里曙山牢”，用“萬里”“牢”形容山，很形象啊；“春風寒酒憔悴殺”，用的词“寒”“憔悴”意象很相近啊。不过由于前言不搭后语，整联写得好的比较少，《循选》读下来，似乎就“秋水燕蘭樹，春暉漫柳霧”还有对仗工整之处。不过刚刚学诗的循神网来说也是个奇迹，循神网真是骨骼精奇啊！</p>
+
+<p>另外要说明一下，<code>char-rnn</code>目前是以byte而非utf8的一个word来处理的，神奇的是我几乎没在采样中发现有不符合utf8编码的情况——191首诗里仅有三四首不能正确解码——看来<code>rnn</code>竟然很好地掌握了utf8编码的规律。<code>json</code>格式就更不在话下啦！</p>
+
+<p><code>char-rnn</code>上也有一些utf8 word的<a href="https://github.com/karpathy/char-rnn/pull/12">PR</a>，但因为兼容性问题没被接受，我也照着他们改的地方写了个patch，还有点问题，等调好了之后再跑古诗词的实验，应该会有更有趣的结果。</p>
+
+<h1>其他structed data</h1>
+
+<p>此外，我想到网络数据包也是一种可以用来训练的structed data，所以也用<code>tcpdump</code>抓了一些包做实验。不过需要按照<a href="https://github.com/karpathy/char-rnn/issues/51#issuecomment-129625032">这个issue</a>所说的，稍微改下<code>char-rnn</code>的代码。目前还没跑完训练，等训练完50个<code>epoch</code>后，再来看看采样生成的数据能用<code>tcpdump</code>读取的正确率有多高。</p>
+
+<p>说到非文本的structed data，我还想到了图片、语音和音乐，其中我最感兴趣的还是音乐——各位应该也猜到本乐渣想对音乐下手了吧XD。但是用<code>rnn</code>来训练音乐有一些问题，这也使得它暂时还处于我的脑洞阶段：</p>
+
+<ul>
+<li><p>最能反映音乐“原貌”的恐怕还是音频，但是音频文件有不同格式的编解码，并不符合<code>rnn</code>的character-level language model。就好比<a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">Andrej Karpathy那篇博文</a>里所举的“hello”的例子：如果“hello”这个文本被加密过，那么两个连续的“l”很可能被加密函数映射成不同的字符，诸如字母"h"后较大可能跟的是字母“e”这种规律也将失效。音频虽然对聆听者而言最能反映音乐“原貌”，但音频文件本身与音乐“原貌”还相距甚远，或许需要从中提取有用的特征作为数据集，才能体现音乐中的有规律之处。</p></li>
+<li><p>不能直接用音频文件，只能退而求其次了。你应该想到一种很古老的将音乐图像化的方式——乐谱——了吧？不过乐谱在我看来还主要是作曲家记谱的工具，用于还原音乐演奏会失真。例如钢琴乐谱上虽然会有踏板记号，但实际演奏时踏板应该踩多深、踩多久？此外乐谱也没有记录下演奏者手指所用的力度等细节，而这些细节往往又是庸才与大师之间的鸿沟。后来我想到一种比乐谱更为精确的方式，那就是<a href="https://en.wikipedia.org/wiki/Piano_roll">纸卷录音</a>。不过目前虽然不乏用纸卷放在自动钢琴上重放而录制的录音，但纸卷本身却很难在网上找到。</p></li>
+<li><p>即使有了纸卷这种能较精确还原音乐的载体，还有一个关键问题，那就是如何把这种图像转化成文本，而且这种编解码转换应该是可逆的。我发现，就算对于精确度稍逊的乐谱来说，这种要求也很难实现。Andrej Karpathy那篇博文里提到一篇采用rnn训练音乐的<a href="https://highnoongmt.wordpress.com/2015/05/22/lisls-stis-recurrent-neural-networks-for-folk-music-generation/">文章</a>，里面用了一种很简单的<a href="http://abcnotation.com/blog/2010/01/31/how-to-understand-abc-the-basics/">ABC记谱法</a>来把乐谱转成文本，再把<code>rnn</code>生成的文本转成midi。不过这种记谱法实在是太简陋了，连和弦都无法表示，更遑论多声部的旋律了。</p></li>
+</ul>
+
+
+<p>说到编解码，我还想到上个月听的巴西生物艺术家<a href="http://ekac.org/">Eduardo Kac</a>的一场讲座。其中他早年的一件作品<a href="http://www.ekac.org/geninfo2.html">Genesis</a>给我的印象很深：Kac从《圣经》里摘了一句话“Let man have dominion over the fish of the sea, and over the fowl of the air, and over every living thing that moves upon the earth.”，把它转成莫尔斯码，又把莫尔斯码转换成ACTG序列。他将这段序列植入细菌中，然后邀请观众对细菌施以紫外光照，让细菌产生变异。在展览结束后，Kac把这段变异后的DNA重新转成莫尔斯码，最后再转成英语（编解码过程和结果可以看<a href="http://www.ekac.org/genseries.html">这个网页</a>的前两张图）。 Kac的这个作品给了我一些启发，我也由此开下脑洞：如果把某段DNA序列拿给rnn做训练，采样得到新的DNA序列，那么后者将合成什么样的蛋白质、表现出怎样的性状？这想法太疯狂啦，还好我不是biohacker XD</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Take Tmux Snapshots Automatically (2)]]></title>
+    <link href="http://yszheda.github.io/blog/blog/2016/08/07/take-tmux-snapshots-automatically-2/"/>
+    <updated>2016-08-07T16:12:00+08:00</updated>
+    <id>http://yszheda.github.io/blog/blog/2016/08/07/take-tmux-snapshots-automatically-2</id>
+    <content type="html"><![CDATA[<p>还记得本渣以前写的<a href="http://galoisplusplus.coding.me/blog/2014/02/23/take-tmux-snapshots-automatically/">给tmux现场做备胎的脚本</a>吗？其实后来本渣就没再去拓展<a href="https://gist.github.com/yszheda/9138288">这个脚本</a>了，不是因为之前的脚本运行得够好不需要再改了，而是在写好那个脚本那年，有一个工具横空出世，让本渣觉得再也不用造轮子了——好了，不卖关子了，这个工具就是<code>tmux</code>的<a href="https://github.com/tmux-plugins/tmux-resurrect">resurrect插件</a>！</p>
+
+<p>resurrect官方有一个<a href="https://vimeo.com/104763018">使用录屏</a></p>
+
+<iframe src="https://player.vimeo.com/video/104763018" width="640" height="360" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+
+
+<p><a href="https://vimeo.com/104763018">Tmux Resurrect plugin</a> from <a href="https://vimeo.com/brunosutic">Bruno Sutic</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
+
+
+<p>怎么样？狂拽酷炫屌！我们想要有的功能基本都有了吧！而且resurrect还部分支持<a href="https://github.com/tmux-plugins/tmux-resurrect/blob/master/docs/restoring_programs.md">恢复panel里运行的程序</a>啊有木有！要知道这并不好实现，以前本渣写备胎脚本时也折腾过，当时还只能在恢复panel时给出上次运行程序的提示。
+不过resurrect插件需要手动保存和恢复<code>tmux</code>现场，如果需要自动化的话，可以再配合<a href="https://github.com/tmux-plugins/tmux-continuum">continuum插件</a>来使用。</p>
+
+<p>好了，软文就写到这么多了，下面我们来看看如何安装使用。</p>
+
+<p>首先查看<code>tmux</code>版本：</p>
+
+<pre><code>tmux -V
+</code></pre>
+
+<p>resurrect插件需要<code>tmux</code>1.9以上的版本。如果你的版本低于1.9，那么升级是必须的，其实把<code>tmux</code>升级到1.9以上还是蛮推荐的。</p>
+
+<p>这里推荐安装<a href="https://github.com/tmux-plugins/tpm">tpm (Tmux Plugin Manager)</a>做<code>tmux</code>插件管理，再通过<code>tpm</code>安装continuum等插件：</p>
+
+<pre><code>git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+</code></pre>
+
+<p>编辑<code>~/.tmux.conf</code>，在文件末尾加入以下几行:</p>
+
+<pre><code># Set default shell to zsh
+# set-option -g default-shell /bin/zsh
+
+# Use the following line to fix OS X tmux problems
+# set-option -g default-command "reattach-to-user-namespace -l zsh"
+
+# List of plugins
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'tmux-plugins/tmux-resurrect'
+set -g @plugin 'tmux-plugins/tmux-continuum'
+
+# Other examples:
+# set -g @plugin 'github_username/plugin_name'
+# set -g @plugin 'git@github.com/user/plugin'
+# set -g @plugin 'git@bitbucket.com/user/plugin'
+
+# Enable automatic restore
+set -g @continuum-restore 'on'
+
+# Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
+run '~/.tmux/plugins/tpm/tpm'
+</code></pre>
+
+<p>如果你的默认shell是<code>zsh</code>，请把这句的注释去掉：</p>
+
+<pre><code>set-option -g default-shell /bin/zsh
+</code></pre>
+
+<p>如果你用的是Mac OSX，把这句的注释也去掉：</p>
+
+<pre><code>set-option -g default-command "reattach-to-user-namespace -l zsh"
+</code></pre>
+
+<p>这主要是<code>tmux</code>在OSX下水土不服（更详细的问题描述可以看这篇文章：<a href="http://www.economyofeffort.com/2013/07/29/reattach-to-user-namespace-the-fix-for-your-tmux-in-os-x-woes/">Reattach-to-user-namespace: The Fix for Your Tmux in OS X Woes</a>），需要用<a href="https://github.com/ChrisJohnsen/tmux-MacOSX-pasteboard">reattach-to-user-namespace</a>黑科技，所以你最好也用<a href="http://www.macports.org"><em>MacPorts</em></a>或者<a href="http://brew.sh"><em>Homebrew</em></a>装下这个工具：</p>
+
+<pre><code>port install tmux-pasteboard
+</code></pre>
+
+<pre><code>brew install reattach-to-user-namespace
+</code></pre>
+
+<p>在终端下执行以下命令更新<code>tmux</code>配置，运行<code>tpm</code>：
+<code>
+tmux source ~/.tmux.conf
+</code></p>
+
+<p>最后在<code>tmux</code>下运行<code>prefix + I</code>（如果你没改键绑定的话就是<code>&lt;Ctrl&gt;-b + &lt;Shift&gt;-i</code>）安装插件。你还可以通过<code>prefix + U</code>（<code>&lt;Ctrl&gt;-b + &lt;Shift&gt;-u</code>）更新插件，用<code>prefix + &lt;Alt&gt; + u</code>删除插件。</p>
+
+<p>安装完成之后，你可以在<code>~/.tmux/plugins/</code>里找到每个插件的代码目录。resurrect插件还有一个<code>run_tests</code>脚本用于检查是否安装正确，不过要运行这个脚本需要装上虚拟化神器<a href="https://www.vagrantup.com">vagrant</a>。</p>
+
+<p>如果安装正确，continuum插件会每隔15分钟产生一份备胎，我们也可以用<code>prefix + &lt;Ctrl&gt;-s</code>手动备份，用<code>prefix + &lt;Ctrl&gt;-r</code>手动恢复——vimer吐槽一记，这热键定义得好emacs风&hellip;</p>
+
+<p>下面我们来看看resurrect插件产生的<code>tmux</code>环境备胎。在<code>tmux</code>环境备胎生成之后，在<code>~/.tmux/resurrect/</code>目录下就会有名为<code>tmux_resurrect_$(date).txt</code>的文本文件，同时会有一个叫<code>last</code>的软链接指向最新的<code>tmux_resurrect_$(date).txt</code>。那么这个神秘的txt文件里有啥呢？这里本渣随意贴上一份：</p>
+
+<pre><code>pane    0       0       :apt-fast       1       :*      0       :/home/ys    1       sudo  :sudo apt-fast install linux-image-3.13.0-70-generic-dbgsym
+pane    0       1       :~      0       :       0       :/home/ys    1       zsh     :
+pane    0       2       :~      0       :-      0       :/home/ys    1       zsh     :
+window  0       0       1       :*      c51d,95x28,0,0,0
+window  0       1       0       :       c51e,95x28,0,0,1
+window  0       2       0       :-      c51f,95x28,0,0,2
+state   0
+</code></pre>
+
+<p>啊哈，看起来思路和本渣<a href="https://gist.github.com/yszheda/9138288">之前脚本</a>的<a href="http://galoisplusplus.coding.me/blog/2014/02/23/take-tmux-snapshots-automatically/">思路</a>差不多嘛！只不过resurrect插件记录的信息更详细，还做了键绑定。resurrect的代码也不难懂，如果你对它的实现感兴趣的话可以去阅读一下啦～</p>
+]]></content>
+  </entry>
+  
+</feed>

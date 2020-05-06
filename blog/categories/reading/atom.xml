@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: reading | My Octopress Blog]]></title>
+  <link href="http://yszheda.github.io/blog/blog/categories/reading/atom.xml" rel="self"/>
+  <link href="http://yszheda.github.io/blog/"/>
+  <updated>2020-05-06T20:46:12+08:00</updated>
+  <id>http://yszheda.github.io/blog/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[my tech talk of "the basics and design of Lua table"]]></title>
+    <link href="http://yszheda.github.io/blog/blog/2016/11/13/my-lua-tech-talks/"/>
+    <updated>2016-11-13T13:00:00+08:00</updated>
+    <id>http://yszheda.github.io/blog/blog/2016/11/13/my-lua-tech-talks</id>
+    <content type="html"><![CDATA[<p>前段时间厂里开始搞技术分享，这个月恰好CTO大大钦定了我，让我讲Docker。不过我自己一想，厂里大多数是码农，讲Docker这种偏运维的话题的话，大家可能平常用不到，也不感兴趣；恰好前段时间我在看Lua源代码，我厂技术部门要么是Lua码农，要么也是会C和C艹的，我不妨讲一讲Lua中最重要的类型之一table的基本用法及设计、实现的C代码，这样便能兼顾两种人群了。当然，Lua table能讲的话题特别多，我主要还是介绍基础为主，源代码部分我自己也做了一些简化。这里我分享下这次的slides，希望Lua老司机们多多指点：</p>
+
+<!-- more -->
+
+
+
+
+<object type="text/html" data="https://yszheda.github.io/lua-table-talk/" style="width:100%; height:600px;">
+<p><a href="https://yszheda.github.io/lua-table-talk/">the basics and design of Lua table</a></p>
+</object>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Margaret Campbell《不朽的小提琴家》读书笔记]]></title>
+    <link href="http://yszheda.github.io/blog/blog/2014/09/22/the-great-violinists-reading-nodes/"/>
+    <updated>2014-09-22T22:00:00+08:00</updated>
+    <id>http://yszheda.github.io/blog/blog/2014/09/22/the-great-violinists-reading-nodes</id>
+    <content type="html"><![CDATA[<p>我读的是台版翻译，笔记放到了个人wiki上。不得不说里面的小提琴流派图和各种历史相片真是太赞了，我把它们都扫描了一遍放到链接里~</p>
+
+<object type="text/html" data="http://yszheda.github.io/wiki/the-great-violinists" style="width:100%; height:100%">
+<p><a href="http://yszheda.github.io/wiki/the-great-violinists">Margaret Campbell《不朽的小提琴家》读书笔记</a></p>
+</object>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Enrico Stinchelli《不朽的指挥家》读书笔记]]></title>
+    <link href="http://yszheda.github.io/blog/blog/2014/09/22/I-Grandi-Directtori-d-Orchestra-reading-nodes/"/>
+    <updated>2014-09-22T22:00:00+08:00</updated>
+    <id>http://yszheda.github.io/blog/blog/2014/09/22/I-Grandi-Directtori-d-Orchestra-reading-nodes</id>
+    <content type="html"><![CDATA[<p>我读的是台湾翻译的Enrico Stinchelli的著作《I Grandi Directtori d'Orchestra》，做了些摘抄在个人wiki上：</p>
+
+<object type="text/html" data="http://yszheda.github.io/wiki/conductor-history" style="width:100%; height:100%">
+<p><a href="http://yszheda.github.io/wiki/conductor-history">Enrico Stinchelli《不朽的指挥家》读书笔记</a></p>
+</object>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Practical Vim 读书笔记]]></title>
+    <link href="http://yszheda.github.io/blog/blog/2014/05/22/practical-vim-reading-notes/"/>
+    <updated>2014-05-22T13:00:00+08:00</updated>
+    <id>http://yszheda.github.io/blog/blog/2014/05/22/practical-vim-reading-notes</id>
+    <content type="html"><![CDATA[<p>之前我在<a href="http://drewneil.com/">Drew Neil</a>大牛的<a href="http://vimcasts.org/episodes/">vimcasts</a>网站上学到了不少Vim技巧，也知道他出了一本<a href="http://pragprog.com/book/dnvim/practical-vim">《Practical Vim》</a>的书，当时就很想拜读一下：</p>
+
+<p>{% img <a href="http://imagery.pragprog.com/products/241/dnvim.jpg">http://imagery.pragprog.com/products/241/dnvim.jpg</a> %}</p>
+
+<p>后来在图书馆预约了这本书，等了许久它才轮流到我手上。这本书包含了121个Vim的Tips，总体上属于基础及稍进阶级别。
+我比较欣赏此书的还是各种范例，不少是实际使用Vim时经常会遇到的场景。此外，强大的Vim神器常常会提供给我们许多种解决方案来处理同一问题，该书也包含了一些方法论的探讨。
+读这本书的同时我也摘了一些笔记放到<a href="http://yszheda.github.io/wiki/PracticalVim.html">我的个人wiki</a>上，部分示例也放上了录屏：</p>
+
+<!-- more -->
+
+
+
+
+<object type="text/html" data="http://yszheda.github.io/wiki/PracticalVim.html" style="width:100%; height:100%">
+<p><a href="http://yszheda.github.io/wiki/PracticalVim.html">我的《Practical Vim》读书笔记</a></p>
+</object>
+
+
+<p>尽管该书的不少技巧我之前早已知晓，但在整理笔记的过程中还是受益匪浅，颇有相见恨晚之感。由此我也推荐该书给Vim的入门者，相信它会让你的Vim技能有突飞猛进的进步。</p>
+
+<!--
+```
+ffmpeg -f x11grab -r 25 -s 1366x768 -i :0.0 -vcodec huffyuv tip33.avi
+```
+-->
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[弗洛姆《爱的艺术》读书笔记]]></title>
+    <link href="http://yszheda.github.io/blog/blog/2013/12/21/the-art-of-loving-reading-notes/"/>
+    <updated>2013-12-21T13:00:00+08:00</updated>
+    <id>http://yszheda.github.io/blog/blog/2013/12/21/the-art-of-loving-reading-notes</id>
+    <content type="html"><![CDATA[<p>最近跟舍友小书虫借了一本心理学家弗洛姆的著名作品《爱的艺术》：</p>
+
+<p>{% img <a href="http://img3.douban.com/lpic/s3074574.jpg">http://img3.douban.com/lpic/s3074574.jpg</a> %}</p>
+
+<p>与浩如烟海的扯淡文艺书不同，这本一百来页的小书中逻辑之缜密、结构之严谨令人折服，而且弗洛姆的文笔使得这些一环扣一环的哲学论述毫不枯燥无味。以下我把一些内容整理成了思维导图，弗洛姆严密的思维和精炼的警句由此可以窥见一斑：</p>
+
+<iframe width='640' height='480' frameborder='0' src='http://mind42.com/mindmap/9c6dd80b-6322-4140-b64f-459459aea7e9?rel=embed'></iframe>
+
+]]></content>
+  </entry>
+  
+</feed>
