@@ -276,7 +276,8 @@ pixel_yuv.val[0] = vcombine_u8(vqshrn_n_u16(low_y, 8), vqshrn_n_u16(high_y, 8));
 * 可以使用`gdb`远程调试ARM设备上的程序：
 
 1.在设备上启动`gdbserver`（假设在6666端口吧，哈哈我比较喜欢6666）：
-```
+
+```bash
 # <program>是程序名
 # <arg>是程序参数
 $ gdbserver localhost:6666 <program> <arg>

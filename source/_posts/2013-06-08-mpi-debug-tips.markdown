@@ -127,6 +127,7 @@ Prof. Matloff的方法没有一个类似```MPI_DEBUG```的macro。
 
 （
 什么？你犯二了，在源代码中加了一句
+
 ```c
 #define MPI_DEBUG
 ```
