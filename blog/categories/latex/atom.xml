@@ -4,7 +4,7 @@
   <title><![CDATA[Category: latex | Galoisplusplus]]></title>
   <link href="http://yszheda.github.io/blog/blog/categories/latex/atom.xml" rel="self"/>
   <link href="http://yszheda.github.io/blog/"/>
-  <updated>2020-05-06T20:55:06+08:00</updated>
+  <updated>2020-05-07T20:38:55+08:00</updated>
   <id>http://yszheda.github.io/blog/</id>
   <author>
     <name><![CDATA[Galoisplusplus]]></name>
@@ -28,18 +28,19 @@
 <p>我推荐使用BibTeX，尽管要编译四次，但维护一个文献数据库却常常能重用bib，省得下次要引用同样的文献时要加入重复的bibitem。目前我主要由<a href="http://www.mendeley.com/">mendeley desktop</a>管理文献，也由它来产生.bib文件。</p>
 
 <p>有时候我需要分章节来显示参考文献，这时候要用到<a href="http://www.ctan.org/pkg/chapterbib">chapterbib</a>。加入：
-{% codeblock lang:tex %}
-\usepackage{sectionbib}{chapterbib}
-{% endcodeblock %}
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='tex'><span class='line'><span class="k">\usepackage</span><span class="nb">{</span>sectionbib<span class="nb">}{</span>chapterbib<span class="nb">}</span>
+</span></code></pre></td></tr></table></div></figure>
 在对应的章节末尾加入平常在文章末尾加入的这两行代码即可（<bib-file>为.bib文件的名称）：
-{% codeblock lang:tex %}
-\bibliographystyle{plain}<br/>
-\bibliography{<bib-file>}
-{% endcodeblock %}
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='tex'><span class='line'><span class="k">\bibliographystyle</span><span class="nb">{</span>plain<span class="nb">}</span>&lt;br/&gt;
+</span><span class='line'><span class="k">\bibliography</span><span class="nb">{</span>&lt;bib-file&gt;<span class="nb">}</span>
+</span></code></pre></td></tr></table></div></figure>
 如果正文中没有出现引用而想把.bib文件的所有文献放到参考文献中，则需要在以上命令前加上：
-{% codeblock lang:tex %}
-\nocite{*}
-{% endcodeblock %}</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='tex'><span class='line'><span class="k">\nocite</span><span class="nb">{</span>*<span class="nb">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
 
 <h2>关于代码高亮（source code highlight）</h2>
 
@@ -70,7 +71,7 @@ xleftmargin=0.1\linewidth
 </code>
 效果如下：</p>
 
-<p>{% img /images/listings.png %}</p>
+<p><img src="/images/listings.png"></p>
 
 <p>后来我在Stack Overflow上看到了这个问答:
 <a href="http://stackoverflow.com/questions/1966425/source-code-highlighting-in-latex">http://stackoverflow.com/questions/1966425/source-code-highlighting-in-latex</a>
@@ -78,7 +79,7 @@ xleftmargin=0.1\linewidth
 
 <p>以下是我用minted显示的CUDA代码片段：</p>
 
-<p>{% img /images/minted.png %}</p>
+<p><img src="/images/minted.png"></p>
 
 <p>以上效果只需要在$\LaTeX$代码中将要显示的代码放在以下两行中间即可，非常方便：
 <code>tex
@@ -106,10 +107,157 @@ xelatex -shell-escape -8bit &lt;tex-file&gt;
 
 <p>这方面，我早先试过用<a href="http://xy-pic.sourceforge.net/">xypic</a>，xypic的\xymatrix已经基本能对付一般的关系图了，但我更看中的是它支持object。我也曾经用这一特性来画过一个parser输入输出的简单示意图：</p>
 
-<p>{% img /images/xypic.png %}</p>
+<p><img src="/images/xypic.png"></p>
 
 <p>生成这张图的tex源代码如下：
-{% include_code structure.tex %}
+<figure class='code'><figcaption><span> (structure.tex)</span> <a href='/downloads/code/structure.tex'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+</pre></td><td class='code'><pre><code class='tex'><span class='line'><span class="k">\documentclass</span><span class="nb">{</span>article<span class="nb">}</span>
+</span><span class='line'><span class="k">\usepackage</span><span class="na">[dvipdfm]</span><span class="nb">{</span>geometry<span class="nb">}</span>
+</span><span class='line'><span class="k">\usepackage</span><span class="na">[dvips,arrow,curve]</span><span class="nb">{</span>xy<span class="nb">}</span>
+</span><span class='line'><span class="k">\paperwidth</span> 18 true cm
+</span><span class='line'><span class="k">\paperheight</span> 14 true cm
+</span><span class='line'><span class="c">%----------------------------页边空白调整-------------------------------</span>
+</span><span class='line'><span class="k">\def\marginset</span>#1#2<span class="nb">{</span>                      <span class="c">% 页边设置 \marginset{left}{top}</span>
+</span><span class='line'><span class="k">\setlength</span><span class="nb">{</span><span class="k">\oddsidemargin</span><span class="nb">}{</span>#1<span class="nb">}</span>         <span class="c">% 左边（书内侧）装订预留空白距离</span>
+</span><span class='line'><span class="k">\iffalse</span>                   <span class="c">% 如果考虑左侧（书内侧）的边注区则改为\iftrue</span>
+</span><span class='line'><span class="k">\reversemarginpar</span>
+</span><span class='line'><span class="k">\addtolength</span><span class="nb">{</span><span class="k">\oddsidemargin</span><span class="nb">}{</span><span class="k">\marginparsep</span><span class="nb">}</span>
+</span><span class='line'><span class="k">\addtolength</span><span class="nb">{</span><span class="k">\oddsidemargin</span><span class="nb">}{</span><span class="k">\marginparwidth</span><span class="nb">}</span>
+</span><span class='line'><span class="k">\fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">\setlength</span><span class="nb">{</span><span class="k">\evensidemargin</span><span class="nb">}{</span>0mm<span class="nb">}</span>       <span class="c">% 置0</span>
+</span><span class='line'><span class="k">\iffalse</span>                   <span class="c">% 如果考虑右侧（书外侧）的边注区则改为\iftrue</span>
+</span><span class='line'><span class="k">\addtolength</span><span class="nb">{</span><span class="k">\evensidemargin</span><span class="nb">}{</span><span class="k">\marginparsep</span><span class="nb">}</span>
+</span><span class='line'><span class="k">\addtolength</span><span class="nb">{</span><span class="k">\evensidemargin</span><span class="nb">}{</span><span class="k">\marginparwidth</span><span class="nb">}</span>
+</span><span class='line'><span class="k">\fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">% \paperwidth = h + \oddsidemargin+\textwidth+\evensidemargin + h</span>
+</span><span class='line'><span class="k">\setlength</span><span class="nb">{</span><span class="k">\hoffset</span><span class="nb">}{</span><span class="k">\paperwidth</span><span class="nb">}</span>
+</span><span class='line'><span class="k">\addtolength</span><span class="nb">{</span><span class="k">\hoffset</span><span class="nb">}{</span>-<span class="k">\oddsidemargin</span><span class="nb">}</span>
+</span><span class='line'><span class="k">\addtolength</span><span class="nb">{</span><span class="k">\hoffset</span><span class="nb">}{</span>-<span class="k">\textwidth</span><span class="nb">}</span>
+</span><span class='line'><span class="k">\addtolength</span><span class="nb">{</span><span class="k">\hoffset</span><span class="nb">}{</span>-<span class="k">\evensidemargin</span><span class="nb">}</span>
+</span><span class='line'><span class="k">\setlength</span><span class="nb">{</span><span class="k">\hoffset</span><span class="nb">}{</span>0.5<span class="k">\hoffset</span><span class="nb">}</span>
+</span><span class='line'><span class="k">\addtolength</span><span class="nb">{</span><span class="k">\hoffset</span><span class="nb">}{</span>-1in<span class="nb">}</span>           <span class="c">% h = \hoffset + 1in</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">\setlength</span><span class="nb">{</span><span class="k">\voffset</span><span class="nb">}{</span>-1in<span class="nb">}</span>             <span class="c">% 0 = \voffset + 1in</span>
+</span><span class='line'><span class="k">\setlength</span><span class="nb">{</span><span class="k">\topmargin</span><span class="nb">}{</span><span class="k">\paperheight</span><span class="nb">}</span>
+</span><span class='line'><span class="k">\addtolength</span><span class="nb">{</span><span class="k">\topmargin</span><span class="nb">}{</span>-<span class="k">\headheight</span><span class="nb">}</span>
+</span><span class='line'><span class="k">\addtolength</span><span class="nb">{</span><span class="k">\topmargin</span><span class="nb">}{</span>-<span class="k">\headsep</span><span class="nb">}</span>
+</span><span class='line'><span class="k">\addtolength</span><span class="nb">{</span><span class="k">\topmargin</span><span class="nb">}{</span>-<span class="k">\textheight</span><span class="nb">}</span>
+</span><span class='line'><span class="k">\addtolength</span><span class="nb">{</span><span class="k">\topmargin</span><span class="nb">}{</span>-<span class="k">\footskip</span><span class="nb">}</span>
+</span><span class='line'><span class="k">\addtolength</span><span class="nb">{</span><span class="k">\topmargin</span><span class="nb">}{</span>#2<span class="nb">}</span>           <span class="c">% 上边预留装订空白距离</span>
+</span><span class='line'><span class="k">\setlength</span><span class="nb">{</span><span class="k">\topmargin</span><span class="nb">}{</span>0.5<span class="k">\topmargin</span><span class="nb">}</span>
+</span><span class='line'><span class="nb">}</span>
+</span><span class='line'><span class="c">% 调整页边空白使内容居中，两参数分别为纸的左边和上边预留装订空白距离</span>
+</span><span class='line'><span class="k">\marginset</span><span class="nb">{</span>-55mm<span class="nb">}{</span>65mm<span class="nb">}</span>
+</span><span class='line'><span class="k">\begin</span><span class="nb">{</span>document<span class="nb">}</span>
+</span><span class='line'><span class="sb">\[</span><span class="nb"></span>
+</span><span class='line'><span class="nv">\begin</span><span class="nb">{xy}</span>
+</span><span class='line'><span class="nb">  </span><span class="o">(</span><span class="m">0</span><span class="nb">,</span><span class="o">-</span><span class="m">5</span><span class="o">)*+</span><span class="nb">{</span><span class="nv">\mbox</span><span class="nb">{CREATE TABLE}}</span><span class="o">=</span><span class="nb">&quot;v</span><span class="m">1</span><span class="nb">&quot;;</span>
+</span><span class='line'><span class="nb">  </span><span class="o">(</span><span class="m">0</span><span class="nb">,</span><span class="o">-</span><span class="m">15</span><span class="o">)*+</span><span class="nb">{</span><span class="nv">\mbox</span><span class="nb">{SQL assertion}}</span><span class="o">=</span><span class="nb">&quot;v</span><span class="m">2</span><span class="nb">&quot;;</span>
+</span><span class='line'><span class="nb">  </span><span class="o">(</span><span class="m">0</span><span class="nb">,</span><span class="o">-</span><span class="m">23</span><span class="o">)*+</span><span class="nb">{</span><span class="nv">\mbox</span><span class="nb">{DELETE</span><span class="o">/</span><span class="nb">UPDATE </span><span class="o">(</span><span class="nb">multi</span><span class="o">-</span><span class="nb">table</span><span class="o">)</span><span class="nb">}}</span><span class="o">=</span><span class="nb">&quot;v</span><span class="m">3</span><span class="nb">&quot;;</span>
+</span><span class='line'><span class="nb">  </span><span class="o">(</span><span class="m">0</span><span class="nb">,</span><span class="o">-</span><span class="m">30</span><span class="o">)*+</span><span class="nb">{</span><span class="nv">\mbox</span><span class="nb">{INSERT}}</span><span class="o">=</span><span class="nb">&quot;v</span><span class="m">4</span><span class="nb">&quot;;</span>
+</span><span class='line'><span class="nb">  </span><span class="o">(</span><span class="m">0</span><span class="nb">,</span><span class="o">-</span><span class="m">40</span><span class="o">)*+</span><span class="nb">{</span><span class="nv">\mbox</span><span class="nb">{DELETE</span><span class="o">/</span><span class="nb">UPDATE </span><span class="o">(</span><span class="nb">single table</span><span class="o">)</span><span class="nb">}}</span><span class="o">=</span><span class="nb">&quot;v</span><span class="m">5</span><span class="nb">&quot;;</span>
+</span><span class='line'><span class="nb">  </span><span class="o">(</span><span class="m">50</span><span class="nb">,</span><span class="m">0</span><span class="o">)*+</span><span class="nb">{</span><span class="nv">\mbox</span><span class="nb">{module ...}}</span><span class="o">=</span><span class="nb">&quot;v</span><span class="m">6</span><span class="nb">&quot;;</span>
+</span><span class='line'><span class="nb">  </span><span class="o">(</span><span class="m">52</span><span class="nb">,</span><span class="o">-</span><span class="m">5</span><span class="o">)*+</span><span class="nb">{</span><span class="nv">\mbox</span><span class="nb">{use import ...}}</span><span class="o">=</span><span class="nb">&quot;v</span><span class="m">7</span><span class="nb">&quot;;</span>
+</span><span class='line'><span class="nb">  </span><span class="o">(</span><span class="m">65</span><span class="nb">,</span><span class="o">-</span><span class="m">10</span><span class="o">)*+</span><span class="nb">{</span><span class="nv">\mbox</span><span class="nb">{type tupleType</span><span class="nv">\_</span><span class="nb">...</span><span class="o">=</span><span class="nv">\{</span><span class="nb">$|~~$...$~~|$</span><span class="nv">\}</span><span class="nb"> }}</span><span class="o">=</span><span class="nb">&quot;v</span><span class="m">8</span><span class="nb">&quot;;</span>
+</span><span class='line'><span class="nb">  </span><span class="o">(</span><span class="m">67</span><span class="nb">,</span><span class="o">-</span><span class="m">15</span><span class="o">)*+</span><span class="nb">{</span><span class="nv">\mbox</span><span class="nb">{predicate $&lt;$name$&gt;$ $&lt;$param$&gt;$ </span><span class="o">=</span><span class="nb">}}</span><span class="o">=</span><span class="nb">&quot;v</span><span class="m">9</span><span class="nb">&quot;;</span>
+</span><span class='line'><span class="nb">  </span><span class="o">(</span><span class="m">45</span><span class="nb">,</span><span class="o">-</span><span class="m">20</span><span class="o">)*+</span><span class="nb">{</span><span class="nv">\mbox</span><span class="nb">{...}}</span><span class="o">=</span><span class="nb">&quot;v</span><span class="m">10</span><span class="nb">&quot;;</span>
+</span><span class='line'><span class="nb">  </span><span class="o">(</span><span class="m">62</span><span class="nb">,</span><span class="o">-</span><span class="m">25</span><span class="o">)*+</span><span class="nb">{</span><span class="nv">\mbox</span><span class="nb">{let $&lt;$name$&gt;$ $&lt;$param$&gt;$ </span><span class="o">=</span><span class="nb">}}</span><span class="o">=</span><span class="nb">&quot;v</span><span class="m">11</span><span class="nb">&quot;;</span>
+</span><span class='line'><span class="nb">  </span><span class="o">(</span><span class="m">56</span><span class="nb">,</span><span class="o">-</span><span class="m">30</span><span class="o">)*+</span><span class="nb">{</span><span class="nv">\mbox</span><span class="nb">{</span><span class="nv">\{</span><span class="nb">$&lt;$precondition$&gt;$</span><span class="nv">\}</span><span class="nb">}}</span><span class="o">=</span><span class="nb">&quot;v</span><span class="m">12</span><span class="nb">&quot;;</span>
+</span><span class='line'><span class="nb">  </span><span class="o">(</span><span class="m">45</span><span class="nb">,</span><span class="o">-</span><span class="m">35</span><span class="o">)*+</span><span class="nb">{</span><span class="nv">\mbox</span><span class="nb">{...}}</span><span class="o">=</span><span class="nb">&quot;v</span><span class="m">13</span><span class="nb">&quot;;</span>
+</span><span class='line'><span class="nb">  </span><span class="o">(</span><span class="m">57</span><span class="nb">,</span><span class="o">-</span><span class="m">40</span><span class="o">)*+</span><span class="nb">{</span><span class="nv">\mbox</span><span class="nb">{</span><span class="nv">\{</span><span class="nb">$&lt;$postcondition$&gt;$</span><span class="nv">\}</span><span class="nb">}}</span><span class="o">=</span><span class="nb">&quot;v</span><span class="m">14</span><span class="nb">&quot;;</span>
+</span><span class='line'><span class="nb">  </span><span class="o">(</span><span class="m">45</span><span class="nb">,</span><span class="o">-</span><span class="m">45</span><span class="o">)*+</span><span class="nb">{</span><span class="nv">\mbox</span><span class="nb">{end}}</span><span class="o">=</span><span class="nb">&quot;v</span><span class="m">15</span><span class="nb">&quot;;</span>
+</span><span class='line'><span class="nb">  {</span><span class="nv">\ar</span><span class="nb">@{</span><span class="o">-</span><span class="nb">&gt;} &quot;v</span><span class="m">1</span><span class="nb">&quot;;&quot;v</span><span class="m">7</span><span class="nb">&quot;};</span>
+</span><span class='line'><span class="nb">  {</span><span class="nv">\ar</span><span class="nb">@{</span><span class="o">-</span><span class="nb">&gt;} &quot;v</span><span class="m">1</span><span class="nb">&quot;;&quot;v</span><span class="m">8</span><span class="nb">&quot;};</span>
+</span><span class='line'><span class="nb">  {</span><span class="nv">\ar</span><span class="nb">@{</span><span class="o">-</span><span class="nb">&gt;} &quot;v</span><span class="m">2</span><span class="nb">&quot;;&quot;v</span><span class="m">9</span><span class="nb">&quot;};</span>
+</span><span class='line'><span class="nb">  {</span><span class="nv">\ar</span><span class="nb">@{</span><span class="o">-</span><span class="nb">&gt;} &quot;v</span><span class="m">3</span><span class="nb">&quot;;&quot;v</span><span class="m">10</span><span class="nb">&quot;};</span>
+</span><span class='line'><span class="nb">  {</span><span class="nv">\ar</span><span class="nb">@{</span><span class="o">-</span><span class="nb">&gt;} &quot;v</span><span class="m">3</span><span class="nb">&quot;;&quot;v</span><span class="m">13</span><span class="nb">&quot;};</span>
+</span><span class='line'><span class="nb">  {</span><span class="nv">\ar</span><span class="nb">@{</span><span class="o">-</span><span class="nb">&gt;} &quot;v</span><span class="m">3</span><span class="nb">&quot;;&quot;v</span><span class="m">14</span><span class="nb">&quot;};</span>
+</span><span class='line'><span class="nb">  {</span><span class="nv">\ar</span><span class="nb">@{</span><span class="o">-</span><span class="nb">&gt;} &quot;v</span><span class="m">4</span><span class="nb">&quot;;&quot;v</span><span class="m">13</span><span class="nb">&quot;};</span>
+</span><span class='line'><span class="nb">  {</span><span class="nv">\ar</span><span class="nb">@{</span><span class="o">-</span><span class="nb">&gt;} &quot;v</span><span class="m">5</span><span class="nb">&quot;;&quot;v</span><span class="m">13</span><span class="nb">&quot;};</span>
+</span><span class='line'><span class="nb">  {</span><span class="nv">\ar</span><span class="nb">@{.} &quot;v</span><span class="m">9</span><span class="nb">&quot;;</span><span class="o">(</span><span class="m">97</span><span class="nb">,</span><span class="o">-</span><span class="m">15</span><span class="o">)</span><span class="nb">};</span>
+</span><span class='line'><span class="nb">  {</span><span class="nv">\ar</span><span class="nb">@{.} </span><span class="o">(</span><span class="m">97</span><span class="nb">,</span><span class="o">-</span><span class="m">15</span><span class="o">)</span><span class="nb">;</span><span class="o">(</span><span class="m">97</span><span class="nb">,</span><span class="o">-</span><span class="m">30</span><span class="o">)</span><span class="nb">};</span>
+</span><span class='line'><span class="nb">  {</span><span class="nv">\ar</span><span class="nb">@{.&gt;} </span><span class="o">(</span><span class="m">97</span><span class="nb">,</span><span class="o">-</span><span class="m">30</span><span class="o">)</span><span class="nb">;&quot;v</span><span class="m">12</span><span class="nb">&quot;};</span>
+</span><span class='line'><span class="nb">  {</span><span class="nv">\ar</span><span class="nb">@{.} </span><span class="o">(</span><span class="m">97</span><span class="nb">,</span><span class="o">-</span><span class="m">30</span><span class="o">)</span><span class="nb">;</span><span class="o">(</span><span class="m">97</span><span class="nb">,</span><span class="o">-</span><span class="m">40</span><span class="o">)</span><span class="nb">};</span>
+</span><span class='line'><span class="nb">  {</span><span class="nv">\ar</span><span class="nb">@{.&gt;} </span><span class="o">(</span><span class="m">97</span><span class="nb">,</span><span class="o">-</span><span class="m">40</span><span class="o">)</span><span class="nb">;&quot;v</span><span class="m">14</span><span class="nb">&quot;};</span>
+</span><span class='line'><span class="nv">\end</span><span class="nb">{xy}</span>
+</span><span class='line'><span class="s">\]</span>
+</span><span class='line'><span class="k">\end</span><span class="nb">{</span>document<span class="nb">}</span>
+</span></code></pre></td></tr></table></div></figure>
 不难看出，用xypic来做object关系的设定非常简单，我大部分的编辑时间其实是耗在确定座标和页面设置的参数上。</p>
 
 <p>另一种在$\LaTeX$中画图的方式也许要算MetaPost（类似于$\LaTeX$源于Knuth大牛的TeX，MetaPost衍生于Knuth的MetaFont）了，不过我没用过，据说比较偏底层（从wiki上的例子来看确实如此）。我在法国某实验室实习的时候倒是有幸接触到了一个相关的工具<a href="http://mlpost.lri.fr/">mlpost</a>（OT一下，其中一名开发者恰好是与我同一组的researcher）——mlpost其实是对MetaPost的一层ocaml接口，也可以定义抽象层面的object，再对object进行操作。不过我最近有需要画图时，在archlinux上装了最新的mlpost后却跑出不少问题，怀疑是一些ocaml包的依赖没解决好的问题，有空再解决吧~</p>
@@ -118,10 +266,73 @@ xelatex -shell-escape -8bit &lt;tex-file&gt;
 
 <p>例如下面这张图：</p>
 
-<p>{% img /images/graphviz.png %}</p>
+<p><img src="/images/graphviz.png"></p>
 
 <p>用DOT只需这么寥寥几行代码：
-{% include_code GPUencode.dot lang:c++ %}</p>
+<figure class='code'><figcaption><span> (GPUencode.dot)</span> <a href='/downloads/code/GPUencode.dot'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="n">digraph</span> <span class="n">GPUencode</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="n">rankdir</span><span class="o">=</span><span class="n">LR</span><span class="p">;</span>
+</span><span class='line'><span class="n">compound</span><span class="o">=</span><span class="nb">true</span><span class="p">;</span>
+</span><span class='line'><span class="n">subgraph</span> <span class="n">clusterCPU</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="n">node</span> <span class="p">[</span><span class="n">style</span><span class="o">=</span><span class="n">filled</span><span class="p">];</span>
+</span><span class='line'><span class="n">shape</span><span class="o">=</span><span class="n">box</span><span class="p">;</span>
+</span><span class='line'><span class="n">label</span><span class="o">=</span><span class="s">&quot;CPU&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="s">&quot;hostMem&quot;</span>
+</span><span class='line'><span class="p">[</span>
+</span><span class='line'><span class="n">shape</span><span class="o">=</span><span class="n">box</span>
+</span><span class='line'><span class="n">label</span><span class="o">=</span><span class="s">&quot;host memory&quot;</span>
+</span><span class='line'><span class="p">]</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">subgraph</span> <span class="n">clusterGPU</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="n">node</span> <span class="p">[</span><span class="n">style</span><span class="o">=</span><span class="n">filled</span><span class="p">];</span>
+</span><span class='line'><span class="n">shape</span><span class="o">=</span><span class="n">box</span><span class="p">;</span>
+</span><span class='line'><span class="n">label</span><span class="o">=</span><span class="s">&quot;GPU</span><span class="se">\n\n</span><span class="s">2.generate encoding matrix</span><span class="se">\n</span><span class="s">3.encode&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="s">&quot;deviceMem&quot;</span>
+</span><span class='line'><span class="p">[</span>
+</span><span class='line'><span class="n">shape</span><span class="o">=</span><span class="n">box</span>
+</span><span class='line'><span class="n">label</span><span class="o">=</span><span class="s">&quot;device memory&quot;</span>
+</span><span class='line'><span class="p">]</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">hostMem</span> <span class="o">-&gt;</span> <span class="n">deviceMem</span> <span class="p">[</span><span class="n">label</span><span class="o">=</span><span class="s">&quot;1.copy k data chunks&quot;</span><span class="p">];</span>
+</span><span class='line'><span class="n">deviceMem</span> <span class="o">-&gt;</span> <span class="n">hostMem</span> <span class="p">[</span><span class="n">label</span><span class="o">=</span><span class="s">&quot;4.copy encoding matrix as metadata&quot;</span><span class="p">];</span>
+</span><span class='line'><span class="n">deviceMem</span> <span class="o">-&gt;</span> <span class="n">hostMem</span> <span class="p">[</span><span class="n">label</span><span class="o">=</span><span class="s">&quot;5.copy (n-k) code chunks&quot;</span><span class="p">];</span>
+</span><span class='line'><span class="s">&quot;n,k&quot;</span> <span class="o">-&gt;</span> <span class="n">deviceMem</span> <span class="p">[</span><span class="n">lhead</span><span class="o">=</span><span class="n">clusterGPU</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
 
 <p>DOT支持多种格式，我用的比较多的是ps，用下面的命令编译即可：
 <code>bash

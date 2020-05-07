@@ -1,0 +1,700 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>加速CUDA中的一类特殊矩阵乘法 - Galoisplusplus</title>
+  <meta name="author" content="Galoisplusplus">
+
+  
+  <meta name="description" content="Optimizing Special Matrix Multiplication in CUDA">
+  <meta name="keywords" content="CUDA, GPGPU, GPU, 矩阵乘法, Reed-Solomon, Galois Field, matrix multiplication, c++, c, template, cuBLAS, MAGMA">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yszheda.github.io/blog/blog/2014/06/23/optimizing-special-matrix-multiplication-in-cuda">
+  <link href="/blog/favicon.png" rel="icon">
+  <link href="/blog/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/blog/atom.xml" rel="alternate" title="Galoisplusplus" type="application/atom+xml">
+  <script src="/blog/javascripts/modernizr-2.0.js"></script>
+  <!--
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  -->
+  <script src="//libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/blog/javascripts/octopress.js" type="text/javascript"></script>
+  
+<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!--
+<link href="http://fonts.googleapis.com/css?family=Crimson+Text:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/blog/">Galoisplusplus</a></h1>
+  
+    <h2>A fan of science, technology and Classical music.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/blog/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:yszheda.github.io/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/blog/">Blog</a></li>
+  <li><a href="/blog/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">加速CUDA中的一类特殊矩阵乘法</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-23T20:56:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>矩阵乘法是利用GPU加速一般运算的经典范例，在NVIDIA官方的<a href="http://docs.nvidia.com/cuda/cuda-c-programming-guide">CUDA C Programming Guide</a>和<a href="http://docs.nvidia.com/cuda/cuda-c-best-practices-guide">CUDA C Best Practices Guide</a>也都有示范代码来说明如何加速矩阵乘法。本渣这里要介绍的是如何加速矩阵乘法的一类特殊情况——大小悬殊的两个矩阵的乘法。</p>
+
+<p>这里稍稍碎碎念一会，其实这个主题主要来自本渣的论文，而本渣所做的主要是用GPU来加速Reed-Solomon Codes的编解码。这种编解码的过程是矩阵乘法，照例说可以直接使用<a href="https://developer.nvidia.com/cublas">cuBLAS</a>等实现矩阵乘法的CUDA library来做。但由于Reed-Solomon Codes所用到的运算都是定义在伽罗华域（Galois Field）中的，不同于普通的实数运算，所以无法直接调用<a href="https://developer.nvidia.com/cublas">cuBLAS</a>等library。不巧，这些library所开放的API又不允许operator overloading，再加上矩阵乘法的source code也没有开源（<a href="http://icl.cs.utk.edu/magma/">MAGMA</a>倒是个<del>open source</del>公布了代码的library，但是它对矩阵乘法的实现只是调用<a href="https://developer.nvidia.com/cublas">cuBLAS</a>的函数、外加优化某些特殊情况罢了），这使得本渣需要自力更生去琢磨如何加速Reed-Solomon Codes编解码的矩阵乘法。在完成实现之后，本渣发现不少技术细节不足以登学术论文的大雅之堂，于是就想把它们记录进这篇技术文章中。
+在我们的Reed-Solomon Codes的实际应用场景中，用到的是以8-bit byte为一个数值单位的矩阵，矩阵乘法通常是一个小矩阵乘以一个扁长的大矩阵的形式：小矩阵的行数和列数一般不超过三位数，大矩阵的行数即为小矩阵的列数，而大矩阵的列数一般大于百万的数量级。
+虽然本渣的优化主要根据这些实际情况来做，但优化的技巧仍可以拓展到一般的小矩阵乘以大矩阵的情况的。</p>
+
+<!--
+大小悬殊的两个矩阵进行相乘，因此本渣的优化也主要针对小矩阵乘以大矩阵这种矩阵乘法的特殊情况。
+-->
+
+
+<p>在介绍本渣<del>独特</del>的优化技巧之前，让我们先从最简单的做法回顾起：</p>
+
+<!-- more -->
+
+
+<h2>最naive的实现</h2>
+
+<p>下图显示了矩阵乘法的最一般做法：</p>
+
+<p><img src="/blog/images/mm-CUDA/without-tiling.png"></p>
+
+<p>CUDA pseudo-code如下：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="c1">// input matrix A and B, compute product matrix C</span>
+</span><span class='line'><span class="c1">// A: A_height x A_width</span>
+</span><span class='line'><span class="c1">// B: A_width x B_width</span>
+</span><span class='line'><span class="c1">// C: A_height x B_width</span>
+</span><span class='line'><span class="n">__global__</span> <span class="kt">void</span> <span class="nf">matrix_mul</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">A</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">B</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">C</span><span class="p">,</span> <span class="kt">int</span> <span class="n">A_height</span><span class="p">,</span> <span class="kt">int</span> <span class="n">A_width</span><span class="p">,</span> <span class="kt">int</span> <span class="n">B_width</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">bx</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">by</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">tx</span> <span class="o">=</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">ty</span> <span class="o">=</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">// 由于矩阵B列的数目远大于GPU的grid size，所以需要以下的while循环。</span>
+</span><span class='line'>  <span class="k">do</span> <span class="p">{</span>
+</span><span class='line'>      <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">product</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">row</span> <span class="o">=</span> <span class="n">by</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">ty</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">col</span> <span class="o">=</span> <span class="n">bx</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">tx</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">row</span> <span class="o">&lt;</span> <span class="n">A_height</span> <span class="o">&amp;&amp;</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">B_width</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">A_width</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="c1">// 这里姑且假设+和*这两个operator已被overload成Galois Field的加法和乘法。</span>
+</span><span class='line'>              <span class="n">product</span> <span class="o">+=</span> <span class="n">A</span><span class="p">[</span><span class="n">row</span> <span class="o">*</span> <span class="n">A_width</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">B_width</span> <span class="o">+</span> <span class="n">col</span><span class="p">];</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="n">C</span><span class="p">[</span><span class="n">row</span> <span class="o">*</span> <span class="n">B_width</span> <span class="o">+</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">product</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>      <span class="n">bx</span> <span class="o">+=</span> <span class="n">gridDim</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">col</span> <span class="o">=</span> <span class="n">bx</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">tx</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">col</span> <span class="o">&lt;</span> <span class="n">B_width</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这种最一般的做法不好的原因，一方面是因为矩阵的元素（也就是图中绿色的小方格）是存在GPU的global memory（global memory其实是off-chip的DRAM，access它需要400到800cycles）之中的，而这种做法需要大量access这些元素，因而也造成了大量的global memory transactions；另一方面，这种做法在access矩阵B的元素用了column major的方式，这种方式的locality差，会导致较高的cache missrate。</p>
+
+<h2>Square-Tiling Algorithm</h2>
+
+<p>针对最一般的做法的优化是一种很普遍的算法，有的文献（如Hennessy and Patterson的经典教材《Computer Architecture: A Quantitative Approach》）称为blocking，有的（如CUDA的offical guide）称之为tiling。如下图所示，黄色正方形被称为tile，因此我们这里也称这种algorithm为square-tiling算法。</p>
+
+<p><img src="/blog/images/mm-CUDA/square-tiling.png"></p>
+
+<p>CUDA pseudo-code如下，在CUDA offical guide上也可以看到类似范例：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="c1">// input matrix A and B, compute product matrix C</span>
+</span><span class='line'><span class="c1">// A: A_height x A_width</span>
+</span><span class='line'><span class="c1">// B: A_width x B_width</span>
+</span><span class='line'><span class="c1">// C: A_height x B_width</span>
+</span><span class='line'><span class="n">__global__</span> <span class="kt">void</span> <span class="nf">matrix_mul</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">A</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">B</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">C</span><span class="p">,</span> <span class="kt">int</span> <span class="n">A_height</span><span class="p">,</span> <span class="kt">int</span> <span class="n">A_width</span><span class="p">,</span> <span class="kt">int</span> <span class="n">B_width</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="c1">// TILE_SIZE是一个macro</span>
+</span><span class='line'>  <span class="n">__shared__</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">rowVector</span><span class="p">[</span><span class="n">TILE_SIZE</span><span class="p">][</span><span class="n">TILE_SIZE</span><span class="p">];</span>
+</span><span class='line'>  <span class="n">__shared__</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">colVector</span><span class="p">[</span><span class="n">TILE_SIZE</span><span class="p">][</span><span class="n">TILE_SIZE</span><span class="p">];</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">bx</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">by</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">tx</span> <span class="o">=</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">ty</span> <span class="o">=</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">// 由于矩阵B列的数目远大于GPU的grid size，所以需要以下的while循环。</span>
+</span><span class='line'>  <span class="k">do</span> <span class="p">{</span>
+</span><span class='line'>      <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">product</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">row</span> <span class="o">=</span> <span class="n">by</span> <span class="o">*</span> <span class="n">TILE_SIZE</span> <span class="o">+</span> <span class="n">ty</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">col</span> <span class="o">=</span> <span class="n">bx</span> <span class="o">*</span> <span class="n">TILE_SIZE</span> <span class="o">+</span> <span class="n">tx</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">__syncthreads</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">row</span> <span class="o">&lt;</span> <span class="n">A_height</span> <span class="o">&amp;&amp;</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">B_width</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="c1">// TILE_SIZE可能比A的宽度大，所以需要额外引入bound这个变量来保证不越界。</span>
+</span><span class='line'>          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="p">(</span><span class="n">ceil</span><span class="p">((</span><span class="kt">float</span><span class="p">)</span> <span class="n">A_width</span> <span class="o">/</span> <span class="n">TILE_SIZE</span><span class="p">));</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="kt">int</span> <span class="n">bound</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">A_width</span><span class="p">,</span> <span class="n">TILE_SIZE</span><span class="p">);</span>
+</span><span class='line'>              <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">tx</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">bound</span><span class="p">;</span> <span class="n">j</span> <span class="o">+=</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                  <span class="n">rowVector</span><span class="p">[</span><span class="n">ty</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">row</span> <span class="o">*</span> <span class="n">A_width</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">bound</span> <span class="o">+</span> <span class="n">j</span><span class="p">];</span>
+</span><span class='line'>              <span class="p">}</span>
+</span><span class='line'>              <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">ty</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">bound</span><span class="p">;</span> <span class="n">j</span> <span class="o">+=</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">y</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                  <span class="n">colVector</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">tx</span><span class="p">]</span> <span class="o">=</span> <span class="n">B</span><span class="p">[</span><span class="n">col</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">bound</span> <span class="o">+</span> <span class="n">j</span><span class="p">)</span> <span class="o">*</span> <span class="n">B_width</span><span class="p">];</span>
+</span><span class='line'>              <span class="p">}</span>
+</span><span class='line'>              <span class="n">__syncthreads</span><span class="p">();</span>
+</span><span class='line'>              <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">bound</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                  <span class="c1">// 这里姑且假设+和*这两个operator已被overload成Galois Field的加法和乘法。</span>
+</span><span class='line'>                  <span class="n">product</span> <span class="o">+=</span> <span class="n">rowVector</span><span class="p">[</span><span class="n">ty</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">colVector</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">tx</span><span class="p">];</span>
+</span><span class='line'>              <span class="p">}</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="n">C</span><span class="p">[</span><span class="n">row</span> <span class="o">*</span> <span class="n">B_width</span> <span class="o">+</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">product</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>      <span class="n">bx</span> <span class="o">+=</span> <span class="n">gridDim</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">col</span> <span class="o">=</span> <span class="n">bx</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">tx</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">col</span> <span class="o">&lt;</span> <span class="n">B_width</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里简单解释一下以上的代码：矩阵A和矩阵B的tile中的元素会从global memory中被load进shared memory（shared memory是on-chip的SRAM，access它需要40个cycles左右），之后在计算中就直接在shared memory中进行access。
+access shared memory的latency要比access global memory的latency低得多。
+tiling algorithm用shared memory作为memory access的cache，既可以改善locality，又可以reuse cache中的elements，从而降低global memory transactions的数量。</p>
+
+<p>但是，square-tiling algorithm应对的一般是矩阵A和B的大小接近的情况，对于Reed-Solomon codes实际编解码的情况并不适用。
+因此，我们还需要对tile的形状进行generalization。</p>
+
+<h2>一般化的Tiling Algorithm</h2>
+
+<p>我的generalization如下图所示：
+<img src="/blog/images/mm-CUDA/tiling.png"></p>
+
+<p>如何调整tile大小的参数（tileWidthRow, tileWidthCol, tileDepth）属于paper的范畴，这里略去不谈，只讲如何写代码。</p>
+
+<p>最简单粗暴的方式是用三个macro：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="c1">// input matrix A and B, compute product matrix C</span>
+</span><span class='line'><span class="c1">// A: A_height x A_width</span>
+</span><span class='line'><span class="c1">// B: A_width x B_width</span>
+</span><span class='line'><span class="c1">// C: A_height x B_width</span>
+</span><span class='line'><span class="n">__global__</span> <span class="kt">void</span> <span class="nf">matrix_mul</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">A</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">B</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">C</span><span class="p">,</span> <span class="kt">int</span> <span class="n">A_height</span><span class="p">,</span> <span class="kt">int</span> <span class="n">A_width</span><span class="p">,</span> <span class="kt">int</span> <span class="n">B_width</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="c1">// TILE_WIDTH_ROW, TILE_WIDTH_COL, TILE_DEPTH都是macro</span>
+</span><span class='line'>  <span class="n">__shared__</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">rowVector</span><span class="p">[</span><span class="n">TILE_WIDTH_ROW</span><span class="p">][</span><span class="n">TILE_DEPTH</span><span class="p">];</span>
+</span><span class='line'>  <span class="n">__shared__</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">colVector</span><span class="p">[</span><span class="n">TILE_DEPTH</span><span class="p">][</span><span class="n">TILE_WIDTH_COL</span><span class="p">];</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">bx</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">by</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">tx</span> <span class="o">=</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">ty</span> <span class="o">=</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">// 由于矩阵B列的数目远大于GPU的grid size，所以需要以下的while循环。</span>
+</span><span class='line'>  <span class="k">do</span> <span class="p">{</span>
+</span><span class='line'>      <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">product</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">row</span> <span class="o">=</span> <span class="n">by</span> <span class="o">*</span> <span class="n">TILE_WIDTH_ROW</span> <span class="o">+</span> <span class="n">ty</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">col</span> <span class="o">=</span> <span class="n">bx</span> <span class="o">*</span> <span class="n">TILE_WIDTH_COL</span> <span class="o">+</span> <span class="n">tx</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">__syncthreads</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">row</span> <span class="o">&lt;</span> <span class="n">A_height</span> <span class="o">&amp;&amp;</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">B_width</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="p">(</span><span class="n">ceil</span><span class="p">((</span><span class="kt">float</span><span class="p">)</span> <span class="n">A_width</span> <span class="o">/</span> <span class="n">TILE_DEPTH</span><span class="p">));</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="kt">int</span> <span class="n">bound</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">A_width</span><span class="p">,</span> <span class="n">TILE_DEPTH</span><span class="p">);</span>
+</span><span class='line'>              <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">tx</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">bound</span><span class="p">;</span> <span class="n">j</span> <span class="o">+=</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                  <span class="n">rowVector</span><span class="p">[</span><span class="n">ty</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">row</span> <span class="o">*</span> <span class="n">A_width</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">bound</span> <span class="o">+</span> <span class="n">j</span><span class="p">];</span>
+</span><span class='line'>              <span class="p">}</span>
+</span><span class='line'>              <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">ty</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">bound</span><span class="p">;</span> <span class="n">j</span> <span class="o">+=</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">y</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                  <span class="n">colVector</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">tx</span><span class="p">]</span> <span class="o">=</span> <span class="n">B</span><span class="p">[</span><span class="n">col</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">bound</span> <span class="o">+</span> <span class="n">j</span><span class="p">)</span> <span class="o">*</span> <span class="n">B_width</span><span class="p">];</span>
+</span><span class='line'>              <span class="p">}</span>
+</span><span class='line'>              <span class="n">__syncthreads</span><span class="p">();</span>
+</span><span class='line'>              <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">bound</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                  <span class="c1">// 这里姑且假设+和*这两个operator已被overload成Galois Field的加法和乘法。</span>
+</span><span class='line'>                  <span class="n">product</span> <span class="o">+=</span> <span class="n">rowVector</span><span class="p">[</span><span class="n">ty</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">colVector</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">tx</span><span class="p">];</span>
+</span><span class='line'>              <span class="p">}</span>
+</span><span class='line'>              <span class="n">__syncthreads</span><span class="p">();</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="n">C</span><span class="p">[</span><span class="n">row</span> <span class="o">*</span> <span class="n">B_width</span> <span class="o">+</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">product</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>      <span class="n">bx</span> <span class="o">+=</span> <span class="n">gridDim</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">col</span> <span class="o">=</span> <span class="n">bx</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">tx</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">col</span> <span class="o">&lt;</span> <span class="n">B_width</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这种方式需要在compile time确定三个参数的大小，显然无法满足实际需要。
+本渣的做法是以parameter来代替前面三个macro，当然，这就需要管理一整块shared memory了。
+CUDA pseudo-code如下：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="c1">// input matrix A and B, compute product matrix C</span>
+</span><span class='line'><span class="c1">// A: A_height x A_width</span>
+</span><span class='line'><span class="c1">// B: A_width x B_width</span>
+</span><span class='line'><span class="c1">// C: A_height x B_width</span>
+</span><span class='line'><span class="n">__global__</span> <span class="kt">void</span> <span class="nf">matrix_mul</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">A</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">B</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">C</span><span class="p">,</span> <span class="kt">int</span> <span class="n">A_height</span><span class="p">,</span> <span class="kt">int</span> <span class="n">A_width</span><span class="p">,</span> <span class="kt">int</span> <span class="n">B_width</span><span class="p">,</span> <span class="kt">int</span> <span class="n">tileWidthRow</span><span class="p">,</span> <span class="kt">int</span> <span class="n">tileWidthCol</span><span class="p">,</span> <span class="kt">int</span> <span class="n">tileDepth</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">extern</span> <span class="n">__shared__</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">sMem</span><span class="p">[];</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">rowVectorSize</span> <span class="o">=</span> <span class="n">tileWidthRow</span> <span class="o">*</span> <span class="n">tileDepth</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">bx</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">by</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">tx</span> <span class="o">=</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">ty</span> <span class="o">=</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">// 由于矩阵B列的数目远大于GPU的grid size，所以需要以下的while循环。</span>
+</span><span class='line'>  <span class="k">do</span> <span class="p">{</span>
+</span><span class='line'>      <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">product</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">row</span> <span class="o">=</span> <span class="n">by</span> <span class="o">*</span> <span class="n">tileWidthRow</span> <span class="o">+</span> <span class="n">ty</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">col</span> <span class="o">=</span> <span class="n">bx</span> <span class="o">*</span> <span class="n">tileWidthCol</span> <span class="o">+</span> <span class="n">tx</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">__syncthreads</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">row</span> <span class="o">&lt;</span> <span class="n">A_height</span> <span class="o">&amp;&amp;</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">B_width</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="c1">// 由于参数可以被runtime决定，这里无需再考虑tileDepth比A的宽度大的情况。</span>
+</span><span class='line'>          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">tx</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">tileDepth</span><span class="p">;</span> <span class="n">j</span> <span class="o">+=</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="n">sMem</span><span class="p">[</span><span class="n">ty</span> <span class="o">*</span> <span class="n">tileDepth</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">row</span> <span class="o">*</span> <span class="n">A_width</span> <span class="o">+</span> <span class="n">j</span><span class="p">];</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">ty</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">tileDepth</span><span class="p">;</span> <span class="n">j</span> <span class="o">+=</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">y</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="n">sMem</span><span class="p">[</span><span class="n">rowVectorSize</span> <span class="o">+</span> <span class="n">j</span> <span class="o">*</span> <span class="n">tileWidthCol</span> <span class="o">+</span> <span class="n">tx</span><span class="p">]</span> <span class="o">=</span> <span class="n">B</span><span class="p">[</span><span class="n">col</span> <span class="o">+</span> <span class="n">j</span> <span class="o">*</span> <span class="n">B_width</span><span class="p">];</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="n">__syncthreads</span><span class="p">();</span>
+</span><span class='line'>          <span class="c1">// 这里姑且假设+和*这两个operator已被overload成Galois Field的加法和乘法。</span>
+</span><span class='line'>          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">tileDepth</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="n">product</span> <span class="o">+=</span> <span class="n">sMem</span><span class="p">[</span><span class="n">ty</span> <span class="o">*</span> <span class="n">tileDepth</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">sMem</span><span class="p">[</span><span class="n">rowVectorSize</span> <span class="o">+</span> <span class="n">j</span> <span class="o">*</span> <span class="n">tileWidthCol</span> <span class="o">+</span> <span class="n">tx</span><span class="p">];</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="n">__syncthreads</span><span class="p">();</span>
+</span><span class='line'>          <span class="n">C</span><span class="p">[</span><span class="n">row</span> <span class="o">*</span> <span class="n">B_width</span> <span class="o">+</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">product</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>      <span class="n">bx</span> <span class="o">+=</span> <span class="n">gridDim</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">col</span> <span class="o">=</span> <span class="n">bx</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">tx</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">col</span> <span class="o">&lt;</span> <span class="n">B_width</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>进一步的优化</h2>
+
+<p>前面提到，Reed-Solomon Codes的矩阵是以8-bit byte为一个数值单位。对于矩阵B的每一行可以被word-aligned的情况，本渣还可以做进一步的优化，以减少ALU的operations数量和global memory transactions。</p>
+
+<p>我们的第一个观察着重于对elements所执行的加法运算。原来的做法是两个8-bit byte相加，但是在GPU中，ALU的操作数和结果的寄存器是32-bit的。我们的做法是在做加法前把4个byte包裹到一个word的寄存器中，保证每次ALU所用的寄存器都被充分使用。</p>
+
+<p>我们的第二个观察是：之前的做法在把矩阵B黄色矩形的elements从global memory load到shared memory的过程中，是一个一个byte同时load进来的，而8-bit是global memory transactions的最低单位（global memory transactions支持8-bit, 16-bit, 32-bit, 64-bit, 128-bit）。我们应该想办法让它每次load更多的bit，从而减少transactions的数量。</p>
+
+<p>在我的实现中，我采用了template以适应word的宽度不同的情况。
+CUDA pseudo-code如下：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="c1">// input matrix A and B, compute product matrix C</span>
+</span><span class='line'><span class="c1">// A: A_height x A_width</span>
+</span><span class='line'><span class="c1">// B: A_width x B_width</span>
+</span><span class='line'><span class="c1">// C: A_height x B_width</span>
+</span><span class='line'><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="n">__global__</span> <span class="kt">void</span> <span class="n">matrix_mul</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">A</span><span class="p">,</span> <span class="n">T</span> <span class="o">*</span><span class="n">B</span><span class="p">,</span> <span class="n">T</span> <span class="o">*</span><span class="n">C</span><span class="p">,</span> <span class="kt">int</span> <span class="n">A_height</span><span class="p">,</span> <span class="kt">int</span> <span class="n">A_width</span><span class="p">,</span> <span class="kt">int</span> <span class="n">B_width</span><span class="p">,</span> <span class="kt">int</span> <span class="n">tileWidthRow</span><span class="p">,</span> <span class="kt">int</span> <span class="n">tileWidthCol</span><span class="p">,</span> <span class="kt">int</span> <span class="n">tileDepth</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">extern</span> <span class="n">__shared__</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">sMemBytes</span><span class="p">[];</span>
+</span><span class='line'>  <span class="k">extern</span> <span class="n">__shared__</span> <span class="n">T</span> <span class="n">sMemWords</span><span class="p">[];</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">rowVectorSize</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="p">(</span><span class="n">ceil</span><span class="p">((</span><span class="kt">float</span><span class="p">)</span> <span class="n">tileWidthRow</span> <span class="o">*</span> <span class="n">tileDepth</span> <span class="o">/</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)))</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">);</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">bx</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">by</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">tx</span> <span class="o">=</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">ty</span> <span class="o">=</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">// 由于矩阵B列的数目远大于GPU的grid size，所以需要以下的while循环。</span>
+</span><span class='line'>  <span class="k">do</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">T</span> <span class="n">product</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">row</span> <span class="o">=</span> <span class="n">by</span> <span class="o">*</span> <span class="n">tileWidthRow</span> <span class="o">+</span> <span class="n">ty</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">col</span> <span class="o">=</span> <span class="n">bx</span> <span class="o">*</span> <span class="n">tileWidthCol</span> <span class="o">+</span> <span class="n">tx</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">__syncthreads</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">row</span> <span class="o">&lt;</span> <span class="n">A_height</span> <span class="o">&amp;&amp;</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">B_width</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="c1">// 由于参数可以被runtime决定，这里无需再考虑tileDepth比A的宽度大的情况。</span>
+</span><span class='line'>          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">tx</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">tileDepth</span><span class="p">;</span> <span class="n">j</span> <span class="o">+=</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="n">sMemBytes</span><span class="p">[</span><span class="n">ty</span> <span class="o">*</span> <span class="n">tileDepth</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">row</span> <span class="o">*</span> <span class="n">A_width</span> <span class="o">+</span> <span class="n">j</span><span class="p">];</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">ty</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">tileDepth</span><span class="p">;</span> <span class="n">j</span> <span class="o">+=</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">y</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="n">sMemWords</span><span class="p">[</span><span class="n">rowVectorSize</span> <span class="o">/</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="n">j</span> <span class="o">*</span> <span class="n">tileWidthCol</span> <span class="o">+</span> <span class="n">tx</span><span class="p">]</span> <span class="o">=</span> <span class="n">B</span><span class="p">[</span><span class="n">col</span> <span class="o">+</span> <span class="n">j</span> <span class="o">*</span> <span class="n">B_width</span><span class="p">];</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="n">__syncthreads</span><span class="p">();</span>
+</span><span class='line'>          <span class="c1">// 这里姑且假设+和*这两个operator已被overload成Galois Field的加法和乘法。</span>
+</span><span class='line'>          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">tileDepth</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="n">T</span> <span class="n">C_word_item</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>              <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">C_byte_item</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">C_word_item</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">);</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                  <span class="n">C_byte_item</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+=</span> <span class="n">sMemBytes</span><span class="p">[</span><span class="n">ty</span> <span class="o">*</span> <span class="n">tileDepth</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">sMemBytes</span><span class="p">[</span><span class="n">rowVectorSize</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span> <span class="o">*</span> <span class="n">tileWidthCol</span> <span class="o">+</span> <span class="n">tx</span><span class="p">)</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="n">k</span><span class="p">];</span>
+</span><span class='line'>              <span class="p">}</span>
+</span><span class='line'>              <span class="n">product</span> <span class="o">+=</span> <span class="n">C_word_item</span><span class="p">;</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="n">__syncthreads</span><span class="p">();</span>
+</span><span class='line'>          <span class="n">C</span><span class="p">[</span><span class="n">row</span> <span class="o">*</span> <span class="n">B_width</span> <span class="o">+</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">product</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>      <span class="n">bx</span> <span class="o">+=</span> <span class="n">gridDim</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">col</span> <span class="o">=</span> <span class="n">bx</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">tx</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">col</span> <span class="o">&lt;</span> <span class="n">B_width</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里简要说明一下，以下两个pointer(sMemBytes和sMemWords)实际上指向同一块内存地址（这个性质请参考各类CUDA入门资料）。这里declare两次是为了方便用不同的类型对同一块内存进行操作。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">extern</span> <span class="n">__shared__</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">sMemBytes</span><span class="p">[];</span>
+</span><span class='line'><span class="k">extern</span> <span class="n">__shared__</span> <span class="n">T</span> <span class="n">sMemWords</span><span class="p">[];</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>后记</h2>
+
+<p>本渣已通过了答辩，本文所涉及的内容可以参考本渣答辩时的<a href="http://yszheda.github.io/GPU-RSCode/thesis?transition=none#/5">slides</a>，里面做了一些动画。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Galoisplusplus</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-23T20:56:00+08:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/blog/categories/cs/'>cs</a>, <a class='category' href='/blog/blog/categories/cuda/'>cuda</a>, <a class='category' href='/blog/blog/categories/tech/'>tech</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://yszheda.github.io/blog/blog/2014/06/23/optimizing-special-matrix-multiplication-in-cuda/" data-via="" data-counturl="http://yszheda.github.io/blog/blog/2014/06/23/optimizing-special-matrix-multiplication-in-cuda/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/blog/2014/05/22/practical-vim-reading-notes/" title="Previous Post: Practical Vim 读书笔记">&laquo; Practical Vim 读书笔记</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/blog/2014/07/25/git-svn-tips/" title="Next Post: git-svn Tips">git-svn Tips &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/blog/2019/04/07/macbeth-by-tang-shu-wing/">《麦克白》的布莱希特剧场实践</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2019/01/01/those-concerts-in-2018/">盘点2018年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/05/22/cudaErrorCudartUnloading/">cudaErrorCudartUnloading问题排查及建议方案</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/01/01/those-concerts-in-2017/">盘点2017年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2017/11/11/Jonas-Kaufmann-recital/">Jonas Kaufmann独奏会之艺术歌曲</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<!--
+Copyright &copy; 2020 - Galoisplusplus -
+-->
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+</body>
+</html>

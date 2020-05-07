@@ -1,0 +1,433 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>记一次cocos2d-x游戏android崩溃排查 - Galoisplusplus</title>
+  <meta name="author" content="Galoisplusplus">
+
+  
+  <meta name="description" content="android crash in cocos2d-x">
+  <meta name="keywords" content="android, Android, breakpad, debug, crash, 崩溃, 游戏崩溃, cocos2d-x, cocos, cocos2d, 游戏开发, 手游开发, game, mobile game, game devolopment">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yszheda.github.io/blog/blog/2015/11/21/android-crash-in-cocos2d-x">
+  <link href="/blog/favicon.png" rel="icon">
+  <link href="/blog/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/blog/atom.xml" rel="alternate" title="Galoisplusplus" type="application/atom+xml">
+  <script src="/blog/javascripts/modernizr-2.0.js"></script>
+  <!--
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  -->
+  <script src="//libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/blog/javascripts/octopress.js" type="text/javascript"></script>
+  
+<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!--
+<link href="http://fonts.googleapis.com/css?family=Crimson+Text:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/blog/">Galoisplusplus</a></h1>
+  
+    <h2>A fan of science, technology and Classical music.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/blog/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:yszheda.github.io/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/blog/">Blog</a></li>
+  <li><a href="/blog/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">记一次cocos2d-x游戏android崩溃排查</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-21T22:53:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>最近查google breakpad回传的crash log，发现了不少<code>cocos2d::FileUtilsAndroid::getData</code>引起的崩溃。崩溃日志的关键信息如下：</p>
+
+<!-- more -->
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>Operating system: Android
+</span><span class='line'>                  0.0.0 Linux 3.4.0-3215177 #1 SMP PREEMPT Thu Nov 6 17:48:34 KST 2014 armv7l
+</span><span class='line'>CPU: arm
+</span><span class='line'>     ARMv7 Qualcomm Krait features: swp,half,thumb,fastmult,vfpv2,edsp,neon,vfpv3,tls,vfpv4,idiva,idivt
+</span><span class='line'>     4 CPUs
+</span><span class='line'>
+</span><span class='line'>Crash reason:  SIGSEGV
+</span><span class='line'>Crash address: 0x0
+</span><span class='line'>
+</span><span class='line'>Thread 11 (crashed)
+</span><span class='line'> 0  libc.so + 0x22284
+</span><span class='line'>     r0 = 0x00000000    r1 = 0x7a634048    r2 = 0x00001000    r3 = 0x5a007304
+</span><span class='line'>     r4 = 0x40090d9c    r5 = 0x01632924    r6 = 0x01632924    r7 = 0x40091334
+</span><span class='line'>     r8 = 0x01632924    r9 = 0x00001000   r10 = 0x7a634280   r12 = 0x00000035
+</span><span class='line'>     fp = 0x00001000    sp = 0x78a78390    lr = 0x00000280    pc = 0x4005b284
+</span><span class='line'>    Found by: given as instruction pointer in context
+</span><span class='line'> 1  libc.so + 0x25aaf
+</span><span class='line'>     sp = 0x78a783a0    pc = 0x4005eab1
+</span><span class='line'>    Found by: stack scanning
+</span><span class='line'> 2  libcocos2dlua.so!cocos2d::FileUtilsAndroid::getData [CCFileUtils-android.cpp : 273 + 0xb]
+</span><span class='line'>     sp = 0x78a783c8    pc = 0x77fe2415
+</span><span class='line'>    Found by: stack scanning
+</span><span class='line'> 3  libcocos2dlua.so!cocos2d::FileUtilsAndroid::getDataFromFile [CCFileUtils-android.cpp : 307 + 0x5]
+</span><span class='line'>     r4 = 0x78a78450    r5 = 0x7d307558    r6 = 0x78a78450    r7 = 0x7e851e54
+</span><span class='line'>     sp = 0x78a78438    pc = 0x77fe2523
+</span><span class='line'>    Found by: call frame info
+</span><span class='line'> 4  libcocos2dlua.so!cocos2d::FontFreeType::createFontObject [CCFontFreeType.cpp : 127 + 0x7]
+</span><span class='line'>     r4 = 0x78a785a4    r5 = 0x7d307558    r6 = 0x78a78450    r7 = 0x7e851e54
+</span><span class='line'>     sp = 0x78a78440    pc = 0x782c6565
+</span><span class='line'>    Found by: call frame info
+</span><span class='line'> 5  libcocos2dlua.so!cocos2d::FontFreeType::create [CCFontFreeType.cpp : 58 + 0x9]
+</span><span class='line'>     r4 = 0x7d307558    r5 = 0x00000000    r6 = 0x00000000    r7 = 0x00000000
+</span><span class='line'>     sp = 0x78a78470    pc = 0x782c665b
+</span><span class='line'>    Found by: call frame info
+</span><span class='line'> 6  libcocos2dlua.so!cocos2d::FontAtlasCache::getFontAtlasTTF [CCFontAtlasCache.cpp : 90 + 0x13]
+</span><span class='line'>     r0 = 0x78a785a4    r1 = 0x00000014    r2 = 0x00000000    r4 = 0x7877905c
+</span><span class='line'>     r5 = 0x78a784b4    r6 = 0x78a785a4    r7 = 0x78a784b4    sp = 0x78a78490
+</span><span class='line'>     pc = 0x782c22bd
+</span><span class='line'>    Found by: call frame info
+</span><span class='line'> 7  libcocos2dlua.so!cocos2d::Label::setTTFConfig [CCLabel.cpp : 438 + 0x3]
+</span><span class='line'>     r4 = 0x82d231a8    r5 = 0x7ceddca0    r6 = 0x78a785a4    r7 = 0x00000000
+</span><span class='line'>     sp = 0x78a78578    pc = 0x78249423
+</span><span class='line'>    Found by: call frame info
+</span><span class='line'> 8  libcocos2dlua.so!cocos2d::ui::Text::setFontName [UIText.cpp : 162 + 0x9]
+</span><span class='line'>     r3 = 0x78249415    r4 = 0x78a785a4    r5 = 0x7ceddca0    r6 = 0x82d234c0
+</span><span class='line'>     r7 = 0x00000398    sp = 0x78a78590    pc = 0x78203b41
+</span><span class='line'>    Found by: call frame info
+</span><span class='line'> 9  libcocos2dlua.so!cocostudio::TextReader::setPropsFromJsonDictionary [TextReader.cpp : 119 + 0x7]
+</span><span class='line'>     r4 = 0x7a0b1ec8    r5 = 0x7ceddca0    r6 = 0x78a78614    r7 = 0x78a78620
+</span><span class='line'>     sp = 0x78a785e0    pc = 0x781b42f1
+</span><span class='line'>    Found by: call frame info
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>很明显，这是由访问非法内存地址0x0所引起的segmentation fault，下面再来看call stack中所提示的<code>CCFileUtils-android.cpp</code>中第273行：</p>
+
+<figure class='code'><figcaption><span>start:247 mark:273 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'>        <span class="k">do</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// read rrom other path than user set it</span>
+</span><span class='line'>            <span class="c1">//CCLOG(&quot;GETTING FILE ABSOLUTE DATA: %s&quot;, filename);</span>
+</span><span class='line'>            <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">mode</span> <span class="o">=</span> <span class="n">nullptr</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">forString</span><span class="p">)</span>
+</span><span class='line'>                <span class="n">mode</span> <span class="o">=</span> <span class="s">&quot;rt&quot;</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">else</span>
+</span><span class='line'>                <span class="n">mode</span> <span class="o">=</span> <span class="s">&quot;rb&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="n">fullPath</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span> <span class="n">mode</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">CC_BREAK_IF</span><span class="p">(</span><span class="o">!</span><span class="n">fp</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="kt">long</span> <span class="n">fileSize</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">fseek</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">SEEK_END</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">fileSize</span> <span class="o">=</span> <span class="n">ftell</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">fseek</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">SEEK_SET</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">forString</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span><span class="p">)</span> <span class="n">malloc</span><span class="p">(</span><span class="n">fileSize</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">data</span><span class="p">[</span><span class="n">fileSize</span><span class="p">]</span> <span class="o">=</span> <span class="sc">&#39;\0&#39;</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">else</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span><span class="p">)</span> <span class="n">malloc</span><span class="p">(</span><span class="n">fileSize</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="n">fileSize</span> <span class="o">=</span> <span class="n">fread</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="p">),</span> <span class="n">fileSize</span><span class="p">,</span><span class="n">fp</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">size</span> <span class="o">=</span> <span class="n">fileSize</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>第273行是调用<code>fread</code>函数，由于<code>fp</code>已经通过<code>CC_BREAK_IF(!fp);</code>做了检查，那么很可能便是<code>malloc</code>的buffer为<code>NULL</code>所致。</p>
+
+<p>为了进一步验证，我们再来看call stack顶层：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> 0  libc.so + 0x22284
+</span><span class='line'>     r0 = 0x00000000    r1 = 0x7a634048    r2 = 0x00001000    r3 = 0x5a007304
+</span><span class='line'>     r4 = 0x40090d9c    r5 = 0x01632924    r6 = 0x01632924    r7 = 0x40091334
+</span><span class='line'>     r8 = 0x01632924    r9 = 0x00001000   r10 = 0x7a634280   r12 = 0x00000035
+</span><span class='line'>     fp = 0x00001000    sp = 0x78a78390    lr = 0x00000280    pc = 0x4005b284
+</span><span class='line'>    Found by: given as instruction pointer in context</span></code></pre></td></tr></table></div></figure>
+
+
+<p>基本可以确定是访问r0（0x0）了，那么r0的庐山真面目究竟如何呢？既然crash log说崩溃的机型所用的cpu是arm架构，那么我们便可以查阅arm的文档<a href="http://infocenter.arm.com/help/topic/com.arm.doc.ihi0042e/IHI0042E_aapcs.pdf">AAPCS（Procedure Call Standard for the ARM Architecture）</a>。其中Parameter Passing这一节便提到：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>The base standard provides for passing arguments in core registers (r0-r3) and on the stack. For subroutines that
+</span><span class='line'>take a small number of parameters, only registers are used, greatly reducing the overhead of a call.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>r0刚好对应了第一个参数，这在我们的例子中就是<code>fread</code>的<code>data</code>。当然，在arm中，r0不仅可以是参数寄存器（argument register），还可能是结果寄存器（result register）和临时寄存器（scratch register）。但是，在这个<code>fread</code>所引起的崩溃中，基本可以排除result register的情况，因为<code>fread</code>的结果不是需要被访问的内存地址；scratch register倒还是有可能的，如果能找到设备系统的libc.so来<code>objdump</code>看下相关的汇编代码可以更确定些。</p>
+
+<p>基本确认原因后，改起来便很容易了。目前我已向cocos2d-x提交了一个patch<a href="https://github.com/cocos2d/cocos2d-x/pull/14458">PR 14458</a>。</p>
+
+<h1>参考资料</h1>
+
+<p>[1]<a href="http://infocenter.arm.com/help/topic/com.arm.doc.ihi0042e/IHI0042E_aapcs.pdf">AAPCS</a></p>
+
+<p>[2]<a href="http://stackoverflow.com/questions/261419/arm-to-c-calling-convention-registers-to-save">ARM to C calling convention, registers to save</a></p>
+
+<p>检查<code>malloc</code>的返回值是否为<code>NULL</code>的必要性不必我多说，可以参考以下的SOF链接：</p>
+
+<p>[3]<a href="http://stackoverflow.com/questions/9101597/under-what-circumstances-can-malloc-return-null">Under what circumstances can malloc return NULL?</a></p>
+
+<p>[4]<a href="http://stackoverflow.com/questions/2248995/is-there-a-need-to-check-for-null-after-allocating-memory-when-kernel-uses-over">Is there a need to check for NULL after allocating memory, when kernel uses overcommit memory</a></p>
+
+<p>关于fread函数：</p>
+
+<p>[5]<a href="http://www.cplusplus.com/reference/cstdio/fread/">fread reference</a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Galoisplusplus</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-21T22:53:00+08:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/blog/categories/cocos2d-x/'>cocos2d-x</a>, <a class='category' href='/blog/blog/categories/cs/'>cs</a>, <a class='category' href='/blog/blog/categories/tech/'>tech</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://yszheda.github.io/blog/blog/2015/11/21/android-crash-in-cocos2d-x/" data-via="" data-counturl="http://yszheda.github.io/blog/blog/2015/11/21/android-crash-in-cocos2d-x/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/blog/2015/10/24/The-24-hour-Ring-by-Tyrolean-Festival-Erl/" title="Previous Post: 蒂罗尔音乐节24小时音乐会版《指环》随想">&laquo; 蒂罗尔音乐节24小时音乐会版《指环》随想</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/blog/2015/12/19/spine-memory-leaks/" title="Next Post: 记一次spine内存泄露排查">记一次spine内存泄露排查 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/blog/2019/04/07/macbeth-by-tang-shu-wing/">《麦克白》的布莱希特剧场实践</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2019/01/01/those-concerts-in-2018/">盘点2018年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/05/22/cudaErrorCudartUnloading/">cudaErrorCudartUnloading问题排查及建议方案</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/01/01/those-concerts-in-2017/">盘点2017年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2017/11/11/Jonas-Kaufmann-recital/">Jonas Kaufmann独奏会之艺术歌曲</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<!--
+Copyright &copy; 2020 - Galoisplusplus -
+-->
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+</body>
+</html>

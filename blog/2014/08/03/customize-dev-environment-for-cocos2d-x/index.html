@@ -1,0 +1,607 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Customize Development Environment for cocos2d-x - Galoisplusplus</title>
+  <meta name="author" content="Galoisplusplus">
+
+  
+  <meta name="description" content="Customize Development Environment for cocos2d-x">
+  <meta name="keywords" content="cocos2d-x, cocos, cocos2d, 游戏开发, 手游开发, mobile game, game devolopment">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yszheda.github.io/blog/blog/2014/08/03/customize-dev-environment-for-cocos2d-x">
+  <link href="/blog/favicon.png" rel="icon">
+  <link href="/blog/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/blog/atom.xml" rel="alternate" title="Galoisplusplus" type="application/atom+xml">
+  <script src="/blog/javascripts/modernizr-2.0.js"></script>
+  <!--
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  -->
+  <script src="//libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/blog/javascripts/octopress.js" type="text/javascript"></script>
+  
+<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!--
+<link href="http://fonts.googleapis.com/css?family=Crimson+Text:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/blog/">Galoisplusplus</a></h1>
+  
+    <h2>A fan of science, technology and Classical music.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/blog/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:yszheda.github.io/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/blog/">Blog</a></li>
+  <li><a href="/blog/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Customize Development Environment for Cocos2d-x</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-03T02:13:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>本渣不久前答完辩毕了业，很快就入职开始新的搬砖历程——在一个只有四名码农的团队里做cocos2d-x的前端开发——说起来我们还是公司第一个做大型手游和cocos2d-x手游的团队呢！搬砖的第一步自然是配置相关环境啦，这里就来记录一下自己近来在这方面的学习和折腾吧。</p>
+
+<h1>配置Mac OS X开发及iOS打包环境</h1>
+
+<h2>安装<code>XCode</code></h2>
+
+<h2>安装命令行工具</h2>
+
+<ul>
+<li>安装Xcode Command Line Tools：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>xcode-select --install</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>安装OS X下的包管理器<a href="http://brew.sh/">Homebrew</a>（Mac OS X已自带<code>ruby</code>）：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>之后就可以用<code>brew install</code>安装<code>python</code>、<code>git</code>等package 。</p>
+
+<h1>配置Android打包环境</h1>
+
+<h2>安装<code>Java</code></h2>
+
+<p>在<a href="https://java.com/download">官网</a>下载安装即可。</p>
+
+<h2>Android sdk</h2>
+
+<p>由于Google被墙了，要在<code>Android</code>官网下载需要翻墙，在以下国内站点下载也可以：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># 中国科学院开源协会
+</span><span class='line'>http://mirrors.opencas.cn
+</span><span class='line'> 
+</span><span class='line'># 腾讯Bugly镜像
+</span><span class='line'>http://android-mirror.bugly.qq.com:8080</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>sdk</code>下载后，再安装<code>platform-tools</code>、<code>extra-android-support</code>、<code>android-20</code>和<code>build-tools-20.0.0</code>。
+可以通过<code>Android SDK Manager</code>图形界面安装，也可以在<code>sdk</code>的<code>tools</code>目录下通过命令行安装：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>./android update sdk --no-ui --all --filter platform-tools
+</span><span class='line'>./android update sdk --no-ui --all --filter extra-android-support
+</span><span class='line'>./android update sdk --no-ui --all --filter android-20
+</span><span class='line'>./android update sdk --no-ui --all --filter build-tools-20.0.0</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如果要用代理安装可以用：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>./android update sdk --no-ui --all --filter platform-tools --proxy-host android-mirror.bugly.qq.com --proxy-port 8080 -s
+</span><span class='line'>./android update sdk --no-ui --all --filter extra-android-support --proxy-host android-mirror.bugly.qq.com --proxy-port 8080 -s
+</span><span class='line'>./android update sdk --no-ui --all --filter android-20 --proxy-host android-mirror.bugly.qq.com --proxy-port 8080 -s
+</span><span class='line'>./android update sdk --no-ui --all --filter build-tools-20.0.0 --proxy-host android-mirror.bugly.qq.com --proxy-port 8080 -s</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>adb</h3>
+
+<p>在sdk工具中平时开发用得最多的是<code>adb</code>，这里把一些<code>adb</code>常用命令也记一下：</p>
+
+<ul>
+<li>启动adb服务：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb start-server</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>关闭adb服务：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb kill-server</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>列举Android设备：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb devices</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>通过usb连接Android设备：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb usb</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>安装apk包：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb install -r &lt;apk&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>卸载应用：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb uninstall &lt;app&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>可以通过以下命令获取app名字：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell pm list packages</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>清除应用数据：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell pm clear &lt;app&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>查看日志：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb logcat</span></code></pre></td></tr></table></div></figure>
+
+
+<p>查看cocos2d-x游戏的日志可以用pipe给grep做过滤：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb logcat | grep cocos2d</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>adb logcat</code>本身的过滤选项可以查看<a href="https://developer.android.com/studio/command-line/logcat.html">官方文档</a>。</p>
+
+<ul>
+<li>清除日志缓存：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb logcat -c</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>进入设备终端：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>从Android设备拷贝文件到电脑：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb pull &lt;remote&gt; &lt;local&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>从电脑拷贝文件到Android设备：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb push &lt;local&gt; &lt;remote&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>查看GPU渲染数据。在Android设备的“开发者选项”中选择“GPU呈现模式分析（开启在adb shell dumpsys gfxinfo中）”，就可以用以下命令输出某app最后120帧的渲染情况：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys gfxinfo &lt;app&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>例如查看Google Calendar的渲染情况：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys gfxinfo com.google.android.calendar</span></code></pre></td></tr></table></div></figure>
+
+
+<p>输出：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Profile data in ms:
+</span><span class='line'>
+</span><span class='line'>        com.google.android.calendar/com.android.calendar.AllInOneCalendarActivity/android.view.ViewRootImpl@423c4ad0
+</span><span class='line'>        Draw    Process Execute
+</span><span class='line'>        15.60   3.92    17.66
+</span><span class='line'>        54.51   10.14   23.59
+</span><span class='line'>        1.59    3.00    1.57
+</span><span class='line'>        13.04   13.78   1.54</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Draw、Process、Execute三项加起来就是一帧渲染的总时间了，接下来可以用sdk的<code>systrace</code>工具来做进一步的性能分析，这就不是本文要讨论的话题了。</p>
+
+<p><code>adb shell dumpsys</code>还有其他很多选项（<code>adb shell service list</code>里列举的都能用），不过对于cocos2d-x开发来说并不常用：</p>
+
+<ul>
+<li>查看CPU使用情况：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys cpuinfo</span></code></pre></td></tr></table></div></figure>
+
+
+<p>当然，Android系统也是Linux，所以也可以用：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell cat /proc/cpuinfo</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>查看内存使用情况：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys meminfo</span></code></pre></td></tr></table></div></figure>
+
+
+<p>也可以用：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell cat /proc/meminfo</span></code></pre></td></tr></table></div></figure>
+
+
+<p>还可以针对某个app查看内存占用：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys meminfo &lt;app&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>查看activity：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys activity</span></code></pre></td></tr></table></div></figure>
+
+
+<p>查看window：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys window</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>查看电池使用情况：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys battery</span></code></pre></td></tr></table></div></figure>
+
+
+<p>更详细的信息可以用以下命令：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys batterystats</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>查看wifi使用情况：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys wifi</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Android NDK</h2>
+
+<p>和SDK一样，可以翻墙到<code>Android</code>官网或者在国内镜像站点下载。
+cocos2d-x对NDK r10的支持有问题，采用NDK r9d。</p>
+
+<p><strong>Update: 目前cocos2d-x已支持NDK r10。</strong></p>
+
+<h3>ndk-stack</h3>
+
+<p>在NDK工具中平时开发用得最多的是<code>ndk-stack</code>，主要用来分析crash。</p>
+
+<p>一种是实时分析crash：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb logcat | ndk-stack -sym $PROJECT_PATH/obj/local/armeabi</span></code></pre></td></tr></table></div></figure>
+
+
+<p>另一种是分析现有的crash dump：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ndk-stack -sym $PROJECT_PATH/obj/local/armeabi -dump &lt;dump-file&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>安装<code>ant</code></h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>brew install ant</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>cocos2d-x游戏引擎</h1>
+
+<p>下载<a href="https://github.com/cocos2d/cocos2d-x">cocos2d-x</a>代码，执行以下命令下载所有代码：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git clone https://github.com/cocos2d/cocos2d-x.git
+</span><span class='line'>cd cocos2d-x
+</span><span class='line'>python download-deps.py
+</span><span class='line'>git submodule update --init</span></code></pre></td></tr></table></div></figure>
+
+
+<p>再执行<code>setup.py</code>，这个脚本会在<code>~/.bash_profile</code>或<code>~/.bash_login</code>或<code>~/.profile</code>中设好<code>COCOS_CONSOLE_ROOT</code>、<code>COCOS_X_ROOT</code>、<code>COCOS_TEMPLATES_ROOT</code>、<code>NDK_ROOT</code>、<code>ANDROID_SDK_ROOT</code>、<code>ANT_ROOT</code>等环境变量。之后<code>source</code>一下被写入环境变量的文件，就可以用<code>cocos</code>命令了。</p>
+
+<h1><del>IDE?</del></h1>
+
+<p>本渣一开始用XCode，但XCode实在太慢太卡了，XVim也一点都不好用。作为vim粉，要毛线IDE，果断用vim做为cocos2d-x开发编辑器XD</p>
+
+<p>由于平时主要是写C++，所以本渣主要用了以下的vim插件：</p>
+
+<ul>
+<li><p><a href="http://www.vim.org/scripts/script.php?script_id=31">a.vim</a>：快速在<code>.h/.hpp</code>和<code>.c/.cpp</code>之间切换</p></li>
+<li><p><a href="http://www.vim.org/scripts/script.php?script_id=213">c.vim</a>：针对C/C++的代码片段（code snippet）、热键等综合工具</p></li>
+<li><p><a href="http://www.vim.org/scripts/script.php?script_id=2540">snipmate</a>：代码片段自动补全</p></li>
+<li><p><a href="http://www.vim.org/scripts/script.php?script_id=3302">clang_complete</a>：使用强大的<code>clang</code>来做C/C++的代码自动补全</p></li>
+<li><p><a href="https://github.com/rking/ag.vim">ag.vim</a>：想必用过<a href="https://github.com/ggreer/the_silver_searcher">ag</a>的都非常喜欢它完秒<code>ack</code>和<code>grep</code>的速度，<code>ag.vim</code>就是在vim中用ag进行搜索（其实用<code>:!ag</code>也可以哈）。</p></li>
+<li><p><a href="http://valloric.github.io/YouCompleteMe/">YouCompleteMe</a>：YCM是本渣非常喜欢的神器！不过要在cocos2d-x开发中更好使用YCM需要配置<code>.ycm_extra_conf.py</code>文件，本渣写了<a href="https://gist.github.com/yszheda/72401e99c1235d32bcaf">一份</a>放到项目目录下，对于cocos2d-x项目基本是够用的。</p></li>
+</ul>
+
+
+<p>后来本渣在Stackoverflow上看到一个话题<a href="http://stackoverflow.com/questions/34573846/cocos2d-x-c-development-tool-no-need-to-be-a-full-ide">Cocos2d-x C++ development tool (no need to be a full IDE)</a>，题主希望开发工具能做到：</p>
+
+<blockquote><p>auto code complement, class function hint, code formatting and available to see cocos2d-x source code conveniently.</p></blockquote>
+
+<p>这么简单的需求，vim完全能胜任啊！而且还不需要用以上所有插件，所以本渣写了个酱紫的<a href="http://stackoverflow.com/questions/34573846/cocos2d-x-c-development-tool-no-need-to-be-a-full-ide/35481145#35481145">回答</a>。</p>
+
+<h1>参考资料</h1>
+
+<p><a href="http://qa.blog.163.com/blog/static/190147002201611833520773/">Android性能－gfxinfo、systrace、traceview</a></p>
+
+<p><a href="http://blog.chengyunfeng.com/?p=458">Android 性能分析案例</a></p>
+
+<p><a href="https://developer.android.com/ndk/guides/ndk-stack.html">ndk-stack官方文档</a></p>
+
+<p><a href="http://stackoverflow.com/questions/18436383/how-to-check-crash-log-using-android-ndk-in-cocos2d-x">How to check crash log using android ndk in cocos2d-x</a></p>
+
+<p><a href="http://blog.csdn.net/xyang81/article/details/42319789">Android NDK开发Crash错误定位</a></p>
+
+<p><a href="http://blog.bookbook.in/ji-zhu/-cocos2dx-li-yong-ndkbeng-kui-ri-zhi-cha-zhao-bug">[cocos2dx]利用NDK崩溃日志查找BUG</a></p>
+
+<p><a href="http://blog.csdn.net/oldmtn/article/details/8889654">android使用ndk-stack调试JNI部分的C/C++代码</a></p>
+
+<p><a href="http://yi.github.io/work/2014/06/20/%E5%9C%A8MacOS%E4%B8%8A%E8%AE%BE%E7%BD%AEquickx%E5%92%8Ccocos2dx%E7%9A%84Vim%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/">在macos上设置quickx和cocos2dx的vim开发环境</a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Galoisplusplus</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-03T02:13:00+08:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/blog/categories/cocos2d-x/'>cocos2d-x</a>, <a class='category' href='/blog/blog/categories/cs/'>cs</a>, <a class='category' href='/blog/blog/categories/tech/'>tech</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://yszheda.github.io/blog/blog/2014/08/03/customize-dev-environment-for-cocos2d-x/" data-via="" data-counturl="http://yszheda.github.io/blog/blog/2014/08/03/customize-dev-environment-for-cocos2d-x/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/blog/2014/07/30/memory-management-in-cocos2d-x-v3/" title="Previous Post: cocos2d-x V3.x内存管理分析">&laquo; cocos2d-x V3.x内存管理分析</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/blog/2014/08/31/optimize-local-src-files-and-local-c-includes-in-android-dot-mk/" title="Next Post: 如何自动设好Android.mk的LOCAL_SRC_FILES和LOCAL_C_INCLUDES">如何自动设好Android.mk的LOCAL_SRC_FILES和LOCAL_C_INCLUDES &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/blog/2019/04/07/macbeth-by-tang-shu-wing/">《麦克白》的布莱希特剧场实践</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2019/01/01/those-concerts-in-2018/">盘点2018年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/05/22/cudaErrorCudartUnloading/">cudaErrorCudartUnloading问题排查及建议方案</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/01/01/those-concerts-in-2017/">盘点2017年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2017/11/11/Jonas-Kaufmann-recital/">Jonas Kaufmann独奏会之艺术歌曲</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<!--
+Copyright &copy; 2020 - Galoisplusplus -
+-->
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+</body>
+</html>

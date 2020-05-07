@@ -1,0 +1,1458 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Galoisplusplus</title>
+  <meta name="author" content="Galoisplusplus">
+
+  
+  <meta name="description" content="之前一直在做cocos2d-x手游客户端开发，最近被组织上安排去做服务器开发了。虽然一开始接触OpenResty，遇到不少问题，但由于本渣重用了大量以前的代码，倒也很快就完成了一个可以正常运作的版本。只是本渣毕竟是新手，所做的功能也没有前人踩坑的经验，对自己代码的性能不放心， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yszheda.github.io/blog/posts/3">
+  <link href="/blog/favicon.png" rel="icon">
+  <link href="/blog/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/blog/atom.xml" rel="alternate" title="Galoisplusplus" type="application/atom+xml">
+  <script src="/blog/javascripts/modernizr-2.0.js"></script>
+  <!--
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  -->
+  <script src="//libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/blog/javascripts/octopress.js" type="text/javascript"></script>
+  
+<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!--
+<link href="http://fonts.googleapis.com/css?family=Crimson+Text:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/blog/">Galoisplusplus</a></h1>
+  
+    <h2>A fan of science, technology and Classical music.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/blog/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:yszheda.github.io/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/blog/">Blog</a></li>
+  <li><a href="/blog/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2016/07/07/server-press-test-tips/">用ab和wrk做压力测试</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-07-07T11:22:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>之前一直在做cocos2d-x手游客户端开发，最近被组织上安排去做服务器开发了。虽然一开始接触<code>OpenResty</code>，遇到不少问题，但由于本渣重用了大量以前的代码，倒也很快就完成了一个可以正常运作的版本。只是本渣毕竟是新手，所做的功能也没有前人踩坑的经验，对自己代码的性能不放心，所以这段时间也在折腾压力测试，这次就来分享一些做压测的tips。</p>
+
+<p>首先，<code>Apache</code>的<code>ab</code>可以很方便地产生大量（并发）的同一请求，<code>ab</code>上手也很容易，是做简单压测的首选工具之一。</p>
+
+<p>使用<code>ab</code>需要注意几个选项：</p>
+
+<ul>
+<li><code>-p</code>指定POST参数，与<code>curl</code>不同，<code>ab</code>的POST参数选项必须指定一个文件。</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>   -p POST-file
+</span><span class='line'>          File containing data to POST. Remember to also set -T.</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><code>-T</code>和<code>-H</code>指定HTTP Header（前者是<code>Content-type</code>）:</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>   -T content-type
+</span><span class='line'>          Content-type  header  to  use  for  POST/PUT  data,  eg.  application/x-www-form-urlencoded.  Default is
+</span><span class='line'>          text/plain.
+</span><span class='line'>
+</span><span class='line'>   -H custom-header
+</span><span class='line'>          Append extra headers to the request. The argument is typically in the form of a valid header line,  con‐
+</span><span class='line'>          taining a colon-separated field-value pair (i.e., "Accept-Encoding: zip/zop;8bit").</span></code></pre></td></tr></table></div></figure>
+
+
+<p>像本渣压测时就用到了如下参数：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>-H 'Accept-Encoding: gzip' -T 'application/x-www-form-urlencoded'</span></code></pre></td></tr></table></div></figure>
+
+
+<p>之前manual提到POST必须指定<code>-T</code>参数，但如果少了前面的<code>-H</code>参数，测出来的数据会和实际情况有偏差。指定<code>ab</code>的这些参数最好是和实际的客户端的HTTP header保持一致，个人建议采用<code>tcpdump</code>或<code>Wireshark</code>等工具来抓取实际的客户端访问服务器的HTTP请求。</p>
+
+<ul>
+<li><code>-s</code>指定timeout时间，这个参数也最好与实际客户端的设置保持一致。</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>   -s timeout
+</span><span class='line'>          Maximum number of seconds to wait before the socket times out. Default is 30 seconds. Available in 2.4.4
+</span><span class='line'>          and later.</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>需要特别注意的是，<code>ab</code>默认不启用HTTP Keep-Alive，需要使用<code>-k</code>开启这一特性：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>   -k     Enable  the  HTTP KeepAlive feature, i.e., perform multiple requests within one HTTP session. Default is
+</span><span class='line'>          no KeepAlive.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>关于HTTP Keep-Alive，下面有两张直观的图说得很明白：</p>
+
+<p>不采用HTTP Keep-Alive，请求某一网页的html和css会通过不同的TCP连接去完成：</p>
+
+<p><img src="https://hpbn.co/assets/diagrams/84cf0f29175e4b11a2343e73105637c5.svg"></p>
+
+<p>同样的场景，采用HTTP Keep-Alive，就可以在同一TCP连接中请求尽可能多的资源，从而避免建立TCP连接的overhead：</p>
+
+<p><img src="https://hpbn.co/assets/diagrams/cf6057a54f005a288d832d293965ee0d.svg"></p>
+
+<p>以上两张图是从Ilya Grigorik的<a href="https://hpbn.co/">High Performance Browser Networking</a>引用过来的，如果你对HTTP Keep-Alive不熟悉的话，可以参考下这本书。</p>
+
+<p>PS. 这里为了不把HTTP Keep-Alive和TCP keepalive混淆起来，本渣就不随Grigorik写做keepalive了。</p>
+
+<ul>
+<li>还有另一个需要特别注意的地方，由于<code>ab</code>发起的请求都是一模一样的，所以<code>ab</code>认为服务器的返回也应该完全相同才对。如果服务器对相同请求的处理结果不同——像本渣做的功能恰好就是这种情况——需要再指定<code>-l</code>选项：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>   -l     Do not report errors if the length of the responses is not constant. This  can  be  useful  for  dynamic
+</span><span class='line'>          pages. Available in 2.4.7 and later.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>前面提到<code>ab</code>所产生的请求都是一样的，如果我们想用不同的testcase来做压测呢？这时候<code>ab</code>就无能为力了，好在还有其他强大的压测工具，例如<a href="https://github.com/wg/wrk">wrk</a>。<code>wrk</code>支持<code>lua</code>编程，可以通过override<code>request</code>、<code>response</code>的全局函数来指定请求和响应的处理逻辑，这给本渣做压测带来不少便利，因为本渣之前不就是做客户端开发嘛，现在可以直接重用客户端的代码了XD</p>
+
+<p>关于<code>ab</code>和<code>wrk</code>的具体用法和细节请参考下面的链接，本渣这里就不赘述了，毕竟把别人提过的东西又重复一遍就没什么意思了<del>其实就是懒癌XD</del></p>
+
+<h1>参考资料</h1>
+
+<ul>
+<li><p>阿里云这篇文章<a href="https://yq.aliyun.com/articles/35251">使用ab和wrk对OSS进行benchmark测试</a>挺好的，推荐一看</p></li>
+<li><p>耗子叔的这篇博文也值得一看：<a href="http://coolshell.cn/articles/17381.html">性能测试应该怎么做？</a>。在做压测之前应当考虑清楚，设计适当的testcase。</p></li>
+<li><p><code>ab</code>的使用可以参考：</p>
+
+<ul>
+<li><p><a href="http://leepiao.blog.163.com/blog/static/485031302010234352282/">Apache ab 压力测试</a></p></li>
+<li><p><a href="http://mo2g.com/view/50/">使用Apache Benchmark做压力测试遇上的5个常见问题</a></p></li>
+<li><p><a href="http://www.cnblogs.com/bandbandme/p/3680542.html">linux下ab网站压力测试命令 - post请求</a></p></li>
+</ul>
+</li>
+<li><p><code>wrk</code>的使用可以参考：</p>
+
+<ul>
+<li><p><a href="http://charmyin.github.io/informationtechnology/2014/08/11/multiple-file-upload-express/">WRK - A HTTP benchmarking tool</a></p></li>
+<li><p><a href="http://czerasz.com/2015/07/19/wrk-http-benchmarking-tool-example/">WRK the HTTP benchmarking tool - Advanced Example</a></p></li>
+<li><p><a href="https://blog.satikey.com/p/5768.html">wrk — 小巧轻盈的 http 性能测试工具</a></p></li>
+</ul>
+</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2016/07/03/thoughts-on-waiting-for-godot/">《等待戈多》杂感</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-07-03T23:36:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>今年柏林戏剧节来华，上演《共同基础》、易卜生的《博克曼》和贝克特的《等待戈多》三部戏剧，其中我最感兴趣的还是《等待戈多》。此次的制作方是曾由大名鼎鼎的莱因哈特（Max Reinhardt）所指导的柏林德意志戏剧院，这一曾有着前卫戏剧制作理念的德国剧团会如何诠释贝克特这部经典？这让我颇为好奇，也充满了期待。而作为一部经典，《等待戈多》总能在重温时给我带来一些新的发现、新的感想，这次看剧前重读时如此，第一次现场看完剧后更是如此。在此我更愿意将个人这些零散的想法记录下来，而不是强行去归拢整理；我也不觉得自己完全理解了这部作品或是德意志戏剧院的这场演出，在此并不提供“解读”，因为“解读”或许并不存在——正如当贝克特被问到戈多是谁时，他回答道，如果自己知道的话，早就在剧本里写明了——但这也是这部充满诗意的经典荒诞派戏剧的魅力之一。</p>
+
+<h1>等待——永不落幕的行为表演</h1>
+
+<p>Wolfram Koch制作的舞台道具精简到了极致，贝克特剧本中的靴子、帽子、绳子、鞭子、箱子等道具统统省去，然而演员们的表演却向观众展现了比原作更为突出的荒诞：
+Vladimir装模作样地掏萝卜给Estragon，两人对着并不存在的萝卜斗了一番嘴；
+第二幕中两个流浪汉玩弄三顶帽子变成了互打响指的游戏&hellip;&hellip;
+曾看到一种说法，剧作中两个流浪汉的几个称谓中有一对其实是滑稽剧演员的常用艺名，而除了滑稽剧演员般的插科打诨，这次扮演流浪汉的两位老戏骨Samuel Finzi和Wolfram Koch更像是一对寂寞孤独的普通人在进行着一场纯粹为了打发时间的行为艺术表演。
+这场行为表演因为漫长的等待而成为了表演者的习惯，而表演者们出于习惯一再重复他们的表演，如此轮回，时间成了表演者们不堪忍受的折磨：</p>
+
+<blockquote><ul>
+<li><p>VLADIMIR:
+That passed the time.</p></li>
+<li><p>ESTRAGON:
+It would have passed in any case.</p></li>
+<li><p>VLADIMIR:
+Yes, but not so rapidly.</p></li>
+</ul>
+</blockquote>
+
+<h1>宿命——无法逃避的时间漩涡</h1>
+
+<p>古希腊文学中的种种诅咒与预言似乎早早在西方文学乃至世界文学中种下了「宿命」的种子，在贝克特的《等待戈多》中也不难发现它的影子：两位流浪汉Didi和Gogo是屈从于命运的，他们即使有改变现状的愿望，也不敢或无法付诸行动（例如他们在剧中两次试图自杀未果），永远等待一直不会出现的戈多是他们的宿命；奴隶主Pozzo企图通过卖掉Lucky来改变自身的命运，最后不仅不能如愿以偿，而且还瞎了双眼，和Lucky绑在一起也是他的宿命。</p>
+
+<p>Mark Lammert制作的布景基本忠实于贝克特剧本的说明，以一块硕大的幕布展现了一个空荡荡的舞台。当幕布慢慢被卷入它下方的锥形圆坑中，像极了一个巨大的漩涡，只不过漩涡里流动的不是水，而是时间。而当几位人物从坑中出现、追逐、消失时，这个时间漩涡就是他们无法逃避的宿命，无论他们顺从也好、反叛也罢，终究要卷入其中、困在其内，万劫不复。</p>
+
+<h1>Didi与Gogo：一体两面</h1>
+
+<p>Barbara Reich Gluck（《Beckett and Joyce》）认为两个流浪汉Didi和Gogo一个代表了精神层面的人、另一个代表了物质层面的人。如果我们依照这一观点来看剧本，我们确实能看到这两人分别体现了人的肉与灵：Gogo要Lucky跳舞，而Didi要Lucky思考；Gogo脚臭，而Didi口臭；Gogo在第一幕里脱靴（因为靴子使他觉得痛），而Didi在第二幕里玩Lucky的帽子（“帽子”在《等待戈多》中意味着“思考”，例如第一幕中Lucky戴上帽子才能思考）；Gogo常常喊饿，吃萝卜、吃鸡骨头，除了吃还经常睡，而Didi更多的是喋喋不休；当提起《圣经》时，Gogo说只记得漂亮的彩色地图，而Didi则讨论着两个贼的得救问题&hellip;&hellip;然而二人在一些地方却可以不加区分地互换角色，例如在两幕结尾处的对话中，他们交换了彼此的台词：</p>
+
+<blockquote><p>（第一幕）</p>
+
+<ul>
+<li><p>ESTRAGON:
+Well, shall we go?</p></li>
+<li><p>VLADIMIR:
+Yes, let&rsquo;s go.</p></li>
+</ul>
+
+
+<p>（第二幕）</p>
+
+<ul>
+<li><p>VLADIMIR:
+Well? Shall we go?</p></li>
+<li><p>ESTRAGON:
+Yes, let&rsquo;s go.</p></li>
+</ul>
+</blockquote>
+
+<p>在Ivan Panteleev导演的这一版制作中，Didi和Gogo套上同一件衣服，彼此挣扎后分开，算是对这一体两面的关系的一种形象化表达。</p>
+
+<h1>Pozzo与Lucky：现代人的受难图</h1>
+
+<p>与Didi和Gogo的关系相似，Pozzo与Lucky也是一组整体。贝克特的剧本中就有这样的暗示：Pozzo和Lucky一样可以互换角色（因为两人可以穿对方的鞋。在《等待戈多》中，“鞋”一定程度上代表着个人“身份”。），只不过命运让Pozzo成为了Pozzo、Lucky成为了Lucky——</p>
+
+<blockquote><ul>
+<li>POZZO:
+Remark that I might just as well have been in his shoes and he in mine. If chance had not willed otherwise. To each one his due.</li>
+</ul>
+</blockquote>
+
+<p>不过，与Didi和Gogo相比，Pozzo和Lucky的关系要畸形的多。
+当然，这可以解释为社会身份的相似与差别造成了他们彼此地位的平等与不平等：Didi和Gogo都是流浪汉，Pozzo是奴隶主，Lucky是奴隶。
+然而我觉得问题没有这么简单：贝克特剧本中的“流浪汉”、“奴隶主”和“奴隶”并非实实在在的社会身份，而是对现代人生存现状的隐喻。
+我们同样可以从剧本中看出这些角色代表了现代人这一隐喻的蛛丝马迹：第一幕中，当Pozzo问Estragon的名字时，他的回答是“亚当”（类似的隐喻也用在了Pozzo身上：第二幕中，Gogo叫Pozzo“亚伯”，Pozzo回应了，接着Didi又叫“该隐”，Pozzo也回应了）；在第二幕Vladimir也提到，“all mankind is us”（同样的隐喻也用在了前面所提到的段落，Gogo如此形容Pozzo：“He&rsquo;s all humanity.”）——Didi和Gogo的“流浪汉”身份不正象征了信仰缺失的现代人精神上的无家可归吗？前面还提到“鞋”的隐喻，Gogo这个流浪汉和他的鞋的关系也颇可玩味：在第一幕中，他被自己的靴子折磨得脚痛，好不容易才把它们脱下，这不正形象地表达了现代人对社会强加给自身的种种身份的不满、怀疑和反抗吗？在第二幕中，面对着同一双靴子，不仅Gogo却没能认出来，连两人中记忆力更好的Didi也无法确认这是同一双。于是Gogo又把它们穿上，这回居然合脚了，但最后又将靴子脱下&hellip;&hellip;这种无法辨认与反反复复不正意味着现代人想追寻真实自我、却陷入了与等待Godot同样的迷茫吗？</p>
+
+<p>让我们再回头来看Pozzo和Lucky。</p>
+
+<p>Pozzo在物质上无疑可以算是富足的，在精神上他也自命不凡，对世界的一切品头论足，仿佛自己便是万物的尺度
+（例如那段“夜”的念白，还有最后那句“That&rsquo;s how it is on this bitch of an earth”）。
+此外，Pozzo还特别喜欢作为长者发表自己的人生经验和哲学理念。例如Gogo想给Lucky擦眼泪，却被后者踢了一脚，Pozzo并不表示同情，而是发表了这样一段话：</p>
+
+<blockquote><ul>
+<li>POZZO:
+He&rsquo;s stopped crying. (To Estragon.) You have replaced him as it were. (Lyrically.) The tears of the world are a constant quantity. For each one who begins to weep, somewhere else another stops. The same is true of the laugh. (He laughs.) Let us not then speak ill of our generation, it is not any unhappier than its predecessors. (Pause.) Let us not speak well of it either. (Pause.) Let us not speak of it at all. (Pause. Judiciously.) It is true the population has increased.</li>
+</ul>
+</blockquote>
+
+<p>Pozzo的自大在他第一幕中出现时表现得尤为突出：当发现两位流浪汉竟不知自己的鼎鼎大名时，Pozzo竟觉得不可思议——</p>
+
+<blockquote><ul>
+<li>POZZO:
+(terrifying voice). I am Pozzo! (Silence.) Pozzo! (Silence.) Does that name mean nothing to you? (Silence.) I say does that name mean nothing to you?</li>
+</ul>
+</blockquote>
+
+<!--
+于是，接下来Pozzo总是想法设法让两位流浪汉的注意力集中在自己身上，试图得到他们对自己非凡身份的认可。
+-->
+
+
+<p>不知Pozzo这么爆棚的优越感有没有让大家想起现实中的人物？
+例如当下兜售成功学的成功人士？
+抑或在形形色色的网络骂战中某群自认为占据道德/科学制高点的键盘侠？
+抑或某些对外鼓吹创业创奇、向员工狂打鸡血的企业主？
+抑或某位“国际化”的知名独立乐评人？</p>
+
+<p>具有讽刺意味的是，Pozzo在标榜自身的同时，也暴露了自己本质的脆弱与无能，使他在两个流浪汉和观众们的眼中成为一个滑稽的形象，我们不难从Pozzo几次丢东西后两位流浪汉的嘲笑中看出来：</p>
+
+<blockquote><p>（Pozzo丢了烟斗）</p>
+
+<ul>
+<li><p>POZZO:
+(calmer). Gentlemen, I don&rsquo;t know what came over me. Forgive me. Forget all I said. (More and more his old self.) I don&rsquo;t remember exactly what it was, but you may be sure there wasn&rsquo;t a word of truth in it. (Drawing himself up, striking his chest.) Do I look like a man that can be made to suffer? Frankly? (He rummages in his pockets.) What have I done with my pipe?</p></li>
+<li><p>VLADIMIR:
+Charming evening we&rsquo;re having.</p></li>
+<li><p>ESTRAGON:
+Unforgettable.</p></li>
+<li><p>VLADIMIR:
+And it&rsquo;s not over.</p></li>
+<li><p>ESTRAGON:
+Apparently not.</p></li>
+<li><p>VLADIMIR:
+It&rsquo;s only beginning.</p></li>
+<li><p>ESTRAGON:
+It&rsquo;s awful.</p></li>
+<li><p>VLADIMIR:
+Worse than the pantomime.</p></li>
+<li><p>ESTRAGON:
+The circus.</p></li>
+<li><p>VLADIMIR:
+The music-hall.</p></li>
+<li><p>ESTRAGON:
+The circus.</p></li>
+<li><p>POZZO:
+What can I have done with that briar?</p></li>
+<li><p>ESTRAGON:
+He&rsquo;s a scream. He&rsquo;s lost his dudeen.</p></li>
+</ul>
+
+
+<p>(Laughs noisily.)</p>
+
+<p>（还是烟斗）</p>
+
+<ul>
+<li><p>POZZO:
+(on the point of tears). I&rsquo;ve lost my Kapp and Peterson!</p></li>
+<li><p>ESTRAGON:
+(convulsed with merriment). He&rsquo;ll be the death of me!</p></li>
+<li><p>POZZO:
+You didn&rsquo;t see by any chance— (He misses Vladimir.) Oh! He&rsquo;s gone! Without saying goodbye! How could he! He might have waited!</p></li>
+<li><p>ESTRAGON:
+He would have burst.</p></li>
+</ul>
+
+
+<p>（Pozzo丢了喷雾器）</p>
+
+<ul>
+<li><p>POZZO:
+With pleasure, with pleasure. (He fumbles in his pockets.) Wait. (He fumbles.) What have I done with my spray? (He fumbles.) Well now isn&rsquo;t that &hellip; (He looks up, consternation on his features. Faintly.) I can&rsquo;t find my pulveriser!</p></li>
+<li><p>ESTRAGON:
+(faintly). My left lung is very weak! (He coughs feebly. In ringing tones.) But my right lung is as sound as a bell!</p></li>
+</ul>
+</blockquote>
+
+<p>与之相反，Lucky代表的是并非当下宠儿的“过时”的人——例如Lucky的思考以神学命题开头——抑或在现代工业社会中处于被支配地位的弱者。
+在剧中，Lucky无法再和以前一样能跳多种舞蹈、他的思考却变成了胡言乱语的语言暴力，这象征了他的肉体和精神的能力的衰退。
+Lucky就像卡夫卡作品中处于社会边缘的小人物，在残酷的世界中日益异化、变形。</p>
+
+<p>Lucky把自己的命运绑在Pozzo身上，却无法使二者成为一个和谐的整体、成为完美的文艺复兴人。随着一个渐趋奴颜婢膝、一个益发不可一世，二者间的撕裂越来越大。Pozzo试图卖掉Lucky，到头来却没能摆脱对方，而且最终Pozzo瞎了、Lucky哑了，两人悲剧性地重新成为不可分割、相互依赖的整体。
+这也许也是贝克特与卡夫卡的不同，悲剧角色不单单是被压迫的弱势人物，也包括了处于他对立面的压迫者，他们一起形成了一幅现代人的受难图。</p>
+
+<!--
+，这不能不让人想到莎翁《李尔王》中Gloucester的台词：
+Tis the times' plague, when madmen lead the blind.
+-->
+
+
+<h1>四角色：Godot的自我投射？</h1>
+
+<p>曾看过一篇分析《等待戈多》中四大角色（Didi、Gogo、Pozzo、Lucky，即排除了充当戈多信使的男孩以外的所有角色。有趣的是，这次的制作中，男孩似乎也由Lucky的演员扮演）的<a href="http://www.samuel-beckett.net/Penelope/four_symbolism.html">文章</a>，其中谈到「四」的种种文化象征，例如幸运女神Fortuna转动的轮子的四角（顶端代表获得权势者(regno/I reign)、底部代表无权势者(sum sine regno/I am without a kingdom)、一角代表即将获得权势者(regnabo/I shall reign)也就是Lucky、一角代表即将失去权势者(regnavi/I have reigned)）。</p>
+
+<p><span class='caption-wrapper'><img class='caption' src='https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/CarminaBurana_wheel.jpg/412px-CarminaBurana_wheel.jpg' width='' height='' title=''中世纪手稿《Carmina Burana》中的Fortuna之轮''><span class='caption-text'>&lsquo;中世纪手稿《Carmina Burana》中的Fortuna之轮&rsquo;</span></span></p>
+
+<p>这里我也开开脑洞：既然Didi和Gogo是一个整体、Pozzo和Lucky也是一个整体，那么有没有可能他们其实都只是同一人的不同面孔？那么这个人会不会就是神秘的Godot？再结合剧本中荒诞的元素和近乎梦幻的情境，四角色会不会只是Godot幻觉里创造的产物？</p>
+
+<p>然而，即便Godot是这些角色的主宰——他能让Didi和Gogo无休止地等待自己，能在一夜之间让Pozzo变瞎、Lucky变哑——他的处境却不比四角色好多少。如果说上帝依照自己的模样造人的话，Godot的造物其实也不过是他自身的投射，或许他也和两位流浪汉一般被世界所抛弃，却和Didi一样自我安慰，坚持说自己是主动放逐：</p>
+
+<blockquote><ul>
+<li><p>ESTRAGON:
+We&rsquo;ve lost our rights ?</p></li>
+<li><p>VLADIMIR:
+(distinctly). We got rid of them.</p></li>
+</ul>
+</blockquote>
+
+<h1>谵妄的救赎</h1>
+
+<p>《等待戈多》一剧有着很浓的宗教意味，乃至于有些人觉得Godot正是上帝（God），还从剧本找到了不少佐证：例如第一幕Lucky“思考”时提到上帝有白胡子，第二幕男孩也告诉Didi说Godot的胡子是白色的；还有男孩和他的兄弟为Godot放羊等等。那么，这部剧到底是否是在暗示处于精神困境的现代人重回基督教信仰、获得救赎呢？我觉得至少贝克特并无此意。</p>
+
+<p>恰好前段时间，钟神和我聊到黄永砅先生在PSA的个展「蛇杖Ⅲ：左开道岔」，黄永砅的作品也蕴含着不少宗教元素，对于我们这些不信教者来说并不好理解。但其中一个巨大转经筒的装置给我留下了很深的印象：转经筒是把喇嘛教的经文放入其中、转动它便可以代替念经的工具，原本是为不识字的信众表达虔心所用，但在我看来却是个bug的存在：因为有了转经筒，他们不再需要诵读经书、理解其中的义理，甚至不用知道自己信仰的是什么，只需用手转动转经筒，便能得到神灵的祝福和保佑。而黄永砅所做的转经筒装置不间断地全自动转动更是剥除了人们需要用手转动这仅有的一点体力付出的虔诚，硕大的体型又像极了一块广告牌，让我想起当下许多著名寺庙、道观、教堂等宗教场所也不过是旅游业的一张名片罢了。继而，我意识到黄永砅这一夸张的作品或许表达了一种对宗教信徒们的嘲讽：自古以来，以宗教之名发动的战争和暴行屡见不鲜，绝大多数普通信众也不过是藉着宗教避难、消灾、祈福来满足自身利益，真正诚心信仰者又有几何？而既然他们并非真正相信他们皈依的宗教，那么他们所等待的“救赎”/“审判”真的会是自身的得救吗？</p>
+
+<p>在《等待戈多》中，贝克特也表达了类似的讽刺。一方面他暗示：即使“救世主”Godot降临，他并不能给予等待者们他们想要的救赎，Godot施与赏罚也并不遵照一套公平公正的准则，他惩罚为他放绵羊的信使男孩的兄弟，却不惩罚为他放山羊的信使男孩。另一方面则暗示了两位流浪汉对救赎的等待将无果而终：剧中Didi是两个等待者中抱有这种等待的最热忱者，他对自己的得救也更怀有希望，而当他说起码他们守了约时，贝克特马上借着Gogo之口反唇相讥——</p>
+
+<blockquote><ul>
+<li><p>VLADIMIR:
+Or for night to fall. (Pause.) We have kept our appointment and that&rsquo;s an end to that. We are not saints, but we have kept our appointment. How many people can boast as much?</p></li>
+<li><p>ESTRAGON:
+Billions.</p></li>
+</ul>
+</blockquote>
+
+<p>在“救赎”这一命题上，贝克特所设计的情节则愈加绝望：Didi提到两个贼只有一个得救，原本有五五开的机会，但由于四个福音书作者只有一个提到，这让这得救的概率变得不可捉摸；与此相对应的是，两幕中Godot的信使男孩都问了Didi想让他给Godot带什么话，Didi在第一幕中说的是告诉Godot你看到了“我们”，而第二幕中则变成了告诉Godot你看到了“我”，即使是最诚心的Didi也不免对自己的得救越发失去希望——</p>
+
+<blockquote><p>（第一幕）</p>
+
+<ul>
+<li><p>BOY:
+What am I to tell Mr. Godot, Sir?</p></li>
+<li><p>VLADIMIR:
+Tell him &hellip; (he hesitates) &hellip; tell him you saw us. (Pause.) You did see us, didn&rsquo;t you?</p></li>
+</ul>
+
+
+<p>（第二幕）</p>
+
+<ul>
+<li><p>BOY:
+What am I to tell Mr. Godot, Sir?</p></li>
+<li><p>VLADIMIR:
+Tell him &hellip; (he hesitates) &hellip; tell him you saw me and that &hellip; (he hesitates) &hellip; that you saw me .</p></li>
+</ul>
+</blockquote>
+
+<p>不过，贝克特毕竟仍然对现代人的困境怀有希望，他象征性地让剧中第一幕的枯树在一夜之间长出了叶子，代表了一种看似不可能的绝地重生。
+然而在Ivan Panteleev的这一版制作中，这样的希望也被剥除了：这棵树只由一根自始至终光秃秃的杆子替代；而且在Didi得知Godot跟上帝一样是白胡子之后，并不是欣喜（“Christ have mercy on us!”），而是沮丧（貌似台词改成了句“见鬼”之类的话，我记不大清了）。尽管我并不理解导演为何将剧本改编得如此黑暗，但他们一样表达了“救赎”的荒谬。</p>
+
+<h1>思考与睡眠</h1>
+
+<p>第一幕Lucky的“思考”是我比较感兴趣的部分，Lucky词不达意的念白中还混入了很多贝克特造的双关语（这些词在被翻译后难免失去了法语原文的韵味），成为这个角色颇具特色的行为表演。
+然而这次制作似乎省去了Lucky思考后沉睡的一些情节，而这一段剧本恐怕并非贝克特的赘笔。它使我联想到瓦格纳指环里一直沉睡的智慧女神埃尔达，还让我想到剧中两位流浪汉——前面提到Didi和Gogo可以看成一体两面的整体，恰好也是一个想得多一个睡得多。作者想来有意表现思考和沉睡的密切关系，只是不知这种表达在西方文明/文学里有什么渊源？</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2016/06/13/tips-about-tiled-map-in-quick-cocos2d-x/">瓦片地图注意事项</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-06-13T11:22:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>承接<a href="http://galoisplusplus.coding.me/blog/2016/06/03/math-in-staggered-tiled-map/">上一篇文章</a>，再来聊聊一些coding方面的tips：</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2016/06/13/tips-about-tiled-map-in-quick-cocos2d-x/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2016/06/03/math-in-staggered-tiled-map/">斜45度瓦片地图（Staggered Tiled Map）里的简单数学</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-06-03T11:22:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>前段时间在做游戏的地图编辑功能，我们是在一个斜45度视角的场景上，对地图上的建筑或装饰物进行添加、移动、移除等基本操作，而且位置的改变是以网格作为最小操作单位的。本渣是用Staggered Tiled Map实现的，与垂直视角的Tiled Map不同，斜45度视角处理起来相对麻烦些，这次就聊聊其中一些跟数学相关的有趣问题。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2016/06/03/math-in-staggered-tiled-map/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2016/05/25/damien-rice/">乱侃Damien Rice上交演唱会</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-05-25T23:36:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>本乐渣由于平时很少听歌，对很多流行歌及歌手不甚了解。恰好上交厅这一乐季请了不少跨界或非古典的音乐家，其中之一便是我朋友石头所喜爱的爱尔兰歌手——被粉丝们成为「大米」的Damien Rice。在他的安利之下，我也去听了米叔的演唱会，这也是本渣第一回现场听流行音乐。</p>
+
+<p>以本渣听惯了古典乐的木耳听来，米叔的歌不仅不重口味，而且还挺有规律：一般在高潮之前是渐强，渐强的同时还会做渐快处理；达到高潮后却是突然弱下来，形成力度的强烈对比，这有点像贝圣作品中常见的cresc.后跟了p而不是dim.；末了还会来那么几下，跟交响乐中被解读成“阳性终止”的如出一辙【好吧，本渣只能污到这里了，请参考Susan McClary的名著《阴性终止（Feminine Endings）》，大致就是前戏很长、痿得突然、最后再射&hellip;</p>
+
+<p>最让我惊喜的是当米叔秀完一种乐器后，BGM会一直循环播刚才的旋律或节奏，同时米叔拿起新的乐器开启新的声部，一直叠加，就像复调音乐似的，真是6666。我最开始还以为BGM循环播的片段是当场录音的回放：例如把米叔用一种乐器的现场演奏声音A录下来，因为录音会有一定的失真，实际录下的是A'；当米叔换了一种乐器演奏B时，把前面录的A'播出来，同时录下(A'+B)&lsquo;&hellip;经过层层混合后，最开始的声音将变得无从辨认，这路子完全可以媲美Pierre Schaeffer的声音作品啊。当时还问了朋友，但他说这些BGM应该是事先录好的，没有失真的因素，看来是本渣想多了&hellip;不过前几天交流时，他说求证到BGM确实是当场录的，他自己也是第一回碰到这样的玩法，所以当时没有想到。看来米叔确实搞得一颗赛艇：Schaeffer也只是拿同一份声音录了又录，米叔还玩了多个声部。还可以继续开脑洞下去，例如最后把最开始被变形得最厉害的再加进来，构成一个类似巴赫哥德堡变奏曲或恰空的首尾呼应的结构。</p>
+
+<p>这次上交的舞台也与平时大为不同，我和朋友开玩笑说，上次看到音乐厅台上「打地铺」还是阿三们坐在台上玩西塔琴、竹笛的那一次。朋友提到这次的灯光特别好，不过我完全没有注意，这或许是以往听音乐会的习惯吧——朋友当时跟我说灯光时，我立刻联想到李赫特在蒙桑容纪录片里的一段：当里秃被问道为何在那么暗的灯光下弹琴、让人看不清楚时，里秃一脸鄙夷地反问有什么好看的、难道看手吗&hellip;不过也不排除米叔和梅西安、斯特里亚宾等人一样有着联觉超能力，演奏音乐的同时也在作画XD</p>
+
+<p>来听米叔之前，就听朋友说流行乐迷们现场很high的，不像古典乐迷那么矜持，果然现场乐迷们真是各种会玩：迷妹大军占领舞台、台下挥舞起手机手电筒的“荧光棒”&hellip;我来上交厅这么多次，这样的场景还是第一次见到，也算是难得的一次人生经历了。</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2016/04/03/nt-live-kinglear-and-othello/">莎年漫谈莎剧——NTLive观后</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-04-03T23:36:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>莎士比亚的几部大俗作品虽然我早已拜读，但浅尝辄止，也从未现场观赏莎剧演出。今年正值莎翁逝世400周年，在资深莎迷翔哥的“安利”之下，基本没看过话剧的我也入坑尝鲜，去话剧中心观看了英国National Theatre（以下简称NT）于2013年制作的《奥赛罗》和于2014年制作的《李尔王》。</p>
+
+<p>NTLive这两部莎剧一路看下来，个人的第一印象是：NT借助于现代技术，场与场之间、幕与幕之间基本是无缝衔接，节奏紧凑，很有剧场效果。此外，剧本情节的删改——例如《李尔王》最后一幕最后一场中，爱德伽不必在三声号角声后才出来指证爱德蒙罪行，高纳里尔和里根也改为当场死亡——让情节更简洁明了，也更能震撼观众。同时被去掉的还有一些看似可有可无的台词，例如高纳里尔说爱德蒙可以不接受无名之辈挑战的那段“碎碎念”：“这是诡计，葛罗斯特；按照决斗的法律，你尽可以不接受一个不知名的对手的挑战；你不是被人打败，你是中了人家的计了。”。这一段我在年少初读时曾觉得好笑——高纳里尔你在爱德蒙决斗前不提，直到事已成舟、人家都快死了才说那种无用之语，这不是在逗人家么——我后来对此改变了看法（下面会谈谈），只不过这样的修改倒也无伤大雅。</p>
+
+<p>其次，NT的制作虽然总体上忠实于莎翁原著，但仍根据语境做了不少有意义的更改。其中一些是很细微的调整，例如在《李尔王》第四幕中，李尔拉弄人和装成疯丐汤姆的爱德伽“审判”高纳里尔和里根，其中“代表”高纳里尔的折凳被换成了马桶，弄人那一句“对不起，我还以为您是一张折凳哩”的台词便也做了相应改动。个人觉得这句台词很可能并不是莎翁剧本最早的设定，而是当时丑角演员根据剧场现状即兴的“抖机灵”，只是后来被剧作家记录在自己的作品之中罢了。因此不仅去苛求这种细节的“忠实”大可不必，而且后人还可以继续制造新的笑点——制作方也确实这么做了，例如这版《李尔王》第二幕开头，爱德蒙为了向克伦探听消息，掏出了一张钞票行贿，一摊开原来是张“毛爷爷”，当时台下观众都笑了。《奥赛罗》把故事搬到了阿富汗战场，自然也要符合现代社会的背景设定。例如原著第三幕开头有这样一段情节：凯西奥找来一批乐工演奏音乐，试图讨好奥赛罗，后来却被主帅的小丑制止。NT制作团队将其删去合情合理，因为现代观众很难想象军营中会有乐工、小丑这种身份的人。此外，场景设计也有变更，莎翁剧本中各种“城堡中一室”被替换成了俱乐部、办公室、厕所等活生生的场景，既与阿富汗战场的设定相符，又拉近了与现代观众之间的距离。</p>
+
+<p>在这两部剧下半场开始前，都播了一段幕后花絮，其中制作团队谈到了他们如何理解莎翁的文本、如何将其诠释在舞台上呈现出来。我很受启发，也很佩服他们对莎翁这两部作品的解读之深入。但也许是之前因为看过一些瓦格纳乐剧、却又基本没接触过话剧的缘故吧，我在看到一些观众诟病NT的制作太过”现代”后颇为不解。戏剧制作并非演员们套上了现代服饰、舞台用现代物品包装一下就能称得上“现代”了，个人的观点也恰恰相反，觉得NT在这两部莎剧中所反映的制作理念并不“现代”。</p>
+
+<p>先谈谈《李尔王》。</p>
+
+<p>NT制作团队将李尔解读成老年痴呆症患者，认为他虽然过了大半辈子无逆耳之言的独裁生活，但对自己的这一病症仍有所察觉（原著中李尔有不少“不要让我发疯”之类的台词）。他们依照这一想法来诠释《李尔王》文本，试图使莎翁设计的台词得到现代科学的支持，让剧情里情节的发展不再无缘无故，而是符合一套逻辑严谨的客观规律。例如在他们看来，第四幕第六场李尔的疯言疯语中所出现的“老鼠”之类的意象、第三幕第二场中李尔试图在大庭广众之下扯去自己衣服的行为，正是老年痴呆症患者的幻想症状和精神错乱。饰演李尔的Simon Russell-Beale也反过来把老年痴呆症的其他特征（例如走路拖步子）融入到自己的表演之中，试图将这一解读传达给观众，让现代观众通过这一角度更易理解这部经典悲剧。</p>
+
+<p>再举一例，第四幕第六场有一处较大的改动：在莎翁的原著中，这一场末尾弄人与肯特、葛罗斯特一道陪着李尔离开，此后弄人便基本没有戏份了，直到最后一场李尔才提到弄人是被爱德蒙的走狗缢死的。而NT制作团队根据李尔的台词“枉法的贪官，你为什么放她逃走?”，修改为发疯的李尔误以为弄人放走了受审的“高纳里尔”而失手打死了弄人。我没有想明白莎翁对弄人如此设计的用意何在，但制作方的改动不仅解释了后面弄人的缺席，还给疯李尔以极大的杀伤力——李尔发疯时能将平时极亲密的人打死——不由让人联想到第一幕末尾里根和高纳里尔两人对其老父昏悖的讨论。这倒使莎翁的文本互相呼应、合乎逻辑了。</p>
+
+<p>还有前面所提到的最后一幕中高纳里尔的那一段台词。在那个时代，有身份地位的人是可以不接受无名之辈的挑战的，但是之前康华尔公爵恰恰是与剧本中都没留下名字的“仆人甲”决斗，死在他手里的——这怎么看都不像是一件理所当然的事，难道康华尔当时就没有心腹护卫在旁替他出手收拾“仆人甲”吗？在NT的制作中，高纳里尔的碎碎念被去掉了，也许是制作方不想给观众造成太多困惑？</p>
+
+<p>现代观众的困惑似乎是少了，可问题是，《李尔王》真的需要如此“实证”地为剧本台词寻找现代意义上的合理解释吗？</p>
+
+<p>恰好清明前天钟神带我去看贾科梅蒂展，我们一起看了贾科梅蒂为贝克特《等待戈多》所作的布景的复原展品。这使我想到，《李尔王》其实便很有些许荒谬戏剧的意味 [3]，莎士比亚甚至比贝克特更赤裸裸地揭露了荒谬：例如葛罗斯特的台词“疯子带领瞎子走路，本来就是这时代的病态”、李尔的台词“当我们出生的时候，我们为来到这个傻瓜的大舞台而哭”、还有弄人的“预言”。而葛罗斯特的“自杀”，其怪诞程度难道会弱于现代荒诞派戏剧作品吗？（当然我读书少，还不敢下肯定结论XD）再回头看高纳里尔的那段碎碎念，不也有点像贝克特笔下那些毫无意义又自相矛盾的台词吗？正是其表面上的可有可无使其成为了表现荒谬的必要因素。从这个角度去审视NT制作团队试图为文本寻找背后原因的“实证主义”倾向，不正像《李尔王》一开始葛罗斯特把灾祸归咎于日月星辰吗？具有讽刺意味的是，莎翁恰恰借爱德蒙之口讽刺了这种因果论，只不过NT制作方所赋予的操纵人事的世间主宰者，不是天体神灵，而是科学罢了。</p>
+
+<p>NT制作团队的“实证主义”倾向还体现在某些道具设计在细节上过于写实。例如《李尔王》第四幕中，考迪莉娅的医生唤醒李尔，李尔见到考迪莉娅，还以为自己不在人世，试图用针扎扎看疼不疼，NT制作团队特意在李尔手上留了输液针，以呼应被针扎疼的台词。虽然我曾拿去年蒂罗尔音乐节24小时音乐会版《指环》的一些简陋道具开过<a href="http://galoisplusplus.coding.me/blog/2015/10/24/The-24-hour-Ring-by-Tyrolean-Festival-Erl/">玩笑</a>，但我却认为像NT这么较真的写实并不可取。就拿我相对熟悉的瓦格纳《特里斯坦与伊索尔德（Tristan und Isolde，以下简称T&amp;I）》来说，第二幕中伊索尔德以熄灭火炬为信号，与特里斯坦幽会，我便觉得舞台上的火炬并不需要是现实中真正的火炬。我看过几版T&amp;I视频，只有2001年大都会（MET）歌剧院的制作真用了一把火炬，套用时下的流行词来讲，“感觉好low” [4]。事实上，实物都不需要，利用舞台灯光来象征火炬的效果便足够了。</p>
+
+<p>不仅道具不需要百分百忠实于文本，而且有时候道具的缺失反而能出奇制胜。</p>
+
+<p>还是以T&amp;I为例，第一幕中伊索尔德原本要准备毒酒与特里斯坦同归于尽，没想到被布兰甘妮将毒药换成“爱情迷药”，结果两人压抑已久的爱恋反而不可阻挡地释放出来了。照理来说，“爱情迷药”是该剧不可或缺的关键道具，但在1999年慕尼黑国立剧院的制作中，布兰甘妮并没有将毒药换成春药。更让人出乎意料的是，Jon Fredric West扮演的特里斯坦与Meier姨扮演的伊索尔德在并没有饮“毒酒”的情况下，便开始眉来眼去、情意缠绵。我当时看到这一幕，真为剧作家Peter Konwitschny这位制作人的大胆改编拍案叫绝！T&amp;I与其说是中世纪骑士故事的改编，倒不如说是瓦格纳与维森东克夫人之间私情的理想化写照。假如说瓦格纳出于对当时世俗的道德观念有所顾虑而不得不加入“爱情毒药”设定的话，Konwitschny则扯去了这一遮羞布，替瓦格纳这个色鬼完成了当年他想做而不敢干之事 [5]。</p>
+
+<p>好在NT制作团队的“写实”情结并没有蔓延到李尔在暴风雨中暴走的一段。他们只是用灯光和音效象征性地代表大自然的风暴，使观众得以将注意力集中在李尔内心的风暴之中。第四幕第六场李尔和葛罗斯特相遇后，李尔让葛罗斯特帮他脱靴子，NT制作方这回没有让李尔真的穿上靴子，总算让我在瞎子与疯子之间的脱“靴”表演中稍微嗅到了一丝荒谬气息。</p>
+
+<p>相比《李尔王》，NTLive的《奥赛罗》虽然把背景搬到了现代阿富汗战场，但仍脱离不了“写实”情结。例如NT的制作大多以枪代替莎翁剧本的剑，但最后奥赛罗的台词中有提到一把西班牙宝剑，便当真拿出一把剑来（我之前还在想，如果到时候奥赛罗拿出一把光剑，那该多有效果啊XD）。此外，NT制作团队在舞美设计上也力求真实感，例如制作花絮中便有一段讲第二幕凯西奥、罗德利哥、蒙太诺等人如何打架与奥赛罗如何制止的动作设计。可是，这样的制作理念，我同样存疑。</p>
+
+<p>《奥赛罗》中的人物想必让不少观众感到不解，奥赛罗对苔丝狄梦娜的态度转变实在太大太快，伊阿古这位大反派更为奇怪，竟然喜欢向观众袒露自己的阴谋——相比之下，阿加莎在《Curtain（帷幕，波洛的最后一案）》里以伊阿古为原型塑造的一直深藏不露的诺顿就自然得多。只是我当初只把这部莎剧当做文学作品来阅读，不会想到这种设计在实际的戏剧表演中有多诡异。直到当年美剧《纸牌屋（House of Cards）》第一季大热，看到Frank Underwood也和伊阿古一样喜欢向观众剧透，甚至之前英剧《纸牌屋》也如出一辙，才对这一问题重新好奇起来。后来我通过知乎大致了解到德国戏剧家布莱希特（Bertolt Brecht）的理论。与NT制作团队希望观众融入舞台、代入角色这种戏剧制作理念相反，布莱希特认为应当剥离“戏剧幻觉”，让观众知道自己在看戏，从而充分调动自己的理性来思考和批判，而非沉溺于舞台上的表演。当然，莎翁自然不可能按照布莱希特的理论来创作《奥赛罗》，但剧本的人物设计却为现代依据这套理论进行重新解读创造了可能性。</p>
+
+<p>前面提到我不赞成戏剧道具过于写实，其实抽象的舞台美术形成了舞台表演与台下观众之间的隔离，与布莱希特理论也有所契合。事实上，在戏剧发展的早期，出于宗教神秘仪式的需要，往往在舞台上起主导的是以抽象化形式表现的超现实因素。此后西方戏剧逐渐陷入写实的泥潭，甚至在19世纪早期还兴起了一股潮流，追求尽可能精确地还原出剧本情景所处历史的原貌。这种“考古”式的理念误把效果逼真当做戏剧表演的终极目标，实际上是反戏剧的倒行逆施。19世纪末，与部分现代美术流派从原始艺术汲取灵感、“拨乱反正”（至于是不是矫枉过正则自有公论）相似，一些戏剧布景也摒弃了对现实或历史的模仿，开始采用象征主义等表现手法。这些表现手法不再有意义单一的指向，因而丰富了解读的多样性。然而，与原始戏剧不同的是，现代制作这种含义表现的模糊化往往并不导向神秘主义，而更多的是带给观众以想象的解放和智性的愉悦。对我而言，95年拜节的T&amp;I便堪称此类现代制作的典范。当然，这一版制作中一些意象确实抽象晦涩，也使我困惑良多，在此只能做一些浅显的解读：在乐队演奏每一幕前奏曲时，镜头中都会有一些画面以简洁笔墨勾勒出剧情发生的背景。例如第一幕出现了船和船上两人的轮廓，象征特里斯坦正载着伊索尔德从爱尔兰返回康沃尔王国，有了前面必要的交代后，Erich Wonder所设计的舞台上便不再有与“船”相关的布景，十分简洁。除此以外，每一幕前的这些画面基本是非具象的，充斥其间的色彩定下了之后的舞美基调，也与瓦格纳的剧本相呼应：第一幕的画面出现了红色和金色，红色代表血与死亡，金色则让我想起克林姆特，象征了爱欲——死与爱正是T&amp;I的两大主题——整体色调的明亮也呼应了“白昼”意象；第二幕的画面是蓝色笔触的狂舞，象征了“黑夜”和爱的喜悦；第三幕的画面，在一片颓废的灰色背景下又出现了红色和金色——若是姑且肤浅地把T&amp;I第一幕比作“由死生爱”的话，这一幕则可以称得上“为爱而死”。第三幕最后的“爱之死”，金色重新出现在Meier姨的服装和背景中，这让我联想到贴金箔的中世纪圣像画和瓦格纳惯用的“救赎”主题。不过，我水平有限，实在看不出来这些画面是如何与音乐中的各种动机发展产生联系的，感觉像是在Barenboim棒下的乐团引导听众进入瓦格纳的声响世界的同时，它们却把观众拉回到现实中来，以审视艺术品的方式来观赏这部乐剧。我也同样无法理解山本耀司 [6]所设计的诡异服装：第一幕中，角色的衣服上都套上了一个奇怪的“橡胶套”，此后却有的戴有的没戴。如果把这个解释为区分“白昼”与“黑夜”世界的标志的话，那么为何第二幕中布兰甘妮也没戴？为何马克王戴的是白色的、梅洛戴的是红色的？然而，这一版T&amp;I给我虽然带来了疑惑，却也留下了不少回味空间——要知道，戏剧艺术本不为解决问题而存在，作为观众，也本不希冀从舞台上寻求答案。再回头来看NTLive的《奥赛罗》，“城堡中一室”被替换成丰富多样的现代场景，便不见得是高明了。如果NT制作团队能参考一些如布莱希特所倡导的现代戏剧理论，借鉴一些如95年拜节T&amp;I所采用的现代表现手法，用尽可能简单的舞美元素去尽可能多地体现莎翁文本中的内涵，留给观众更多的思考余地，也许会比现在这一版对现代场景的简单挪移要精彩。</p>
+
+<p>虽然上述林林总总吐槽了一些，但我还是挺喜欢NT制作的这两部莎剧的，无论从演员 [7]表演来是剧场效果来看都属一流。最后需要再说明一下，我对戏剧和戏剧制作的了解程度毕竟肤浅，以上也只是个人拙见。我所空想的贝克特式《李尔王》和布莱希特式《奥赛罗》，或许已有这样的制作，效果并不如意，或许在实际制作中不可实现。不过在此还是要支持一下现代制作，也期待未来能有更多更优秀的制作将莎翁的名著搬上舞台。</p>
+
+<h1>几点碎碎念</h1>
+
+<p>[1] 其实我当初看完NT制作的这两部莎剧之后便有了一些基本想法，只是这段时间一直加班，无暇付诸笔端，故而耽搁至今。不过这也正好给我一段时间阅读、整理思路，受益匪浅：一是我在看剧之前并没做功课，看完《奥赛罗》后对最后伊阿古阴谋败露、却丝毫不提罗德利哥感到奇怪，印象中莎翁似乎不这么处理，才翻出朱生豪先生的译本来对照，这段时间恰好让我又温习了这两部莎剧；二是这期间我囫囵吞枣地浏览了Phyllis Hartnoll和Enoch Brater合著的一本小书《戏剧简史（The Theatre: A Concise History）》，虽是不求甚解，却也了解了一些关于戏剧的有趣历史。</p>
+
+<p>[2] 由于我之前只看过我浙黑白剧社的《赵氏孤儿》，对话剧并不熟悉，故而多借助瓦格纳的T&amp;I来阐述观点。这并不是因为我迷上瓦格纳，事实恰恰相反（划清界限是必须滴XD）：瓦格纳的早期戏剧如《黎恩济》我并未看过；即使是瓦格纳的几部主要乐剧，我也没看过多少版本，对一些如《名歌手》的作品并不太熟悉；即使是我最熟悉的T&amp;I，我也未全看完“伯卡索克”（斗胆把伯恩斯坦踢出“伯卡伯克”四巨头了，“伯卡索克”指伯姆、卡拉扬、索尔蒂、小克莱伯四位指挥家）的大俗版本。</p>
+
+<p>作为非瓦迷，我以瓦剧为例主要是因为：</p>
+
+<p>一、瓦格纳的创作中，音乐与戏剧并重（“总体艺术”）。</p>
+
+<p>二、瓦格纳艺术理念有现代性——这个话题太大，非我所能谈论。不过倒是可以通过一些细枝末节来间接证明：例如我之前读过一些关于“现代性”的书中基本都提到了波德莱尔对这一概念的解读，而瓦格纳对波德莱尔的影响是显而易见的，后者也曾写过观赏瓦剧的诗。</p>
+
+<p>三、瓦格纳的作品适合“现代”制作。相较而言，与他同时代的其他作曲家的作品较少体现这种特质。例如威尔第的歌剧《茶花女》，05年萨尔茨堡安娜和维拉宗的那一版是很成功的“现代”制作，但对这部作品却不是加分项。瓦剧的制作也向来欢迎前卫元素，拜罗伊特更是现当代戏剧的试验场。</p>
+
+<p>在瓦格纳众多作品中我之所以选了T&amp;I是因为它很好得体现了上述特点，而且也是本人最赞赏喜爱的一部瓦剧。</p>
+
+<p>[3] 不过《李尔王》和《等待戈多》一类的荒诞派戏剧还是不能等同的。《李尔王》的情节发展无法逆转，李尔王发疯、葛罗斯特变瞎等事件发生之后便无法使剧中人物恢复原样。而《等待戈多》的剧情是可以循环的。这次和钟神去看贾科梅蒂展时，我们看了这么一个视频：视频中四个人在舞台上似乎漫无目的又被上了发条似的行走，人越走越少，当台上只剩一个人后，其他人又依此出现。当时看到一半，我就跟钟神说，这就像“无穷动”一样，末尾可以接上开头，可以无限循环下去——贝克特的剧作亦如是。这里也与西方的时间观、历史发展观的改变有关：文艺复兴后，西方认为事物随着时间是往更高级、更先进的方向线性发展的，此后现代艺术和思潮的出现质疑和打破了这种传统观念。</p>
+
+<p>[4] MET的这版T&amp;I制作上相对保守，除了道具写实，服装亦较复古，好在制作方并不追求还原历史原貌，布景还算精简。Ben Heppner的特里斯坦和Jane Eaglen的伊索尔德虽不出众、亦无大过（听了Eaglen唱的《荷兰人》森塔和《唐豪塞》伊丽莎白后，我觉得她这次唱的伊索尔德还是靠谱一些的），加之有James Levine这位当今诠释瓦格纳的大师坐镇，使得这一版T&amp;I足以跻身我心目中的经典版本之列。</p>
+
+<p>[5] 1999年慕尼黑国立剧院的T&amp;I实在很有意思：第一幕中，特里斯坦的船是一副卡哇伊的卡通造型，特里斯坦则留着剃须泡，哪有什么攻城略地的英雄气概。要知道在T&amp;I中，特里斯坦某种程度上可以说是瓦格纳的化身：一方面是瓦格纳这位自大狂以特里斯坦这样的英雄自比；另一方面瓦格纳也把自己好为清谈的理论家面目赋予了这个角色——第二幕“白昼”与“黑夜”的大段颇为形而上的台词，便基本出自于特里斯坦之口。想来Konwitschny很可能是瓦格纳高级黑，借着塑造搞笑的特里斯坦形象来暗讽瓦格纳。第二幕West叔和Meier姨脱下外套摆在沙发上，露出黑色的衣服，这倒是象征特里斯坦与伊索尔德脱离“白昼”世界、进入“黑夜”世界的常见戏剧表现手法。值得一提的是最后马克王和朝臣的服饰很像演《魔笛》的戏服。瓦格纳在T&amp;I中把马克王塑造成一位宽宏大量的长者，以讨好和答谢被戴绿帽但仍对自己大力支持的维森东克，同上一幕的特里斯坦一样，这里Konwitschny滑稽化马克王也揶揄了瓦格纳——Konwitschny叔你这么黑瓦格纳，不怕被众多老瓦忠实粉打么XD 第三幕伊索尔德的爱之死被改成了特里斯坦与伊索尔德拉上帷幕、在另一个世界相会，最后才用马克王和布兰甘妮所面对的两具棺材一笔带过二人之死。虽然这种团圆结局使T&amp;I的悲剧性大为削弱，但也不失为不落俗套的改编——还是离不了喜闻乐见的黑瓦XD。要不是Zubin Mehta略拙计的指挥，这么富有原创性的制作和我心目中伊索尔德的化身——Meier姨的演出完全可以使这一版T&amp;I成为传奇。</p>
+
+<p>[6] 本“土人”通过这一版T&amp;I才了解了山本耀司，原来他还和<del>猥琐深井冰</del>艺术家草间弥生齐名呢XD</p>
+
+<p>[7] 虽然几位主演的大名我基本没听说过，但我倒是认出了几位英剧里的老戏骨：扮爱德伽的Tom Brooke曾出演《大侦探波洛》的The Big Four，也在《权力的游戏（Game of Thrones）》中出现；葛罗斯特的演员Stephen Boxer也出演过《大侦探波洛》。</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2016/03/12/svn-precommit-hook/">Svn Pre-commit Hook两三事</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-03-12T10:26:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>说起折腾svn hook这件事还是在去年年底。我厂向来木有Code Review等Quality Assurance流程，全赖老司机们各种强力输出。而当时我们项目的不少老司机要么去了其他部门要么离职了，新来的小鲜肉码农们似乎对Version Control一无所知。别的不说，单是commit不写comment，便让大家头疼不已，每次在merge时都得额外花不少时间来搞清楚commit的具体内容。虽然我自从投奔<code>git</code>阵营后基本都是用<code>git svn</code>，对<code>svn</code>生疏已久，但觉得加个<code>svn</code>提交限制应非难事，所以便额外花了点时间写了个pre-commit hook，对commit的comment中的非空白字符做计数，少于一定字数的不让提交。万万没想到，当时让SA大大部署上<code>svn</code>服务器后，就有人commit了一个“再试一下”orz&hellip;当时我的内心是崩溃的&hellip;在推上围脖上吐槽后不久，众位大神各种支招，例如巨硬的泉哥说再搞个语义分析器666&hellip;不过最受用的还是根爷所提到的用<code>cpplint</code>检查代码是否符合编码规范、是否能够编译通过。恰好那段时间小鲜肉们提交了一些带有语法错误的lua代码，偶们又木有review制度，结果不写程序的策划大大们<code>svn up</code>下来后——「什么鬼？肿么不能运行了？！好拙计啊！AAA，快来看bug啊！BBB，SOS！」——导致别人不得不停下手头的活、额外花时间排查。所以我便在pre-commit hook里用<code>luac</code>检查语法错误的代码，把这种坑队友的事扼杀在摇篮里。虽然不及<code>cpplint</code>那么强大，但也基本够用了。最近一次改这个脚本是因为前段时间有个小鲜肉做了一张4096x4096的图集，而cocos2d-x文档里写得清清楚楚，大多数手机所支持的最大纹理尺寸其实只有2048x2048&hellip;卧槽，干得漂亮啊，一上线就造成了不少crash&hellip;木有review制度好可啪，在发现这个问题之前其他人一直毫不知情&hellip;所以我还是干脆在svn hook里再加个限制吧～</p>
+
+<p>好了，不碎碎念了，这便是我折腾的svn hook，主要做了这么几项功能：</p>
+
+<ul>
+<li><p>commit message非空白长度检查</p></li>
+<li><p>lua语法检查</p></li>
+<li><p>禁止添加文件名带空格的文件</p></li>
+<li><p>禁止被配在<code>PROHIBITED_FILES</code>的文件被修改</p></li>
+<li><p>确保图片尺寸小于2048x2048</p></li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+<span class='line-number'>188</span>
+<span class='line-number'>189</span>
+<span class='line-number'>190</span>
+<span class='line-number'>191</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#!/bin/sh
+</span><span class='line'>
+</span><span class='line'># PRE-COMMIT HOOK
+</span><span class='line'>#
+</span><span class='line'># The pre-commit hook is invoked before a Subversion txn is
+</span><span class='line'># committed.  Subversion runs this hook by invoking a program
+</span><span class='line'># (script, executable, binary, etc.) named 'pre-commit' (for which
+</span><span class='line'># this file is a template), with the following ordered arguments:
+</span><span class='line'>#
+</span><span class='line'>#   [1] REPOS-PATH   (the path to this repository)
+</span><span class='line'>#   [2] TXN-NAME     (the name of the txn about to be committed)
+</span><span class='line'>#
+</span><span class='line'>#   [STDIN] LOCK-TOKENS ** the lock tokens are passed via STDIN.
+</span><span class='line'>#
+</span><span class='line'>#   If STDIN contains the line "LOCK-TOKENS:\n" (the "\n" denotes a
+</span><span class='line'>#   single newline), the lines following it are the lock tokens for
+</span><span class='line'>#   this commit.  The end of the list is marked by a line containing
+</span><span class='line'>#   only a newline character.
+</span><span class='line'>#
+</span><span class='line'>#   Each lock token line consists of a URI-escaped path, followed
+</span><span class='line'>#   by the separator character '|', followed by the lock token string,
+</span><span class='line'>#   followed by a newline.
+</span><span class='line'>#
+</span><span class='line'># The default working directory for the invocation is undefined, so
+</span><span class='line'># the program should set one explicitly if it cares.
+</span><span class='line'>#
+</span><span class='line'># If the hook program exits with success, the txn is committed; but
+</span><span class='line'># if it exits with failure (non-zero), the txn is aborted, no commit
+</span><span class='line'># takes place, and STDERR is returned to the client.   The hook
+</span><span class='line'># program can use the 'svnlook' utility to help it examine the txn.
+</span><span class='line'>#
+</span><span class='line'># On a Unix system, the normal procedure is to have 'pre-commit'
+</span><span class='line'># invoke other programs to do the real work, though it may do the
+</span><span class='line'># work itself too.
+</span><span class='line'>#
+</span><span class='line'>#   ***  NOTE: THE HOOK PROGRAM MUST NOT MODIFY THE TXN, EXCEPT  ***
+</span><span class='line'>#   ***  FOR REVISION PROPERTIES (like svn:log or svn:author).   ***
+</span><span class='line'>#
+</span><span class='line'>#   This is why we recommend using the read-only 'svnlook' utility.
+</span><span class='line'>#   In the future, Subversion may enforce the rule that pre-commit
+</span><span class='line'>#   hooks should not modify the versioned data in txns, or else come
+</span><span class='line'>#   up with a mechanism to make it safe to do so (by informing the
+</span><span class='line'>#   committing client of the changes).  However, right now neither
+</span><span class='line'>#   mechanism is implemented, so hook writers just have to be careful.
+</span><span class='line'>#
+</span><span class='line'># Note that 'pre-commit' must be executable by the user(s) who will
+</span><span class='line'># invoke it (typically the user httpd runs as), and that user must
+</span><span class='line'># have filesystem-level permission to access the repository.
+</span><span class='line'>#
+</span><span class='line'># On a Windows system, you should name the hook program
+</span><span class='line'># 'pre-commit.bat' or 'pre-commit.exe',
+</span><span class='line'># but the basic idea is the same.
+</span><span class='line'>#
+</span><span class='line'># The hook program typically does not inherit the environment of
+</span><span class='line'># its parent process.  For example, a common problem is for the
+</span><span class='line'># PATH environment variable to not be set to its usual value, so
+</span><span class='line'># that subprograms fail to launch unless invoked via absolute path.
+</span><span class='line'># If you're having unexpected problems with a hook program, the
+</span><span class='line'># culprit may be unusual (or missing) environment variables.
+</span><span class='line'># 
+</span><span class='line'># Here is an example hook script, for a Unix /bin/sh interpreter.
+</span><span class='line'># For more examples and pre-written hooks, see those in
+</span><span class='line'># the Subversion repository at
+</span><span class='line'># http://svn.apache.org/repos/asf/subversion/trunk/tools/hook-scripts/ and
+</span><span class='line'># http://svn.apache.org/repos/asf/subversion/trunk/contrib/hook-scripts/
+</span><span class='line'>
+</span><span class='line'>LOG="/tmp/svn.log"
+</span><span class='line'>touch ${LOG}
+</span><span class='line'>
+</span><span class='line'>REPOS="$1"
+</span><span class='line'>TXN="$2"
+</span><span class='line'>echo "REPOS: $REPOS" &gt; ${LOG}
+</span><span class='line'>echo "TXN: $TXN" &gt;&gt; ${LOG}
+</span><span class='line'>
+</span><span class='line'>SVNLOOK=""
+</span><span class='line'>
+</span><span class='line'># lua compiler
+</span><span class='line'>LUAC=""
+</span><span class='line'># lua file extension
+</span><span class='line'>LUA_EXT="lua"
+</span><span class='line'># png file extension
+</span><span class='line'>PNG_EXT="png"
+</span><span class='line'>
+</span><span class='line'>MSG_MIN_CHAR_NUM=3
+</span><span class='line'>
+</span><span class='line'>MAX_PNG_SIZE=2048
+</span><span class='line'>
+</span><span class='line'>PROHIBITED_FILES=(
+</span><span class='line'>)
+</span><span class='line'>
+</span><span class='line'>TMP_DIR="/tmp/svn"
+</span><span class='line'>if [[ -d ${TMP_DIR} ]]; then
+</span><span class='line'>    rm -r ${TMP_DIR}
+</span><span class='line'>fi
+</span><span class='line'>mkdir -p ${TMP_DIR}
+</span><span class='line'>
+</span><span class='line'>function check_lua_syntax {
+</span><span class='line'>local lua_file=$1
+</span><span class='line'>echo `${LUAC} ${lua_file} 2&gt;&1`
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>function create_file {
+</span><span class='line'>local file_name=$1
+</span><span class='line'># Create tmp file and copy content
+</span><span class='line'>tmp_file="${TMP_DIR}/${file_name}"
+</span><span class='line'>mkdir -p "$(dirname "${tmp_file}")" && touch "${tmp_file}"
+</span><span class='line'>${SVNLOOK} cat -t "${TXN}" "${REPOS}" "${file_name}" &gt; ${tmp_file}
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'># Make sure that the log message contains some text.
+</span><span class='line'>commit_msg=`$SVNLOOK log -t "$TXN" "$REPOS" | sed 's/[[:space:]]//g'`
+</span><span class='line'>echo ${commit_msg} &gt;&gt; ${LOG}
+</span><span class='line'>if [[ `echo ${commit_msg} | wc -c` -lt ${MSG_MIN_CHAR_NUM} ]]; then
+</span><span class='line'>    echo "Please write a meaningful comment when committing" 1&gt;&2
+</span><span class='line'>    exit 1
+</span><span class='line'>fi
+</span><span class='line'>
+</span><span class='line'>changed_info_str=`${SVNLOOK} changed -t "${TXN}" "${REPOS}"`
+</span><span class='line'>IFS=$'\n' read -rd '' -a changed_infos &lt;&lt;&lt;"${changed_info_str}"
+</span><span class='line'>
+</span><span class='line'>lua_error_msg=""
+</span><span class='line'>png_error_msg=""
+</span><span class='line'>for changed_info in "${changed_infos[@]}"; do
+</span><span class='line'>    # Prevent commiting file that contains space in its filename
+</span><span class='line'>    echo ${changed_info} &gt;&gt; ${LOG}
+</span><span class='line'>    operation=`echo ${changed_info} | awk '{print $1}'`
+</span><span class='line'>    if [[ ${operation} = "A" ]] && [[ `echo ${changed_info} | awk '{print NF}'` -gt 2 ]]; then
+</span><span class='line'>        echo "Please do not commit file that contains space in its filename!" 1&gt;&2
+</span><span class='line'>        exit 1
+</span><span class='line'>    fi
+</span><span class='line'>    file_name=`echo ${changed_info} | awk '{print $2}'`
+</span><span class='line'>    echo "operation: ${operation}, file: ${file_name}, ext: ${ext}" &gt;&gt; ${LOG}
+</span><span class='line'>
+</span><span class='line'>    # Check prohibit-commit files
+</span><span class='line'>    for prohibited_file in ${PROHIBITED_FILES[@]}; do
+</span><span class='line'>        if [[ ${file_name} = ${prohibited_file} ]]; then
+</span><span class='line'>            echo "${file_name} is not allowed to be changed!" 1&gt;&2
+</span><span class='line'>            exit 1
+</span><span class='line'>        fi
+</span><span class='line'>    done
+</span><span class='line'>
+</span><span class='line'>    ext=`echo ${file_name} | awk -F"." '{print $NF}'`
+</span><span class='line'>
+</span><span class='line'>    if [[ ${operation} = "U" ]] || [[ ${operation} = "A" ]]; then
+</span><span class='line'>        tmp_file="${TMP_DIR}/${file_name}"
+</span><span class='line'>
+</span><span class='line'>        # Check lua syntax
+</span><span class='line'>        if [[ ${ext} = ${LUA_EXT} ]]; then
+</span><span class='line'>            echo "Check syntax of ${tmp_file}" &gt;&gt; ${LOG}
+</span><span class='line'>            create_file ${file_name}
+</span><span class='line'>            error_msg=`check_lua_syntax ${tmp_file}`
+</span><span class='line'>            if [[ `echo ${error_msg} | sed 's/\n//g'` != "" ]]; then
+</span><span class='line'>                lua_error_msg="${lua_error_msg}\n${error_msg}"
+</span><span class='line'>            fi
+</span><span class='line'>        fi
+</span><span class='line'>
+</span><span class='line'>        # Check file size
+</span><span class='line'>        if [[ ${ext} = ${PNG_EXT} ]]; then
+</span><span class='line'>            create_file ${file_name}
+</span><span class='line'>            png_info=`file ${tmp_file} | sed 's/,//g'`
+</span><span class='line'>            png_width=`echo ${png_info} | awk '{print $5}' | bc`
+</span><span class='line'>            png_height=`echo ${png_info} | awk '{print $7}' | bc`
+</span><span class='line'>            if [[ ${png_width} -gt ${MAX_PNG_SIZE} ]] || [[ ${png_height} -gt ${MAX_PNG_SIZE} ]]; then
+</span><span class='line'>                png_error_msg="${png_error_msg}\n${file_name} is too large: ${png_width} x ${png_height}"
+</span><span class='line'>            fi
+</span><span class='line'>        fi
+</span><span class='line'>    fi
+</span><span class='line'>done
+</span><span class='line'>
+</span><span class='line'>rm -r ${TMP_DIR}
+</span><span class='line'>
+</span><span class='line'>if [[ ${lua_error_msg} != "" ]] || [[ ${png_error_msg} != "" ]]; then
+</span><span class='line'>    if [[ ${lua_error_msg} != "" ]]; then
+</span><span class='line'>        echo "lua error: ${lua_error_msg}" &gt;&gt; ${LOG}
+</span><span class='line'>        echo "Please fix the error in your lua program:${lua_error_msg}" 1&gt;&2
+</span><span class='line'>    fi
+</span><span class='line'>
+</span><span class='line'>    if [[ ${png_error_msg} != "" ]]; then
+</span><span class='line'>        echo "png error: ${png_error_msg}" &gt;&gt; ${LOG}
+</span><span class='line'>        echo "Please do not commit pictures which are larger than 2048 x 2048:${png_error_msg}" 1&gt;&2
+</span><span class='line'>    fi
+</span><span class='line'>
+</span><span class='line'>    exit 1
+</span><span class='line'>fi
+</span><span class='line'>
+</span><span class='line'># Check that the author of this commit has the rights to perform
+</span><span class='line'># the commit on the files and directories being modified.
+</span><span class='line'># commit-access-control.pl "$REPOS" "$TXN" commit-access-control.cfg || exit 1
+</span><span class='line'>
+</span><span class='line'># All checks passed, so allow the commit.
+</span><span class='line'>exit 0</span></code></pre></td></tr></table></div></figure>
+
+
+<p>PS. 聪哥说作为一位开发去搞svn hook怕被公司的其他开发喷越权管了运维的事，我厂倒是不存在这种问题的——人少活多时间紧，啥活都得揽啊，例如我一位舍友兼同事的大神以前开发手游可是客户端、服务器、策划、切图全都一人搞定，就差自己出美术图和特效了。最近我也在像运维一样写脚本自动化处理某些项目文件，发现我们开发各种混乱啊有木有！例如路径带空格，我的一些<code>awk</code>脚本就雪崩了——我在以上的<code>hook</code>脚本里也有同样的问题，其实把列计数方式改一下，例如<code>$7</code>改成<code>${NF-4}</code>，可以避免这种问题——而且还要把带空格的路径用<code>sed</code>替换成转义后的字符串。不过这种情况还算好的，还有些人用的单词有拼写错误，要是全错了倒也罢了，脚本hold得住，问题是有的对有的错&hellip;偶只能弃疗了&hellip;</p>
+
+<h1>后记</h1>
+
+<p>由于我们lua代码中存在不少没声明<code>local</code>而变成全局变量的bug，于是我把Openresty作者春哥的<code>lua-releng</code>工具也加进<code>hook</code>里做全局变量检查了。具体可以看<a href="https://gist.github.com/yszheda/6125a32e37834cc8ab75">这个gist</a>。</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2016/03/04/label-pitfalls-in-cocos2d-x/">cocos2d-x文本类Label的一些坑</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-03-04T11:22:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>cocos2d-x v3.2的Label实现bug真是不少，前段时间恰好排查了几个与之相关的问题，在此记录一下。</p>
+
+<h1>文字换行</h1>
+
+<p>文字换行是一个困扰我们挺长时间的问题：之前就常常有文字超过指定长度却没有换行的情况出现，后来加入韩文、泰文等“奇葩”文字后问题就更严重了。cocos2d-x引擎在v3.2后大改了这部分的实现，但由于涉及的改动太多，无法作为一个独立的patch单独apply过来，而且更新引擎版本对我们上线的游戏代价太大，也不可行。好在本渣不久前终于从各种游戏系统开发中抽出时间，完整地把这部分代码review了一遍，结果发现全是<code>LabelTextFormatter::multilineText</code>中几行代码惹的祸，缩小了排查范围便不难fix了：</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2016/03/04/label-pitfalls-in-cocos2d-x/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2016/02/16/how-to-fix-wrong-chmod-777-problem/">小记Linux/UNIX下错误权限恢复</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-02-16T23:48:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>继我<a href="http://galoisplusplus.coding.me/blog/2016/02/02/how-to-restore-deleted-file-in-linux/">不久前犯二</a>之后，今天一位同事小伙伴也逗逼了，给<code>/etc/sudoers</code>加了777权限&hellip;6666结果<code>sudo</code>就悲剧了：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo: /etc/sudoers is mode 0777, should be 0440
+</span><span class='line'>sudo: no valid sudoers sources found, quitting </span></code></pre></td></tr></table></div></figure>
+
+
+<p>我一开始还想用<code>pkexec</code>恢复：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>pkexec chmod 0440 /etc/sudoers</span></code></pre></td></tr></table></div></figure>
+
+
+<p>不料机器上木有装<code>PolicyKit</code>&hellip;</p>
+
+<p>后来小伙伴找SA要root密码搞定了。不过这倒勾起了我的好奇心：这种悲剧除了<code>pkexec</code>、除了拿到root权限（包括重启系统进恢复模式）执行复原操作，难道只能GG了么？后来查到了<a href="https://gist.github.com/syxc/2822948">《sudo chmod 777 / 惨剧修复简单步骤》</a>这篇文章，发现获取和设置UNIX文件Access Control List (ACL)的命令<code>getacl</code>/<code>setacl</code>还能有这种妙用，这便是我想找的另一套解决方案了。</p>
+
+<p>不过，以后还是装上<code>PolicyKit</code>，以防不测吧&hellip;</p>
+
+<h1>参考资料</h1>
+
+<p><a href="http://superuser.com/questions/300743/sudo-chmod-r-777">http://superuser.com/questions/300743/sudo-chmod-r-777</a></p>
+
+<p><a href="http://unix.stackexchange.com/questions/12998/wrongly-set-chmod-777-problems">Wrongly set chmod / 777. Problems?</a></p>
+
+<p><a href="http://askubuntu.com/questions/50704/sudo-error-is-mode-0777-should-be-0440">sudo error, is mode 0777, should be 0440</a></p>
+
+<p><a href="http://stackoverflow.com/questions/16682297/getting-message-sudo-must-be-setuid-root-but-sudo-is-already-owned-by-root">Getting message “sudo: must be setuid root”, but sudo IS already owned by root</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2016/02/02/how-to-restore-deleted-file-in-linux/">小记Linux/UNIX下错删文件恢复</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-02-02T22:43:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>一个月前，我的洁癖犯了，想执行<code>find . -name "*~" -exec rm {} \;</code>清下某目录下由vim生成的~文件，不料漏打了<code>~</code>，把一些文件删掉了&hellip;好在有用<code>git</code>做版本控制，即使<code>.git/index</code>也被删没了，但也可以通过<code>git reset</code>恢复，之后再用<code>git</code>恢复版本管理中的其他被删文件即可。不料今天二月二号，我又犯二了，被做死历史<code>find . -name "*" -exec rm {} \;</code>坑了一把&hellip;这次被删的还有不少特意不放在版本控制的配置文件，这次不得不做文件恢复了。</p>
+
+<p>最简单的情况是被删除的文件被某个进程打开，这个时候可以通过该进程在<code>/proc</code>下的文件描述符来恢复。首先由<code>lsof</code>找到打开文件的进程，有了<code>PID</code>和<code>FD</code>之后，就可以执行以下命令恢复文件：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cp /proc/&lt;PID&gt;/fd/&lt;FD&gt; &lt;recovered-file&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>不幸的是，我删的文件并没有被打开&hellip;所以不能用这种方式了。<code>df -T</code>查到被删文件所在的文件系统是ext4，于是可以试试ext的文件恢复方法。</p>
+
+<p>ext3/ext4文件系统的恢复可以用<code>extundelete</code>，例如恢复被误删的目录可以用：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>extundelete /dev/&lt;device&gt; --restore-directory &lt;path&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>恢复被误删的文件可以用：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>extundelete --restore-file &lt;path/to/deleted/file&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>此外也可以用<code>debugfs</code>工具，相较<code>extundelete</code>，<code>debugfs</code>适用于ext2/ext3/ext4文件系统</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>debugfs -w /dev/&lt;device&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>在<code>debugfs</code>中用<code>lsdel</code>查找最近的删除操作，找到被删文件的inode：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>debugfs: lsdel</span></code></pre></td></tr></table></div></figure>
+
+
+<p>接下来当然还是可以用<code>extundelete</code>：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>extundelete --restore-inode &lt;inode&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>不过也可以用<code>debugfs</code>：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>debugfs: dump &lt;inode&gt; &lt;recovered-file&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>不少资料还提到，可以先在<code>debugfs</code>中用：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>debugfs: logdump -i &lt;inode&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>找到以下信息</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Blocks: (&lt;block id&gt;): &lt;block offset&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>再通过<code>dd</code>命令恢复文件。</p>
+
+<p>不过<code>extundelete</code>和<code>debugfs</code>可谓是段誉的六脉神剑，时灵时不灵的，我的问题竟也无法通过它们搞定，最后无奈只好动用<a href="http://www.cgsecurity.org/wiki/PhotoRec">PhotoRec</a>“黑科技”了&hellip;PhotoRec恢复后的文件名好乱，好在我还有<a href="https://github.com/ggreer/the_silver_searcher">ag</a>这种大杀器，找到被删的配置文件是分分钟的事XDD</p>
+
+<p>哎，恢复文件真是麻烦，又想起了Zoom大妈的名言“冗余不做，日子甭过；备份不做，十恶不赦！”&hellip;</p>
+
+<h1>参考资料</h1>
+
+<p>[1]<a href="http://man7.org/linux/man-pages/man5/proc.5.html">man proc</a></p>
+
+<p>[2]<a href="http://www.ibm.com/developerworks/aix/library/au-lsof.html">Finding open files with lsof</a></p>
+
+<p>[3]<a href="http://archive09.linux.com/feature/58142">Bring back deleted files with lsof</a></p>
+
+<p>[4]<a href="http://superuser.com/questions/283102/how-to-recover-deleted-file-if-it-is-still-opened-by-some-process">How to recover deleted file if it is still opened by some process?</a></p>
+
+<p>[5]身为Arch党自然要安利一发Archwiki：<a href="https://wiki.archlinux.org/index.php/File_recovery">File recovery</a></p>
+
+<p>[6]<a href="http://www.tech-g.com/2014/01/27/recovering-files-from-ext4-partition/">Recovering files from ext4 partition</a></p>
+
+<p>[7]<a href="http://linux.die.net/man/8/debugfs">man debugfs</a></p>
+
+<p>[8]<a href="http://www.cyberciti.biz/tips/linux-ext3-ext4-deleted-files-recovery-howto.html">Linux debugfs Hack: Undelete Files</a></p>
+
+<p>[9]<a href="http://stackoverflow.com/questions/18197365/linux-file-deleted-recovery">Linux file deleted recovery</a></p>
+
+<p>[10]<a href="http://unix.stackexchange.com/questions/122305/undelete-a-just-deleted-file-on-ext4-with-extundelete">undelete a just deleted file on ext4 with extundelete</a></p>
+
+<p>[11]<a href="http://unix.stackexchange.com/questions/80270/unix-linux-undelete-recover-deleted-files">Unix/Linux undelete/recover deleted files</a></p>
+
+<p>[12]<a href="http://sundayhut.is-programmer.com/posts/50859.html">debugfs总结</a></p>
+
+<p>[13]<a href="http://coolshell.cn/articles/1265.html">恢复Ext3下被删除的文件</a></p>
+
+<p>[14]这里有一些<a href="http://www.cgsecurity.org/wiki/After_Using_PhotoRec">脚本</a>用来整理PhotoRec恢复的文件</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="4">&larr; Older</a>
+    
+    <a href="/blog/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="2">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/blog/2019/04/07/macbeth-by-tang-shu-wing/">《麦克白》的布莱希特剧场实践</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2019/01/01/those-concerts-in-2018/">盘点2018年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/05/22/cudaErrorCudartUnloading/">cudaErrorCudartUnloading问题排查及建议方案</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/01/01/those-concerts-in-2017/">盘点2017年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2017/11/11/Jonas-Kaufmann-recital/">Jonas Kaufmann独奏会之艺术歌曲</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<!--
+Copyright &copy; 2020 - Galoisplusplus -
+-->
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+</body>
+</html>

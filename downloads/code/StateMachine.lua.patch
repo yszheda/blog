@@ -1,0 +1,79 @@
+--- StateMachine.lua	2015-07-14 11:15:59.000000000 +0800
++++ StateMachine.lua-new	2015-07-14 11:16:24.000000000 +0800
+@@ -35,6 +35,8 @@
+ StateMachine.WILDCARD = "*"
+ StateMachine.ASYNC = "ASYNC"
+ 
++StateMachine.NONE_STATE = "none"
++
+ function StateMachine:ctor()
+     StateMachine.super.ctor(self, "StateMachine")
+ end
+@@ -54,12 +56,15 @@
+     self.events_     = cfg.events or {}
+     self.callbacks_  = cfg.callbacks or {}
+     self.map_        = {}
+-    self.current_    = "none"
++    self.current_    = StateMachine.NONE_STATE
+     self.inTransition_ = false
+ 
++    self.states_ = {}
++
+     if self.initial_ then
++        self.states_[self.initial_.state] = true
+         self.initial_.event = self.initial_.event or "startup"
+-        self:addEvent_({name = self.initial_.event, from = "none", to = self.initial_.state})
++        self:addEvent_({name = self.initial_.event, from = StateMachine.NONE_STATE, to = self.initial_.state})
+     end
+ 
+     for _, event in ipairs(self.events_) do
+@@ -74,7 +79,7 @@
+ end
+ 
+ function StateMachine:isReady()
+-    return self.current_ ~= "none"
++    return self.current_ ~= StateMachine.NONE_STATE
+ end
+ 
+ function StateMachine:getState()
+@@ -205,6 +210,11 @@
+     end
+ end
+ 
++function StateMachine:getAllStates()
++    self.states_[StateMachine.NONE_STATE] = nil
++    return self.states_ or {}
++end
++
+ function StateMachine:exportMethods()
+     self:exportMethods_({
+         "setupState",
+@@ -216,6 +226,7 @@
+         "isFinishedState",
+         "doEventForce",
+         "doEvent",
++        "getAllStates",
+     })
+     return self.target_
+ end
+@@ -231,14 +242,20 @@
+     if type(event.from) == "table" then
+         for _, name in ipairs(event.from) do
+             from[name] = true
++            self.states_[name] = true
+         end
+     elseif event.from then
+         from[event.from] = true
++        self.states_[event.from] = true
+     else
+         -- allow "wildcard" transition if "from" is not specified
+         from[StateMachine.WILDCARD] = true
+     end
+ 
++    if event.to then
++        self.states_[event.to] = true
++    end
++
+     self.map_[event.name] = self.map_[event.name] or {}
+     local map = self.map_[event.name]
+     for fromName, _ in pairs(from) do

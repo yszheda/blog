@@ -1,0 +1,295 @@
+--- UIButton.lua	2015-07-14 11:07:15.000000000 +0800
++++ UIButton.lua-new	2015-07-14 10:45:56.000000000 +0800
+@@ -78,6 +78,7 @@
+     self.images_ = {}
+     self.sprite_ = {}
+     self.scale9_ = options and options.scale9
++    self.capInsets_ = options and options.capInsets
+     self.flipX_ = options and options.flipX
+     self.flipY_ = options and options.flipY
+     self.scale9Size_ = nil
+@@ -116,8 +117,16 @@
+ 
+ function UIButton:align(align, x, y)
+     display.align(self, align, x, y)
++    
++    -- initButtonImage if setButtonImage has not been called
++    for state, _ in pairs(self.fsm_:getAllStates()) do
++        local image = self.images_[state]
++        self:initButtonImage_(state, image)
++    end
++
+     self:updateButtonImage_()
+-    self:updateButtonLable_()
++
++    self:updateButtonLabel_()
+ 
+     local size = self:getCascadeBoundingBox().size
+     local ap = self:getAnchorPoint()
+@@ -140,10 +149,7 @@
+ 
+ function UIButton:setButtonImage(state, image, ignoreEmpty)
+     if ignoreEmpty and image == nil then return end
+-    self.images_[state] = image
+-    if state == self.fsm_:getState() then
+-        self:updateButtonImage_()
+-    end
++    self:initButtonImage_(state, image)
+     return self
+ end
+ 
+@@ -171,7 +177,7 @@
+ 
+     self.labels_[state] = label
+     self:addChild(label, UIButton.LABEL_ZORDER)
+-    self:updateButtonLable_()
++    self:updateButtonLabel_()
+     return self
+ end
+ 
+@@ -245,7 +251,7 @@
+ 
+ function UIButton:setButtonLabelOffset(ox, oy)
+     self.labelOffset_ = {ox, oy}
+-    self:updateButtonLable_()
++    self:updateButtonLabel_()
+     return self
+ end
+ 
+@@ -274,7 +280,7 @@
+ 
+ function UIButton:setButtonLabelAlignment(align)
+     self.labelAlign_ = align
+-    self:updateButtonLable_()
++    self:updateButtonLabel_()
+     return self
+ end
+ 
+@@ -292,17 +298,19 @@
+ function UIButton:setButtonSize(width, height)
+     -- assert(self.scale9_, "UIButton:setButtonSize() - can't change size for non-scale9 button")
+     self.scale9Size_ = {width, height}
+-    for i,v in ipairs(self.sprite_) do
+-        if self.scale9_ then
+-            v:setContentSize(cc.size(self.scale9Size_[1], self.scale9Size_[2]))
+-        else
+-            local size = v:getContentSize()
+-            local scaleX = v:getScaleX()
+-            local scaleY = v:getScaleY()
+-            scaleX = scaleX * self.scale9Size_[1]/size.width
+-            scaleY = scaleY * self.scale9Size_[2]/size.height
+-            v:setScaleX(scaleX)
+-            v:setScaleY(scaleY)
++    for state, renderers in pairs(self.sprite_) do
++        for i, v in ipairs(renderers) do
++            if self.scale9_ then
++                v:setContentSize(cc.size(self.scale9Size_[1], self.scale9Size_[2]))
++            else
++                local size = v:getContentSize()
++                local scaleX = v:getScaleX()
++                local scaleY = v:getScaleY()
++                scaleX = scaleX * self.scale9Size_[1]/size.width
++                scaleY = scaleY * self.scale9Size_[2]/size.height
++                v:setScaleX(scaleX)
++                v:setScaleY(scaleY)
++            end
+         end
+     end
+     return self
+@@ -422,7 +430,7 @@
+ function UIButton:onChangeState_(event)
+     if self:isRunning() then
+         self:updateButtonImage_()
+-        self:updateButtonLable_()
++        self:updateButtonLabel_()
+     end
+ end
+ 
+@@ -430,81 +438,105 @@
+     printError("UIButton:onTouch_() - must override in inherited class")
+ end
+ 
+-function UIButton:updateButtonImage_()
+-    local state = self.fsm_:getState()
+-    local image = self.images_[state]
++--[[
++]]
++function UIButton:updateButtonImageAlignment_()
++    for state, renderers in pairs(self.sprite_) do
++        for i, v in ipairs(renderers) do
++            v:setAnchorPoint(self:getAnchorPoint())
++            v:setPosition(0, 0)
++        end
++    end
++end
+ 
++--[[--
++Init the images of the specified state, and each of them is guaranteed to be added once.
++]]
++function UIButton:initButtonImage_(state, image)
+     if not image then
+         for _, s in pairs(self:getDefaultState_()) do
+             image = self.images_[s]
+             if image then break end
+         end
+     end
++
++    local function initRenderer(renderers, i, image, isNewImage)
++        if not isNewImage then
++            return
++        end
++
++        if self.scale9_ then
++            renderers[i] = display.newScale9Sprite(image, 0, 0, self.scale9Size_, self.capInsets_)
++            if not self.scale9Size_ then
++                local size = renderers[i]:getContentSize()
++                self.scale9Size_ = {size.width, size.height}
++            else
++                renderers[i]:setContentSize(cc.size(self.scale9Size_[1], self.scale9Size_[2]))
++            end
++        else
++            renderers[i] = display.newSprite(image)
++        end
++
++        if renderers[i].setFlippedX then
++            if self.flipX_ then
++                renderers[i]:setFlippedX(self.flipX_ or false)
++            end
++            if self.flipY_ then
++                renderers[i]:setFlippedY(self.flipY_ or false)
++            end
++        end
++
++        self:addChild(renderers[i], UIButton.IMAGE_ZORDER)
++        renderers[i]:setVisible(state == self.fsm_:getState())
++    end
++
+     if image then
+-        if self.currentImage_ ~= image then
+-            for i,v in ipairs(self.sprite_) do
++        if not self.sprite_[state] then
++            self.sprite_[state] = {}
++        end
++
++        local isNewImage = (self.images_[state] ~= image)
++
++        if isNewImage then
++            for i, v in ipairs(self.sprite_[state]) do
+                 v:removeFromParent(true)
+             end
+-            self.sprite_ = {}
+-            self.currentImage_ = image
++            self.sprite_[state] = {}
++        end
+ 
+-            if "table" == type(image) then
+-                for i,v in ipairs(image) do
+-                    if self.scale9_ then
+-                        self.sprite_[i] = display.newScale9Sprite(v)
+-                        if not self.scale9Size_ then
+-                            local size = self.sprite_[i]:getContentSize()
+-                            self.scale9Size_ = {size.width, size.height}
+-                        else
+-                            self.sprite_[i]:setContentSize(cc.size(self.scale9Size_[1], self.scale9Size_[2]))
+-                        end
+-                    else
+-                        self.sprite_[i] = display.newSprite(v)
+-                    end
+-                    self:addChild(self.sprite_[i], UIButton.IMAGE_ZORDER)
+-                    if self.sprite_[i].setFlippedX then
+-                        if self.flipX_ then
+-                            self.sprite_[i]:setFlippedX(self.flipX_ or false)
+-                        end
+-                        if self.flipY_ then
+-                            self.sprite_[i]:setFlippedY(self.flipY_ or false)
+-                        end
+-                    end
+-                end
+-            else
+-                if self.scale9_ then
+-                    self.sprite_[1] = display.newScale9Sprite(image)
+-                    if not self.scale9Size_ then
+-                        local size = self.sprite_[1]:getContentSize()
+-                        self.scale9Size_ = {size.width, size.height}
+-                    else
+-                        self.sprite_[1]:setContentSize(cc.size(self.scale9Size_[1], self.scale9Size_[2]))
+-                    end
+-                else
+-                    self.sprite_[1] = display.newSprite(image)
+-                end
+-                if self.sprite_[1].setFlippedX then
+-                    if self.flipX_ then
+-                        self.sprite_[1]:setFlippedX(self.flipX_ or false)
+-                    end
+-                    if self.flipY_ then
+-                        self.sprite_[1]:setFlippedY(self.flipY_ or false)
+-                    end
+-                end
+-                self:addChild(self.sprite_[1], UIButton.IMAGE_ZORDER)
++        if "table" == type(image) then
++            for i, v in ipairs(image) do
++                initRenderer(self.sprite_[state], i, v, isNewImage)
+             end
++        else
++            initRenderer(self.sprite_[state], 1, image, isNewImage)
+         end
+ 
+-        for i,v in ipairs(self.sprite_) do
+-            v:setAnchorPoint(self:getAnchorPoint())
+-            v:setPosition(0, 0)
+-        end
++        self.images_[state] = image
++
++        self:updateButtonImageAlignment_()
+     elseif not self.labels_ then
+-        printError("UIButton:updateButtonImage_() - not set image for state %s", state)
++        printError("UIButton:initButtonImage_() - not set image for state %s", state)
++    end
++end
++
++--[[--
++NOTE:
++The original updateButtonImage_ function in quickx will only add the images of the current state.
++When some SpriteFrame of another state is released, it will not be displayed.
++Solution:
++Add all the images of all the states and use setVisible instead.
++]]
++function UIButton:updateButtonImage_()
++    self:updateButtonImageAlignment_()
++    for state, renderers in pairs(self.sprite_) do
++        for i, v in ipairs(renderers) do
++            v:setVisible(state == self.fsm_:getState())
++        end
+     end
+ end
+ 
+-function UIButton:updateButtonLable_()
++function UIButton:updateButtonLabel_()
+     if not self.labels_ then return end
+     local state = self.fsm_:getState()
+     local label = self.labels_[state]
+@@ -517,9 +549,11 @@
+     end
+ 
+     local ox, oy = self.labelOffset_[1], self.labelOffset_[2]
+-    if self.sprite_[1] then
++    local defaultState = self:getDefaultState_()[1]
++    local sprite = (self.sprite_[defaultState] or {})[1]
++    if sprite then
+         local ap = self:getAnchorPoint()
+-        local spriteSize = self.sprite_[1]:getContentSize()
++        local spriteSize = sprite:getContentSize()
+         ox = ox + spriteSize.width * (0.5 - ap.x)
+         oy = oy + spriteSize.height * (0.5 - ap.y)
+     end
+@@ -535,8 +569,9 @@
+ end
+ 
+ function UIButton:checkTouchInSprite_(x, y)
++    local sprite = (self.sprite_[self:getDefaultState_()] or {})[1]
+     if self.touchInSpriteOnly_ then
+-        return self.sprite_[1] and self.sprite_[1]:getCascadeBoundingBox():containsPoint(cc.p(x, y))
++        return sprite and sprite:getCascadeBoundingBox():containsPoint(cc.p(x, y))
+     else
+         return self:getCascadeBoundingBox():containsPoint(cc.p(x, y))
+     end

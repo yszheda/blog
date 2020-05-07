@@ -4,7 +4,7 @@
   <title><![CDATA[Category: cs | Galoisplusplus]]></title>
   <link href="http://yszheda.github.io/blog/blog/categories/cs/atom.xml" rel="self"/>
   <link href="http://yszheda.github.io/blog/"/>
-  <updated>2020-05-06T20:55:06+08:00</updated>
+  <updated>2020-05-07T20:38:55+08:00</updated>
   <id>http://yszheda.github.io/blog/</id>
   <author>
     <name><![CDATA[Galoisplusplus]]></name>
@@ -51,7 +51,7 @@
 
 <p>对于CUDA应用程序开发者而言，我们通常是通过调用CUDA runtime API来向GPU设备下达我们的指令。所以首先让我们来看，在程序中调用CUDA runtime API时，有什么角色参与了进来。我从<a href="http://www.cudahandbook.com/">Nicholas Wilt的《The CUDA Handbook》</a>中借了一张图：</p>
 
-<p>{% img /images/cudaErrorCudartUnloading/CUDA-software-layers.png %}</p>
+<p><img src="/images/cudaErrorCudartUnloading/CUDA-software-layers.png"></p>
 
 <p>我们可以看到，主要的角色有：运行在操作系统的User Mode下的CUDART(CUDA Runtime) library（对于动态库来说就是上文提到的<code>libcuda_runtime.so</code>）和CUDA driver library（对于动态库来说就是上文提到的<code>libcuda.so</code>），还有运行在Kernel Mode下的CUDA driver内核模块。众所周知，我们的CUDA应用程序是运行在操作系统的User Mode下的，无法直接操作GPU硬件，在操作系统中有权控制GPU硬件的是运行在Kernel Mode下的内核模块（OT一下，作为CUDA使用者，我们很少能感觉到这些内核模块的存在，也它们许最有存在感的时候就是我们遇上<code>Driver/library version mismatch</code>错误了XD）。在Linux下我们可以通过<code>lsmod | grep nvidia</code>来查看这些内核模块，通常有管理Unified Memory的<code>nvidia_uvm</code>、Linux内核<a href="https://dri.freedesktop.org/wiki/DRM/">Direct Rendering Manager</a>显示驱动<code>nvidia_drm</code>、还有<code>nvidia_modeset</code>。与这些内核模块沟通的是运行在User Mode下的CUDA driver library，我们所调用的CUDA runtime API会被CUDART library转换成一系列CUDA driver API，交由CUDA driver library这个连接CUDA内核模块与其他运行在User Mode下CUDA library的中介。</p>
 
@@ -194,7 +194,7 @@ static void __cdecl __cudaUnregisterBinaryUtil(void)
 </ol>
 
 
-<p>{% img /images/cudaErrorCudartUnloading/main-procedure.png %}</p>
+<p><img src="/images/cudaErrorCudartUnloading/main-procedure.png"></p>
 
 <h1>一切皆全局对象之过</h1>
 
@@ -552,25 +552,26 @@ pixel_yuv.val[0] = vcombine_u8(vqshrn_n_u16(low_y, 8), vqshrn_n_u16(high_y, 8));
 </ul>
 
 
-<p>1.在设备上启动<code>gdbserver</code>（假设在6666端口吧，哈哈我比较喜欢6666）：
-```</p>
+<p>1.在设备上启动<code>gdbserver</code>（假设在6666端口吧，哈哈我比较喜欢6666）：</p>
 
-<h1><program>是程序名</h1>
-
-<h1><arg>是程序参数</h1>
-
-<p>$ gdbserver localhost:6666 <program> <arg>
-```</p>
+<pre><code class="bash"># &lt;program&gt;是程序名
+# &lt;arg&gt;是程序参数
+$ gdbserver localhost:6666 &lt;program&gt; &lt;arg&gt;
+</code></pre>
 
 <p>2.在连接设备的主机（host）上启动对应EABI的<code>gdb</code>：
-```
-$ adb forward tcp:6666 tcp:6666</p>
-
-<h1><program>是程序名</h1>
-
-<p>$ gdb <program>
-(gdb) target remote :6666
-```</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ adb forward tcp:6666 tcp:6666&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;h1&gt;&lt;program&gt;是程序名&lt;/h1&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;$ gdb &lt;program&gt;
+</span><span class='line'>(gdb) target remote :6666</span></code></pre></td></tr></table></div></figure></p>
 
 <p>3.和<code>gdbserver</code>连接上后，就可以在主机端的<code>gdb</code>执行各种debug操作了。对于NEON程序，我们常常想查看NEON Unit的register file，可以采用下面的命令：
 <code>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: reading | Galoisplusplus]]></title>
   <link href="http://yszheda.github.io/blog/blog/categories/reading/atom.xml" rel="self"/>
   <link href="http://yszheda.github.io/blog/"/>
-  <updated>2020-05-06T20:55:06+08:00</updated>
+  <updated>2020-05-07T20:38:55+08:00</updated>
   <id>http://yszheda.github.io/blog/</id>
   <author>
     <name><![CDATA[Galoisplusplus]]></name>
@@ -67,7 +67,7 @@
     <id>http://yszheda.github.io/blog/blog/2014/05/22/practical-vim-reading-notes</id>
     <content type="html"><![CDATA[<p>之前我在<a href="http://drewneil.com/">Drew Neil</a>大牛的<a href="http://vimcasts.org/episodes/">vimcasts</a>网站上学到了不少Vim技巧，也知道他出了一本<a href="http://pragprog.com/book/dnvim/practical-vim">《Practical Vim》</a>的书，当时就很想拜读一下：</p>
 
-<p>{% img <a href="http://imagery.pragprog.com/products/241/dnvim.jpg">http://imagery.pragprog.com/products/241/dnvim.jpg</a> %}</p>
+<p><img class="<a" src="href="http://imagery.pragprog.com/products/241/dnvim.jpg">http://imagery.pragprog.com/products/241/dnvim.jpg</a>"></p>
 
 <p>后来在图书馆预约了这本书，等了许久它才轮流到我手上。这本书包含了121个Vim的Tips，总体上属于基础及稍进阶级别。
 我比较欣赏此书的还是各种范例，不少是实际使用Vim时经常会遇到的场景。此外，强大的Vim神器常常会提供给我们许多种解决方案来处理同一问题，该书也包含了一些方法论的探讨。
@@ -86,9 +86,8 @@
 <p>尽管该书的不少技巧我之前早已知晓，但在整理笔记的过程中还是受益匪浅，颇有相见恨晚之感。由此我也推荐该书给Vim的入门者，相信它会让你的Vim技能有突飞猛进的进步。</p>
 
 <!--
-```
-ffmpeg -f x11grab -r 25 -s 1366x768 -i :0.0 -vcodec huffyuv tip33.avi
-```
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ffmpeg -f x11grab -r 25 -s 1366x768 -i :0.0 -vcodec huffyuv tip33.avi</span></code></pre></td></tr></table></div></figure>
 -->
 
 
@@ -103,7 +102,7 @@ ffmpeg -f x11grab -r 25 -s 1366x768 -i :0.0 -vcodec huffyuv tip33.avi
     <id>http://yszheda.github.io/blog/blog/2013/12/21/the-art-of-loving-reading-notes</id>
     <content type="html"><![CDATA[<p>最近跟舍友小书虫借了一本心理学家弗洛姆的著名作品《爱的艺术》：</p>
 
-<p>{% img <a href="http://img3.douban.com/lpic/s3074574.jpg">http://img3.douban.com/lpic/s3074574.jpg</a> %}</p>
+<p><img class="<a" src="href="http://img3.douban.com/lpic/s3074574.jpg">http://img3.douban.com/lpic/s3074574.jpg</a>"></p>
 
 <p>与浩如烟海的扯淡文艺书不同，这本一百来页的小书中逻辑之缜密、结构之严谨令人折服，而且弗洛姆的文笔使得这些一环扣一环的哲学论述毫不枯燥无味。以下我把一些内容整理成了思维导图，弗洛姆严密的思维和精炼的警句由此可以窥见一斑：</p>
 

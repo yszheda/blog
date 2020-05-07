@@ -1,0 +1,610 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>svn pre-commit hook两三事 - Galoisplusplus</title>
+  <meta name="author" content="Galoisplusplus">
+
+  
+  <meta name="description" content="svn pre-commit hook">
+  <meta name="keywords" content="svn, hook, lua, commit, luac, lua">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yszheda.github.io/blog/blog/2016/03/12/svn-precommit-hook">
+  <link href="/blog/favicon.png" rel="icon">
+  <link href="/blog/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/blog/atom.xml" rel="alternate" title="Galoisplusplus" type="application/atom+xml">
+  <script src="/blog/javascripts/modernizr-2.0.js"></script>
+  <!--
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  -->
+  <script src="//libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/blog/javascripts/octopress.js" type="text/javascript"></script>
+  
+<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!--
+<link href="http://fonts.googleapis.com/css?family=Crimson+Text:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/blog/">Galoisplusplus</a></h1>
+  
+    <h2>A fan of science, technology and Classical music.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/blog/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:yszheda.github.io/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/blog/">Blog</a></li>
+  <li><a href="/blog/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Svn Pre-commit Hook两三事</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-03-12T10:26:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>说起折腾svn hook这件事还是在去年年底。我厂向来木有Code Review等Quality Assurance流程，全赖老司机们各种强力输出。而当时我们项目的不少老司机要么去了其他部门要么离职了，新来的小鲜肉码农们似乎对Version Control一无所知。别的不说，单是commit不写comment，便让大家头疼不已，每次在merge时都得额外花不少时间来搞清楚commit的具体内容。虽然我自从投奔<code>git</code>阵营后基本都是用<code>git svn</code>，对<code>svn</code>生疏已久，但觉得加个<code>svn</code>提交限制应非难事，所以便额外花了点时间写了个pre-commit hook，对commit的comment中的非空白字符做计数，少于一定字数的不让提交。万万没想到，当时让SA大大部署上<code>svn</code>服务器后，就有人commit了一个“再试一下”orz&hellip;当时我的内心是崩溃的&hellip;在推上围脖上吐槽后不久，众位大神各种支招，例如巨硬的泉哥说再搞个语义分析器666&hellip;不过最受用的还是根爷所提到的用<code>cpplint</code>检查代码是否符合编码规范、是否能够编译通过。恰好那段时间小鲜肉们提交了一些带有语法错误的lua代码，偶们又木有review制度，结果不写程序的策划大大们<code>svn up</code>下来后——「什么鬼？肿么不能运行了？！好拙计啊！AAA，快来看bug啊！BBB，SOS！」——导致别人不得不停下手头的活、额外花时间排查。所以我便在pre-commit hook里用<code>luac</code>检查语法错误的代码，把这种坑队友的事扼杀在摇篮里。虽然不及<code>cpplint</code>那么强大，但也基本够用了。最近一次改这个脚本是因为前段时间有个小鲜肉做了一张4096x4096的图集，而cocos2d-x文档里写得清清楚楚，大多数手机所支持的最大纹理尺寸其实只有2048x2048&hellip;卧槽，干得漂亮啊，一上线就造成了不少crash&hellip;木有review制度好可啪，在发现这个问题之前其他人一直毫不知情&hellip;所以我还是干脆在svn hook里再加个限制吧～</p>
+
+<p>好了，不碎碎念了，这便是我折腾的svn hook，主要做了这么几项功能：</p>
+
+<ul>
+<li><p>commit message非空白长度检查</p></li>
+<li><p>lua语法检查</p></li>
+<li><p>禁止添加文件名带空格的文件</p></li>
+<li><p>禁止被配在<code>PROHIBITED_FILES</code>的文件被修改</p></li>
+<li><p>确保图片尺寸小于2048x2048</p></li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+<span class='line-number'>188</span>
+<span class='line-number'>189</span>
+<span class='line-number'>190</span>
+<span class='line-number'>191</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#!/bin/sh
+</span><span class='line'>
+</span><span class='line'># PRE-COMMIT HOOK
+</span><span class='line'>#
+</span><span class='line'># The pre-commit hook is invoked before a Subversion txn is
+</span><span class='line'># committed.  Subversion runs this hook by invoking a program
+</span><span class='line'># (script, executable, binary, etc.) named 'pre-commit' (for which
+</span><span class='line'># this file is a template), with the following ordered arguments:
+</span><span class='line'>#
+</span><span class='line'>#   [1] REPOS-PATH   (the path to this repository)
+</span><span class='line'>#   [2] TXN-NAME     (the name of the txn about to be committed)
+</span><span class='line'>#
+</span><span class='line'>#   [STDIN] LOCK-TOKENS ** the lock tokens are passed via STDIN.
+</span><span class='line'>#
+</span><span class='line'>#   If STDIN contains the line "LOCK-TOKENS:\n" (the "\n" denotes a
+</span><span class='line'>#   single newline), the lines following it are the lock tokens for
+</span><span class='line'>#   this commit.  The end of the list is marked by a line containing
+</span><span class='line'>#   only a newline character.
+</span><span class='line'>#
+</span><span class='line'>#   Each lock token line consists of a URI-escaped path, followed
+</span><span class='line'>#   by the separator character '|', followed by the lock token string,
+</span><span class='line'>#   followed by a newline.
+</span><span class='line'>#
+</span><span class='line'># The default working directory for the invocation is undefined, so
+</span><span class='line'># the program should set one explicitly if it cares.
+</span><span class='line'>#
+</span><span class='line'># If the hook program exits with success, the txn is committed; but
+</span><span class='line'># if it exits with failure (non-zero), the txn is aborted, no commit
+</span><span class='line'># takes place, and STDERR is returned to the client.   The hook
+</span><span class='line'># program can use the 'svnlook' utility to help it examine the txn.
+</span><span class='line'>#
+</span><span class='line'># On a Unix system, the normal procedure is to have 'pre-commit'
+</span><span class='line'># invoke other programs to do the real work, though it may do the
+</span><span class='line'># work itself too.
+</span><span class='line'>#
+</span><span class='line'>#   ***  NOTE: THE HOOK PROGRAM MUST NOT MODIFY THE TXN, EXCEPT  ***
+</span><span class='line'>#   ***  FOR REVISION PROPERTIES (like svn:log or svn:author).   ***
+</span><span class='line'>#
+</span><span class='line'>#   This is why we recommend using the read-only 'svnlook' utility.
+</span><span class='line'>#   In the future, Subversion may enforce the rule that pre-commit
+</span><span class='line'>#   hooks should not modify the versioned data in txns, or else come
+</span><span class='line'>#   up with a mechanism to make it safe to do so (by informing the
+</span><span class='line'>#   committing client of the changes).  However, right now neither
+</span><span class='line'>#   mechanism is implemented, so hook writers just have to be careful.
+</span><span class='line'>#
+</span><span class='line'># Note that 'pre-commit' must be executable by the user(s) who will
+</span><span class='line'># invoke it (typically the user httpd runs as), and that user must
+</span><span class='line'># have filesystem-level permission to access the repository.
+</span><span class='line'>#
+</span><span class='line'># On a Windows system, you should name the hook program
+</span><span class='line'># 'pre-commit.bat' or 'pre-commit.exe',
+</span><span class='line'># but the basic idea is the same.
+</span><span class='line'>#
+</span><span class='line'># The hook program typically does not inherit the environment of
+</span><span class='line'># its parent process.  For example, a common problem is for the
+</span><span class='line'># PATH environment variable to not be set to its usual value, so
+</span><span class='line'># that subprograms fail to launch unless invoked via absolute path.
+</span><span class='line'># If you're having unexpected problems with a hook program, the
+</span><span class='line'># culprit may be unusual (or missing) environment variables.
+</span><span class='line'># 
+</span><span class='line'># Here is an example hook script, for a Unix /bin/sh interpreter.
+</span><span class='line'># For more examples and pre-written hooks, see those in
+</span><span class='line'># the Subversion repository at
+</span><span class='line'># http://svn.apache.org/repos/asf/subversion/trunk/tools/hook-scripts/ and
+</span><span class='line'># http://svn.apache.org/repos/asf/subversion/trunk/contrib/hook-scripts/
+</span><span class='line'>
+</span><span class='line'>LOG="/tmp/svn.log"
+</span><span class='line'>touch ${LOG}
+</span><span class='line'>
+</span><span class='line'>REPOS="$1"
+</span><span class='line'>TXN="$2"
+</span><span class='line'>echo "REPOS: $REPOS" &gt; ${LOG}
+</span><span class='line'>echo "TXN: $TXN" &gt;&gt; ${LOG}
+</span><span class='line'>
+</span><span class='line'>SVNLOOK=""
+</span><span class='line'>
+</span><span class='line'># lua compiler
+</span><span class='line'>LUAC=""
+</span><span class='line'># lua file extension
+</span><span class='line'>LUA_EXT="lua"
+</span><span class='line'># png file extension
+</span><span class='line'>PNG_EXT="png"
+</span><span class='line'>
+</span><span class='line'>MSG_MIN_CHAR_NUM=3
+</span><span class='line'>
+</span><span class='line'>MAX_PNG_SIZE=2048
+</span><span class='line'>
+</span><span class='line'>PROHIBITED_FILES=(
+</span><span class='line'>)
+</span><span class='line'>
+</span><span class='line'>TMP_DIR="/tmp/svn"
+</span><span class='line'>if [[ -d ${TMP_DIR} ]]; then
+</span><span class='line'>    rm -r ${TMP_DIR}
+</span><span class='line'>fi
+</span><span class='line'>mkdir -p ${TMP_DIR}
+</span><span class='line'>
+</span><span class='line'>function check_lua_syntax {
+</span><span class='line'>local lua_file=$1
+</span><span class='line'>echo `${LUAC} ${lua_file} 2&gt;&1`
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>function create_file {
+</span><span class='line'>local file_name=$1
+</span><span class='line'># Create tmp file and copy content
+</span><span class='line'>tmp_file="${TMP_DIR}/${file_name}"
+</span><span class='line'>mkdir -p "$(dirname "${tmp_file}")" && touch "${tmp_file}"
+</span><span class='line'>${SVNLOOK} cat -t "${TXN}" "${REPOS}" "${file_name}" &gt; ${tmp_file}
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'># Make sure that the log message contains some text.
+</span><span class='line'>commit_msg=`$SVNLOOK log -t "$TXN" "$REPOS" | sed 's/[[:space:]]//g'`
+</span><span class='line'>echo ${commit_msg} &gt;&gt; ${LOG}
+</span><span class='line'>if [[ `echo ${commit_msg} | wc -c` -lt ${MSG_MIN_CHAR_NUM} ]]; then
+</span><span class='line'>    echo "Please write a meaningful comment when committing" 1&gt;&2
+</span><span class='line'>    exit 1
+</span><span class='line'>fi
+</span><span class='line'>
+</span><span class='line'>changed_info_str=`${SVNLOOK} changed -t "${TXN}" "${REPOS}"`
+</span><span class='line'>IFS=$'\n' read -rd '' -a changed_infos &lt;&lt;&lt;"${changed_info_str}"
+</span><span class='line'>
+</span><span class='line'>lua_error_msg=""
+</span><span class='line'>png_error_msg=""
+</span><span class='line'>for changed_info in "${changed_infos[@]}"; do
+</span><span class='line'>    # Prevent commiting file that contains space in its filename
+</span><span class='line'>    echo ${changed_info} &gt;&gt; ${LOG}
+</span><span class='line'>    operation=`echo ${changed_info} | awk '{print $1}'`
+</span><span class='line'>    if [[ ${operation} = "A" ]] && [[ `echo ${changed_info} | awk '{print NF}'` -gt 2 ]]; then
+</span><span class='line'>        echo "Please do not commit file that contains space in its filename!" 1&gt;&2
+</span><span class='line'>        exit 1
+</span><span class='line'>    fi
+</span><span class='line'>    file_name=`echo ${changed_info} | awk '{print $2}'`
+</span><span class='line'>    echo "operation: ${operation}, file: ${file_name}, ext: ${ext}" &gt;&gt; ${LOG}
+</span><span class='line'>
+</span><span class='line'>    # Check prohibit-commit files
+</span><span class='line'>    for prohibited_file in ${PROHIBITED_FILES[@]}; do
+</span><span class='line'>        if [[ ${file_name} = ${prohibited_file} ]]; then
+</span><span class='line'>            echo "${file_name} is not allowed to be changed!" 1&gt;&2
+</span><span class='line'>            exit 1
+</span><span class='line'>        fi
+</span><span class='line'>    done
+</span><span class='line'>
+</span><span class='line'>    ext=`echo ${file_name} | awk -F"." '{print $NF}'`
+</span><span class='line'>
+</span><span class='line'>    if [[ ${operation} = "U" ]] || [[ ${operation} = "A" ]]; then
+</span><span class='line'>        tmp_file="${TMP_DIR}/${file_name}"
+</span><span class='line'>
+</span><span class='line'>        # Check lua syntax
+</span><span class='line'>        if [[ ${ext} = ${LUA_EXT} ]]; then
+</span><span class='line'>            echo "Check syntax of ${tmp_file}" &gt;&gt; ${LOG}
+</span><span class='line'>            create_file ${file_name}
+</span><span class='line'>            error_msg=`check_lua_syntax ${tmp_file}`
+</span><span class='line'>            if [[ `echo ${error_msg} | sed 's/\n//g'` != "" ]]; then
+</span><span class='line'>                lua_error_msg="${lua_error_msg}\n${error_msg}"
+</span><span class='line'>            fi
+</span><span class='line'>        fi
+</span><span class='line'>
+</span><span class='line'>        # Check file size
+</span><span class='line'>        if [[ ${ext} = ${PNG_EXT} ]]; then
+</span><span class='line'>            create_file ${file_name}
+</span><span class='line'>            png_info=`file ${tmp_file} | sed 's/,//g'`
+</span><span class='line'>            png_width=`echo ${png_info} | awk '{print $5}' | bc`
+</span><span class='line'>            png_height=`echo ${png_info} | awk '{print $7}' | bc`
+</span><span class='line'>            if [[ ${png_width} -gt ${MAX_PNG_SIZE} ]] || [[ ${png_height} -gt ${MAX_PNG_SIZE} ]]; then
+</span><span class='line'>                png_error_msg="${png_error_msg}\n${file_name} is too large: ${png_width} x ${png_height}"
+</span><span class='line'>            fi
+</span><span class='line'>        fi
+</span><span class='line'>    fi
+</span><span class='line'>done
+</span><span class='line'>
+</span><span class='line'>rm -r ${TMP_DIR}
+</span><span class='line'>
+</span><span class='line'>if [[ ${lua_error_msg} != "" ]] || [[ ${png_error_msg} != "" ]]; then
+</span><span class='line'>    if [[ ${lua_error_msg} != "" ]]; then
+</span><span class='line'>        echo "lua error: ${lua_error_msg}" &gt;&gt; ${LOG}
+</span><span class='line'>        echo "Please fix the error in your lua program:${lua_error_msg}" 1&gt;&2
+</span><span class='line'>    fi
+</span><span class='line'>
+</span><span class='line'>    if [[ ${png_error_msg} != "" ]]; then
+</span><span class='line'>        echo "png error: ${png_error_msg}" &gt;&gt; ${LOG}
+</span><span class='line'>        echo "Please do not commit pictures which are larger than 2048 x 2048:${png_error_msg}" 1&gt;&2
+</span><span class='line'>    fi
+</span><span class='line'>
+</span><span class='line'>    exit 1
+</span><span class='line'>fi
+</span><span class='line'>
+</span><span class='line'># Check that the author of this commit has the rights to perform
+</span><span class='line'># the commit on the files and directories being modified.
+</span><span class='line'># commit-access-control.pl "$REPOS" "$TXN" commit-access-control.cfg || exit 1
+</span><span class='line'>
+</span><span class='line'># All checks passed, so allow the commit.
+</span><span class='line'>exit 0</span></code></pre></td></tr></table></div></figure>
+
+
+<p>PS. 聪哥说作为一位开发去搞svn hook怕被公司的其他开发喷越权管了运维的事，我厂倒是不存在这种问题的——人少活多时间紧，啥活都得揽啊，例如我一位舍友兼同事的大神以前开发手游可是客户端、服务器、策划、切图全都一人搞定，就差自己出美术图和特效了。最近我也在像运维一样写脚本自动化处理某些项目文件，发现我们开发各种混乱啊有木有！例如路径带空格，我的一些<code>awk</code>脚本就雪崩了——我在以上的<code>hook</code>脚本里也有同样的问题，其实把列计数方式改一下，例如<code>$7</code>改成<code>${NF-4}</code>，可以避免这种问题——而且还要把带空格的路径用<code>sed</code>替换成转义后的字符串。不过这种情况还算好的，还有些人用的单词有拼写错误，要是全错了倒也罢了，脚本hold得住，问题是有的对有的错&hellip;偶只能弃疗了&hellip;</p>
+
+<h1>后记</h1>
+
+<p>由于我们lua代码中存在不少没声明<code>local</code>而变成全局变量的bug，于是我把Openresty作者春哥的<code>lua-releng</code>工具也加进<code>hook</code>里做全局变量检查了。具体可以看<a href="https://gist.github.com/yszheda/6125a32e37834cc8ab75">这个gist</a>。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Galoisplusplus</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-03-12T10:26:00+08:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/blog/categories/cs/'>cs</a>, <a class='category' href='/blog/blog/categories/linux/'>linux</a>, <a class='category' href='/blog/blog/categories/tech/'>tech</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://yszheda.github.io/blog/blog/2016/03/12/svn-precommit-hook/" data-via="" data-counturl="http://yszheda.github.io/blog/blog/2016/03/12/svn-precommit-hook/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/blog/2016/03/04/label-pitfalls-in-cocos2d-x/" title="Previous Post: cocos2d-x文本类Label的一些坑">&laquo; cocos2d-x文本类Label的一些坑</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/blog/2016/04/03/nt-live-kinglear-and-othello/" title="Next Post: 莎年漫谈莎剧——NTLive观后">莎年漫谈莎剧——NTLive观后 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/blog/2019/04/07/macbeth-by-tang-shu-wing/">《麦克白》的布莱希特剧场实践</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2019/01/01/those-concerts-in-2018/">盘点2018年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/05/22/cudaErrorCudartUnloading/">cudaErrorCudartUnloading问题排查及建议方案</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/01/01/those-concerts-in-2017/">盘点2017年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2017/11/11/Jonas-Kaufmann-recital/">Jonas Kaufmann独奏会之艺术歌曲</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<!--
+Copyright &copy; 2020 - Galoisplusplus -
+-->
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+</body>
+</html>

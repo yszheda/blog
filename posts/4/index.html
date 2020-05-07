@@ -1,0 +1,2547 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Galoisplusplus</title>
+  <meta name="author" content="Galoisplusplus">
+
+  
+  <meta name="description" content="这次分享一个简单的小功能，在quick-cocos2d-x游戏中实现tips效果，以此作为之前一篇博文的后续。tips的行为很简单：点击某个node（我们不妨称它为target_node）触发，当点击区域在target_node范围时出现tips，否则隐藏tips（ &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yszheda.github.io/blog/posts/4">
+  <link href="/blog/favicon.png" rel="icon">
+  <link href="/blog/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/blog/atom.xml" rel="alternate" title="Galoisplusplus" type="application/atom+xml">
+  <script src="/blog/javascripts/modernizr-2.0.js"></script>
+  <!--
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  -->
+  <script src="//libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/blog/javascripts/octopress.js" type="text/javascript"></script>
+  
+<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!--
+<link href="http://fonts.googleapis.com/css?family=Crimson+Text:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/blog/">Galoisplusplus</a></h1>
+  
+    <h2>A fan of science, technology and Classical music.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/blog/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:yszheda.github.io/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/blog/">Blog</a></li>
+  <li><a href="/blog/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2016/01/16/tips-in-cocos2d-x-game/">Quick-cocos2d-x游戏的tips功能</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-01-16T23:23:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>这次分享一个简单的小功能，在quick-cocos2d-x游戏中实现tips效果，以此作为<a href="http://galoisplusplus.coding.me/blog/2015/05/01/quickx-tips/">之前一篇博文</a>的后续。tips的行为很简单：点击某个<code>node</code>（我们不妨称它为<code>target_node</code>）触发，当点击区域在<code>target_node</code>范围时出现<code>tips</code>，否则隐藏<code>tips</code>（有些情况需要指定有效点击范围不在某些node中，我们把这些node称为<code>exclude_nodes</code>）；当<code>target_node</code>位于屏幕左半边时，<code>tips</code>出现在<code>target_node</code>右侧；否则<code>tips</code>就出现在<code>target_node</code>左侧，<code>tips</code>和<code>target_node</code>有一个固定的水平间距（我们不妨定义为<code>DEFAULT_TIPS_DIST</code>）；<code>tips</code>和<code>target_node</code>底部对齐，但<code>tips</code>不能超过屏幕范围。</p>
+
+<p>不废话，先上代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+</pre></td><td class='code'><pre><code class='lua'><span class='line'><span class="k">function</span> <span class="nf">setupTips</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">targetNode</span> <span class="o">=</span> <span class="n">params</span><span class="p">.</span><span class="n">target_node</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">tips</span> <span class="o">=</span> <span class="n">params</span><span class="p">.</span><span class="n">tips</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">excludeNodes</span> <span class="o">=</span> <span class="n">params</span><span class="p">.</span><span class="n">exclude_nodes</span> <span class="ow">or</span> <span class="p">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">DEFAULT_TIPS_DIST</span> <span class="o">=</span> <span class="mi">10</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">TIPS_ZORDER</span> <span class="o">=</span> <span class="mi">1000</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="n">tolua</span><span class="p">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">targetNode</span><span class="p">)</span> <span class="ow">or</span> <span class="n">tolua</span><span class="p">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">tips</span><span class="p">)</span> <span class="k">then</span>
+</span><span class='line'>        <span class="k">return</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">tips</span><span class="p">:</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">targetNode</span><span class="p">:</span><span class="n">setTouchEnabled</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">display</span><span class="p">.</span><span class="n">getRunningScene</span><span class="p">():</span><span class="n">addChild</span><span class="p">(</span><span class="n">tips</span><span class="p">,</span> <span class="n">TIPS_ZORDER</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">targetNode</span><span class="p">:</span><span class="n">addNodeEventListener</span><span class="p">(</span><span class="n">cc</span><span class="p">.</span><span class="n">NODE_EVENT</span><span class="p">,</span> <span class="k">function</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">event</span><span class="p">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">exit&quot;</span> <span class="k">then</span>
+</span><span class='line'>            <span class="kd">local</span> <span class="n">scene</span> <span class="o">=</span> <span class="n">display</span><span class="p">.</span><span class="n">getRunningScene</span><span class="p">()</span>
+</span><span class='line'>            <span class="n">scene</span><span class="p">:</span><span class="n">performWithDelay</span><span class="p">(</span><span class="n">MyPackage</span><span class="p">.</span><span class="n">callbackWrapper</span><span class="p">({</span><span class="n">scene</span><span class="p">},</span> <span class="k">function</span><span class="p">()</span>
+</span><span class='line'>                <span class="k">if</span> <span class="ow">not</span> <span class="n">tolua</span><span class="p">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">tips</span><span class="p">)</span> <span class="k">then</span>
+</span><span class='line'>                    <span class="n">tips</span><span class="p">:</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+</span><span class='line'>                <span class="k">end</span>
+</span><span class='line'>            <span class="k">end</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="kd">local</span> <span class="n">eventDispatcher</span> <span class="o">=</span> <span class="n">display</span><span class="p">.</span><span class="n">getRunningScene</span><span class="p">():</span><span class="n">getEventDispatcher</span><span class="p">()</span>
+</span><span class='line'>            <span class="n">eventDispatcher</span><span class="p">:</span><span class="n">removeEventListenersForTarget</span><span class="p">(</span><span class="n">targetNode</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span><span class="p">)</span>
+</span><span class='line'>    <span class="c1">------------------------------------------------------------</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="k">function</span> <span class="nf">setTipsPosition</span><span class="p">()</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">leftBottomPos</span> <span class="o">=</span> <span class="n">MyPackage</span><span class="p">.</span><span class="n">getPositionOfNode</span><span class="p">(</span><span class="n">targetNode</span><span class="p">,</span> <span class="n">display</span><span class="p">.</span><span class="n">LEFT_BOTTOM</span><span class="p">)</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">targetNodePos</span> <span class="o">=</span> <span class="n">display</span><span class="p">.</span><span class="n">getRunningScene</span><span class="p">():</span><span class="n">convertToNodeSpace</span><span class="p">(</span><span class="n">targetNode</span><span class="p">:</span><span class="n">getParent</span><span class="p">():</span><span class="n">convertToWorldSpace</span><span class="p">(</span><span class="n">leftBottomPos</span><span class="p">))</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">targetNodeAnchorPoint</span> <span class="o">=</span> <span class="n">targetNode</span><span class="p">:</span><span class="n">getAnchorPoint</span><span class="p">()</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">tipsPos</span> <span class="o">=</span> <span class="n">targetNodePos</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">tipsAnchorPoint</span> <span class="o">=</span> <span class="n">cc</span><span class="p">.</span><span class="n">p</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">director</span> <span class="o">=</span> <span class="n">cc</span><span class="p">.</span><span class="n">Director</span><span class="p">:</span><span class="n">getInstance</span><span class="p">()</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">glView</span> <span class="o">=</span> <span class="n">director</span><span class="p">:</span><span class="n">getOpenGLView</span><span class="p">()</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">frameSize</span> <span class="o">=</span> <span class="n">glView</span><span class="p">:</span><span class="n">getFrameSize</span><span class="p">()</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">viewSize</span> <span class="o">=</span> <span class="n">director</span><span class="p">:</span><span class="n">getVisibleSize</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="n">targetNodePos</span><span class="p">.</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="n">frameSize</span><span class="p">.</span><span class="n">width</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">/</span> <span class="n">glView</span><span class="p">:</span><span class="n">getScaleX</span><span class="p">()</span> <span class="k">then</span>
+</span><span class='line'>          <span class="c1">-- show tips on the right of the targetNode if the targetNode is on the left screen</span>
+</span><span class='line'>            <span class="n">tipsPos</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">tipsPos</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">targetNode</span><span class="p">:</span><span class="n">getContentSize</span><span class="p">().</span><span class="n">width</span> <span class="o">+</span> <span class="n">DEFAULT_TIPS_DIST</span>
+</span><span class='line'>        <span class="k">else</span>
+</span><span class='line'>          <span class="c1">-- show tips on the left of the targetNode otherwises</span>
+</span><span class='line'>            <span class="n">tipsPos</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">tipsPos</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">DEFAULT_TIPS_DIST</span>
+</span><span class='line'>            <span class="n">tipsAnchorPoint</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="n">targetNodePos</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">tips</span><span class="p">:</span><span class="n">getContentSize</span><span class="p">().</span><span class="n">height</span> <span class="o">&gt;</span> <span class="n">viewSize</span><span class="p">.</span><span class="n">height</span> <span class="k">then</span>
+</span><span class='line'>            <span class="n">tipsPos</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">viewSize</span><span class="p">.</span><span class="n">height</span>
+</span><span class='line'>            <span class="n">tipsAnchorPoint</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">targetNodePos</span><span class="p">.</span><span class="n">y</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">then</span>
+</span><span class='line'>            <span class="n">targetNodePos</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">tips</span><span class="p">:</span><span class="n">ignoreAnchorPointForPosition</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">tips</span><span class="p">:</span><span class="n">setAnchorPoint</span><span class="p">(</span><span class="n">tipsAnchorPoint</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">tips</span><span class="p">:</span><span class="n">setPosition</span><span class="p">(</span><span class="n">tipsPos</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="c1">------------------------------------------------------------</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="k">function</span> <span class="nf">activeFunc</span><span class="p">()</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">scene</span> <span class="o">=</span> <span class="n">display</span><span class="p">.</span><span class="n">getRunningScene</span><span class="p">()</span>
+</span><span class='line'>        <span class="c1">-- NOTE: delay util the next frame in order to get the correct WorldSpace position</span>
+</span><span class='line'>        <span class="n">scene</span><span class="p">:</span><span class="n">performWithDelay</span><span class="p">(</span><span class="n">MyPackage</span><span class="p">.</span><span class="n">callbackWrapper</span><span class="p">({</span><span class="n">scene</span><span class="p">,</span> <span class="n">tips</span><span class="p">},</span> <span class="k">function</span><span class="p">()</span>
+</span><span class='line'>            <span class="n">setTipsPosition</span><span class="p">()</span>
+</span><span class='line'>            <span class="n">tips</span><span class="p">:</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">end</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">local</span> <span class="k">function</span> <span class="nf">inactiveFunc</span><span class="p">()</span>
+</span><span class='line'>        <span class="k">if</span> <span class="ow">not</span> <span class="n">tolua</span><span class="p">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">tips</span><span class="p">)</span> <span class="k">then</span>
+</span><span class='line'>            <span class="n">tips</span><span class="p">:</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">local</span> <span class="k">function</span> <span class="nf">isTouchInNode</span><span class="p">(</span><span class="n">touch</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">tolua</span><span class="p">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="ow">or</span> <span class="n">tolua</span><span class="p">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">touch</span><span class="p">)</span> <span class="k">then</span>
+</span><span class='line'>            <span class="k">return</span> <span class="kc">false</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">localLocation</span> <span class="o">=</span> <span class="n">node</span><span class="p">:</span><span class="n">convertToNodeSpace</span><span class="p">(</span><span class="n">touch</span><span class="p">:</span><span class="n">getLocation</span><span class="p">())</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">width</span> <span class="o">=</span> <span class="n">node</span><span class="p">:</span><span class="n">getContentSize</span><span class="p">().</span><span class="n">width</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">height</span> <span class="o">=</span> <span class="n">node</span><span class="p">:</span><span class="n">getContentSize</span><span class="p">().</span><span class="n">height</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">rect</span> <span class="o">=</span> <span class="n">cc</span><span class="p">.</span><span class="n">rect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">getCascadeVisibility</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="ow">and</span> <span class="n">node</span><span class="p">:</span><span class="n">isRunning</span><span class="p">()</span> <span class="ow">and</span> <span class="n">cc</span><span class="p">.</span><span class="n">rectContainsPoint</span><span class="p">(</span><span class="n">rect</span><span class="p">,</span> <span class="n">localLocation</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">local</span> <span class="k">function</span> <span class="nf">isActive</span><span class="p">(</span><span class="n">touch</span><span class="p">)</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">isExcluded</span> <span class="o">=</span> <span class="kc">false</span>
+</span><span class='line'>        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">excludeNode</span> <span class="k">in</span> <span class="nb">ipairs</span><span class="p">(</span><span class="n">excludeNodes</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>            <span class="n">isExcluded</span> <span class="o">=</span> <span class="n">isExcluded</span> <span class="ow">or</span> <span class="n">isTouchInNode</span><span class="p">(</span><span class="n">touch</span><span class="p">,</span> <span class="n">excludeNode</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">isTouchInNode</span><span class="p">(</span><span class="n">touch</span><span class="p">,</span> <span class="n">targetNode</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">isExcluded</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">local</span> <span class="k">function</span> <span class="nf">onTouchBegan</span><span class="p">(</span><span class="n">touch</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">isActive</span><span class="p">(</span><span class="n">touch</span><span class="p">)</span> <span class="k">then</span>
+</span><span class='line'>            <span class="n">activeFunc</span><span class="p">()</span>
+</span><span class='line'>            <span class="k">return</span> <span class="kc">true</span>
+</span><span class='line'>        <span class="k">else</span>
+</span><span class='line'>            <span class="k">return</span> <span class="kc">false</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">local</span> <span class="k">function</span> <span class="nf">onTouchMoved</span><span class="p">(</span><span class="n">touch</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">scene</span> <span class="o">=</span> <span class="n">display</span><span class="p">.</span><span class="n">getRunningScene</span><span class="p">()</span>
+</span><span class='line'>        <span class="n">scene</span><span class="p">:</span><span class="n">performWithDelay</span><span class="p">(</span><span class="n">MyPackage</span><span class="p">.</span><span class="n">callbackWrapper</span><span class="p">({</span><span class="n">scene</span><span class="p">},</span> <span class="k">function</span><span class="p">()</span>
+</span><span class='line'>            <span class="k">if</span> <span class="n">isActive</span><span class="p">(</span><span class="n">touch</span><span class="p">)</span> <span class="k">then</span>
+</span><span class='line'>                <span class="n">activeFunc</span><span class="p">()</span>
+</span><span class='line'>            <span class="k">else</span>
+</span><span class='line'>                <span class="n">inactiveFunc</span><span class="p">()</span>
+</span><span class='line'>            <span class="k">end</span>
+</span><span class='line'>        <span class="k">end</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">local</span> <span class="k">function</span> <span class="nf">onTouchEnded</span><span class="p">(</span><span class="n">touch</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">scene</span> <span class="o">=</span> <span class="n">display</span><span class="p">.</span><span class="n">getRunningScene</span><span class="p">()</span>
+</span><span class='line'>        <span class="n">scene</span><span class="p">:</span><span class="n">performWithDelay</span><span class="p">(</span><span class="n">MyPackage</span><span class="p">.</span><span class="n">callbackWrapper</span><span class="p">({</span><span class="n">scene</span><span class="p">},</span> <span class="k">function</span><span class="p">()</span>
+</span><span class='line'>            <span class="n">inactiveFunc</span><span class="p">()</span>
+</span><span class='line'>        <span class="k">end</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">listener</span> <span class="o">=</span> <span class="n">cc</span><span class="p">.</span><span class="n">EventListenerTouchOneByOne</span><span class="p">:</span><span class="n">create</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">listener</span><span class="p">:</span><span class="n">registerScriptHandler</span><span class="p">(</span><span class="n">onTouchBegan</span><span class="p">,</span> <span class="n">cc</span><span class="p">.</span><span class="n">Handler</span><span class="p">.</span><span class="n">EVENT_TOUCH_BEGAN</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">listener</span><span class="p">:</span><span class="n">registerScriptHandler</span><span class="p">(</span><span class="n">onTouchMoved</span><span class="p">,</span> <span class="n">cc</span><span class="p">.</span><span class="n">Handler</span><span class="p">.</span><span class="n">EVENT_TOUCH_MOVED</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">listener</span><span class="p">:</span><span class="n">registerScriptHandler</span><span class="p">(</span><span class="n">onTouchEnded</span><span class="p">,</span> <span class="n">cc</span><span class="p">.</span><span class="n">Handler</span><span class="p">.</span><span class="n">EVENT_TOUCH_ENDED</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">listener</span><span class="p">:</span><span class="n">registerScriptHandler</span><span class="p">(</span><span class="n">onTouchEnded</span><span class="p">,</span> <span class="n">cc</span><span class="p">.</span><span class="n">Handler</span><span class="p">.</span><span class="n">EVENT_TOUCH_CANCELLED</span><span class="p">)</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">eventDispatcher</span> <span class="o">=</span> <span class="n">display</span><span class="p">.</span><span class="n">getRunningScene</span><span class="p">():</span><span class="n">getEventDispatcher</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">eventDispatcher</span><span class="p">:</span><span class="n">removeEventListenersForTarget</span><span class="p">(</span><span class="n">targetNode</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">eventDispatcher</span><span class="p">:</span><span class="n">addEventListenerWithSceneGraphPriority</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="n">targetNode</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>关于<code>MyPackage.getPositionOfNode</code>、<code>MyPackage.callbackWrapper</code>等helper functions请参见<a href="http://galoisplusplus.coding.me/blog/2015/05/01/quickx-tips/">之前某篇博文</a>。</p>
+
+<p>上面的代码基本是很简单的，除了有几点需要额外说明一下：</p>
+
+<ol>
+<li>几处调用到<code>performWithDelay</code>的地方。这是因为我们用<code>target_node</code>的WorldSpace坐标来确定<code>tips</code>的位置，当<code>target_node</code>位于某个可滚动的node（如<code>ScrollView</code>）中时，需要延迟到下一帧才能拿到它正确的WorldSpace坐标，所以我们用了quickx定义的<code>Node:performWithDelay</code>来做延时。之所以用这个函数而不用scheduler，是因为它在Node的生命周期中，我们不需要担心如何去安全销毁scheduler所产生的handler。事实上我们只要看一下quickx定义在NodeEx.lua中的<code>Node:performWithDelay</code>就一目了然了：</li>
+</ol>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='lua'><span class='line'><span class="k">function</span> <span class="nf">Node</span><span class="p">:</span><span class="n">performWithDelay</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">action</span> <span class="o">=</span> <span class="n">transition</span><span class="p">.</span><span class="n">sequence</span><span class="p">({</span>
+</span><span class='line'>        <span class="n">cc</span><span class="p">.</span><span class="n">DelayTime</span><span class="p">:</span><span class="n">create</span><span class="p">(</span><span class="n">delay</span><span class="p">),</span>
+</span><span class='line'>        <span class="n">cc</span><span class="p">.</span><span class="n">CallFunc</span><span class="p">:</span><span class="n">create</span><span class="p">(</span><span class="n">callback</span><span class="p">),</span>
+</span><span class='line'>    <span class="p">})</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">:</span><span class="n">runAction</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">action</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li><p>我们指定<code>target_node</code>在收到<code>exit</code>事件时隐藏<code>tips</code>，这是因为<code>target_node</code>可能在某些<code>ClippingNode</code>（如<code>ScrollView</code>）中，当它超出区域不再显示时，<code>tips</code>也不应该被显示。</p></li>
+<li><p>当同一个位置有多个具有<code>tips</code>行为的<code>target_node</code>时，需要判断当前的<code>target_node</code>是否有显示，这需要回溯看父节点的<code>visibility</code>，<code>getCascadeVisibility</code>定义如下：</p></li>
+</ol>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='lua'><span class='line'><span class="k">function</span> <span class="nf">getCascadeVisibility</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">tolua</span><span class="p">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="k">then</span>
+</span><span class='line'>        <span class="k">return</span> <span class="kc">true</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">visibility</span> <span class="o">=</span> <span class="n">node</span><span class="p">:</span><span class="n">isVisible</span><span class="p">()</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">visibility</span> <span class="k">then</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">parent</span> <span class="o">=</span> <span class="n">node</span><span class="p">:</span><span class="n">getParent</span><span class="p">()</span>
+</span><span class='line'>        <span class="n">visibility</span> <span class="o">=</span> <span class="n">visibility</span> <span class="ow">and</span> <span class="n">getCascadeVisibility</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">visibility</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2016/01/02/my-top-ten-concerts-in-2015/">我的2015年度十大现场音乐会</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-01-02T03:55:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>时间过得真快，一转眼一年又过去了，又到了众乐迷回顾年度十大的时候啦～</p>
+
+<h2>No.10</h2>
+
+<p>刚过去的2015年想是对老一辈大师们流年不利：元旦看“维新”（维也纳新年音乐会）时，巴伦（Daniel Barenboim）老态龙钟，令人唏嘘；年初原本计划来华巡演的法派钢琴大师奇科里尼（Aldo Ciccolini）突然去世；年终又传来了马二专家卡普兰（Gilbert Kaplan）和布列兹（Pierre Boulez）大师仙逝的消息&hellip;2015年魔都的古典乐坛也迎来了不少老前辈，例如<a href="http://galoisplusplus.coding.me/blog/2015/04/05/Natalia-Gutman-Cello-Recital/">古特曼（Natalia Gutman）</a>、科瓦塞维奇（Stephen Kovacevich）、弗雷里（Nelson Freire）等等，虽然他们年事已高，水准不复昔日辉煌，但还是一样感谢他们的奉献。在这些老大师的演奏中，我尤为推崇以下这场音乐会：</p>
+
+<h3>Sir Neville Marriner with Jörg Demus</h3>
+
+<ul>
+<li>地点：馄饨皮</li>
+<li>乐团：上交（SSO）</li>
+<li>曲目：全场Mozart作品
+
+<ul>
+<li>上：
+
+<ul>
+<li>K385 “Haffner”</li>
+<li>K414</li>
+</ul>
+</li>
+<li>下：
+
+<ul>
+<li>K550</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<p>原本上交厅邀请的是同为九十多岁高龄的马里纳爵士及美艺三重奏的普莱斯勒（Menahem Pressler），但因后者抱恙无法前来，于是独奏家便换成了另一位高龄钢琴大师德慕斯。此前不久，德慕斯老爷子刚进行了传说中最后一次中国巡演。我和一些朋友去贺厅听了他在魔都的独奏会，末了交流，除了抱怨熊孩子破坏秩序，便是感慨时隔一年大师的手指跑动竟退化至斯，无不惋惜。对于这场音乐会，原本只想纯粹看“情怀”的，却不料两位大师携手合作的完成度相当之高，德慕斯指下一些乐句颇令人心醉魂迷。另外，上交在马里纳爵士棒下也体现了相当高的水准——虽然K550三乐章trio出了点岔子——明年老爷子还会带亲兵ASMF和休伊特（Hewitt）来沪演出，非常期待。</p>
+
+<h2>No.9</h2>
+
+<p>去年听了不少小提琴独奏会，不过遗憾的是，却没有几场能排进我心目中的个人十大。十大其中的一组小提琴独奏会，我选择了同为犹太小提琴家同为迪蕾门下高徒的敏茨（Shlomo Mintz）和帕尔曼（Itzak Perlman）的演奏。</p>
+
+<h3>Mintz演奏小无组曲</h3>
+
+<ul>
+<li>地点：上海音乐厅</li>
+<li>曲目：
+
+<ul>
+<li>上：
+
+<ul>
+<li>BWV1006</li>
+<li>BWV1002</li>
+</ul>
+</li>
+<li>下：
+
+<ul>
+<li>BWV1004</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<p>关于敏茨大师这场独奏会，我之前写过一篇<a href="http://galoisplusplus.coding.me/blog/2015/09/05/Shlomo-Mintz-Plays-Bach-Partita-for-Solo-Violin/">博文</a>详谈。简单地说，敏茨的BWV1004显示了极高超的技巧和老到的解读，但整体还是过于拘谨，没能完全体现他的深厚内力。</p>
+
+<h3>Perlman独奏会</h3>
+
+<ul>
+<li>地点：东艺</li>
+<li>曲目：
+
+<ul>
+<li>上：
+
+<ul>
+<li>勒克莱尔第三小奏</li>
+<li>勃拉姆斯c小调谐谑曲（选自F-A-E奏鸣曲）</li>
+</ul>
+</li>
+<li>下：
+
+<ul>
+<li>弗朗克小奏</li>
+<li>斯特拉文斯基意大利组曲</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<p>我第二天看了新闻才知道昨晚Perlman在魔都的音乐会迟了十来分钟才开始是因为帕尔曼找不到第一首曲目勒克莱尔第三小奏的谱子&hellip;最后帕尔曼是背奏的，我不仅没听出来，而且还觉得他所演奏的这首曲子是上半场最佳呢&hellip;
+虽然总体上有点失望，毕竟Perlman廉颇已老，技术有些退化，但回味起来倒挺留恋的。尤记正式曲目演完后返场，钢琴上多了一大叠谱子，大师开始随兴“点歌”，一口气拉了克莱斯勒托名Pugnani的小步舞曲、老柴幽默曲、辛德勒名单、克莱斯勒维也纳随想曲和中国花鼓，这样的演奏如今已难得一见。
+令我留恋的还有Perlman自由的glissando，时至今日似乎也只能从被“学者”们批判为“滥情”的蒂博、克莱斯勒、埃尔曼等老一辈大师的录音去找寻了，想想便有点小心酸&hellip;</p>
+
+<h2>No.8</h2>
+
+<p>去年听音乐会的一大收获便是听了一些不错的声乐家的演唱，这里我也选了两场：</p>
+
+<h3>Profeti della Quinta以色列先知五重唱音乐会</h3>
+
+<ul>
+<li>地点：上海音乐厅</li>
+<li>曲目：Salomone Rossi作品</li>
+</ul>
+
+
+<p>那段时间恰好我在刷Knappertsbusch的Wagner（不是最近Orfeo搞的巴国歌罗恩格林大新闻），刷得略凶，临时跑去听了Profeti della Quinta的全场Salomone Rossi解解毒（还运气很好买到了最后一张180的票）。唱得真心好，最后encore演得也令人捧腹，再加上古乐冷门作品难得一见，这一场还是非常值的。只是我尚不太能接受假声男高，感觉比瓦格纳的英雄男高还恶心&hellip;</p>
+
+<h3>Alice Coote独唱会</h3>
+
+<ul>
+<li>地点：上交小厅</li>
+<li>乐团：烈火歌剧院</li>
+<li>曲目：
+
+<ul>
+<li>上：
+
+<ul>
+<li>Hercules选段</li>
+</ul>
+</li>
+<li>下：
+
+<ul>
+<li>Ariodante选段</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<p>Alice Coote唱亨德尔歌剧Hercules和Ariodante选段真是各种高能，作为平时很少听声乐的乐渣，这或许是我自从10年Garanca在柏林爱乐除夕音乐会上唱法派作品以来听得最excited的次女高音recital。
+那晚后排有位大神应该是巴托丽铁杆粉丝：这次节目册有Coote唱过什么作品的介绍，中场时听他一直在说Coote唱的这一部Bartoli应该唱不了、那一部Bartoli唱过几次&hellip;除了提过一句Callas和今年来沪的JDD以外，他一直在说Bartoli&hellip;
+除此以外，最大的感受就是古乐器的horn车祸起来真是吓死宝宝了&hellip;</p>
+
+<h2>No.7</h2>
+
+<h3>蒙特卡洛爱乐乐团音乐会</h3>
+
+<ul>
+<li>地点：东艺</li>
+<li>曲目：
+
+<ul>
+<li>上：
+
+<ul>
+<li>罗西尼《塞维利亚的理发师》序曲</li>
+<li>拉威尔《库普兰墓》</li>
+<li>拉威尔《鹅妈妈》</li>
+<li>罗西尼《威廉•退尔》序曲</li>
+</ul>
+</li>
+<li>下：
+
+<ul>
+<li>贝七</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<p>也许是之前现场听过的两场贝七（Haitink+COE和Ivan Fischer+BFO，自己以前社团的车祸就不算了XD）太给力，导致本渣觉得今晚Gelmetti和OPMC的演绎平平，不过上半场的法意作品真心好，拉威尔尤其出色。乐团音色通透，各声部十分清晰。
+Gelmetti大师的指挥让本渣仿佛见到了无比崇敬的Celibidache大师的影子，在贝七第四乐章的开头他甚至还吼出了几个音&hellip;</p>
+
+<h2>No.6</h2>
+
+<p>十大中的另一组小提琴独奏会我选择了以演奏现代作品见长的以下两场：</p>
+
+<h3>Hilary Hahn独奏会</h3>
+
+<ul>
+<li>地点：东艺</li>
+<li>曲目：
+
+<ul>
+<li>上：
+
+<ul>
+<li>BWV1006</li>
+<li>27首encore选曲</li>
+</ul>
+</li>
+<li>下：
+
+<ul>
+<li>德彪西小奏</li>
+<li>舒曼第一小奏</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<p>关于这场独奏会，我之前已写了<a href="http://galoisplusplus.coding.me/blog/2015/01/17/Hilary-Hahn-Violin-Recital/">一篇博文</a>说明。</p>
+
+<h3>四季：Gidon Kremer与波罗的海弦乐团（Kremerata Baltica）</h3>
+
+<ul>
+<li>地点：馄饨皮</li>
+<li>曲目：
+
+<ul>
+<li>上：
+
+<ul>
+<li>柴可夫斯基（亚历山大·拉斯卡托夫改编）：《四季文摘》，作品37a</li>
+<li>皮亚佐拉（莱奥尼德·杰夏特尼科夫改编）：《布宜诺斯艾利斯的四季》</li>
+</ul>
+</li>
+<li>下：
+
+<ul>
+<li>维瓦尔第（安德烈·普什卡廖夫改编为颤音琴与弦乐团版本）：g小调小提琴协奏曲，RV 315「夏」</li>
+<li>菲利普·格拉斯：第二小提琴协奏曲「美国四季」</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<p>还好之前未曾听过Raskatov改编的老柴《四季》和Desyatnikov改编的皮亚佐拉《四季》，这次现场听Kremerata Baltica玩出各种音色和花样真是十分新鲜的体验。
+我赞叹着他们「城会玩」，想起学校的弦乐团，不知他们何时才能像Kremer这支弦乐团一样玩玩一些又好听又好玩的当代作品：印象中好不容易搞了一首Hardiman的什么爱尔兰舞曲还搞得跟杂耍一样的，问题是除了对音乐没有丝毫帮助外看起来一点也不有趣&hellip;</p>
+
+<h2>No.5</h2>
+
+<p>说到去年来沪的好团，不得不提到Mahler Chamber Orchrestra（MCO）。MCO的团员虽然整体很年轻，但却训练有素，个人尤其赞赏其二提和木管声部。给人印象最深、最动人的一幕是在演出结束后，乐手们互相拥抱庆祝演出成功，这支有爱的乐团又以另一种方式无声诠释了何为chamber music。在此，我索性把MCO去年来沪的几场音乐会全列入我的十大No.5：</p>
+
+<h3>Andsnes: Beethoven Journey</h3>
+
+<ul>
+<li>地点：上交大厅</li>
+<li>曲目：贝多芬全部正式编号的钢协</li>
+</ul>
+
+
+<p>Andsnes和MCO的全套正式编号的贝钢协听完了，安叔倒没有听过他贝钢协的朋友所说的「一团糟」，但也总体平平，第一和第五还不如上次的第2、3、4——还好本渣前晚请假去听了，原本是冲着个人最稀饭的第四去的，但那一场乃至这两场的最佳其实是第二。
+赶脚第一末乐章，安叔的主题弹得还不如阿姐有趣，除了主旋律以外的声部有时候也不太清晰——好吧，本渣一定是Afanassiev的贝钢协听多了&hellip;
+Andsnes的处理还算理性严谨，不过奇怪的是，这位最崇拜Michelangeli的钢琴家对音色似乎不大讲究，而米凯除了晚期基本就是个不折不扣的音色控&hellip;当然颤音也没米凯好（废话么，能有几人达到米凯的水平）&hellip;
+一朋友说安叔可能不太适合弹德奥，不过本渣倒是觉得他的海顿挺有趣味的&hellip;
+不过我想，这次去听安叔的最大意外反而是发现节目单撰稿人之一是以前某古典音乐群的大牛群主吧&hellip;</p>
+
+<h3>Mahler Chamber Orchestra and Esa-Pekka Salonen</h3>
+
+<ul>
+<li>地点：上交大厅</li>
+<li>曲目：
+
+<ul>
+<li>上：
+
+<ul>
+<li>西贝柳斯《佩利亚斯与梅丽桑德》组曲选段</li>
+<li>Lindberg小协</li>
+</ul>
+</li>
+<li>下：
+
+<ul>
+<li>萨洛宁《Mania》</li>
+<li>西七</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<p>前段时间听Camilla Wicks的录音真是佩服得五体投地——不仅经典作品演得好，现代作品也同样出色——MCO的演奏也是如此。Salonen的Mania我是第一回听，蛮有意思；不过Lindberg小协虽是听过，却依旧无感。</p>
+
+<h2>No.4</h2>
+
+<h3>Pletnev独奏会</h3>
+
+<ul>
+<li>地点：东艺</li>
+<li>曲目：
+
+<ul>
+<li>上：
+
+<ul>
+<li>贝钢奏No. 10, Op. 14/2</li>
+<li>贝钢奏No. 17, Op. 31/2</li>
+</ul>
+</li>
+<li>下：
+
+<ul>
+<li>斯克里亚宾24首前奏曲Op.11</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<p>原本并不打算去Pletnev的recital，听后不由庆幸自己没有错过——昨晚毫无疑问是我迄今为止现场听过的最迷人的Scriabin【14年的Kissin可以拜拜了XDD</p>
+
+<h2>No.3</h2>
+
+<h3>北德广播交响乐团音乐会</h3>
+
+<ul>
+<li>地点：上交大厅</li>
+<li>曲目：
+
+<ul>
+<li>上：
+
+<ul>
+<li>舒曼钢协</li>
+</ul>
+</li>
+<li>下：
+
+<ul>
+<li>马一</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<p>我第一次听张昊辰的演奏，虽然并不喜欢他的舒曼钢协，但他毫不做作的真诚演奏还是给我留下了挺好的印象，也让我挺看好他的发展的～</p>
+
+<p>下半场是重头戏——1893版马一的上海首演。应该说Hengelbrock和NDR表现得相当给力，不过也许是事先听了北京场爆演的风衣，我倒也激动不起来了&hellip;顺便吐槽下那次上交厅拙劣的节目单制作，用四乐章版来介绍这次的五乐章版马一不说，还把一些乐手的名字打成了“N.N.”，这是什么鬼&hellip;</p>
+
+<h2>No.2</h2>
+
+<h3>Leonskaja独奏会</h3>
+
+<ul>
+<li>地点：馄饨皮</li>
+<li>曲目：
+
+<ul>
+<li>上：
+
+<ul>
+<li>贝钢奏“暴风雨”</li>
+<li>D760</li>
+</ul>
+</li>
+<li>下：
+
+<ul>
+<li>李斯特《旅行者岁月-意大利》104</li>
+<li>勃拉姆斯第三钢奏</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<p>15年最受感染的钢琴现场毫无疑问是莱姨的recital，那晚听完之后感慨万千，写了<a href="http://galoisplusplus.coding.me/blog/2015/03/26/Elisabeth-Leonskaja-Piano-Recital/">一篇博文</a>为记。</p>
+
+<h2>No.1</h2>
+
+<h3>Gustav Kuhn执导，奥地利蒂罗尔音乐节制作24小时音乐会版歌剧《尼伯龙根的指环》</h3>
+
+<ul>
+<li>地点：馄饨皮</li>
+</ul>
+
+
+<p>作为非瓦迷首次现场看的瓦剧，能看到如此高水准的制作，真是三生有幸。为此之前也记了一篇<a href="http://galoisplusplus.coding.me/blog/2015/10/24/The-24-hour-Ring-by-Tyrolean-Festival-Erl/">随想</a>。</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2015/12/19/spine-memory-leaks/">记一次spine内存泄露排查</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-12-19T11:22:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>最近用<code>Instruments</code>的<code>Leaks</code>工具排查我们cocos2d-x游戏的一些内存泄露问题，大部分属于之前我们<code>C++</code>代码的bug，还有几个是<code>lua</code>代码中<code>sqlite</code>使用不当造成的内存泄露（例如数据库连接没有<code>close</code>，<code>prepare</code>的<code>stmt</code>没有<code>finalize</code>），总的来说这些都不难改。而且由于我们主要用的是<code>lua</code>，<code>lua</code>有垃圾回收，所以<code>Leaks</code>显示的内存泄露问题也不多。倒是spine的内存泄露问题相对棘手，花了我较长时间。</p>
+
+<p><code>Leaks</code>工具定位内存泄露到<code>spine</code>的<code>extension.c</code>中的<code>_malloc</code>函数：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>static void* (*mallocFunc) (size_t size) = malloc;
+</span><span class='line'>static void* (*debugMallocFunc) (size_t size, const char* file, int line) = NULL;
+</span><span class='line'>
+</span><span class='line'>void* _malloc (size_t size, const char* file, int line) {
+</span><span class='line'>  if(debugMallocFunc)
+</span><span class='line'>      return debugMallocFunc(size, file, line);
+</span><span class='line'>
+</span><span class='line'>  return mallocFunc(size);
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>很显然，这是由分配的内存没有得到释放所引起的内存泄露。
+接下来再找<code>spine</code>代码中分配内存和释放内存的地方，大部分都放在了不同结构体的<code>init</code>和<code>dispose</code>函数中，于是就重点关注这两个函数。可以发现在一些<code>dispose</code>函数中，部分指针并没有被<code>free</code>掉，那么是否可以把<code>free</code>加上呢？答案是不行，因为<code>spine</code>中这些指针其实只是浅拷贝，还有别的地方用到这些指针所指的内存地址，如果加上<code>free</code>会额外造成double free内存错误。</p>
+
+<p>再继续考察spine分配内存和释放内存的代码，本渣发现，spine代码中用<code>C</code>结构体实现了vitrual table，从而模拟<code>C++</code>的多态，释放内存的函数类似<code>C++</code>的析构函数，也被模拟为虚函数。这块代码就成了本渣的重点怀疑对象，review下来还真发现有问题：spine调用“子类”的“析构函数”时，竟然是先调用“父类”的“析构函数”，然后在做自己的清理操作！而之所以先调用“父类”的“析构函数”不会有内存错误，是因为“父类”的“析构函数”并没有完全释放它所占用的内存，也就是说“父类”的对象在“析构”会泄露内存！</p>
+
+<p>不废话，上代码。</p>
+
+<p>下面是涉及到的宏定义：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/* All allocation uses these. */
+</span><span class='line'>#define MALLOC(TYPE,COUNT) ((TYPE*)_malloc(sizeof(TYPE) * (COUNT), __FILE__, __LINE__))
+</span><span class='line'>#define CALLOC(TYPE,COUNT) ((TYPE*)_calloc(COUNT, sizeof(TYPE), __FILE__, __LINE__))
+</span><span class='line'>#define NEW(TYPE) CALLOC(TYPE,1)
+</span><span class='line'>
+</span><span class='line'>/* Gets the direct super class. Type safe. */
+</span><span class='line'>#define SUPER(VALUE) (&VALUE-&gt;super)
+</span><span class='line'>
+</span><span class='line'>/* Cast to a super class. Not type safe, use with care. Prefer SUPER() where possible. */
+</span><span class='line'>#define SUPER_CAST(TYPE,VALUE) ((TYPE*)VALUE)
+</span><span class='line'>
+</span><span class='line'>/* Cast to a sub class. Not type safe, use with care. */
+</span><span class='line'>#define SUB_CAST(TYPE,VALUE) ((TYPE*)VALUE)
+</span><span class='line'>
+</span><span class='line'>/* Casts away const. Can be used as an lvalue. Not type safe, use with care. */
+</span><span class='line'>#define CONST_CAST(TYPE,VALUE) (*(TYPE*)&VALUE)
+</span><span class='line'>
+</span><span class='line'>/* Gets the vtable for the specified type. Not type safe, use with care. */
+</span><span class='line'>#define VTABLE(TYPE,VALUE) ((_##TYPE##Vtable*)((TYPE*)VALUE)-&gt;vtable)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>下面是<code>spTimeline</code>结构体，相当于基类：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>typedef enum {
+</span><span class='line'>  SP_TIMELINE_SCALE,
+</span><span class='line'>  SP_TIMELINE_ROTATE,
+</span><span class='line'>  SP_TIMELINE_TRANSLATE,
+</span><span class='line'>  SP_TIMELINE_COLOR,
+</span><span class='line'>  SP_TIMELINE_ATTACHMENT,
+</span><span class='line'>  SP_TIMELINE_EVENT,
+</span><span class='line'>  SP_TIMELINE_DRAWORDER,
+</span><span class='line'>  SP_TIMELINE_FFD,
+</span><span class='line'>  SP_TIMELINE_IKCONSTRAINT,
+</span><span class='line'>  SP_TIMELINE_FLIPX,
+</span><span class='line'>  SP_TIMELINE_FLIPY
+</span><span class='line'>} spTimelineType;
+</span><span class='line'>
+</span><span class='line'>struct spTimeline {
+</span><span class='line'>  const spTimelineType type;
+</span><span class='line'>  const void* const vtable;
+</span><span class='line'>
+</span><span class='line'>#ifdef __cplusplus
+</span><span class='line'>  spTimeline() :
+</span><span class='line'>      type(SP_TIMELINE_SCALE),
+</span><span class='line'>      vtable(0) {
+</span><span class='line'>  }
+</span><span class='line'>#endif
+</span><span class='line'>};
+</span><span class='line'>
+</span><span class='line'>void spTimeline_dispose (spTimeline* self);
+</span><span class='line'>void spTimeline_apply (const spTimeline* self, struct spSkeleton* skeleton, float lastTime, float time, spEvent** firedEvents,
+</span><span class='line'>      int* eventsCount, float alpha);</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>typedef struct _spTimelineVtable {
+</span><span class='line'>  void (*apply) (const spTimeline* self, spSkeleton* skeleton, float lastTime, float time, spEvent** firedEvents,
+</span><span class='line'>          int* eventsCount, float alpha);
+</span><span class='line'>  void (*dispose) (spTimeline* self);
+</span><span class='line'>} _spTimelineVtable;
+</span><span class='line'>
+</span><span class='line'>void _spTimeline_init (spTimeline* self, spTimelineType type, /**/
+</span><span class='line'>void (*dispose) (spTimeline* self), /**/
+</span><span class='line'>      void (*apply) (const spTimeline* self, spSkeleton* skeleton, float lastTime, float time, spEvent** firedEvents,
+</span><span class='line'>              int* eventsCount, float alpha)) {
+</span><span class='line'>  CONST_CAST(spTimelineType, self-&gt;type) = type;
+</span><span class='line'>  CONST_CAST(_spTimelineVtable*, self-&gt;vtable) = NEW(_spTimelineVtable);
+</span><span class='line'>  VTABLE(spTimeline, self)-&gt;dispose = dispose;
+</span><span class='line'>  VTABLE(spTimeline, self)-&gt;apply = apply;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void _spTimeline_deinit (spTimeline* self) {
+</span><span class='line'>  FREE(self-&gt;vtable);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>void spTimeline_dispose (spTimeline* self) {
+</span><span class='line'>  VTABLE(spTimeline, self)-&gt;dispose(self);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>void spTimeline_apply (const spTimeline* self, spSkeleton* skeleton, float lastTime, float time, spEvent** firedEvents,
+</span><span class='line'>      int* eventsCount, float alpha) {
+</span><span class='line'>  VTABLE(spTimeline, self)-&gt;apply(self, skeleton, lastTime, time, firedEvents, eventsCount, alpha);
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>spTimeline</code>结构体的子类<code>spCurveTimeline</code>：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>typedef struct spCurveTimeline {
+</span><span class='line'>  spTimeline super;
+</span><span class='line'>  float* curves; /* type, x, y, ... */
+</span><span class='line'>
+</span><span class='line'>#ifdef __cplusplus
+</span><span class='line'>  spCurveTimeline() :
+</span><span class='line'>      super(),
+</span><span class='line'>      curves(0) {
+</span><span class='line'>  }
+</span><span class='line'>#endif
+</span><span class='line'>} spCurveTimeline;
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void (*dispose) (spTimeline* self), /**/
+</span><span class='line'>                void (*apply) (const spTimeline* self, spSkeleton* skeleton, float lastTime, float time, spEvent** firedEvents,
+</span><span class='line'>                                int* eventsCount, float alpha)) {
+</span><span class='line'>        _spTimeline_init(SUPER(self), type, dispose, apply);
+</span><span class='line'>        self-&gt;curves = CALLOC(float, (framesCount - 1) * BEZIER_SIZE);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void _spCurveTimeline_deinit (spCurveTimeline* self) {
+</span><span class='line'>        _spTimeline_deinit(SUPER(self));
+</span><span class='line'>        FREE(self-&gt;curves);
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>spCurveTimeline</code>结构体的子类<code>spBaseTimeline</code>：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>typedef struct spBaseTimeline {
+</span><span class='line'>        spCurveTimeline super;
+</span><span class='line'>        int const framesCount;
+</span><span class='line'>        float* const frames; /* time, angle, ... for rotate. time, x, y, ... for translate and scale. */
+</span><span class='line'>        int boneIndex;
+</span><span class='line'>
+</span><span class='line'>#ifdef __cplusplus
+</span><span class='line'>        spBaseTimeline() :
+</span><span class='line'>                super(),
+</span><span class='line'>                framesCount(0),
+</span><span class='line'>                frames(0),
+</span><span class='line'>                boneIndex(0) {
+</span><span class='line'>        }
+</span><span class='line'>#endif
+</span><span class='line'>} spBaseTimeline;</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void _spBaseTimeline_dispose (spTimeline* timeline) {
+</span><span class='line'>        struct spBaseTimeline* self = SUB_CAST(struct spBaseTimeline, timeline);
+</span><span class='line'>        _spCurveTimeline_deinit(SUPER(self));
+</span><span class='line'>        FREE(self-&gt;frames);
+</span><span class='line'>        FREE(self);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>/* Many timelines have structure identical to struct spBaseTimeline and extend spCurveTimeline. **/
+</span><span class='line'>struct spBaseTimeline* _spBaseTimeline_create (int framesCount, spTimelineType type, int frameSize, /**/
+</span><span class='line'>                void (*apply) (const spTimeline* self, spSkeleton* skeleton, float lastTime, float time, spEvent** firedEvents,
+</span><span class='line'>                                int* eventsCount, float alpha)) {
+</span><span class='line'>        struct spBaseTimeline* self = NEW(struct spBaseTimeline);
+</span><span class='line'>        _spCurveTimeline_init(SUPER(self), type, framesCount, _spBaseTimeline_dispose, apply);
+</span><span class='line'>
+</span><span class='line'>        CONST_CAST(int, self-&gt;framesCount) = framesCount * frameSize;
+</span><span class='line'>        CONST_CAST(float*, self-&gt;frames) = CALLOC(float, self-&gt;framesCount);
+</span><span class='line'>
+</span><span class='line'>        return self;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>spTimeline</code>结构体的子类<code>spAttachmentTimeline</code>：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>typedef struct spAttachmentTimeline {
+</span><span class='line'>        spTimeline super;
+</span><span class='line'>        int const framesCount;
+</span><span class='line'>        float* const frames; /* time, ... */
+</span><span class='line'>        int slotIndex;
+</span><span class='line'>        const char** const attachmentNames;
+</span><span class='line'>
+</span><span class='line'>#ifdef __cplusplus
+</span><span class='line'>        spAttachmentTimeline() :
+</span><span class='line'>                super(),
+</span><span class='line'>                framesCount(0),
+</span><span class='line'>                frames(0),
+</span><span class='line'>                slotIndex(0),
+</span><span class='line'>                attachmentNames(0) {
+</span><span class='line'>        }
+</span><span class='line'>#endif
+</span><span class='line'>} spAttachmentTimeline;
+</span><span class='line'>
+</span><span class='line'>spAttachmentTimeline* spAttachmentTimeline_create (int framesCount);</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void _spAttachmentTimeline_dispose (spTimeline* timeline) {
+</span><span class='line'>        spAttachmentTimeline* self = SUB_CAST(spAttachmentTimeline, timeline);
+</span><span class='line'>        int i;
+</span><span class='line'>
+</span><span class='line'>        _spTimeline_deinit(timeline);
+</span><span class='line'>
+</span><span class='line'>        for (i = 0; i &lt; self-&gt;framesCount; ++i)
+</span><span class='line'>                FREE(self-&gt;attachmentNames[i]);
+</span><span class='line'>        FREE(self-&gt;attachmentNames);
+</span><span class='line'>        FREE(self-&gt;frames);
+</span><span class='line'>        FREE(self);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>spAttachmentTimeline* spAttachmentTimeline_create (int framesCount) {
+</span><span class='line'>        spAttachmentTimeline* self = NEW(spAttachmentTimeline);
+</span><span class='line'>        _spTimeline_init(SUPER(self), SP_TIMELINE_ATTACHMENT, _spAttachmentTimeline_dispose, _spAttachmentTimeline_apply);
+</span><span class='line'>
+</span><span class='line'>        CONST_CAST(int, self-&gt;framesCount) = framesCount;
+</span><span class='line'>        CONST_CAST(float*, self-&gt;frames) = CALLOC(float, framesCount);
+</span><span class='line'>        CONST_CAST(char**, self-&gt;attachmentNames) = CALLOC(char*, framesCount);
+</span><span class='line'>
+</span><span class='line'>        return self;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>spTimeline</code>结构体的子类<code>spEventTimeline</code>：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>typedef struct spEventTimeline {
+</span><span class='line'>        spTimeline super;
+</span><span class='line'>        int const framesCount;
+</span><span class='line'>        float* const frames; /* time, ... */
+</span><span class='line'>        spEvent** const events;
+</span><span class='line'>
+</span><span class='line'>#ifdef __cplusplus
+</span><span class='line'>        spEventTimeline() :
+</span><span class='line'>                super(),
+</span><span class='line'>                framesCount(0),
+</span><span class='line'>                frames(0),
+</span><span class='line'>                events(0) {
+</span><span class='line'>        }
+</span><span class='line'>#endif
+</span><span class='line'>} spEventTimeline;
+</span><span class='line'>
+</span><span class='line'>spEventTimeline* spEventTimeline_create (int framesCount);</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void _spEventTimeline_dispose (spTimeline* timeline) {
+</span><span class='line'>        spEventTimeline* self = SUB_CAST(spEventTimeline, timeline);
+</span><span class='line'>        int i;
+</span><span class='line'>
+</span><span class='line'>        _spTimeline_deinit(timeline);
+</span><span class='line'>
+</span><span class='line'>        for (i = 0; i &lt; self-&gt;framesCount; ++i)
+</span><span class='line'>                spEvent_dispose(self-&gt;events[i]);
+</span><span class='line'>        FREE(self-&gt;events);
+</span><span class='line'>        FREE(self-&gt;frames);
+</span><span class='line'>        FREE(self);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>spEventTimeline* spEventTimeline_create (int framesCount) {
+</span><span class='line'>        spEventTimeline* self = NEW(spEventTimeline);
+</span><span class='line'>        _spTimeline_init(SUPER(self), SP_TIMELINE_EVENT, _spEventTimeline_dispose, _spEventTimeline_apply);
+</span><span class='line'>
+</span><span class='line'>        CONST_CAST(int, self-&gt;framesCount) = framesCount;
+</span><span class='line'>        CONST_CAST(float*, self-&gt;frames) = CALLOC(float, framesCount);
+</span><span class='line'>        CONST_CAST(spEvent**, self-&gt;events) = CALLOC(spEvent*, framesCount);
+</span><span class='line'>
+</span><span class='line'>        return self;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>spTimeline</code>结构体的子类<code>spDrawOrderTimeline</code>：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>typedef struct spDrawOrderTimeline {
+</span><span class='line'>        spTimeline super;
+</span><span class='line'>        int const framesCount;
+</span><span class='line'>        float* const frames; /* time, ... */
+</span><span class='line'>        const int** const drawOrders;
+</span><span class='line'>        int const slotsCount;
+</span><span class='line'>
+</span><span class='line'>#ifdef __cplusplus
+</span><span class='line'>        spDrawOrderTimeline() :
+</span><span class='line'>                super(),
+</span><span class='line'>                framesCount(0),
+</span><span class='line'>                frames(0),
+</span><span class='line'>                drawOrders(0),
+</span><span class='line'>                slotsCount(0) {
+</span><span class='line'>        }
+</span><span class='line'>#endif
+</span><span class='line'>} spDrawOrderTimeline;
+</span><span class='line'>
+</span><span class='line'>spDrawOrderTimeline* spDrawOrderTimeline_create (int framesCount, int slotsCount);</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void _spDrawOrderTimeline_dispose (spTimeline* timeline) {
+</span><span class='line'>        spDrawOrderTimeline* self = SUB_CAST(spDrawOrderTimeline, timeline);
+</span><span class='line'>        int i;
+</span><span class='line'>
+</span><span class='line'>        _spTimeline_deinit(timeline);
+</span><span class='line'>
+</span><span class='line'>        for (i = 0; i &lt; self-&gt;framesCount; ++i)
+</span><span class='line'>                FREE(self-&gt;drawOrders[i]);
+</span><span class='line'>        FREE(self-&gt;drawOrders);
+</span><span class='line'>        FREE(self-&gt;frames);
+</span><span class='line'>        FREE(self);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>spDrawOrderTimeline* spDrawOrderTimeline_create (int framesCount, int slotsCount) {
+</span><span class='line'>        spDrawOrderTimeline* self = NEW(spDrawOrderTimeline);
+</span><span class='line'>        _spTimeline_init(SUPER(self), SP_TIMELINE_DRAWORDER, _spDrawOrderTimeline_dispose, _spDrawOrderTimeline_apply);
+</span><span class='line'>
+</span><span class='line'>        CONST_CAST(int, self-&gt;framesCount) = framesCount;
+</span><span class='line'>        CONST_CAST(float*, self-&gt;frames) = CALLOC(float, framesCount);
+</span><span class='line'>        CONST_CAST(int**, self-&gt;drawOrders) = CALLOC(int*, framesCount);
+</span><span class='line'>        CONST_CAST(int, self-&gt;slotsCount) = slotsCount;
+</span><span class='line'>
+</span><span class='line'>        return self;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>spCurveTimeline</code>结构体的子类<code>spFFDTimeline</code>：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>typedef struct spFFDTimeline {
+</span><span class='line'>        spCurveTimeline super;
+</span><span class='line'>        int const framesCount;
+</span><span class='line'>        float* const frames; /* time, ... */
+</span><span class='line'>        int const frameVerticesCount;
+</span><span class='line'>        const float** const frameVertices;
+</span><span class='line'>        int slotIndex;
+</span><span class='line'>        spAttachment* attachment;
+</span><span class='line'>
+</span><span class='line'>#ifdef __cplusplus
+</span><span class='line'>        spFFDTimeline() :
+</span><span class='line'>                super(),
+</span><span class='line'>                framesCount(0),
+</span><span class='line'>                frames(0),
+</span><span class='line'>                frameVerticesCount(0),
+</span><span class='line'>                frameVertices(0),
+</span><span class='line'>                slotIndex(0) {
+</span><span class='line'>        }
+</span><span class='line'>#endif
+</span><span class='line'>} spFFDTimeline;
+</span><span class='line'>
+</span><span class='line'>spFFDTimeline* spFFDTimeline_create (int framesCount, int frameVerticesCount);</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void _spFFDTimeline_dispose (spTimeline* timeline) {
+</span><span class='line'>        spFFDTimeline* self = SUB_CAST(spFFDTimeline, timeline);
+</span><span class='line'>        int i;
+</span><span class='line'>
+</span><span class='line'>        _spCurveTimeline_deinit(SUPER(self));
+</span><span class='line'>
+</span><span class='line'>        for (i = 0; i &lt; self-&gt;framesCount; ++i)
+</span><span class='line'>                FREE(self-&gt;frameVertices[i]);
+</span><span class='line'>        FREE(self-&gt;frameVertices);
+</span><span class='line'>        FREE(self-&gt;frames);
+</span><span class='line'>        FREE(self);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>spFFDTimeline* spFFDTimeline_create (int framesCount, int frameVerticesCount) {
+</span><span class='line'>        spFFDTimeline* self = NEW(spFFDTimeline);
+</span><span class='line'>        _spCurveTimeline_init(SUPER(self), SP_TIMELINE_FFD, framesCount, _spFFDTimeline_dispose, _spFFDTimeline_apply);
+</span><span class='line'>        CONST_CAST(int, self-&gt;framesCount) = framesCount;
+</span><span class='line'>        CONST_CAST(float*, self-&gt;frames) = CALLOC(float, self-&gt;framesCount);
+</span><span class='line'>        CONST_CAST(float**, self-&gt;frameVertices) = CALLOC(float*, framesCount);
+</span><span class='line'>        CONST_CAST(int, self-&gt;frameVerticesCount) = frameVerticesCount;
+</span><span class='line'>        return self;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如果按照正确的<code>C++</code>析构函数写法，应该这么改：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void _spTimeline_deinit (spTimeline* self) {
+</span><span class='line'>  FREE(self-&gt;vtable);
+</span><span class='line'>    FREE(self);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>void _spCurveTimeline_deinit (spCurveTimeline* self) {
+</span><span class='line'>  FREE(self-&gt;curves);
+</span><span class='line'>  _spTimeline_deinit(SUPER(self));
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>void _spBaseTimeline_dispose (spTimeline* timeline) {
+</span><span class='line'>  struct spBaseTimeline* self = SUB_CAST(struct spBaseTimeline, timeline);
+</span><span class='line'>  FREE(self-&gt;frames);
+</span><span class='line'>  _spCurveTimeline_deinit(SUPER(self));
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>void _spFFDTimeline_dispose (spTimeline* timeline) {
+</span><span class='line'>  spFFDTimeline* self = SUB_CAST(spFFDTimeline, timeline);
+</span><span class='line'>  int i;
+</span><span class='line'>
+</span><span class='line'>    for (i = 0; i &lt; self-&gt;framesCount; ++i)
+</span><span class='line'>        FREE(self-&gt;frameVertices[i]);
+</span><span class='line'>    FREE(self-&gt;frameVertices);
+</span><span class='line'>    FREE(self-&gt;frames);
+</span><span class='line'>
+</span><span class='line'>  _spCurveTimeline_deinit(SUPER(self));
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>正当本渣以为解决了问题的一部分时，<code>Leaks</code>查出来的内存泄露并没有减少。本渣再次trace了下代码，这才发现spine这套析构函数多态机制之所以没问题，是因为根本不会有基类对象！坑爹啊！！</p>
+
+<p>本渣的下一个思路是把spine用到的结构体或类大小整理出来，和<code>Leaks</code>查出来的内存大小相比对，从而找到可疑的结构体，再相应去看它的实现代码。
+不过查出的泄露内存大小并不固定，这给本渣排查带来了很多不便。
+本渣在整理spine的结构体和类的同时也一点点地review代码，不知看了多久，最后总算在<code>SkeletonRenderer</code>的代码里捉到一处内存泄露bug：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void SkeletonRenderer::initialize () {
+</span><span class='line'>        _atlas = 0;
+</span><span class='line'>        _debugSlots = false;
+</span><span class='line'>        _debugBones = false;
+</span><span class='line'>        _timeScale = 1;
+</span><span class='line'>
+</span><span class='line'>        _worldVertices = MALLOC(float, 1000); // Max number of vertices per mesh.
+</span><span class='line'>
+</span><span class='line'>        _batch = PolygonBatch::createWithCapacity(2000); // Max number of vertices and triangles per batch.
+</span><span class='line'>        _batch-&gt;retain();
+</span><span class='line'>
+</span><span class='line'>        _blendFunc = BlendFunc::ALPHA_PREMULTIPLIED;
+</span><span class='line'>        setOpacityModifyRGB(true);
+</span><span class='line'>
+</span><span class='line'>        setGLProgram(ShaderCache::getInstance()-&gt;getGLProgram(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR));
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SkeletonRenderer::SkeletonRenderer () {
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SkeletonRenderer::SkeletonRenderer (spSkeletonData *skeletonData, bool ownsSkeletonData) {
+</span><span class='line'>        initWithData(skeletonData, ownsSkeletonData);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SkeletonRenderer::SkeletonRenderer (const std::string& skeletonDataFile, spAtlas* atlas, float scale) {
+</span><span class='line'>        initWithFile(skeletonDataFile, atlas, scale);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SkeletonRenderer::SkeletonRenderer (const std::string& skeletonDataFile, const std::string& atlasFile, float scale) {
+</span><span class='line'>        initWithFile(skeletonDataFile, atlasFile, scale);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void SkeletonRenderer::initWithData (spSkeletonData* skeletonData, bool ownsSkeletonData) {
+</span><span class='line'>        setSkeletonData(skeletonData, ownsSkeletonData);
+</span><span class='line'>
+</span><span class='line'>        initialize();
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void SkeletonRenderer::initWithFile (const std::string& skeletonDataFile, spAtlas* atlas, float scale) {
+</span><span class='line'>        spSkeletonJson* json = spSkeletonJson_create(atlas);
+</span><span class='line'>        json-&gt;scale = scale;
+</span><span class='line'>        spSkeletonData* skeletonData = spSkeletonJson_readSkeletonDataFile(json, skeletonDataFile.c_str());
+</span><span class='line'>        CCASSERT(skeletonData, json-&gt;error ? json-&gt;error : "Error reading skeleton data.");
+</span><span class='line'>        spSkeletonJson_dispose(json);
+</span><span class='line'>
+</span><span class='line'>        setSkeletonData(skeletonData, true);
+</span><span class='line'>
+</span><span class='line'>        initialize();
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void SkeletonRenderer::initWithFile (const std::string& skeletonDataFile, const std::string& atlasFile, float scale) {
+</span><span class='line'>        _atlas = spAtlas_createFromFile(atlasFile.c_str(), 0);
+</span><span class='line'>        CCASSERT(_atlas, "Error reading atlas file.");
+</span><span class='line'>
+</span><span class='line'>        spSkeletonJson* json = spSkeletonJson_create(_atlas);
+</span><span class='line'>        json-&gt;scale = scale;
+</span><span class='line'>        spSkeletonData* skeletonData = spSkeletonJson_readSkeletonDataFile(json, skeletonDataFile.c_str());
+</span><span class='line'>        CCASSERT(skeletonData, json-&gt;error ? json-&gt;error : "Error reading skeleton data file.");
+</span><span class='line'>        spSkeletonJson_dispose(json);
+</span><span class='line'>
+</span><span class='line'>        setSkeletonData(skeletonData, true);
+</span><span class='line'>
+</span><span class='line'>        initialize();
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>注意，<code>SkeletonRenderer::initWithFile</code>里为成员变量<code>_atlas</code>申请了内存空间，随后调用<code>SkeletonRenderer::initialize</code>，竟重置了这一指针，却没有释放内存！话说spine这段代码的C++类构造函数写得也真是醉：既然调用完<code>initWithFile</code>后不需要访问<code>_atlas</code>，那干脆用一个临时变量就可以了，何必用成员变量；而且<code>initialize</code>函数的不少赋值操作放在构造函数的初始化列表里比较合适。不过简单一点改，就直接调整下函数调用次序就好：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SkeletonRenderer::SkeletonRenderer () {
+</span><span class='line'>    initialize();
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SkeletonRenderer::SkeletonRenderer (spSkeletonData *skeletonData, bool ownsSkeletonData) {
+</span><span class='line'>    initialize();
+</span><span class='line'>    initWithData(skeletonData, ownsSkeletonData);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SkeletonRenderer::SkeletonRenderer (const std::string& skeletonDataFile, spAtlas* atlas, float scale) {
+</span><span class='line'>    initialize();
+</span><span class='line'>    initWithFile(skeletonDataFile, atlas, scale);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SkeletonRenderer::SkeletonRenderer (const std::string& skeletonDataFile, const std::string& atlasFile, float scale) {
+</span><span class='line'>    initialize();
+</span><span class='line'>    initWithFile(skeletonDataFile, atlasFile, scale);
+</span><span class='line'>}
+</span><span class='line'>void SkeletonRenderer::initWithData (spSkeletonData* skeletonData, bool ownsSkeletonData) {
+</span><span class='line'>        setSkeletonData(skeletonData, ownsSkeletonData);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void SkeletonRenderer::initWithFile (const std::string& skeletonDataFile, spAtlas* atlas, float scale) {
+</span><span class='line'>        spSkeletonJson* json = spSkeletonJson_create(atlas);
+</span><span class='line'>        json-&gt;scale = scale;
+</span><span class='line'>        spSkeletonData* skeletonData = spSkeletonJson_readSkeletonDataFile(json, skeletonDataFile.c_str());
+</span><span class='line'>        CCASSERT(skeletonData, json-&gt;error ? json-&gt;error : "Error reading skeleton data.");
+</span><span class='line'>        spSkeletonJson_dispose(json);
+</span><span class='line'>
+</span><span class='line'>        setSkeletonData(skeletonData, true);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void SkeletonRenderer::initWithFile (const std::string& skeletonDataFile, const std::string& atlasFile, float scale) {
+</span><span class='line'>        _atlas = spAtlas_createFromFile(atlasFile.c_str(), 0);
+</span><span class='line'>        CCASSERT(_atlas, "Error reading atlas file.");
+</span><span class='line'>
+</span><span class='line'>        spSkeletonJson* json = spSkeletonJson_create(_atlas);
+</span><span class='line'>        json-&gt;scale = scale;
+</span><span class='line'>        spSkeletonData* skeletonData = spSkeletonJson_readSkeletonDataFile(json, skeletonDataFile.c_str());
+</span><span class='line'>        CCASSERT(skeletonData, json-&gt;error ? json-&gt;error : "Error reading skeleton data file.");
+</span><span class='line'>        spSkeletonJson_dispose(json);
+</span><span class='line'>
+</span><span class='line'>        setSkeletonData(skeletonData, true);
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>改完这个bug，再重新跑<code>Instruments</code>的<code>Leaks</code>工具，结果之前的内存泄露都没有了，看来<code>SkeletonRenderer</code>的这处bug就是被检测出来的所有spine内存泄露的罪魁祸首！</p>
+
+<p>等到本渣兴高采烈想去提交一个PR时才发现，原来<code>spine</code>的repo上早有了fix该bug的<a href="https://github.com/EsotericSoftware/spine-runtimes/pull/461">patch</a>，cocos2d-x也有相同的<a href="https://github.com/cocos2d/cocos2d-x/issues/13150">patch</a>，看来还是要多跟进官方repo的进展啊&hellip;&hellip;这次查bug真是白耗精力，而且看了些spine的烂坑对自己也木有帮助，不开森:(</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2015/11/21/android-crash-in-cocos2d-x/">记一次cocos2d-x游戏android崩溃排查</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-21T22:53:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>最近查google breakpad回传的crash log，发现了不少<code>cocos2d::FileUtilsAndroid::getData</code>引起的崩溃。崩溃日志的关键信息如下：</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2015/11/21/android-crash-in-cocos2d-x/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2015/10/24/The-24-hour-Ring-by-Tyrolean-Festival-Erl/">蒂罗尔音乐节24小时音乐会版《指环》随想</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-10-24T23:19:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>一开始听说魔都要演指环（Der Ring Des Nibelungen）时，我还小纠结了下——虽然我并非Wagner迷，但也梦想着有朝一日能在拜罗伊特“圣地”感受下纯正的「总体艺术」，这次来演指环的是Gustav Kuhn指导的Tyrolean音乐节团，据说他们的制作也很正，自然也不想错过；但指环全剧正常演要四个晚上，恰恰这个月魔都其他好演出不少，一些像我所敬仰的小提琴怪杰Kremer携自己的弦乐团演「四季」的音乐会还是非去不可的，要再请四个晚上的假实在太奢侈了；而且瓦格纳这部作品结构之严谨我是知道的，不仅音乐上有各种主导动机串起来，而且剧情文本也各有呼应，与之对应的优秀制作也应该有一套一以贯之的设计理念，故而我也不想只看其中一部分，要看指环的话必然四部（《莱茵的黄金》《女武神》《齐格弗里德》《诸神的黄昏》）一齐看完——于是便自欺自慰，反正来演的不是我最钟爱的瓦格纳乐剧《特里斯坦与伊索尔德》——这也是我个人所认为的瓦格纳最杰出的作品——可看可不看。后来钟神向我科普了这次24小时版指环的演法，我才知道原来这次指环正剧要在一天内演完。这下四个晚上就变成两个晚上了，大大消除了我的疑虑。而且这么丧狂的演出我从未遇过，想想大半夜看《齐格弗里德》就让人血脉贲张——不像一般乐迷担心熬夜，本渣在我厂也是身经百战，见得多了，再说十一点开始的《齐格弗里德》演完怎么说也在五点前，熬这点夜那还不是轻松加愉快XD于是在钟神安利下，本渣最终入了坑。这次指环全剧一路看下来确实过瘾，不过熬夜看《齐格弗里德》虽没什么，但我早上回去后还是睡过了头，错过了《诸神的黄昏》前面命运三女神编织指环命运之绳的要紧处，略为可惜，可也因此“面基”了“斗牛”而来的朋友翔哥，一起看完了指环的大结局。人生第一次现场听指环总有不少感想想一吐为快，因此便有了这篇不正经的指环repo啦～不过本渣不是乐迷大神，无甚高见；更不是职业音乐家或乐评人，以区区审美水平绝不敢妄加评论，所以这和自己blog里几篇文章相似，只是一些纯粹胡言乱语的聆乐感想罢了～</p>
+
+<h2>乐团</h2>
+
+<p>不同于拜罗伊特把乐团放入乐池，这次乐团直接在上交大厅台上演奏，歌唱家主要都在舞台前方演唱。不巧，由于买的是票是位置不佳的“入场券”，《莱茵黄金》我坐的是H区，《女武神》《齐格弗里德》一开始也在H区I区，都是背对乐队和歌手、面朝指挥的位置。虽然乐团听得很清楚，但正如如钟神所说，乐团实在太炸，演唱者的声音常常被湮没。到了《女武神》第二和第三幕，我见上座率不高，便去蹭座，和钟神坐到了正面最后排，效果好多了。后来《诸神黄昏》我坐B区，尽管音效是炸，但对这澎湃的声浪也不介意了，反而觉得够味儿。不过对此翔哥倒是有点听不惯，毕竟瓦格纳这“颓废”艺术家（尼采语，不过“颓废”一词并非我们通常所用的那个贬义词那么简单）的“无病呻吟”可不是每位爱乐者都喜欢的。</p>
+
+<p>老实说，这次的乐团其实比较糙，铜管破音太常见。但本器乐党在《女武神》幕间休息时遇到钟神，被钟神“教育”了：这次本来就不是听乐团的，乐团和合唱团都不是职业音乐家，可能平时是种地的，只是音乐节凑起来演出而已。不过我想这也还好，反正拜节的团也差不多嘛，单演前奏曲可能逊于职业乐团，但整部乐剧的效果可不一定就差。钟神说，这次主要还是要听唱的，那么我们就来看看歌唱家们的表现如何。</p>
+
+<h2>演唱</h2>
+
+<p>记得在凌晨演完《齐格弗里德》后，钟神对这次演出大加赞赏，说「没有一个角是唱得不好的」，完胜10年指环。老实说，作为非瓦迷的本渣，不仅瓦剧的版本刷得少，之前从未现场看过瓦剧，而且声乐相关的都听得少，所以以我这「听个响」的渣渣水平尚无法体会每个角唱的妙处，但某些歌唱家确实出色，给我留下了深刻印象。</p>
+
+<p>这次指环最让我印象深刻的歌唱家毫无疑问是饰演《女武神》中齐格琳德（Sieglinde）的瓦格纳女高音Marianna Szivkova，她可不一味追求高分贝，猛烈爆发之时固然震撼人心，细若游丝之处也扣人心弦，连本渣这双笨拙的木耳也被征服了。
+个人认为《女武神》是指环中最富悲剧色彩的乐剧——更胜《诸神的黄昏》一筹——其中齐格蒙德（Siegmund）和齐格琳德这对歹命兄妹的悲剧无疑是其中的重头戏：齐格蒙德这个角色一生不幸，逃难还偏偏误闯仇人家，做了大死，好不容易在第一幕末尾取得了父亲沃坦留下的诺丁剑、并收获了孪生妹妹的甜蜜爱情，让没被剧透过的观众以为已经带上了人生赢家的主角光环，万万没想到最后却成为了诸神意志的牺牲品；齐格琳德则是瓦格纳所塑造的一位以爱情完成救赎的伟大女性（这类角色在瓦剧中简直太多了，例如《漂泊的荷兰人》中的珊塔、《汤豪舍》中的伊丽莎白，指环中除了齐格琳德便是布伦希尔德了），也正是这位伟大女性留下了对抗指环诅咒拯救世界的希望——英雄齐格弗里德。
+可惜，这次扮演齐格蒙德的Andrew Sritheran真是弱多了，而且一开始看到他的扮相，我还在奇怪怎么是洪丁（Hunding）先跑上来了，只是听到那娘炮的男高音才知道不是洪丁&hellip;
+原本齐格蒙德在第一幕中讲述身世、第二幕得知自己命运后回复布伦希尔德都是极有悲剧冲击力的唱段，可惜Sritheran的演唱却让我“出戏”。
+倒是Szivkova在第一幕中唱齐格琳德被嫁洪丁的身世及在第二幕中哭喊自己是不洁之人、预感悲剧降临等唱段让人颇为动容。
+在幕间和钟神交流时，钟神也表示去年科隆指环是齐格蒙德唱得比齐格琳德好，这次却完全相反。
+有那么优秀的齐格琳德，却缺乏一个给力的齐格蒙德，也只能脑补下著名瓦格纳男高音Peter Hofmann来唱齐格蒙德的情形了。</p>
+
+<p>谈到《女武神》的悲剧人物，自然少不了众神之王沃坦（Wotan）。沃坦想掌握统治世界的力量，又不愿意放弃爱情，到头来一无所有；想使众神免于指环诅咒所带来的毁灭，机关算尽，却受阻于自己赖以称王的规则和契约。到了《齐格弗里德》，沃坦终于放弃种种努力，向埃尔达（Erda）表明自己接受诸神的命运，视死如归般败给齐格弗里德，拿着折断的权柄之矛怅然离去，成为一个彻头彻尾的叔本华式的人物，而《女武神》中沃坦哀叹自己是最不自由之人的唱段无疑是极关键的铺垫。然而，个人觉得这次饰演沃坦的Franz Hawlata的演唱还不够丰满。</p>
+
+<p>既然提到了沃坦，那就不妨也说说他的正室弗利卡（Fricka）。虽说弗利卡是《女武神》中沃坦、威松族和布伦希尔德不幸的直接起因，但我觉得联系《莱茵黄金》来看，弗利卡也算是一个悲剧人物：她原本希望通过建造瓦哈拉城来为沃坦提供一个安歇之家，让他安心在家过着老婆孩子热炕头的幸福生活，没想到却因瓦哈拉城为诸神带来不幸，沃坦为寻找解救之术而漂泊四方；原本希望沃坦赢得指环，借助指环的力量来使丈夫忠贞不二，没想到指环的诅咒却使沃坦不得不求助于埃尔达的智慧、不得不寄望于与自己有血缘关系从而能完成自己意志的人类，于是便有了女武神和威松族这些他不忠于婚姻而生的后裔，这无疑重重打了身为婚姻女神的弗里卡一记耳光。这次饰演弗利卡的Hermine Haselböck还是挺令我满意的，个人认为她是这次饰演众神角色的歌唱家中唱得最好的。</p>
+
+<p>相较之下，《女武神》的女英雄——犯忌了，英雌，英雌，女权主义者们表喷本渣——布伦希尔德（Brünnhilde）不够理想，听她唱高音的部分飚得略吃力，而且戏剧表现力不足，第三幕开头简直被Szivkova唱齐格琳德愿意以死殉情的唱段完爆。这不由让我为她接下来的两部——尤其布伦希尔德吃重的《诸神黄昏》——而暗暗担心，好在在《齐格弗里德》第三幕中，布伦希尔德扳回一城。《诸神黄昏》中，虽说布伦希尔德在第三幕真相大白后投火殉情、以爱情洗刷指环的邪恶诅咒的高潮比较一般，但第二幕中在哈根怂恿下发誓向背叛的齐格弗里德复仇的部分很有戏剧张力，这段剧情瓦格纳借以彰显女性的毁灭力量，这也是他作品中常见的一大主题。后来我才知道，这三场的布伦希尔德由不同的歌唱家来饰演：《女武神》中演唱者是Bettine Kampp，《齐格弗里德》中演唱者是Nancy Weissbach，而《诸神黄昏》中演唱者是Mona Somm。</p>
+
+<p>《齐格弗里德》中除了布伦希尔德，饰演<del>男英雌</del>英雄齐格弗里德的Gianluca Zampieri表现也相当出色。个人觉得瓦格纳所塑造的这一“超人”其实就是无知者无畏的逗逼（难怪被尼采喷XD），Zampieri不仅铸剑歌唱得让人热血沸腾（当时唱完后不少观众都hold不住了热烈鼓掌），而且很好地表现了这一逗逼属性（真心不是黑），第三幕齐格弗里德初遇布伦希尔德、卸下她头盔解开她胸甲后惊呼「这不是男人」，虽然我早就知道这个梗，但还是不禁为这“恶意卖萌”会心而笑。更难得的是，布伦希尔德和指环中的丑角迷魅（Mime，演唱者为Wolfram Wittekind）都十分给力，这也使《齐格弗里德》成为了蒂罗尔音乐节这次指环在我心目中最佳的一部，可惜这部剧在我心目中并非瓦格纳的优秀剧作，例如第三幕齐格弗里德和布伦希尔德的爱情“二人转”便难以企及《特里斯坦与伊索尔德》第二幕的高度。</p>
+
+<p>而《诸神黄昏》中最出色的要算哈根（Hagen）的演唱者Andrea Silvestrelli。个人认为哈根这个角色其实并没有反角那么简单，这也许也是瓦格纳从《尼伯龙根之歌》中<del>抄</del>借鉴来的缘故。在《尼伯龙根之歌》中，哈根算是一位智勇双全的英雄；在瓦格纳的《尼伯龙根之歌》中，哈根虽然与火神洛格（Loge）一样是指环中的幕后操纵者——只不过对于观众来说，哈根在明处，有点像《纸牌屋》中的Franck Underwood；而洛格隐藏得很深，有点像《冰与火之歌》中的小指头Petyr Baelish（后面再稍微说说）——有奸邪的一面，但还是保留了《尼伯龙根之歌》枭雄的痕迹——毕竟勇于挑战而且能够击毙像齐格弗里德这种开了挂的属性逆天、自带无敌护盾的boss的人物绝非凡夫俗子——而这种英雄气概很好地表现在哈根召集群众举办婚礼、以及在婚礼上“正气凌然”地要求齐格弗里德和布伦希尔德对着他的矛尖宣誓的唱段。Silvestrelli的演唱出色地体现了这位“尼伯龙根之子”的一体两面——狡诈与英勇。之前他还在《莱茵黄金》和《齐格弗里德》中唱法弗那（Fafner），巨人的唱段相对单调一些，如果没有哈根让他大展歌喉，倒是有些委屈了这位优秀男低音。</p>
+
+<!--
+《莱茵黄金》的阿尔贝利希
+-->
+
+
+<h2>戏剧</h2>
+
+<p>瓦格纳的指环既然是乐剧——音乐的戏剧——戏剧自然不比音乐次要，可惜我尽管在欣赏音乐方面还算有点半吊子水平，但在欣赏戏剧方面则完全一窍不通，所以只能说说外行的一点浅见。翔哥在戏剧欣赏方面可算是业余爱好者中的行家，研究莎剧颇有心得（在此推荐下他在知乎上的一些回答：<a href="http://zhihu.com/question/20248312/answer/59033863?utm_campaign=webshare&amp;amp;utm_source=weibo&amp;amp;utm_medium=zhihu">1</a> <a href="http://zhihu.com/question/22038243/answer/66987778?utm_campaign=webshare&amp;amp;utm_source=weibo&amp;amp;utm_medium=zhihu">2</a> <a href="http://zhihu.com/question/29850921/answer/56693268?utm_campaign=webshare&amp;amp;utm_source=weibo&amp;amp;utm_medium=zhihu">3</a>），可惜他目前对瓦格纳无甚好感，否则自然能从瓦剧中得到我可能绞尽脑汁也分析不来的独到解读。</p>
+
+<p>这次的指环由于是在上交厅，受限于舞台，所以演的是音乐会版歌剧，布景道具等各方面难免“简陋”：《莱茵黄金》中，从阿尔贝利希“发现”黄金开始，我还以为自己瞎了狗眼，始终看不见所谓黄金，只有在最后他声称夺走黄金时才有剧务人员举着一个白球递给他，毫无违和感（吗？）；阿尔贝利希变身蛤蛤的一段，剧务举起一只萌萌哒大蛤蛤折纸，全场都蛤蛤了；被我周围观众吐槽的还有沃坦一直引以为豪却不见踪影的矛，一开始我还在想这是否是故意把矛解读成沃坦“皇帝的新衣”，但后来矛却又出现了，可在齐格弗里德战胜沃坦、打断他的矛这一段中又没有，倒让我怀疑是自己想多了，可能只是道具有问题&hellip;蒂罗尔音乐节的这版制作不乏现代元素的挪用，也不乏脑洞——个人认为指环其实挺适合开脑洞的——但总体来说还是挺传统的，与诸如13年拜节Frank Castorf那版被嘘的制作相比，脑洞开得不大，易于大众接受，不过个人觉得这也因此使某些现代元素止于舞台表演的表面，而无法展现更深刻独到的诠释，例如女武神骑单车的“骑行”基本就是宣传用的噱头罢了。然而，一些细节还是挺能体现这版制作的匠心的，而且也没有象征主义先锋派那些晦涩的神秘面纱，因此其中妙处像我这种戏剧外行也能从中窥见一斑，以下仅举几个印象深刻的例子。</p>
+
+<p>《莱茵黄金》中，巨人法索特与法弗那分别以穿着印有他们名字的球衣的橄榄球员和冰球员的形象出现。除了以表面看起来体格厚实来象征巨人以外，橄榄球和冰球都是身体对抗相当激烈、球场斗殴屡见不鲜的运动，这也和巨人的强硬野蛮对应。幸福之神弗罗则是一副高尔夫球员的打扮，与之形成对比，以此暗示众神与巨人之间的贵贱有别。</p>
+
+<p>之前提到哈根和火神洛格是指环中的两大阴谋家，这版制作中安排两人吃苹果的细节颇可玩味：苹果在西方文明中不仅是智慧果，而且象征了欲望和原罪。哈根比较明显自不必说，洛格在我看来是指环中的反派大boss——这在北欧神话中确实如此，我想瓦格纳取材的时候也保留了这一设定：一开始沃坦和巨人达成协议便是洛格怂恿；沃坦夺取指环也是洛格引诱；等到《莱茵黄金》落幕后沃坦为解开指环诅咒四处奔波，洛格却不见踪影；最后布伦希尔德葬身火海、大火蔓延至瓦哈拉城带去了诸神的黄昏，这一切却成就了火神的荣耀。甚至我觉得《莱茵黄金》一开始尼伯龙根族的阿尔贝利希会想去找莱茵三女示爱颇为可疑，从阿尔贝利希认识洛格以及莱茵三女请求洛格归还指环来看，这很可能也是洛格下的这盘大棋中的一大手笔，算准了阿尔贝利希把妹失败以及会弃绝爱情转而追求至上权力。在蒂罗尔音乐节这版制作中，洛格一副银行家、经理人式的现代打扮，倒是很符合这个角色老奸巨猾的特点。</p>
+
+<h2>感想</h2>
+
+<p>在《诸神黄昏》幕间，我和一位阿姨攀谈了一会，她表示看到不少观众年纪轻轻就喜欢瓦格纳觉得很不可思议，还跟我说她一位朋友从我这个年纪就开始看瓦剧，现在光是指环便看了三十多场。作为非瓦迷，我倒是没有这份真爱，也不觉得自己一生会看三十场瓦剧，但是第一次现场看瓦剧便碰上了这么高水平的指环，确是我人生幸事。固然，我也yy过：假如这次不是24小时连着演，可以让乐手和歌手免于疲劳，或许水平还能更高；假如这次不是在上交厅，而是在一个歌剧院，或许这次的“五毛钱特效”会上一档次，能更有空间和条件制作出更优秀的“整体艺术”。但话说回来，如果不是连着演，我也可能因为搬砖而错过了这场演出；而且就像钟神所讲的，有那么多亮点，真心够了。演出结束后，我也见到了我平生所经历的最长的standing ovation（据说长达二十分钟），非独是为庆祝瓦格纳这部大作演出成功，更是为台上倾情奉献的艺术家们喝彩。</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2015/09/18/ui-workflow-for-cocos2d-x-project/">cocos2d-x前端开发UI流程</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-09-18T23:22:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>手游前端开发中有一项很基础的流程，就是把美术资源拼成程序能用的UI界面。由于cocos2d-x并没有一套成熟的工具链，我们最开始是由美术大大们出效果图和切图资源，然后我们码农根据效果图，在<code>C++</code>代码中写设置位置、大小等界面逻辑。这种原始的人肉写界面代码的方法需要编译、链接、运行后才能看到最终的界面效果，如果效果不满意还需要重新来一遍，无疑大大降低了开发效率——说起来都是泪啊555&hellip;&hellip;在经过一个多月挣扎之后，我们后来采用了<code>cocostudio</code> v1.0这个编辑器。虽然<code>cocostudio</code>还很不成熟，要让美术大大们上手也有难度，这项工作还是我们码农来做的，但相比之前好多了：<code>cocostudio</code> v1.0可以自动生成一个界面UI的配置json文件及其所需要的多张图集，免去了许多界面代码的编写和调试，而且将多张图片合并成图集可以减少draw calls开销。可是，随着系统越做越多，这一编辑器的弊端就越发明显。除了这个工具本身的bug导致各种所见非所得、给开发带来不便以外，由它自动生成的图集也带来了严重的问题：</p>
+
+<p>一是我们无法指定图集里有哪些图片。这又引发了不同系统共用的图片被加到不同图集里的问题，因为我们无法把共用图片管理起来，去指定UI编辑器使用共用的资源、不要把共用图片和每个系统各自的图片放到同一张图集里。后来我们开始做多语言版本，无法管理图集里的图片资源这一问题就更为严重了。</p>
+
+<!--
+：因为同一张图片多语言版本的，图片大小一变，由`cocostudio`切分的多张图集。
+-->
+
+
+<p>二是该UI编辑器生成的图集对图片的packing算法并不理想，导致图集尺寸和文件大小偏大，而图片尺寸和大小一直是cocos2d-x游戏内存和存储空间占用的大头。</p>
+
+<p>本渣虽然早就有心想针对这些问题去革新这套UI流程，无奈大家的开发工作一直繁重。最近正好运营市场的大大们不知怎么就拍脑袋要给我们游戏换皮，把目前所有的UI界面全部换掉。趁着这么个<del>劳民伤财的</del>机会，本渣研究出一套更好的UI流程，因此也被组里暂时<del>甩给这个烫手山芋</del>委以前端开发负责人的重任，带领大家在有限的时间内按照新流程去完成换皮&hellip;&hellip;</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2015/09/18/ui-workflow-for-cocos2d-x-project/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2015/09/05/Shlomo-Mintz-Plays-Bach-Partita-for-Solo-Violin/">Shlomo Mintz演奏巴赫小无组曲</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-09-05T23:59:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>九月初以色列小提琴家敏茨（Shlomo Mintz）来魔都演奏全本巴赫小无，这算是继今年四月份古特曼（Natalia Gutman）演奏全本巴赫大无之后魔都乐迷们的又一大幸事了。原本作为这两部作品的脑残粉，敏茨的这两场独奏会本渣也是非去不可的，然而演出时间却让本渣真心尴尬——周六晚和周一晚平时都得上班——幸而今年反法西斯胜利纪念日法定放假，使我厂不得不双休，本渣也得以赶上了周六晚上的小无组曲（BWV1002、1004和1006）专场。</p>
+
+<p>上半场是BWV1006和1002，敏茨显得谨慎而克制，然而似乎却有些拘谨过了头。1006的Loure敏茨拉得磕磕碰碰，Gavotte en Rondo也有些死气沉沉，这倒让我想起卡岗（Oleg Kagan）来——我曾盛赞他在79年演奏1002和1004的现场录音（Live Classics），觉得远胜于他在89年的现场录音（Erato），认为后者处理随意、错误较多，不及前者严谨精准。后来又收了另一张有卡岗在79年现场演奏1006的唱片（同样出自Live Classics厂牌），这一组曲与敏茨一样的规规整整，但觉得反倒不及Erato版那么有灵气了。而敏茨在vibrato的运用上比卡岗的79年现场还要克制，尽管他完全能做出迷人的揉音。
+我也注意到敏茨是个拉“长弓”的高手，不少地方他都是一弓拉完原本应该分几弓拉的音符，音质饱满而拉来又似毫不费力。然而敏茨拉和弦的方式却实在令我难以接受：他用了很大的力道快速“砍”弓，手中的乐器却似乎不大听使唤，发出了较大的摩擦声，这在1002的Sarabande中十分明显，听来有与曲风格格不入之感。此外，一些像1002的Allemande等段落，敏茨一些和弦拉得并不稳，有时候某个双音会短暂变身为其中一个音再还原为双音&hellip;&hellip;</p>
+
+<p>去年恰好哈恩（Hilary Hahn）曾来魔都拉过1006，无论是她那晚的演奏还是她在Sony录的那张著名的巴赫小无选曲专辑，都比今晚敏茨在上半场演奏得更有匠心和意趣——当时我一位朋友形容她拉得“浪”，倒也贴切——音色也更为圆润。然而下半场的BWV1004，敏茨很快就向我们展现了哈恩那张专辑中所欠缺的结构上的考虑以及表现这些考虑所需要的高超技巧（不过我倒不想以此黑这张唱片和哈恩，毕竟她当时才16岁，与其去苛求这么一位少年老练成熟得像六十多岁录这部作品的Szigeti，倒不如去静下心来感受她对巴赫的感性理解。我个人也有哈恩的这张CD，对我而言，这不算是一张出色的巴赫小无唱片，但却是一张能出色体现哈恩特点的唱片：哈恩在这张唱片中干净的运弓以及自然优雅的tone恐怕是不少比她年长的小提琴家所梦寐以求而又求之不得的，更何况小小年纪竟在自己的第一张专辑挑战这一艰深作品，如此勇气及成就颇为难得。）。
+尽管敏茨在一开始的Allemande就有音准问题，Ciaconna也有音符遗漏和记忆错误，但他的1004仍让我简直佩服得五体投地。
+此时敏茨似乎放开了，处理得自由许多：Sarabande的力度变化和分句让本渣耳目一新，弱奏颇为动人。但最让我叹服的还是要数Ciaconna。印象中敏茨曾在某次大师课上说这首作品要演奏出管风琴的味道，而他此次现场演奏正是这一理念的杰出演绎。其中印象最深的无疑是以下这一段：</p>
+
+<p><img src="/blog/images/BWV1004/Chaconne-arpeggio.png"></p>
+
+<p>上图所示的这段琶音是我个人所认为的恰空（Chaconne/Ciaconna）中间最为困难的段落之一，不仅技术上要求高，而且具有丰富多样的解读和表现方式。作为巴赫小无脑残粉，各名家的版本我多多少少听了一些，赞赏喜欢的也有不少，其中就包括哈恩黛尔（Ida Haendel）在大T（Testament）的录音。不久前我恰好在微博上和许海峰老师聊到这个版本，许老师认为哈恩黛尔有些顾此失彼，在音乐性和流畅性上稍欠些，然而我却认为这张或许是我所听过的最慢的巴赫小无「惜音如金」，哈恩黛尔在八十多岁的高龄还能在结构和音符清晰这方面做到如此极致，实属不易。在上述琶音的后半段（109小节开始）：</p>
+
+<p><img src="/blog/images/BWV1004/Chaconne-arpeggio-2.png"></p>
+
+<p>哈恩黛尔清清楚楚地将内声部的进行呈现出来，这是不少小提琴家没有注意或者没有做到的，帕尔曼（Perlman）在EMI的录音、甚至包括敏茨在DG的录音都有着类似的思路，但在我听来效果似乎不及哈恩黛尔的大T录音。这种突出内声部的处理需要以双音而非单音来拉每个分解和弦。这说来简单，实则不易，光是以下这个指法别扭的和弦就够麻烦，非但本渣这种琴艺不精的爱好者如此，就连Ilya Kaler这样还算优秀的职业小提琴家，在他Naxos的录音中也可以听出吃力之感（PS.最近恰好有几位舍友在学吉他，这个和弦就有点像他们所说的「大横按」的味道）：</p>
+
+<p><img src="/blog/images/BWV1004/Chaconne-arpeggio-3.png"></p>
+
+<p>而今晚敏茨让我大为咋舌的地方正在于此，敏茨也使用了这种突出内声部的处理手法，而且不仅仅是109小节开始的后半段，而是这整一段分解和弦！更何况他演奏得那么轻松流畅！</p>
+
+<p>最后敏茨还向观众们奉献了一首特别的encore。一开始他拉了一小段1006的Prelude，随后突然停住，开始即兴演奏起来，其中穿插着炫技和巴赫小无的片段。敏茨的高超技巧和音乐再次让人惊叹，他也让我这位「米粉」联想起米尔斯坦（Milstein）大师来：米尔斯坦大师极推崇巴赫和帕格尼尼的作品，也擅长即兴演奏；而帕格尼尼24首随想曲恰也是敏茨的重要录音之一，今晚的独奏会又把他演奏巴赫小无和即兴演奏的实力展现无遗，从敏茨身上仿佛有着米尔斯坦大师的影子。</p>
+
+<p>老实说，听完了今晚的小无组曲，我反倒更想去听周一晚上的小无奏鸣曲（BWV1001、1003、1005）了，不仅是那三段Fuga与Ciaconna一样考验功力，而且还有我特别喜欢的BWV1001中迷人的Siciliana。只可惜本渣最近还要<del>填某个烂坑</del>在某烂坑上挖坑，压力山大，实在无暇。独奏会结束后，我在一门口看到大家在排队等签名，于是便拿出带来的曲谱前去索要签名了（我没有敏茨个人的唱片，倒是有一套helicon发行胡贝尔曼音乐节三十周年的唱片，里面包含了谢林、斯特恩、敏茨、帕尔曼、哈恩黛尔、吉特里斯、祖克曼等赫赫有名的小提琴名家的演奏，不过这套当时也没带上），顺便向大师表达了我的赞美和谢意。能与大师有这样的交流倒是意外的收获，这多多少少弥补了一些我的遗憾。</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2015/08/19/detect-lua-mem-leak-in-quick-x/">检测quick-cocos2d-x游戏的lua内存泄漏</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-08-19T11:53:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>虽然lua有垃圾回收机制，但在使用quick-cocos2d-x和lua开发游戏还是会有不恰当的实现方式所导致的lua内存泄露（例如对cocos2d-x的<code>Node</code>对象做了<code>retain</code>却没有<code>release</code>、把<code>local</code>变量定义成全局变量、没有根据instance的lifecycle去释放它所占有的资源等等）。最近看到云风大神写的lua内存泄露检查工具<a href="https://github.com/cloudwu/lua-snapshot">lua-snapshot</a>，便萌发了将它集成到我们游戏开发中，作为quantity assurance中一环。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2015/08/19/detect-lua-mem-leak-in-quick-x/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2015/08/16/Bach-Six-Suites-for-Solo-Cello/">胡言乱语话大无</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-08-16T16:39:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>最早是写给要本渣安利古典音乐汁圆的好基友滴，干脆再把本小白的胡言乱语放出来祸害下其他小白报复社会好了XD</p>
+
+<hr />
+
+<p>这次就说说巴赫的六首无伴奏大提琴组曲（简称「大无」，作品编号依次从BWV1007到1012，大家习惯用编号来指代作品）吧。</p>
+
+<h1>缘起</h1>
+
+<p>先碎碎念会吧～本渣最早接触巴赫的无伴奏其实是小提琴无伴奏奏鸣曲与组曲（奏鸣曲（Sonata）三首、组曲（Partita）三首，一共也是六首，简称「小无」，编号从BWV1001到1006），当时是在初中学了巴赫小无第三组曲的Gavotte，后来出于对第二组曲最后著名的Chaconne的喜爱，在大一大二时开始练习这首曲子。不过当时还只是有一些十分粗浅的感性认识，在收了不少乐迷大神的巴赫小无资源后，本渣得以从众多小提琴家的演奏中扩展自己的视野。受限于个人的渣渣水平，本渣那个时候也只是将和自己口味的一些演绎拼凑成自己的演奏，对曲子的了解很表面，甚至还有不少读谱错误，遑论有自己的探索和见解。自从练了Chaconne之后，这首曲子几乎成了本渣每次必练的曲目，后来也逐渐去了解它的背景和结构。但促成本渣去深入探索这些曲目的，倒不是之前听过的众多小提琴家的版本，而是两位非小提琴家：一位是<strong>古尔德</strong>（<strong>Glenn Gould</strong>，这位加拿大怪杰如此有才，仅仅称他为“钢琴家”是不够的），古尔德另辟蹊径地演奏了巴赫的键盘作品，不仅体现了精确的对位之美，挖掘了例如哥德堡变奏曲等被人忽略或简单化处理的曲目，而且对于后辈晚生们突破演奏标准的条条框框去发展自己对经典作品的诠释是莫大的激励（当今法国女钢琴家海伦-格里莫（Helene Grimaud，因她养狼，故而乐迷们也送一绰号「狼女」）也曾表示受古尔德启发颇大）；另一位是俄罗斯大提琴家<strong>罗斯特罗波维奇（Mstislav Rostropovich）</strong>，老罗在60多岁时决定录全本巴赫大无，当时他找了法国小镇Vezelay的一个古老教堂作为录音场所，不仅录了音，还留下了一段著名视频，视频中不仅有演奏，还有老罗讲他自己的一些心得——个人推荐看看，反正youtube应该有的是，如果木有的话，本渣之前也传了上下两段在墙内：</p>
+
+<p><a href="http://v.youku.com/v_show/id_XNjk3MDM2OTc2.html">http://v.youku.com/v_show/id_XNjk3MDM2OTc2.html</a></p>
+
+<p><a href="http://v.youku.com/v_show/id_XNjk3MDA4NzE2.html">http://v.youku.com/v_show/id_XNjk3MDA4NzE2.html</a></p>
+
+<p>也正是当时看了老罗的这个视频，使本渣对巴赫大无有了更深一层的认识，其中老罗的一些精彩讲解本渣至今还记忆犹新——例如老罗在讲第三组曲的骨干音时提到了蝴蝶被针扎住、想要挣脱却无能为力、最终耗尽力气成为标本的意象，还有第五组曲Prelude中隐含的赋格，还有第六组曲老罗在管风琴上弹奏Allemande等等）——这些反过来也影响了本渣演奏巴赫小无，不仅在理性上去加深理解，而且在感性上去更深切地体会这些作品背后的人文内涵。</p>
+
+<p>对本渣来说，与巴赫大无的结缘与小无相反，小无是因练习发端，后来听唱片逐渐增进了解；而大无则是一开始是听了录音颇为喜欢，后来在这套曲目的唱片越听越多而百听不厌之际，自己也开始练习大无的小提琴改编版本（这段时间在想这套曲目完全可以作为练习曲的替代）。相比起小无，大无在结构上也显得更为规范些，基本由古组曲（起源于欧洲一些国家的民间舞曲，后来有些被用于宫廷而发生改变，有种说法是老巴赫那时候这些曲子已演变为一种纯粹的作曲形式，不会有人跳了）所组成，前面再加一首Prelude，在末尾的Gigue前通常由两首同一组曲体裁的小曲A和B组成，采用A+B+A形式：</p>
+
+<ol>
+<li><p>Prelude（序曲一般定下基调）</p></li>
+<li><p>Allemande</p></li>
+<li><p>Courante</p></li>
+<li><p>Sarabande（萨拉班德一般是核心）</p></li>
+<li><p>不固定：第一和第二组曲（BWV1007、1008）是两首Menuet、BWV1009-1010是两首Bourée，BWV1011-1012是两首Gavotte</p></li>
+<li><p>Gigue</p></li>
+</ol>
+
+
+<p>具体的相关资料各位看官可以google或者参考<a href="http://www.douban.com/note/363363875/">豆瓣上的中文资料</a>（相信看官您强大的survey能力XDD）。</p>
+
+<h1>资源</h1>
+
+<p>这里是网友分享的数十个版本和乐谱，有些已绝版，算是十分宝贵的资源了：</p>
+
+<p>链接: <a href="http://pan.baidu.com/s/1qWsXMyS">http://pan.baidu.com/s/1qWsXMyS</a> 密码: 6mws</p>
+
+<p>其中一些录音含有CD内页扫图，看官不妨一读，反正看官您英语好，读这些玩意儿简直轻松加愉快。其中有些信息是互相矛盾的，例如有的认为巴赫大无创作在小无之前，而有的认为相反，还有一些关于这套作品应该用什么乐器来演奏的争论，反正嘛这些是音乐学者们需要研究的，本渣纯粹就了解下有怎样一回事就够了，才不去管他谁对谁错XD。</p>
+
+<h1>版本<del>比较</del>导赏？</h1>
+
+<p>这里本渣提几个比较突出的版本，以便乃可以从经典版本开始逐步去了解这部作品并形成自己的口味，当然最终是否稀饭还要看看官自己了XD 当然版本比较往往因人而异，乐迷们讨论起版本来常常沦入一种个人喜好的撕逼，但本来音乐作为一种抽象艺术就不存在所谓最佳的版本。</p>
+
+<p>OT（Off-Topic）一下，关于包含“版本比较”的演奏/艺术评价问题，前段时间本渣曾和以前爱乐社的同学讨论过，当时是从是否存在一个“演奏家原意”的范本演奏引起的。这里姑且摘一段本渣的拙见，如果看官有高见欢迎讨论哈：</p>
+
+<blockquote><p>我觉得，对演奏的评价应该产生于演奏者自身的体系内部、与这一演奏与听者间的共鸣，而非听者某些被外界影响所形成的观念。好的演奏有点像是个逆过程：演奏者为自身的理解和诠释构造一个公理体系，从这套公理不断推演，直至推演到每个细节应该如何处理、应该采取什么技巧去表现。（下面是我尤其还没想明白的）听者通过各个细节的推论、定理还有在整体上的体验去感知这个系统，并从“反推”和体验的过程中达到共鸣的境界（我一度认为这样的系统需要有能“反推”到公理的能力，但往往越包罗万象的演奏就越无法“反推”，甚至无法逻辑自洽，因此我想，通过非理性的“体验”“感悟”是重要且必要的）。这些观点本身如此野心勃勃而不堪一击，以至于本人的渣渣水平也无法再做进一步探究，只有多阅读以充电了。至于其他艺术领域是否能如此，本渣更不甚了了，尽管以前是站在这么一个宽泛的角度思考这一问题的（这其中还有个人对当代艺术的一些困惑）。</p></blockquote>
+
+<p>当然这里本渣会尽量避免讲主观印象，而着重在技术角度来评价（当然有些版本、特别是自己喜欢的版本自然会不可避免带入想安利的主观意识哦），在本渣看来，技术本来就是与音乐表现不相悖的，一些对演奏家的所谓“技术无懈可击但只演奏了音符没有音乐”的评价对本渣来说是不存在，因为这种情况恰恰说明了该演奏家在研究乐谱和音乐表现上还不具备足够的技术。</p>
+
+<p>（关于这些其实还可以扯很多，而且还有“技术”和“技巧”的区别等等，这里就先不展开了，看官有兴趣的话可以看看法派钟师傅的一篇<a href="http://lebhaft.lofter.com/post/1cf80024_5b8e5e2">博文</a>，他在这方面的观点本渣基本赞同——其实只是本渣懒癌不想码字XD）</p>
+
+<h2>西班牙学派</h2>
+
+<h3>Pablo Casals</h3>
+
+<p>首先发掘老巴赫这套作品的西班牙巨匠<strong>卡萨尔斯（Pablo Casals）</strong>的版本不容忽略，尽管历史录音可能一开始听不大入耳，可能会有炒豆声，好在现在有不少录音厂牌的转制，有些还不错（本渣就收了一套<strong>Opus Kura</strong>的）。</p>
+
+<p>卡萨尔斯之于巴赫大无有点像<strong>施纳贝尔（Artur Schnabel）</strong>之于贝多芬32首钢琴奏鸣曲：二人都留下了整套曲目的首次录音，而且以其出色的演奏树立了一道难以逾越的门槛，他们的演奏也不拘泥于乐谱，个人化色彩浓烈（想来那个时代还是热衷于改编原作的，这被视为一种品味的体现，不像当代“本真主义”盛行，强调演奏家对作曲家的忠实）。不过卡萨尔斯功绩更高，他重新发掘和演奏了被历史遗忘已久的巴赫大无（据说他是在一家旧乐谱店里翻到了巴赫第二任爱妻<strong>Magdalena</strong>的手稿），而贝钢奏并没有那么坎坷的命运，在施纳贝尔之前已有人演奏过全本贝钢奏（如果本渣没记错的话是钢琴家哈勒，他也是一名指挥家，著名的哈勒管弦乐团即为他所创办）。</p>
+
+<p>卡萨尔斯与<strong>蒂博（Jacques Thibaud）</strong>、<strong>科尔托（Alfred Cortot）</strong>组成了历史上赫赫有名的<strong>黄金三重奏</strong>，这三位都是当时乐坛名噪一时的顶级大师：蒂博为<strong>法比（法国+比利时）小提琴学派</strong>领头羊，科尔托与<strong>隆（Marguerite Long）夫人</strong>、<strong>列维（Lazare Levy）</strong>、<strong>菲利普（Isidor Philipp）</strong>并称<strong>法国钢琴学派的“四巨头”</strong>。这俩人也真是牛逼得不行：当时著名小提琴家及小提琴教育家<strong>卡尔-弗莱什（Carl Flesch）</strong>曾著有《回忆录》一书，书中批评了当时不少小提琴家，却对他的师兄弟蒂博却心服口服；科尔托虽然是出了名的记性差错音多——这方面的轶事不少，据说有一次科尔托在和乐队合作钢琴协奏曲时忘了谱，便即兴发挥了，指挥比彻姆也只能审时度势跟上，但还是没能合上，演完后记性好常背谱指挥的<strong>比彻姆（Thomas Beecham）</strong>幽默地吐槽说“我们先从贝多芬开始，然后跟着科尔托演了格里格、舒曼、巴赫和柴可夫斯基，然后他开始弹我不知道的调子，我只好绝望地停下了”。不过话说回来，在那个时代，错音是天才的特权，科尔托如此，另一位钢琴大师<strong>Edwin Fischer</strong>也如此。本渣又想起一个著名的梗：钢琴女神<strong>Clara Haskil</strong>年轻时有次和朋友搭火车，在车厢里聊当时的各位钢琴大师，其中就提到了菲舍尔，哈斯姬尔说他的错音太多了。结果两人下火车时发现菲舍尔在隔壁车厢&hellip;老头子礼貌地请两位年轻人帮他从上面取一个箱子，当她们问为何箱子很沉时，菲舍尔说“因为里面装满了我弹错的音”orz（这个梗纪录片《the Art of Piano》也提到了，这部片非常推荐一看）——但他指下常有能勾魂摄魄的神来之笔。可惜二战后这三人因种种矛盾关系破裂了。</p>
+
+<h3>Gaspar Cassado</h3>
+
+<p>另一位西班牙大提琴家<strong>卡萨多（Gaspar Cassado）</strong>是卡萨尔斯的学生。卡萨多的巴赫大无与我所熟悉的巴赫妻子Magdalena的手稿版本略有不同（例如第二组曲Prelude最后的分解和弦，例如第三Allemande），可能是他自己的改编——这位大提琴家同时也是一位作曲家，热衷于改编曲创作——也可能不是（第二组曲Prelude其实是与法国大提琴家富尼埃的Accord版一致的，也许都用了某个共同的版本）。</p>
+
+<h2>法派</h2>
+
+<p>既然前面提到蒂博和科尔托，就不得不说一下法国音乐学派。在很长一段时间，法派一直是一支很重要的学派（或许现在也是），直到二战后，俄国学派后来居上。尽管法派内部风格和技术有分歧，但大体上都追求优美的音色、引人入胜的表现力，其演奏基本上都有股沙龙味（我指传统法派，现在跟俄派杂交的法派也不一定如此）。既然提到法派，自然要说说当时并称<strong>法国「四骑士」</strong>的大提琴家<strong>富尼埃（Pierre Fournier）</strong>、<strong>托特里耶（Paul Tortelier）</strong>、<strong>詹德隆(Maurice Gendron)</strong>、<strong>纳瓦拉（Andre Navarra）</strong>的大无。每位乐迷对这四骑士的喜好各有不同，但不可否认他们的大无都是非常优秀的版本，如果非要本渣分个高下的话，本渣对他们的大无的喜好程度大致是：詹德隆>纳瓦拉～富尼埃>~托特里耶。</p>
+
+<p>个人觉得詹德隆、纳瓦拉的大无几乎是毫无槽点的演奏，而且都有迷人的tone。</p>
+
+<p>作为当时与纳瓦拉分庭抗礼的法国大提琴家富尼埃（据说这两人有次见面彼此恭维，一位说如果自己的左手和对方一样好就好了，另一位马上说也希望自己能有对方那样的右手&hellip;【好像哪里不对？）录了较多的版本：<strong>1961年的Archiv</strong>（以下不特殊说明的话都指唱片厂牌名字，反正看官google下就造啦）、<strong>1959年Accord</strong>、<strong>1972版TDK</strong>、<strong>1977年Philips</strong>。这些版本并非一样优秀，例如Accord版就有一些技术上的问题（例如第二组曲BWV1008的第二段Minuet、BWV1011的Allemende，富尼埃的运弓“吃”不到弦），个人觉得Archiv版可能是富尼埃最好的大无录音。</p>
+
+<p>托特里耶其实也不错，虽然是四骑士中本渣喜爱程度最低的一位，但本渣也曾趁着贱卖剁手入了他在EMI一套录音（其实是托特里耶的巴赫大无和梅纽因的巴赫小无合辑）。不过也许是本渣太吹毛求疵，个人觉得他的版本有一些不太理想的地方，例如：</p>
+
+<ul>
+<li><p>BWV1009的Prelude中段的分解和弦托特里耶有些力不从心，一些骨干音的时长已无法很好保持，节奏也有些不稳（当然这段很难，个人在练小提改编版时有深切体会）。</p></li>
+<li><p>BWV1012 Prelude是Magdalena手稿中为数不多的明确标明了强弱记号的地方（主要的反复段落第一段强第二段弱，可以看老罗那段视频的解读），奇怪的是托特里耶一开始并没有遵循这一乐谱指示，倒是后面做了比较明显的力度对比，本渣搞不清楚这种不一致的处理背后有什么缘由&hellip;</p></li>
+</ul>
+
+
+<h2>俄派</h2>
+
+<p>下面说说俄派，上世纪的俄派可谓是大放异彩，在小提琴、钢琴、大提琴等方面都出了众多大师，俄派训练技术的科学方法和高标准等等使演奏界大为改观，其影响之深远直至今日仍有余波，而上世纪的俄派大提琴巨匠就当属<strong>罗斯特罗波维奇</strong>和<strong>沙弗兰（Daniil Shafran）</strong>了。</p>
+
+<p>虽然老罗的巴赫大无给了本渣很大的启发，但这两人当中，本渣喜爱沙弗兰更胜于老罗。沙弗兰在<strong>Melodiya</strong>留有一套巴赫大无录音（据说最早是<strong>Aulos music</strong>厂牌发行的），后来<strong>Yedang</strong>也发行过他1971年的现场录音（不是全集，只有第二到第五组曲，据说是广播音源）。作为一名浪漫诗人，沙弗兰的巴赫大无感情炽烈，vibrato（看官英语好，不用本渣翻XDD）依然迷人。</p>
+
+<p>PS. 最近不少微博上的乐迷大神重新翻出沙弗兰的两个精彩视频，作为沙粉在这里自然要再安利一下，这两首都是听来极爽的：</p>
+
+<blockquote><p>@潘神死了：丹尼尔沙弗兰与老杨松斯指挥苏联国家交响乐团演出舒曼大协，这几天重复看停不下来了……第三乐章独奏家兴奋得打起了响指，完全即兴的节奏以及华丽的华彩<a href="http://t.cn/zRM2ooY">http://t.cn/zRM2ooY</a></p>
+
+<p>@孙岳Vinyl：沙弗兰&amp;朱里尼&amp;VSO 德沃夏克大提琴协奏曲. 完整的三个乐章. 这是我特别喜欢的一版 原先网上只有前两个乐章能看到 昨天在YouTube上看到完整的 就拖了下来 献给沙粉儿 <a href="http://t.cn/R2rJWXZ">http://t.cn/R2rJWXZ</a></p></blockquote>
+
+<h2>匈牙利学派</h2>
+
+<p>让我们把视线从老毛子投到东欧的匈牙利（肿么有种“舌尖上的中国”的即视感），前年刚逝世的大师<strong>史塔克（Janos Starker【Winter Is Coming）</strong>便是匈牙利大提琴学派之翘楚。史塔克留下了五个版本的录音，常见的有<strong>1963年Mercury</strong>、<strong>1984年Sefel</strong>、<strong>1992年RCA</strong>。史塔克的巴赫大无演奏非常经典，很难挑出什么毛病。当年本渣特别稀饭Mercury版，除了这是史塔克巅峰时期的优秀演奏之外，水星（Mercury）的完美音质也功不可没，这个厂牌可是hifi玩家的最爱之一，现今decca出了三套水星的“包子”（国内乐迷们对CD Set的称呼）也很受欢迎（其实看官乃个米人可以考虑入手的【才不是推销呢）。另外，RCA版是大师70多岁的录音，大师选择了较慢的速度，非常从容地完成了。这一版也是不少乐迷的大爱。</p>
+
+<h2>Enrico Mainardi</h2>
+
+<p>在我们再次回到西欧演奏家之际，有位演奏家本渣却不得不提起，他在历史上首次完成在一晚上一口气演奏完全本大无的壮举，而且他的巴赫大无录音是如此与众不同、如此独树一帜，他便是传奇意大利大师<strong>梅纳迪（Enrico Mainardi）</strong>。</p>
+
+<p>梅纳迪的演奏生涯由神童开始，他与钢琴家费舍尔（恩，就是前面所提到的<strong>Edwin Fischer</strong>了）、小提琴家<strong>库伦肯普夫（Georg Kulenkampff）</strong>（后来由<strong>施耐德汉（Wolfgang Schneiderhan）</strong>顶替，两位都是德奥小提琴学派的代表人物）组成著名的<strong>费舍尔三重奏</strong>。</p>
+
+<p>这里OT一下，姓Fischer的著名钢琴家还有匈牙利女钢琴家<strong>Annie Fischer</strong>，巧的是埃德温正是安妮当年夺冠的第一届李斯特国际钢琴大赛的评委之一（曾在微博上看到过，当年评委团各种大咖啊），而且和埃德温一样错音多XDD（这可不只是本渣说的，傅聪就曾如此评价安妮：<em>&ldquo;She was wonderful, so passionate and spontaneous &hellip;&hellip; her concerts were often full of wrong notes, but she never lose the big things&rdquo;</em>，听她的贝三钢协、舒曼狂欢曲等，确实不难发现其中的错音）。但和埃德温不排斥录音相反，安妮固执地认为唱片是罐头食品，留下的录音极少，更何况她对自己有极严苛的要求，常常不认可唱片公司发行自己的唱片，再加上安妮后来在国外的演出很少，导致她很长一段时间默默无闻。后来她被广大乐迷所认识和喜爱据说是匈牙利前国营厂牌<strong>Hungaroton</strong>（国营唱片厂可是社会主义特色哈，前苏联有<strong>Melodiya</strong>，捷克有<strong>Supraphon</strong>）所发行的贝钢奏全集，这套录音在安妮生前是不被认可发行的。但在她死后，无节操的Hungaroton就拿出来发行了，此套贝钢奏神器一出就被不少专业非专业的乐迷们奉为至宝，大家又发现了一位默默无闻的扫地僧，一些安妮粉们甚至可以拿她的这套贝钢奏与施纳贝尔祖师爷的版本相提并论。好了OT扯得太远了——其实本渣此刻也正好从安妮的贝钢奏109、110、111、31(3)一路听下来，一些处理真是妙不可言，所以想谈谈这位钢琴家，更何况本渣所喜欢的几位钢琴女神都对她盛誉有加：最喜欢的当代女钢琴家<strong>Elisso Virsaladze</strong>（小薇嘛，你懂的哈）曾如此盛誉Annie：<em>&ldquo;One of the pianists impressed me most with Schumann&rsquo;s music&rdquo;</em>，钢琴女祭司<strong>阿格里奇（Martha Argerich）</strong>更是说Annie是<em>“The female pianist I like the best"。</em></p>
+
+<p>再OT下好了，今年也恰好是安妮费雪逝世二十周年（去年是她诞辰100周年，为此丧心病狂的Hungaroton重印了她的一些录音圈钱<del>本渣就剁手买了那套贝钢奏，贵哭了555</del>），我朝的一位乐评人兼安妮忠实粉 @广州左轮哥 做了一个<a href="http://yuanhuang.wix.com/annie-fischer">主页</a>，收集了不少这位钢琴家已发行及未发行的唱片等信息，这里也顺道安利一下XD</p>
+
+<p>梅纳迪所留下的几版录音（<strong>Decca</strong>, <strong>Orfeo</strong>, <strong>Archiv</strong>, <strong>Denon</strong>）都非常慢，或许还是众多演奏家的版本中最慢的版本，很难想象他当时演奏完全本巴赫大无的那一夜是怎样一个漫漫之夜。初听梅纳迪的版本可能并不习惯（包括本渣），因为这位老人家音也不准，节奏也显得拖沓（一般需要演奏得快的Courante被梅纳迪拉得奇慢无比），换弓和起奏也有各种弓毛摩擦噪音，确实犯了不少弦乐演奏的大忌，粗糙得很。但是梅纳迪版反而是最耐听的版本之一（包括且不限于本渣），其原因自然不在于技巧、不在于音色（tone），而在于梅纳迪独特的分句（phrasing）和articulation（这词不造怎么翻，好在看官您英文好XD）。我们听过的不少版本的六首无伴奏组曲其实都像是花腔歌唱家在“唱”情绪不同但一样优美的六首咏叹调，而梅纳迪恰恰相反，他像是戏剧歌唱家在讲故事般地“说”宣叙调（这常让本渣想起自己崇敬的希腊传奇女高音/次女高音<strong>卡拉斯（Maria Callas）</strong>，卡拉斯女神在普契尼歌剧“托斯卡”中第二幕高潮的唱段故意用了近乎沙哑的嗓音，以体现托斯卡这个人物当时被斯卡皮亚步步紧逼的胁迫及其剧烈的心理活动，极具戏剧张力，梅纳迪的巴赫大无也有异曲同工之妙）。</p>
+
+<h2>古乐派</h2>
+
+<p>以上基本都是用现代大提琴演奏的经典名版，但提到巴赫却离不开“古乐”，尽管本渣不是一位古乐党，对此的了解也十分有限。据本渣了解，“古乐”或称“早期音乐”通常是指文艺复兴（古乐听得少的本渣表示不确定？）以前的西方音乐，比如中世纪的格里高利圣咏啊等等，不过巴洛克时期有时也被包括进来（蛤蛤，本渣可能又在胡言乱语了？）。二战后欧洲面临了文化危机，一些学者和音乐家（大多数古乐家其实两种身份兼有）开始了一场名为“古乐运动”的文艺复兴运动，他们从或者被浪漫主义改编过的或者被忽视的早期音乐入手，研究这些作品的手稿和当时演奏它们的古乐器，试图还原它们的本来面目，这场轰轰烈烈的“古乐运动”使得“本真主义”盛行，成为当今乐坛的一大主流（甚至很多非早期音乐也如此处理——本渣今年就有幸听了Hengelbrock与北德广播交响乐团（NDR）的马勒第一交响曲1893原版，马勒其实是经常修改作品的，该版当时就因为反响不佳而被改掉）。（当然关于“古乐”，本渣毕竟这方面的了解太少，不一定准确，请自行google <strong>“HIP”</strong> <strong>“Historically Informed Performance”</strong> <strong>“Authentic Performance”</strong>等关键字）。</p>
+
+<h3>荷兰学派</h3>
+
+<h4>Anner Bylsma</h4>
+
+<p>先从荷兰学派说起吧，首先说下荷兰大提琴家<strong>毕斯马（Anner Bylsma）</strong>，这位大提琴家录的两版巴赫大无（<strong>Seon</strong>版和<strong>Sony</strong>版）是现今本渣最为挚爱的版本，但如果非要一分高下的话，总体而言本渣更喜欢Seon版。Sony版速度更为自由，第二组曲的Prelude后半段分解和弦只保留了骨干音，相对不太合我口味。撇去技术不谈，个人觉得毕斯马的巴赫大无是最有禅意的，其实可以说巴赫的这套组曲包含了人间百态：悲欢离合、喜怒哀怨、生老病死&hellip;别的演奏家大都是在这一出包罗万象的剧中扮演一个演员，只是演的方式各有不同（例如梅纳第的演法），唯有毕斯马<del>同</del>像作曲家一样是超然其中的智者，不以物喜，不以己悲，行到水穷处，坐看云起时（好吧，胡乱拼了两句诗，不过在本渣看来，比斯马的巴赫大无确实与摩诘诗意境相通）。</p>
+
+<h4>Pieter Wispelwey</h4>
+
+<p><strong>威斯帕维（Pieter Wispelwey）</strong>是另一位荷兰大提琴家，早年曾跟比斯马学习，后来师从<strong>William Pleeth</strong>（著名大提琴家<strong>杜普蕾（Jacqueline du Pre）</strong>的老师）。威斯帕维录有三个版本的大无：<strong>90年和98年Channel</strong>还有<strong>12年的EPR（Evil Penguin Records厂牌）</strong>。90版的Channel木有资源没听过。98版干净利落，且与比斯马的沉稳不同，威斯帕维颇有年轻人的锐气。一些地方威斯帕维处理得挺快的，在他狂飙时真替他捏一把汗，还好有惊无险，基本没什么差错，速度也很稳定，不会像业余演奏者一样犯在熟悉的地方拼命赶、而在不熟的地方不得不慢下来的幼稚病，足见其实力。12年的EPR版呈献给他最早的老师<strong>Dicky Boeke</strong>。这个录音是用古乐器演奏，用到一种五弦琴cello piccolo。其中有即兴的成分，但有些地方（如停顿）莫名其妙，例如BWV1009的Sarabande和Gigue有点奇怪，可能是失误。</p>
+
+<h3>Jaap ter Linden</h3>
+
+<p>另外古乐派的Jaap ter Linden在本渣看来也是极好的版本。</p>
+
+<h3>Kuijken兄弟</h3>
+
+<p>再提另一位古乐派演奏家<strong>希吉斯瓦德·库依肯（Sigiswald Kuijken）</strong>，他似乎是为数不多同时录了巴赫大无和小无的提琴家。Sigiswald Kuijken认为巴赫大无应当用一种叫viola de spalla的肩式提琴来演奏，关于他这方面的研究可以看CD内页扫图（印象中洋洋洒洒说了不少古乐器的发展，本渣记不住）或<a href="http://www.douban.com/note/478743963/">豆瓣文章</a>。</p>
+
+<p>Sigiswald Kuijken的演奏属于严谨而乏味的学院派，这一版本除了乐器独特外似乎无甚亮点。相比之下，他的一位同样演奏古乐的弟弟<strong>Wieland Kuijken</strong>有趣一点（注意下BWV1010的Bourree）。</p>
+
+<h2>其他乐器改编版</h2>
+
+<p>除了库依肯，用非传统大提琴演奏巴赫大无或其改编版的也有：</p>
+
+<ul>
+<li><p><strong>今井信子（Nobuco Imai）</strong>的中提琴版，她也用中提琴录过巴赫的小无。</p></li>
+<li><p><strong>Paolo Pandolfo</strong>的维奥尔琴版：颇为别出心裁，例如BWV1001的和弦等处。最突出的莫过于BWV1010的Sarabande改为拨弦，听来毫无违和感，真是相当出色的改编（CD内页他杜撰了一段大提琴和维奥尔琴的对话，有点意思）。</p></li>
+<li><p><strong>Goran Sollscher</strong>的古典吉他版，录了BWV1007、1008、1012。</p></li>
+<li><p><strong>Edgar Meyer</strong>的低音提琴版，double bass由于音与音间隔更大、体型大弦粗等原因无疑是要比cello更难演奏同样的作品的，这一版的水平令人叹为观止。</p></li>
+</ul>
+
+
+<h2>其他演奏家</h2>
+
+<p>另外，稍稍说下前面没提及的演奏家（绝大部分是当代演奏家，不过个人可能对一些能演奏得和某些前辈类似而独特个性不足的演奏比较苛刻，一者是现在可模仿的范本多，二者是当今录音剪辑技术发达，录音可能不能反映演奏者的实际水准——反过来说，这也是本渣为何那么喜欢小薇的live recordings的原因之一）：</p>
+
+<h3>Annlies Schmidt de Neveu</h3>
+
+<p>被遗忘的<strong>Annlies Schmidt de Neveu</strong>资料寥寥，更不用说中文的了，只能从以下零星的描述中略知一二：</p>
+
+<ul>
+<li><p><a href="http://weibo.com/1895133734/Ct3ZdwW4s?type=repost#_rnd1440391262737">1</a></p></li>
+<li><p><a href="http://www.myav.com.tw/bbs/html/?tid-319658-page-118.html">2</a></p></li>
+<li><p><a href="http://www.sthifi.com/article/viewarticle.asp?id=5082">3</a></p></li>
+</ul>
+
+
+<p>这或许是本渣所听过的最快的版本了，大的失误倒没有，但飚的那么快总感觉缺乏乐句间的呼吸。
+不过，这位Neveu（也有一位著名小提琴家叫Neveu，那就是<strong>Ginette Neveu</strong>）的录音确实少，这套巴赫大无算是较为人知的了，除了特别快之外，据说其最大特点是这是史上第一套用五弦大提琴演奏的版本。</p>
+
+<p><a href="http://www.mon-vieux-grenier.com/annlies-schmidt-bach-six-suites-for-cello-alone/">原版黑胶</a>特别贵，德版黑胶也被CD化了（见<a href="http://www.forgottenrecords.com/Schmidt-De-Neveu--Bach--75.html">forgottenrecords</a>或<a href="http://tower.jp/item/3951052/J-S-Bach%EF%BC%9A-Six-Suites-for-Unaccompanied-Cello">tower.jp</a>），虽然价格不那么高不可攀，但对本穷逼来说这套就随便听听抓轨的数字音频好了，平生应该不会入手——希望以后不会打脸哈哈。</p>
+
+<p>对了，油管上也有这一版大无的<a href="https://www.youtube.com/watch?v=tU0NIdHsJc4">音频</a>，如果你能翻墙的话不妨听听～</p>
+
+<h3>Roel Dieltiens</h3>
+
+<p>比利时大提琴家Dieltiens是纳瓦拉和傅尼埃的学生，他的巴赫大无很有舞曲味道，也无怪乎本渣后来查到他也曾为现代舞团<strong>Les Ballets C de la B</strong>创作舞曲<strong>“Iets op Bach”</strong>，看来巴赫的作品启发了他创作舞曲，而他的舞曲创作反过来也影响了他对巴赫大无的诠释。这种诠释中的舞曲性质体现在多个方面：Dieltiens并不追求把和弦拉饱满，因而运用了较短的弓段，大量使用顿弓；一些地方并不完全遵照谱面的音符，而是根据表达的需要稍作改动（例如第一的第一首Menuet、第三的Sarabande和第一首Bourree）；对反复的段落做不同的处理和对比，富于变化，别具匠心（第三的Gigue妙极！）。若要吹毛求疵的话，本渣觉得第三Prelude的分解和弦和第五Prelude的赋格可能算是不太理想的地方。</p>
+
+<h3>Ophélie Gaillard</h3>
+
+<p>这位曾获国际巴赫比赛三等奖的法国大提琴家承袭了她的法派前辈们的高雅品味，技术过硬、品味高雅，rubato用得不少，也根据个人情趣加了一些音符，但并非每一处都合理，有些处理是败笔（仅举一例，第六的第二首Gavotte）。</p>
+
+<h3>Mischa Maisky</h3>
+
+<p>老罗的高徒麦斯基可算是当今技术数一数二的大提琴家了。他在DG录的巴赫大无加了一些装饰音，感情十分浓烈，本渣当时初听第二组曲便被其强烈的阴郁所震撼。然而听了几次后觉得矫揉造作，无病呻吟，并不耐听（如果按黄宾虹老先生的艺术分三品论，这种初步印象佳却无法持久的当属最次品orz&hellip;）。</p>
+
+<h3>Steven Isserlis</h3>
+
+<p>基本和麦斯基是一路的。</p>
+
+<h3>马友友</h3>
+
+<p>比较平庸，第三的Gigue拉得太粘，节奏很怪。</p>
+
+<h3>王健</h3>
+
+<p>王健算是我朝大师级的大提琴家了，本渣还记得初中那会，有一次中午ccav在播王健演奏德大协的视频，本渣十分迷恋，无奈没有时间听完，只得恋恋不舍又意尤未尽地去上课了。之后又看了著名纪录片<strong>《From Mao To Mozart》</strong>（著名小提琴家<strong>Isaac Stern</strong>在文革后访问中国的一部纪录片，推荐看看），片中穿着运动衫系着红领巾拉大提的小男孩就是王健了，当时王健的演奏便很具魅力，vibrato迷人，在斯特恩帮助下后来也成长为一位大师。</p>
+
+<p>个人觉得王健在DG录的巴赫大无较为突出旋律，尤其是突出高音区的旋律（前三首组曲尤其明显），和弦的低音部分被淡化，很多和弦换弓换得很快，有些和弦也以单音结束而非通常处理的以双音结束。另外，王健的弱奏做得非常漂亮。不过，一些快速经过句（如BWV1005 Prelude的Fuga前后）似乎不大理想。</p>
+
+<h3>Paolo Beschi</h3>
+
+<p>著名古乐团<strong>Il Giardino Armonico</strong>的成员，在<strong>Winter &amp; Winter</strong>厂牌录过巴洛克大提琴版的巴赫大无，但个人觉得该版本只能说是演奏得比较到位，缺乏亮点。</p>
+
+<h3>Torleif Thedeen</h3>
+
+<p>技术上基本无误，剩下的只是一些个人品味上的喜恶了，例如个人就不太喜欢他在第五Gigue的轻浮。</p>
+
+<h3>Gavriel Lipkind</h3>
+
+<p>以色列大提琴家Lipkind的“改编”初听挺鬼畜的，如果不知道他是有意如此处理的话，简直要将他的演奏归为错音连连了（例如第二的Sarabande就有一些音符低了半音，比如B被演奏成了B-flat），不过本渣还是挺赞赏他的独到想法的（CD内页有他自己写的文字作解释或者辩护）。这个另类的巴赫大无也许是在听过各种经典演绎后让本渣耳目一新的版本吧，但如果初次接触巴赫大无建议还是将它束之高阁，以免三观被毁。</p>
+
+<h3>铃木秀美（Hidemi Suzuki）</h3>
+
+<p>师从于毕斯马的日本大提琴家<strong>铃木秀美</strong>这版巴赫大无算是我的菜了，不过倒没有到能与毕斯马79版平起平坐的地步，有些地方个人觉得有点赶&hellip;</p>
+
+<h3>Jean-Guihen Queyras</h3>
+
+<p>据说奎拉斯曾是比斯马的学生（由于他主页木有提这一师承尚未能肯定，如果是的话，比斯马的教学不得不再一次让人惊叹，他教出的几位学生绝不是只会玩弄乐器的匠人，而是真正的艺术家！），曾获古尔德基金会的Protégés奖（当年谭盾由于日本作曲家武满彻的推荐也获得过这一奖项）。</p>
+
+<p>奎拉斯的巴赫大无十分优秀，他的处理总体上比较自由（例如第二Prelude末段很像Cassado的；例如第五中Prelude在Fugue前的一段和Allemande），随心所欲不逾矩。硬要挑毛病的话，倒确实还是有些地方可以更好一些的（例如第六Prelude反复的一句过渡经过句）。</p>
+
+<h3>Lynn Harrell</h3>
+
+<p>第五的第二首Gavotte差评，猴急得糊成一片，其他还好。</p>
+
+<h3>Vito Paternoster</h3>
+
+<p>首演了十八世纪的手稿版（略有不同，例如第二Prelude末尾），一些组曲Paternoster演奏得非常快，甚至不在Annlies Schmidt de Neveu之下（例如第二组曲BWV1008的Courante），但音准有较多问题（例如BWV1012的第二首Gavotte的F#GF#EF#AGE、BWV1010 Allemande的下行音阶），显然实力不及Annlies Schmidt de Neveu扎实。</p>
+
+<h3>Alexander Kniazev</h3>
+
+<p>比较注重音色（如BWV1001的Sarabande）。</p>
+
+<h3>Zuill Bailey</h3>
+
+<p>个人最喜欢他的BWV1009处理（Prelude完成得轻松加愉快的分解和弦、Sarabande的rubato、Gigue清晰的bass）。此外，BWV1010的第一首Bouree、1012的第一首Gavotte也很精彩。</p>
+
+<h3>Truls Murk</h3>
+
+<p>这位挪威大提琴家的巴赫大无完成度很高，不过没啥吸引本渣的亮点。</p>
+
+<h3>William Butt</h3>
+
+<p>亮点不多，个人有印象的一处是：BWV1010的Prelude中，Butt的rubato有点意思，被拉长的音听来意味深长。</p>
+
+<h1>后记</h1>
+
+<p>今年本渣恰好有幸听了老罗另一位高徒<strong>古特曼（Natalia Gutman）</strong>的全本巴赫大无（之前在台只听了其中三首），不过可惜老阿姨背伤+状态不佳，没拉好（通常乐迷们所称的“车祸”），但当时本渣还是受了颇大的触动，作为死理性派也学着文青们无病呻吟了篇<a href="http://galoisplusplus.coding.me/blog/2015/04/05/Natalia-Gutman-Cello-Recital/">感性文章</a>。</p>
+
+<h1>后后记</h1>
+
+<p>当初在写这篇巴赫大无时，万万没想到会拖这么久&hellip;期间本渣也在重听部分版本，尤其是以前被本渣忽略的不少当今演奏家的版本，但即使是经典版本，现在的听感又截然不同，在整理记录时收获良多。期间在古吧（古典音乐吧）讨论还收获了吧友所分享的<strong>Annlies Schmidt de Neveu</strong>、<strong>Evzen Rattay</strong>（著名的<strong>塔里赫四重奏组</strong>成员，本渣以前在学校发现他的巴赫大无BWV1007-1009，就抓了轨，有位吧友听了表示很喜欢想求全套，恰好另一位大神有）等资源；在加上本渣后来在豆瓣上贴某些整理的记录时，围脖上的许海峰大神又推荐了<strong>Haimovitz</strong>和<strong>Kniazev</strong>的版本，这又是额外的收获吧。</p>
+
+<p>另外，本渣在谈巴赫大无时常常宕开一笔聊了些演奏家的八卦或是自己当时想到的一些有的没的，内容散乱，看官轻喷哈~</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2015/07/20/profilers-for-cocos2d-x/">Cocos2d-x游戏的性能检测</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-07-20T11:22:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>前段时间本渣负责了一些优化我们cocos2d-x游戏性能方面的工作，在这里做一点记录。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2015/07/20/profilers-for-cocos2d-x/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="5">&larr; Older</a>
+    
+    <a href="/blog/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="3">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/blog/2019/04/07/macbeth-by-tang-shu-wing/">《麦克白》的布莱希特剧场实践</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2019/01/01/those-concerts-in-2018/">盘点2018年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/05/22/cudaErrorCudartUnloading/">cudaErrorCudartUnloading问题排查及建议方案</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/01/01/those-concerts-in-2017/">盘点2017年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2017/11/11/Jonas-Kaufmann-recital/">Jonas Kaufmann独奏会之艺术歌曲</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<!--
+Copyright &copy; 2020 - Galoisplusplus -
+-->
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+</body>
+</html>

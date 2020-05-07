@@ -4,7 +4,7 @@
   <title><![CDATA[Category: cocos2d-x | Galoisplusplus]]></title>
   <link href="http://yszheda.github.io/blog/blog/categories/cocos2d-x/atom.xml" rel="self"/>
   <link href="http://yszheda.github.io/blog/"/>
-  <updated>2020-05-06T20:55:06+08:00</updated>
+  <updated>2020-05-07T20:38:55+08:00</updated>
   <id>http://yszheda.github.io/blog/</id>
   <author>
     <name><![CDATA[Galoisplusplus]]></name>
@@ -214,11 +214,11 @@ end
 
 <p><a href="http://galoisplusplus.coding.me/blog/2016/06/03/math-in-staggered-tiled-map/">上一篇文章</a>提到，对于不能放置在地图上禁止被编辑的区域，可以在相应的Tile做上标记。例如，我在Tiled Map里创建了一个叫"meta"的图层：</p>
 
-<p>{% img /images/tiled-map/meta-layer.png %}</p>
+<p><img src="/images/tiled-map/meta-layer.png"></p>
 
 <p>在TileSet Properties里设置一个标记"Collidable"，表示禁止被编辑：</p>
 
-<p>{% img /images/tiled-map/tileset-properties.png %}</p>
+<p><img src="/images/tiled-map/tileset-properties.png"></p>
 
 <p>接下来就是用这个TileSet来刷图啦！</p>
 
@@ -247,21 +247,21 @@ end
 
 <p><a href="http://galoisplusplus.coding.me/blog/2016/06/03/math-in-staggered-tiled-map/">上回</a>提到Staggered Tiled Map的坐标系，其实这套坐标还和你的配置有关。本渣采用的配置是：</p>
 
-<p>{% img /images/tiled-map/stagger-setting.png %}</p>
+<p><img src="/images/tiled-map/stagger-setting.png"></p>
 
 <p>如果改变上述参数，那么你所得到的坐标也会不同，你不妨多试试啦～</p>
 
 <p>另外，即使上述参数不变，但如果你需要由某一点的坐标求出它所在tile的坐标的话，还需要注意Tiled Map的Y轴tile数目（之所以是Y轴，是因为上面<code>Staggered Axis</code>设置为<code>Y</code>）的奇偶性。这里也不解释了，直接上图最直观：</p>
 
-<p>{% imgcap /images/tiled-map/odd-height-original-coord.png &lsquo;Y轴有奇数个tile（图中是五个），这里tile个数是这么算的：从最底端的tile沿斜线算与它有一条公共边的tile、一直算到最顶端的tile，例如从坐标(0, 4)(0, 3)(1, 2)(1, 1)到没有显示的(2, 0)&rsquo; %}</p>
+<p><span class='caption-wrapper'><img class='caption' src='/images/tiled-map/odd-height-original-coord.png' width='' height='' title='&lsquo;Y轴有奇数个tile（图中是五个），这里tile个数是这么算的：从最底端的tile沿斜线算与它有一条公共边的tile、一直算到最顶端的tile，例如从坐标(0, 4)(0, 3)(1, 2)(1, 1)到没有显示的(2, 0)&rsquo;'><span class='caption-text'>&lsquo;Y轴有奇数个tile（图中是五个），这里tile个数是这么算的：从最底端的tile沿斜线算与它有一条公共边的tile、一直算到最顶端的tile，例如从坐标(0, 4)(0, 3)(1, 2)(1, 1)到没有显示的(2, 0)&rsquo;</span></span></p>
 
-<p>{% imgcap /images/tiled-map/even-height-original-coord.png &lsquo;Y轴有偶数个tile（图中是六个）&rsquo; %}</p>
+<p><span class='caption-wrapper'><img class='caption' src='/images/tiled-map/even-height-original-coord.png' width='' height='' title='&lsquo;Y轴有偶数个tile（图中是六个）&rsquo;'><span class='caption-text'>&lsquo;Y轴有偶数个tile（图中是六个）&rsquo;</span></span></p>
 
 <h1>更多Tiled Map Properties配置</h1>
 
 <p><code>Tile Layer Format</code>最好选择压缩的格式，这样生成的tmx文件比较小。</p>
 
-<p>{% img /images/tiled-map/tile-layer-format.png %}</p>
+<p><img src="/images/tiled-map/tile-layer-format.png"></p>
 
 <h1>关于遮挡关系的排序函数</h1>
 
@@ -385,13 +385,13 @@ end
 
 <p>不解释，有图有真相XD</p>
 
-<p>{% imgcap /images/tiled-map/orthogonal.png &lsquo;Orthogonal Tiled Map&rsquo; %}</p>
+<p><span class='caption-wrapper'><img class='caption' src='/images/tiled-map/orthogonal.png' width='' height='' title='&lsquo;Orthogonal Tiled Map&rsquo;'><span class='caption-text'>&lsquo;Orthogonal Tiled Map&rsquo;</span></span></p>
 
-<p>{% imgcap /images/tiled-map/isometric.png &lsquo;Isometric Tiled Map&rsquo; %}</p>
+<p><span class='caption-wrapper'><img class='caption' src='/images/tiled-map/isometric.png' width='' height='' title='&lsquo;Isometric Tiled Map&rsquo;'><span class='caption-text'>&lsquo;Isometric Tiled Map&rsquo;</span></span></p>
 
-<p>{% imgcap /images/tiled-map/hexagonal(staggered).png &lsquo;Hexagonal Tiled Map&rsquo; %}</p>
+<p><span class='caption-wrapper'><img class='caption' src='/images/tiled-map/hexagonal(staggered).png' width='' height='' title='&lsquo;Hexagonal Tiled Map&rsquo;'><span class='caption-text'>&lsquo;Hexagonal Tiled Map&rsquo;</span></span></p>
 
-<p>{% imgcap /images/tiled-map/staggered.png &lsquo;Staggered Tiled Map&rsquo; %}</p>
+<p><span class='caption-wrapper'><img class='caption' src='/images/tiled-map/staggered.png' width='' height='' title='&lsquo;Staggered Tiled Map&rsquo;'><span class='caption-text'>&lsquo;Staggered Tiled Map&rsquo;</span></span></p>
 
 <h1>判断区域相交</h1>
 
@@ -403,7 +403,7 @@ end
 
 <p>下面我们还是通过图片来看看Staggered Tiled Map的坐标：</p>
 
-<p>{% img /images/tiled-map/odd-height-original-coord.png %}</p>
+<p><img src="/images/tiled-map/odd-height-original-coord.png"></p>
 
 <p>为了方便起见，我们把向下作为y轴正方向，我们可以发现上面的坐标(x, y)有着如下规律：</p>
 
@@ -419,13 +419,13 @@ y = rowNum - 1
 
 <p>看上去好像不复杂，但要列出直线方程呢？比如以下两种可作为平行四边形瓦片区域的边的直线：</p>
 
-<p>{% img /images/tiled-map/row_line.png %}</p>
+<p><img src="/images/tiled-map/row_line.png"></p>
 
-<p>{% img /images/tiled-map/column_line.png %}</p>
+<p><img src="/images/tiled-map/column_line.png"></p>
 
 <p>一时半会懵逼了吧？使问题复杂的正是这些公式需要判断奇偶性，能不能把奇偶性判断拿掉呢？当然可以，做坐标转换就可以了，让我们先看一张直观的坐标转换结果图：</p>
 
-<p>{% img /images/tiled-map/odd-height-new-coord.png %}</p>
+<p><img src="/images/tiled-map/odd-height-new-coord.png"></p>
 
 <p>这相当于做了如下的坐标转换：</p>
 

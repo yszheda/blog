@@ -1,0 +1,1206 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>记一次spine内存泄露排查 - Galoisplusplus</title>
+  <meta name="author" content="Galoisplusplus">
+
+  
+  <meta name="description" content="Spine Memory Leak">
+  <meta name="keywords" content="cocos2d-x, quick, quickx, quick-cocos2d-x, cocos, cocos2d, 游戏开发, 手游开发, mobile game, game devolopment">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yszheda.github.io/blog/blog/2015/12/19/spine-memory-leaks">
+  <link href="/blog/favicon.png" rel="icon">
+  <link href="/blog/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/blog/atom.xml" rel="alternate" title="Galoisplusplus" type="application/atom+xml">
+  <script src="/blog/javascripts/modernizr-2.0.js"></script>
+  <!--
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  -->
+  <script src="//libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/blog/javascripts/octopress.js" type="text/javascript"></script>
+  
+<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!--
+<link href="http://fonts.googleapis.com/css?family=Crimson+Text:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/blog/">Galoisplusplus</a></h1>
+  
+    <h2>A fan of science, technology and Classical music.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/blog/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:yszheda.github.io/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/blog/">Blog</a></li>
+  <li><a href="/blog/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">记一次spine内存泄露排查</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-12-19T11:22:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>最近用<code>Instruments</code>的<code>Leaks</code>工具排查我们cocos2d-x游戏的一些内存泄露问题，大部分属于之前我们<code>C++</code>代码的bug，还有几个是<code>lua</code>代码中<code>sqlite</code>使用不当造成的内存泄露（例如数据库连接没有<code>close</code>，<code>prepare</code>的<code>stmt</code>没有<code>finalize</code>），总的来说这些都不难改。而且由于我们主要用的是<code>lua</code>，<code>lua</code>有垃圾回收，所以<code>Leaks</code>显示的内存泄露问题也不多。倒是spine的内存泄露问题相对棘手，花了我较长时间。</p>
+
+<p><code>Leaks</code>工具定位内存泄露到<code>spine</code>的<code>extension.c</code>中的<code>_malloc</code>函数：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>static void* (*mallocFunc) (size_t size) = malloc;
+</span><span class='line'>static void* (*debugMallocFunc) (size_t size, const char* file, int line) = NULL;
+</span><span class='line'>
+</span><span class='line'>void* _malloc (size_t size, const char* file, int line) {
+</span><span class='line'>  if(debugMallocFunc)
+</span><span class='line'>      return debugMallocFunc(size, file, line);
+</span><span class='line'>
+</span><span class='line'>  return mallocFunc(size);
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>很显然，这是由分配的内存没有得到释放所引起的内存泄露。
+接下来再找<code>spine</code>代码中分配内存和释放内存的地方，大部分都放在了不同结构体的<code>init</code>和<code>dispose</code>函数中，于是就重点关注这两个函数。可以发现在一些<code>dispose</code>函数中，部分指针并没有被<code>free</code>掉，那么是否可以把<code>free</code>加上呢？答案是不行，因为<code>spine</code>中这些指针其实只是浅拷贝，还有别的地方用到这些指针所指的内存地址，如果加上<code>free</code>会额外造成double free内存错误。</p>
+
+<p>再继续考察spine分配内存和释放内存的代码，本渣发现，spine代码中用<code>C</code>结构体实现了vitrual table，从而模拟<code>C++</code>的多态，释放内存的函数类似<code>C++</code>的析构函数，也被模拟为虚函数。这块代码就成了本渣的重点怀疑对象，review下来还真发现有问题：spine调用“子类”的“析构函数”时，竟然是先调用“父类”的“析构函数”，然后在做自己的清理操作！而之所以先调用“父类”的“析构函数”不会有内存错误，是因为“父类”的“析构函数”并没有完全释放它所占用的内存，也就是说“父类”的对象在“析构”会泄露内存！</p>
+
+<p>不废话，上代码。</p>
+
+<p>下面是涉及到的宏定义：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/* All allocation uses these. */
+</span><span class='line'>#define MALLOC(TYPE,COUNT) ((TYPE*)_malloc(sizeof(TYPE) * (COUNT), __FILE__, __LINE__))
+</span><span class='line'>#define CALLOC(TYPE,COUNT) ((TYPE*)_calloc(COUNT, sizeof(TYPE), __FILE__, __LINE__))
+</span><span class='line'>#define NEW(TYPE) CALLOC(TYPE,1)
+</span><span class='line'>
+</span><span class='line'>/* Gets the direct super class. Type safe. */
+</span><span class='line'>#define SUPER(VALUE) (&VALUE-&gt;super)
+</span><span class='line'>
+</span><span class='line'>/* Cast to a super class. Not type safe, use with care. Prefer SUPER() where possible. */
+</span><span class='line'>#define SUPER_CAST(TYPE,VALUE) ((TYPE*)VALUE)
+</span><span class='line'>
+</span><span class='line'>/* Cast to a sub class. Not type safe, use with care. */
+</span><span class='line'>#define SUB_CAST(TYPE,VALUE) ((TYPE*)VALUE)
+</span><span class='line'>
+</span><span class='line'>/* Casts away const. Can be used as an lvalue. Not type safe, use with care. */
+</span><span class='line'>#define CONST_CAST(TYPE,VALUE) (*(TYPE*)&VALUE)
+</span><span class='line'>
+</span><span class='line'>/* Gets the vtable for the specified type. Not type safe, use with care. */
+</span><span class='line'>#define VTABLE(TYPE,VALUE) ((_##TYPE##Vtable*)((TYPE*)VALUE)-&gt;vtable)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>下面是<code>spTimeline</code>结构体，相当于基类：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>typedef enum {
+</span><span class='line'>  SP_TIMELINE_SCALE,
+</span><span class='line'>  SP_TIMELINE_ROTATE,
+</span><span class='line'>  SP_TIMELINE_TRANSLATE,
+</span><span class='line'>  SP_TIMELINE_COLOR,
+</span><span class='line'>  SP_TIMELINE_ATTACHMENT,
+</span><span class='line'>  SP_TIMELINE_EVENT,
+</span><span class='line'>  SP_TIMELINE_DRAWORDER,
+</span><span class='line'>  SP_TIMELINE_FFD,
+</span><span class='line'>  SP_TIMELINE_IKCONSTRAINT,
+</span><span class='line'>  SP_TIMELINE_FLIPX,
+</span><span class='line'>  SP_TIMELINE_FLIPY
+</span><span class='line'>} spTimelineType;
+</span><span class='line'>
+</span><span class='line'>struct spTimeline {
+</span><span class='line'>  const spTimelineType type;
+</span><span class='line'>  const void* const vtable;
+</span><span class='line'>
+</span><span class='line'>#ifdef __cplusplus
+</span><span class='line'>  spTimeline() :
+</span><span class='line'>      type(SP_TIMELINE_SCALE),
+</span><span class='line'>      vtable(0) {
+</span><span class='line'>  }
+</span><span class='line'>#endif
+</span><span class='line'>};
+</span><span class='line'>
+</span><span class='line'>void spTimeline_dispose (spTimeline* self);
+</span><span class='line'>void spTimeline_apply (const spTimeline* self, struct spSkeleton* skeleton, float lastTime, float time, spEvent** firedEvents,
+</span><span class='line'>      int* eventsCount, float alpha);</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>typedef struct _spTimelineVtable {
+</span><span class='line'>  void (*apply) (const spTimeline* self, spSkeleton* skeleton, float lastTime, float time, spEvent** firedEvents,
+</span><span class='line'>          int* eventsCount, float alpha);
+</span><span class='line'>  void (*dispose) (spTimeline* self);
+</span><span class='line'>} _spTimelineVtable;
+</span><span class='line'>
+</span><span class='line'>void _spTimeline_init (spTimeline* self, spTimelineType type, /**/
+</span><span class='line'>void (*dispose) (spTimeline* self), /**/
+</span><span class='line'>      void (*apply) (const spTimeline* self, spSkeleton* skeleton, float lastTime, float time, spEvent** firedEvents,
+</span><span class='line'>              int* eventsCount, float alpha)) {
+</span><span class='line'>  CONST_CAST(spTimelineType, self-&gt;type) = type;
+</span><span class='line'>  CONST_CAST(_spTimelineVtable*, self-&gt;vtable) = NEW(_spTimelineVtable);
+</span><span class='line'>  VTABLE(spTimeline, self)-&gt;dispose = dispose;
+</span><span class='line'>  VTABLE(spTimeline, self)-&gt;apply = apply;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void _spTimeline_deinit (spTimeline* self) {
+</span><span class='line'>  FREE(self-&gt;vtable);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>void spTimeline_dispose (spTimeline* self) {
+</span><span class='line'>  VTABLE(spTimeline, self)-&gt;dispose(self);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>void spTimeline_apply (const spTimeline* self, spSkeleton* skeleton, float lastTime, float time, spEvent** firedEvents,
+</span><span class='line'>      int* eventsCount, float alpha) {
+</span><span class='line'>  VTABLE(spTimeline, self)-&gt;apply(self, skeleton, lastTime, time, firedEvents, eventsCount, alpha);
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>spTimeline</code>结构体的子类<code>spCurveTimeline</code>：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>typedef struct spCurveTimeline {
+</span><span class='line'>  spTimeline super;
+</span><span class='line'>  float* curves; /* type, x, y, ... */
+</span><span class='line'>
+</span><span class='line'>#ifdef __cplusplus
+</span><span class='line'>  spCurveTimeline() :
+</span><span class='line'>      super(),
+</span><span class='line'>      curves(0) {
+</span><span class='line'>  }
+</span><span class='line'>#endif
+</span><span class='line'>} spCurveTimeline;
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void (*dispose) (spTimeline* self), /**/
+</span><span class='line'>                void (*apply) (const spTimeline* self, spSkeleton* skeleton, float lastTime, float time, spEvent** firedEvents,
+</span><span class='line'>                                int* eventsCount, float alpha)) {
+</span><span class='line'>        _spTimeline_init(SUPER(self), type, dispose, apply);
+</span><span class='line'>        self-&gt;curves = CALLOC(float, (framesCount - 1) * BEZIER_SIZE);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void _spCurveTimeline_deinit (spCurveTimeline* self) {
+</span><span class='line'>        _spTimeline_deinit(SUPER(self));
+</span><span class='line'>        FREE(self-&gt;curves);
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>spCurveTimeline</code>结构体的子类<code>spBaseTimeline</code>：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>typedef struct spBaseTimeline {
+</span><span class='line'>        spCurveTimeline super;
+</span><span class='line'>        int const framesCount;
+</span><span class='line'>        float* const frames; /* time, angle, ... for rotate. time, x, y, ... for translate and scale. */
+</span><span class='line'>        int boneIndex;
+</span><span class='line'>
+</span><span class='line'>#ifdef __cplusplus
+</span><span class='line'>        spBaseTimeline() :
+</span><span class='line'>                super(),
+</span><span class='line'>                framesCount(0),
+</span><span class='line'>                frames(0),
+</span><span class='line'>                boneIndex(0) {
+</span><span class='line'>        }
+</span><span class='line'>#endif
+</span><span class='line'>} spBaseTimeline;</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void _spBaseTimeline_dispose (spTimeline* timeline) {
+</span><span class='line'>        struct spBaseTimeline* self = SUB_CAST(struct spBaseTimeline, timeline);
+</span><span class='line'>        _spCurveTimeline_deinit(SUPER(self));
+</span><span class='line'>        FREE(self-&gt;frames);
+</span><span class='line'>        FREE(self);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>/* Many timelines have structure identical to struct spBaseTimeline and extend spCurveTimeline. **/
+</span><span class='line'>struct spBaseTimeline* _spBaseTimeline_create (int framesCount, spTimelineType type, int frameSize, /**/
+</span><span class='line'>                void (*apply) (const spTimeline* self, spSkeleton* skeleton, float lastTime, float time, spEvent** firedEvents,
+</span><span class='line'>                                int* eventsCount, float alpha)) {
+</span><span class='line'>        struct spBaseTimeline* self = NEW(struct spBaseTimeline);
+</span><span class='line'>        _spCurveTimeline_init(SUPER(self), type, framesCount, _spBaseTimeline_dispose, apply);
+</span><span class='line'>
+</span><span class='line'>        CONST_CAST(int, self-&gt;framesCount) = framesCount * frameSize;
+</span><span class='line'>        CONST_CAST(float*, self-&gt;frames) = CALLOC(float, self-&gt;framesCount);
+</span><span class='line'>
+</span><span class='line'>        return self;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>spTimeline</code>结构体的子类<code>spAttachmentTimeline</code>：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>typedef struct spAttachmentTimeline {
+</span><span class='line'>        spTimeline super;
+</span><span class='line'>        int const framesCount;
+</span><span class='line'>        float* const frames; /* time, ... */
+</span><span class='line'>        int slotIndex;
+</span><span class='line'>        const char** const attachmentNames;
+</span><span class='line'>
+</span><span class='line'>#ifdef __cplusplus
+</span><span class='line'>        spAttachmentTimeline() :
+</span><span class='line'>                super(),
+</span><span class='line'>                framesCount(0),
+</span><span class='line'>                frames(0),
+</span><span class='line'>                slotIndex(0),
+</span><span class='line'>                attachmentNames(0) {
+</span><span class='line'>        }
+</span><span class='line'>#endif
+</span><span class='line'>} spAttachmentTimeline;
+</span><span class='line'>
+</span><span class='line'>spAttachmentTimeline* spAttachmentTimeline_create (int framesCount);</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void _spAttachmentTimeline_dispose (spTimeline* timeline) {
+</span><span class='line'>        spAttachmentTimeline* self = SUB_CAST(spAttachmentTimeline, timeline);
+</span><span class='line'>        int i;
+</span><span class='line'>
+</span><span class='line'>        _spTimeline_deinit(timeline);
+</span><span class='line'>
+</span><span class='line'>        for (i = 0; i &lt; self-&gt;framesCount; ++i)
+</span><span class='line'>                FREE(self-&gt;attachmentNames[i]);
+</span><span class='line'>        FREE(self-&gt;attachmentNames);
+</span><span class='line'>        FREE(self-&gt;frames);
+</span><span class='line'>        FREE(self);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>spAttachmentTimeline* spAttachmentTimeline_create (int framesCount) {
+</span><span class='line'>        spAttachmentTimeline* self = NEW(spAttachmentTimeline);
+</span><span class='line'>        _spTimeline_init(SUPER(self), SP_TIMELINE_ATTACHMENT, _spAttachmentTimeline_dispose, _spAttachmentTimeline_apply);
+</span><span class='line'>
+</span><span class='line'>        CONST_CAST(int, self-&gt;framesCount) = framesCount;
+</span><span class='line'>        CONST_CAST(float*, self-&gt;frames) = CALLOC(float, framesCount);
+</span><span class='line'>        CONST_CAST(char**, self-&gt;attachmentNames) = CALLOC(char*, framesCount);
+</span><span class='line'>
+</span><span class='line'>        return self;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>spTimeline</code>结构体的子类<code>spEventTimeline</code>：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>typedef struct spEventTimeline {
+</span><span class='line'>        spTimeline super;
+</span><span class='line'>        int const framesCount;
+</span><span class='line'>        float* const frames; /* time, ... */
+</span><span class='line'>        spEvent** const events;
+</span><span class='line'>
+</span><span class='line'>#ifdef __cplusplus
+</span><span class='line'>        spEventTimeline() :
+</span><span class='line'>                super(),
+</span><span class='line'>                framesCount(0),
+</span><span class='line'>                frames(0),
+</span><span class='line'>                events(0) {
+</span><span class='line'>        }
+</span><span class='line'>#endif
+</span><span class='line'>} spEventTimeline;
+</span><span class='line'>
+</span><span class='line'>spEventTimeline* spEventTimeline_create (int framesCount);</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void _spEventTimeline_dispose (spTimeline* timeline) {
+</span><span class='line'>        spEventTimeline* self = SUB_CAST(spEventTimeline, timeline);
+</span><span class='line'>        int i;
+</span><span class='line'>
+</span><span class='line'>        _spTimeline_deinit(timeline);
+</span><span class='line'>
+</span><span class='line'>        for (i = 0; i &lt; self-&gt;framesCount; ++i)
+</span><span class='line'>                spEvent_dispose(self-&gt;events[i]);
+</span><span class='line'>        FREE(self-&gt;events);
+</span><span class='line'>        FREE(self-&gt;frames);
+</span><span class='line'>        FREE(self);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>spEventTimeline* spEventTimeline_create (int framesCount) {
+</span><span class='line'>        spEventTimeline* self = NEW(spEventTimeline);
+</span><span class='line'>        _spTimeline_init(SUPER(self), SP_TIMELINE_EVENT, _spEventTimeline_dispose, _spEventTimeline_apply);
+</span><span class='line'>
+</span><span class='line'>        CONST_CAST(int, self-&gt;framesCount) = framesCount;
+</span><span class='line'>        CONST_CAST(float*, self-&gt;frames) = CALLOC(float, framesCount);
+</span><span class='line'>        CONST_CAST(spEvent**, self-&gt;events) = CALLOC(spEvent*, framesCount);
+</span><span class='line'>
+</span><span class='line'>        return self;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>spTimeline</code>结构体的子类<code>spDrawOrderTimeline</code>：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>typedef struct spDrawOrderTimeline {
+</span><span class='line'>        spTimeline super;
+</span><span class='line'>        int const framesCount;
+</span><span class='line'>        float* const frames; /* time, ... */
+</span><span class='line'>        const int** const drawOrders;
+</span><span class='line'>        int const slotsCount;
+</span><span class='line'>
+</span><span class='line'>#ifdef __cplusplus
+</span><span class='line'>        spDrawOrderTimeline() :
+</span><span class='line'>                super(),
+</span><span class='line'>                framesCount(0),
+</span><span class='line'>                frames(0),
+</span><span class='line'>                drawOrders(0),
+</span><span class='line'>                slotsCount(0) {
+</span><span class='line'>        }
+</span><span class='line'>#endif
+</span><span class='line'>} spDrawOrderTimeline;
+</span><span class='line'>
+</span><span class='line'>spDrawOrderTimeline* spDrawOrderTimeline_create (int framesCount, int slotsCount);</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void _spDrawOrderTimeline_dispose (spTimeline* timeline) {
+</span><span class='line'>        spDrawOrderTimeline* self = SUB_CAST(spDrawOrderTimeline, timeline);
+</span><span class='line'>        int i;
+</span><span class='line'>
+</span><span class='line'>        _spTimeline_deinit(timeline);
+</span><span class='line'>
+</span><span class='line'>        for (i = 0; i &lt; self-&gt;framesCount; ++i)
+</span><span class='line'>                FREE(self-&gt;drawOrders[i]);
+</span><span class='line'>        FREE(self-&gt;drawOrders);
+</span><span class='line'>        FREE(self-&gt;frames);
+</span><span class='line'>        FREE(self);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>spDrawOrderTimeline* spDrawOrderTimeline_create (int framesCount, int slotsCount) {
+</span><span class='line'>        spDrawOrderTimeline* self = NEW(spDrawOrderTimeline);
+</span><span class='line'>        _spTimeline_init(SUPER(self), SP_TIMELINE_DRAWORDER, _spDrawOrderTimeline_dispose, _spDrawOrderTimeline_apply);
+</span><span class='line'>
+</span><span class='line'>        CONST_CAST(int, self-&gt;framesCount) = framesCount;
+</span><span class='line'>        CONST_CAST(float*, self-&gt;frames) = CALLOC(float, framesCount);
+</span><span class='line'>        CONST_CAST(int**, self-&gt;drawOrders) = CALLOC(int*, framesCount);
+</span><span class='line'>        CONST_CAST(int, self-&gt;slotsCount) = slotsCount;
+</span><span class='line'>
+</span><span class='line'>        return self;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>spCurveTimeline</code>结构体的子类<code>spFFDTimeline</code>：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>typedef struct spFFDTimeline {
+</span><span class='line'>        spCurveTimeline super;
+</span><span class='line'>        int const framesCount;
+</span><span class='line'>        float* const frames; /* time, ... */
+</span><span class='line'>        int const frameVerticesCount;
+</span><span class='line'>        const float** const frameVertices;
+</span><span class='line'>        int slotIndex;
+</span><span class='line'>        spAttachment* attachment;
+</span><span class='line'>
+</span><span class='line'>#ifdef __cplusplus
+</span><span class='line'>        spFFDTimeline() :
+</span><span class='line'>                super(),
+</span><span class='line'>                framesCount(0),
+</span><span class='line'>                frames(0),
+</span><span class='line'>                frameVerticesCount(0),
+</span><span class='line'>                frameVertices(0),
+</span><span class='line'>                slotIndex(0) {
+</span><span class='line'>        }
+</span><span class='line'>#endif
+</span><span class='line'>} spFFDTimeline;
+</span><span class='line'>
+</span><span class='line'>spFFDTimeline* spFFDTimeline_create (int framesCount, int frameVerticesCount);</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void _spFFDTimeline_dispose (spTimeline* timeline) {
+</span><span class='line'>        spFFDTimeline* self = SUB_CAST(spFFDTimeline, timeline);
+</span><span class='line'>        int i;
+</span><span class='line'>
+</span><span class='line'>        _spCurveTimeline_deinit(SUPER(self));
+</span><span class='line'>
+</span><span class='line'>        for (i = 0; i &lt; self-&gt;framesCount; ++i)
+</span><span class='line'>                FREE(self-&gt;frameVertices[i]);
+</span><span class='line'>        FREE(self-&gt;frameVertices);
+</span><span class='line'>        FREE(self-&gt;frames);
+</span><span class='line'>        FREE(self);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>spFFDTimeline* spFFDTimeline_create (int framesCount, int frameVerticesCount) {
+</span><span class='line'>        spFFDTimeline* self = NEW(spFFDTimeline);
+</span><span class='line'>        _spCurveTimeline_init(SUPER(self), SP_TIMELINE_FFD, framesCount, _spFFDTimeline_dispose, _spFFDTimeline_apply);
+</span><span class='line'>        CONST_CAST(int, self-&gt;framesCount) = framesCount;
+</span><span class='line'>        CONST_CAST(float*, self-&gt;frames) = CALLOC(float, self-&gt;framesCount);
+</span><span class='line'>        CONST_CAST(float**, self-&gt;frameVertices) = CALLOC(float*, framesCount);
+</span><span class='line'>        CONST_CAST(int, self-&gt;frameVerticesCount) = frameVerticesCount;
+</span><span class='line'>        return self;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如果按照正确的<code>C++</code>析构函数写法，应该这么改：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void _spTimeline_deinit (spTimeline* self) {
+</span><span class='line'>  FREE(self-&gt;vtable);
+</span><span class='line'>    FREE(self);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>void _spCurveTimeline_deinit (spCurveTimeline* self) {
+</span><span class='line'>  FREE(self-&gt;curves);
+</span><span class='line'>  _spTimeline_deinit(SUPER(self));
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>void _spBaseTimeline_dispose (spTimeline* timeline) {
+</span><span class='line'>  struct spBaseTimeline* self = SUB_CAST(struct spBaseTimeline, timeline);
+</span><span class='line'>  FREE(self-&gt;frames);
+</span><span class='line'>  _spCurveTimeline_deinit(SUPER(self));
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>void _spFFDTimeline_dispose (spTimeline* timeline) {
+</span><span class='line'>  spFFDTimeline* self = SUB_CAST(spFFDTimeline, timeline);
+</span><span class='line'>  int i;
+</span><span class='line'>
+</span><span class='line'>    for (i = 0; i &lt; self-&gt;framesCount; ++i)
+</span><span class='line'>        FREE(self-&gt;frameVertices[i]);
+</span><span class='line'>    FREE(self-&gt;frameVertices);
+</span><span class='line'>    FREE(self-&gt;frames);
+</span><span class='line'>
+</span><span class='line'>  _spCurveTimeline_deinit(SUPER(self));
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>正当本渣以为解决了问题的一部分时，<code>Leaks</code>查出来的内存泄露并没有减少。本渣再次trace了下代码，这才发现spine这套析构函数多态机制之所以没问题，是因为根本不会有基类对象！坑爹啊！！</p>
+
+<p>本渣的下一个思路是把spine用到的结构体或类大小整理出来，和<code>Leaks</code>查出来的内存大小相比对，从而找到可疑的结构体，再相应去看它的实现代码。
+不过查出的泄露内存大小并不固定，这给本渣排查带来了很多不便。
+本渣在整理spine的结构体和类的同时也一点点地review代码，不知看了多久，最后总算在<code>SkeletonRenderer</code>的代码里捉到一处内存泄露bug：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void SkeletonRenderer::initialize () {
+</span><span class='line'>        _atlas = 0;
+</span><span class='line'>        _debugSlots = false;
+</span><span class='line'>        _debugBones = false;
+</span><span class='line'>        _timeScale = 1;
+</span><span class='line'>
+</span><span class='line'>        _worldVertices = MALLOC(float, 1000); // Max number of vertices per mesh.
+</span><span class='line'>
+</span><span class='line'>        _batch = PolygonBatch::createWithCapacity(2000); // Max number of vertices and triangles per batch.
+</span><span class='line'>        _batch-&gt;retain();
+</span><span class='line'>
+</span><span class='line'>        _blendFunc = BlendFunc::ALPHA_PREMULTIPLIED;
+</span><span class='line'>        setOpacityModifyRGB(true);
+</span><span class='line'>
+</span><span class='line'>        setGLProgram(ShaderCache::getInstance()-&gt;getGLProgram(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR));
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SkeletonRenderer::SkeletonRenderer () {
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SkeletonRenderer::SkeletonRenderer (spSkeletonData *skeletonData, bool ownsSkeletonData) {
+</span><span class='line'>        initWithData(skeletonData, ownsSkeletonData);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SkeletonRenderer::SkeletonRenderer (const std::string& skeletonDataFile, spAtlas* atlas, float scale) {
+</span><span class='line'>        initWithFile(skeletonDataFile, atlas, scale);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SkeletonRenderer::SkeletonRenderer (const std::string& skeletonDataFile, const std::string& atlasFile, float scale) {
+</span><span class='line'>        initWithFile(skeletonDataFile, atlasFile, scale);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void SkeletonRenderer::initWithData (spSkeletonData* skeletonData, bool ownsSkeletonData) {
+</span><span class='line'>        setSkeletonData(skeletonData, ownsSkeletonData);
+</span><span class='line'>
+</span><span class='line'>        initialize();
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void SkeletonRenderer::initWithFile (const std::string& skeletonDataFile, spAtlas* atlas, float scale) {
+</span><span class='line'>        spSkeletonJson* json = spSkeletonJson_create(atlas);
+</span><span class='line'>        json-&gt;scale = scale;
+</span><span class='line'>        spSkeletonData* skeletonData = spSkeletonJson_readSkeletonDataFile(json, skeletonDataFile.c_str());
+</span><span class='line'>        CCASSERT(skeletonData, json-&gt;error ? json-&gt;error : "Error reading skeleton data.");
+</span><span class='line'>        spSkeletonJson_dispose(json);
+</span><span class='line'>
+</span><span class='line'>        setSkeletonData(skeletonData, true);
+</span><span class='line'>
+</span><span class='line'>        initialize();
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void SkeletonRenderer::initWithFile (const std::string& skeletonDataFile, const std::string& atlasFile, float scale) {
+</span><span class='line'>        _atlas = spAtlas_createFromFile(atlasFile.c_str(), 0);
+</span><span class='line'>        CCASSERT(_atlas, "Error reading atlas file.");
+</span><span class='line'>
+</span><span class='line'>        spSkeletonJson* json = spSkeletonJson_create(_atlas);
+</span><span class='line'>        json-&gt;scale = scale;
+</span><span class='line'>        spSkeletonData* skeletonData = spSkeletonJson_readSkeletonDataFile(json, skeletonDataFile.c_str());
+</span><span class='line'>        CCASSERT(skeletonData, json-&gt;error ? json-&gt;error : "Error reading skeleton data file.");
+</span><span class='line'>        spSkeletonJson_dispose(json);
+</span><span class='line'>
+</span><span class='line'>        setSkeletonData(skeletonData, true);
+</span><span class='line'>
+</span><span class='line'>        initialize();
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>注意，<code>SkeletonRenderer::initWithFile</code>里为成员变量<code>_atlas</code>申请了内存空间，随后调用<code>SkeletonRenderer::initialize</code>，竟重置了这一指针，却没有释放内存！话说spine这段代码的C++类构造函数写得也真是醉：既然调用完<code>initWithFile</code>后不需要访问<code>_atlas</code>，那干脆用一个临时变量就可以了，何必用成员变量；而且<code>initialize</code>函数的不少赋值操作放在构造函数的初始化列表里比较合适。不过简单一点改，就直接调整下函数调用次序就好：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SkeletonRenderer::SkeletonRenderer () {
+</span><span class='line'>    initialize();
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SkeletonRenderer::SkeletonRenderer (spSkeletonData *skeletonData, bool ownsSkeletonData) {
+</span><span class='line'>    initialize();
+</span><span class='line'>    initWithData(skeletonData, ownsSkeletonData);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SkeletonRenderer::SkeletonRenderer (const std::string& skeletonDataFile, spAtlas* atlas, float scale) {
+</span><span class='line'>    initialize();
+</span><span class='line'>    initWithFile(skeletonDataFile, atlas, scale);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SkeletonRenderer::SkeletonRenderer (const std::string& skeletonDataFile, const std::string& atlasFile, float scale) {
+</span><span class='line'>    initialize();
+</span><span class='line'>    initWithFile(skeletonDataFile, atlasFile, scale);
+</span><span class='line'>}
+</span><span class='line'>void SkeletonRenderer::initWithData (spSkeletonData* skeletonData, bool ownsSkeletonData) {
+</span><span class='line'>        setSkeletonData(skeletonData, ownsSkeletonData);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void SkeletonRenderer::initWithFile (const std::string& skeletonDataFile, spAtlas* atlas, float scale) {
+</span><span class='line'>        spSkeletonJson* json = spSkeletonJson_create(atlas);
+</span><span class='line'>        json-&gt;scale = scale;
+</span><span class='line'>        spSkeletonData* skeletonData = spSkeletonJson_readSkeletonDataFile(json, skeletonDataFile.c_str());
+</span><span class='line'>        CCASSERT(skeletonData, json-&gt;error ? json-&gt;error : "Error reading skeleton data.");
+</span><span class='line'>        spSkeletonJson_dispose(json);
+</span><span class='line'>
+</span><span class='line'>        setSkeletonData(skeletonData, true);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void SkeletonRenderer::initWithFile (const std::string& skeletonDataFile, const std::string& atlasFile, float scale) {
+</span><span class='line'>        _atlas = spAtlas_createFromFile(atlasFile.c_str(), 0);
+</span><span class='line'>        CCASSERT(_atlas, "Error reading atlas file.");
+</span><span class='line'>
+</span><span class='line'>        spSkeletonJson* json = spSkeletonJson_create(_atlas);
+</span><span class='line'>        json-&gt;scale = scale;
+</span><span class='line'>        spSkeletonData* skeletonData = spSkeletonJson_readSkeletonDataFile(json, skeletonDataFile.c_str());
+</span><span class='line'>        CCASSERT(skeletonData, json-&gt;error ? json-&gt;error : "Error reading skeleton data file.");
+</span><span class='line'>        spSkeletonJson_dispose(json);
+</span><span class='line'>
+</span><span class='line'>        setSkeletonData(skeletonData, true);
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>改完这个bug，再重新跑<code>Instruments</code>的<code>Leaks</code>工具，结果之前的内存泄露都没有了，看来<code>SkeletonRenderer</code>的这处bug就是被检测出来的所有spine内存泄露的罪魁祸首！</p>
+
+<p>等到本渣兴高采烈想去提交一个PR时才发现，原来<code>spine</code>的repo上早有了fix该bug的<a href="https://github.com/EsotericSoftware/spine-runtimes/pull/461">patch</a>，cocos2d-x也有相同的<a href="https://github.com/cocos2d/cocos2d-x/issues/13150">patch</a>，看来还是要多跟进官方repo的进展啊&hellip;&hellip;这次查bug真是白耗精力，而且看了些spine的烂坑对自己也木有帮助，不开森:(</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Galoisplusplus</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-12-19T11:22:00+08:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/blog/categories/cocos2d-x/'>cocos2d-x</a>, <a class='category' href='/blog/blog/categories/cs/'>cs</a>, <a class='category' href='/blog/blog/categories/tech/'>tech</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://yszheda.github.io/blog/blog/2015/12/19/spine-memory-leaks/" data-via="" data-counturl="http://yszheda.github.io/blog/blog/2015/12/19/spine-memory-leaks/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/blog/2015/11/21/android-crash-in-cocos2d-x/" title="Previous Post: 记一次cocos2d-x游戏android崩溃排查">&laquo; 记一次cocos2d-x游戏android崩溃排查</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/blog/2016/01/02/my-top-ten-concerts-in-2015/" title="Next Post: 我的2015年度十大现场音乐会">我的2015年度十大现场音乐会 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/blog/2019/04/07/macbeth-by-tang-shu-wing/">《麦克白》的布莱希特剧场实践</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2019/01/01/those-concerts-in-2018/">盘点2018年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/05/22/cudaErrorCudartUnloading/">cudaErrorCudartUnloading问题排查及建议方案</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/01/01/those-concerts-in-2017/">盘点2017年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2017/11/11/Jonas-Kaufmann-recital/">Jonas Kaufmann独奏会之艺术歌曲</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<!--
+Copyright &copy; 2020 - Galoisplusplus -
+-->
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+</body>
+</html>

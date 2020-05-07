@@ -1,0 +1,534 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>检测quick-cocos2d-x游戏的lua内存泄漏 - Galoisplusplus</title>
+  <meta name="author" content="Galoisplusplus">
+
+  
+  <meta name="description" content="detect lua memory leak in quick-cocos2d-x">
+  <meta name="keywords" content="cocos2d-x, cocos, cocos2d, 游戏开发, 手游开发, game, mobile game, game devolopment, 内存泄露, memory leak, quick-cocos2d-x, quickx, quick-x, lua">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yszheda.github.io/blog/blog/2015/08/19/detect-lua-mem-leak-in-quick-x">
+  <link href="/blog/favicon.png" rel="icon">
+  <link href="/blog/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/blog/atom.xml" rel="alternate" title="Galoisplusplus" type="application/atom+xml">
+  <script src="/blog/javascripts/modernizr-2.0.js"></script>
+  <!--
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  -->
+  <script src="//libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/blog/javascripts/octopress.js" type="text/javascript"></script>
+  
+<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!--
+<link href="http://fonts.googleapis.com/css?family=Crimson+Text:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/blog/">Galoisplusplus</a></h1>
+  
+    <h2>A fan of science, technology and Classical music.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/blog/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:yszheda.github.io/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/blog/">Blog</a></li>
+  <li><a href="/blog/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">检测quick-cocos2d-x游戏的lua内存泄漏</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-08-19T11:53:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>虽然lua有垃圾回收机制，但在使用quick-cocos2d-x和lua开发游戏还是会有不恰当的实现方式所导致的lua内存泄露（例如对cocos2d-x的<code>Node</code>对象做了<code>retain</code>却没有<code>release</code>、把<code>local</code>变量定义成全局变量、没有根据instance的lifecycle去释放它所占有的资源等等）。最近看到云风大神写的lua内存泄露检查工具<a href="https://github.com/cloudwu/lua-snapshot">lua-snapshot</a>，便萌发了将它集成到我们游戏开发中，作为quantity assurance中一环。</p>
+
+<!-- more -->
+
+
+<h1>配置</h1>
+
+<p><code>lua-snapshot</code>是用C实现的。我在网上看到不少人是把<code>lua-snapshot</code>编译成动态链接库、用<code>package.loadlib</code>来调用的，其实lua的<code>require</code>本身就能加载C库的。</p>
+
+<p>首先在<code>cocos2d-x/external/lua/</code>目录下将lua-snapshot代码clone下来：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git clone https://github.com/cloudwu/lua-snapshot.git</span></code></pre></td></tr></table></div></figure>
+
+
+<p>在<code>cocos2d-x/cocos/scripting/lua-bindings/manual/lua-snapshot/</code>目录中添加如下文件：</p>
+
+<figure class='code'><figcaption><span> (lua_snapshot_extensions.h)</span> <a href='/blog/downloads/code/lua-snapshot/lua_snapshot_extensions.h'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#ifndef __LUA_SNAPSHOT_EXTRA_H_</span>
+</span><span class='line'><span class="cp">#define __LUA_SNAPSHOT_EXTRA_H_</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#if defined(_USRDLL)</span>
+</span><span class='line'>    <span class="cp">#define LUA_EXTENSIONS_DLL     __declspec(dllexport)</span>
+</span><span class='line'><span class="cp">#else         </span><span class="cm">/* use a DLL library */</span><span class="cp"></span>
+</span><span class='line'>    <span class="cp">#define LUA_EXTENSIONS_DLL</span>
+</span><span class='line'><span class="cp">#endif</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#if __cplusplus</span>
+</span><span class='line'><span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="p">{</span>
+</span><span class='line'><span class="cp">#endif</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &quot;lauxlib.h&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">void</span> <span class="n">LUA_EXTENSIONS_DLL</span> <span class="n">luaopen_lua_snapshot_extensions</span><span class="p">(</span><span class="n">lua_State</span> <span class="o">*</span><span class="n">L</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#if __cplusplus</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="cp">#endif</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#endif </span><span class="cm">/* __LUA_SNAPSHOT_EXTRA_H_ */</span><span class="cp"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span> (lua_snapshot_extensions.c)</span> <a href='/blog/downloads/code/lua-snapshot/lua_snapshot_extensions.c'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &quot;lua_snapshot_extensions.h&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#if __cplusplus</span>
+</span><span class='line'><span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="p">{</span>
+</span><span class='line'><span class="cp">#endif</span>
+</span><span class='line'><span class="c1">// snapshot</span>
+</span><span class='line'><span class="cp">#include &quot;lua-snapshot/snapshot.h&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">static</span> <span class="n">luaL_Reg</span> <span class="n">luax_exts</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">{</span><span class="s">&quot;snapshot&quot;</span><span class="p">,</span> <span class="n">luaopen_snapshot</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">void</span> <span class="nf">luaopen_lua_snapshot_extensions</span><span class="p">(</span><span class="n">lua_State</span> <span class="o">*</span><span class="n">L</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// load extensions</span>
+</span><span class='line'>    <span class="n">luaL_Reg</span><span class="o">*</span> <span class="n">lib</span> <span class="o">=</span> <span class="n">luax_exts</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">lua_getglobal</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="s">&quot;package&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">lua_getfield</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;preload&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(;</span> <span class="n">lib</span><span class="o">-&gt;</span><span class="n">func</span><span class="p">;</span> <span class="n">lib</span><span class="o">++</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">lua_pushcfunction</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">lib</span><span class="o">-&gt;</span><span class="n">func</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">lua_setfield</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">lib</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">lua_pop</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#if __cplusplus</span>
+</span><span class='line'><span class="p">}</span> <span class="c1">// extern &quot;C&quot;</span>
+</span><span class='line'><span class="cp">#endif</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span> (lua_cocos2dx_snapshot_manual.h)</span> <a href='/blog/downloads/code/lua-snapshot/lua_cocos2dx_snapshot_manual.h'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#ifndef __COCOS_SCRIPTING_LUA_BINDINGS_MANUAL_SNAPSHOT_LUA_COCOS2DX_SNAPSHOT_MANUAL_H__</span>
+</span><span class='line'><span class="cp">#define __COCOS_SCRIPTING_LUA_BINDINGS_MANUAL_SNAPSHOT_LUA_COCOS2DX_SNAPSHOT_MANUAL_H__</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#ifdef __cplusplus</span>
+</span><span class='line'><span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="p">{</span>
+</span><span class='line'><span class="cp">#endif</span>
+</span><span class='line'><span class="cp">#include &quot;tolua++.h&quot;</span>
+</span><span class='line'><span class="cp">#ifdef __cplusplus</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="cp">#endif</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">TOLUA_API</span> <span class="kt">int</span> <span class="n">register_snapshot_module</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#endif </span><span class="c1">//#ifndef __COCOS_SCRIPTING_LUA_BINDINGS_MANUAL_SNAPSHOT_LUA_COCOS2DX_SNAPSHOT_MANUAL_H__</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span> (lua_cocos2dx_snapshot_manual.cpp)</span> <a href='/blog/downloads/code/lua-snapshot/lua_cocos2dx_snapshot_manual.cpp'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &quot;lua_cocos2dx_snapshot_manual.h&quot;</span>
+</span><span class='line'><span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="p">{</span>
+</span><span class='line'><span class="cp">#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32 || CC_TARGET_PLATFORM == CC_PLATFORM_MAC)</span>
+</span><span class='line'><span class="cp">#include &quot;lua_snapshot_extensions.h&quot;</span>
+</span><span class='line'><span class="cp">#endif</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &quot;CCLuaEngine.h&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">register_snapshot_module</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">lua_getglobal</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="s">&quot;_G&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">lua_istable</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="c1">//stack:...,_G,</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'><span class="cp">#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32 || CC_TARGET_PLATFORM == CC_PLATFORM_MAC)</span>
+</span><span class='line'>        <span class="n">luaopen_lua_snapshot_extensions</span><span class="p">(</span><span class="n">L</span><span class="p">);</span>
+</span><span class='line'><span class="cp">#endif</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">lua_pop</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然后找到<code>lua_module_register.h</code>文件，在<code>lua_module_register</code>函数中添加</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>register_snapshot_module(L);</span></code></pre></td></tr></table></div></figure>
+
+
+<p>和头文件</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include "lua-snapshot/lua_cocos2dx_snapshot_manual.h"</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span> (lua_module_register.h)</span> <a href='/blog/downloads/code/lua-snapshot/lua_module_register.h'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#ifndef __LUA_TEMPLATE_RUNTIME_FRAMEWORKS_RUNTIME_SRC_CLASSES_LUA_MODULE_REGISTER_H__</span>
+</span><span class='line'><span class="cp">#define __LUA_TEMPLATE_RUNTIME_FRAMEWORKS_RUNTIME_SRC_CLASSES_LUA_MODULE_REGISTER_H__</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &quot;cocosdenshion/lua_cocos2dx_cocosdenshion_manual.h&quot;</span>
+</span><span class='line'><span class="cp">#include &quot;network/lua_cocos2dx_network_manual.h&quot;</span>
+</span><span class='line'><span class="cp">#include &quot;lua-snapshot/lua_cocos2dx_snapshot_manual.h&quot;</span>
+</span><span class='line'><span class="cp">#include &quot;cocosbuilder/lua_cocos2dx_cocosbuilder_manual.h&quot;</span>
+</span><span class='line'><span class="cp">#include &quot;cocostudio/lua_cocos2dx_coco_studio_manual.hpp&quot;</span>
+</span><span class='line'><span class="cp">#include &quot;extension/lua_cocos2dx_extension_manual.h&quot;</span>
+</span><span class='line'><span class="cp">#include &quot;ui/lua_cocos2dx_ui_manual.hpp&quot;</span>
+</span><span class='line'><span class="cp">#include &quot;spine/lua_cocos2dx_spine_manual.hpp&quot;</span>
+</span><span class='line'><span class="cp">#include &quot;3d/lua_cocos2dx_3d_manual.h&quot;</span>
+</span><span class='line'><span class="cp">#include &quot;audioengine/lua_cocos2dx_audioengine_manual.h&quot;</span>
+</span><span class='line'><span class="cp">#include &quot;lua/quick/lua_cocos2dx_quick_manual.hpp&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="nf">lua_module_register</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">//Dont&#39; change the module register order unless you know what your are doing</span>
+</span><span class='line'>    <span class="n">register_cocosdenshion_module</span><span class="p">(</span><span class="n">L</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">register_network_module</span><span class="p">(</span><span class="n">L</span><span class="p">);</span>
+</span><span class='line'><span class="cp">#if CC_USE_CCBUILDER</span>
+</span><span class='line'>    <span class="n">register_cocosbuilder_module</span><span class="p">(</span><span class="n">L</span><span class="p">);</span>
+</span><span class='line'><span class="cp">#endif</span>
+</span><span class='line'><span class="cp">#if CC_USE_CCSTUDIO</span>
+</span><span class='line'>    <span class="n">register_cocostudio_module</span><span class="p">(</span><span class="n">L</span><span class="p">);</span>
+</span><span class='line'><span class="cp">#endif</span>
+</span><span class='line'>    <span class="n">register_ui_moudle</span><span class="p">(</span><span class="n">L</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">register_extension_module</span><span class="p">(</span><span class="n">L</span><span class="p">);</span>
+</span><span class='line'><span class="cp">#if CC_USE_SPINE</span>
+</span><span class='line'>    <span class="n">register_spine_module</span><span class="p">(</span><span class="n">L</span><span class="p">);</span>
+</span><span class='line'><span class="cp">#endif</span>
+</span><span class='line'><span class="cp">#if CC_USE_3D</span>
+</span><span class='line'>    <span class="n">register_cocos3d_module</span><span class="p">(</span><span class="n">L</span><span class="p">);</span>
+</span><span class='line'><span class="cp">#endif</span>
+</span><span class='line'>    <span class="n">register_audioengine_module</span><span class="p">(</span><span class="n">L</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">register_snapshot_module</span><span class="p">(</span><span class="n">L</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#endif  </span><span class="c1">// __LUA_TEMPLATE_RUNTIME_FRAMEWORKS_RUNTIME_SRC_CLASSES_LUA_MODULE_REGISTER_H__</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>使用</h1>
+
+<p>由于我们游戏的界面主要是窗口，所以之前实现时便在cocos2d-x引擎的<code>Scene</code>和<code>Layer</code>中间引入了一层<code>Window</code>，并用一个全局singleton的<code>WindowManager</code>对所有<code>Window</code>对象进行管理，对窗口的创建前、创建后、销毁前、销毁后等等行为做公共处理。这样的设计给我加入内存泄露检测带来了不少便利：我只需在创建窗口实例之前记录下当时的快照snapshot1，打开窗口后根据这个窗口的功能做一些操作——通常和测试功能一起进行，也和<code>WindowManager</code>的公共逻辑无关，所以不在代码做处理——在窗口销毁前记下snapshot2，在销毁后记下snapshot3，比较这三个快照，如果一个实例不在snapshot1中而存在于snapshot2和snapshot3中，则该实例属于这个窗口操作后造成的内存泄露。</p>
+
+<h1>参考资料</h1>
+
+<ul>
+<li><p>[1]<a href="http://blog.codingnow.com/2012/12/lua_snapshot.html">一个 Lua 内存泄露检查工具</a></p></li>
+<li><p>[2]<a href="http://colen.iteye.com/blog/588897">游戏逻辑层在Lua中的内存泄漏与防范</a></p></li>
+<li><p>[3]<a href="http://shavingha.blog.163.com/blog/static/10378336200822134554488/">lua内存泄漏查证</a></p></li>
+<li><p>[4]<a href="http://www.codingart.info/snapshot-detect-Lua-memoryleak.html">使用snapshot检测Lua中的内存泄露</a></p></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Galoisplusplus</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-08-19T11:53:00+08:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/blog/categories/cocos2d-x/'>cocos2d-x</a>, <a class='category' href='/blog/blog/categories/cs/'>cs</a>, <a class='category' href='/blog/blog/categories/tech/'>tech</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://yszheda.github.io/blog/blog/2015/08/19/detect-lua-mem-leak-in-quick-x/" data-via="" data-counturl="http://yszheda.github.io/blog/blog/2015/08/19/detect-lua-mem-leak-in-quick-x/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/blog/2015/08/16/Bach-Six-Suites-for-Solo-Cello/" title="Previous Post: 胡言乱语话大无">&laquo; 胡言乱语话大无</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/blog/2015/09/05/Shlomo-Mintz-Plays-Bach-Partita-for-Solo-Violin/" title="Next Post: Shlomo Mintz演奏巴赫小无组曲">Shlomo Mintz演奏巴赫小无组曲 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/blog/2019/04/07/macbeth-by-tang-shu-wing/">《麦克白》的布莱希特剧场实践</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2019/01/01/those-concerts-in-2018/">盘点2018年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/05/22/cudaErrorCudartUnloading/">cudaErrorCudartUnloading问题排查及建议方案</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/01/01/those-concerts-in-2017/">盘点2017年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2017/11/11/Jonas-Kaufmann-recital/">Jonas Kaufmann独奏会之艺术歌曲</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<!--
+Copyright &copy; 2020 - Galoisplusplus -
+-->
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+</body>
+</html>

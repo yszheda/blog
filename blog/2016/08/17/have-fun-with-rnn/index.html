@@ -1,0 +1,848 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>RNN(Recurrent Neural Networks)的有趣实验 - Galoisplusplus</title>
+  <meta name="author" content="Galoisplusplus">
+
+  
+  <meta name="description" content="Have Fun With RNN">
+  <meta name="keywords" content="RNN, machine learning, data mining">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yszheda.github.io/blog/blog/2016/08/17/have-fun-with-rnn">
+  <link href="/blog/favicon.png" rel="icon">
+  <link href="/blog/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/blog/atom.xml" rel="alternate" title="Galoisplusplus" type="application/atom+xml">
+  <script src="/blog/javascripts/modernizr-2.0.js"></script>
+  <!--
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  -->
+  <script src="//libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/blog/javascripts/octopress.js" type="text/javascript"></script>
+  
+<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!--
+<link href="http://fonts.googleapis.com/css?family=Crimson+Text:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/blog/">Galoisplusplus</a></h1>
+  
+    <h2>A fan of science, technology and Classical music.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/blog/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:yszheda.github.io/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/blog/">Blog</a></li>
+  <li><a href="/blog/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">RNN(Recurrent Neural Networks)的有趣实验</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-08-17T10:12:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>前段时间fracting兄分享了<a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">Andrej Karpathy一篇介绍RNN(Recurrent Neural Networks)的文章</a>，我看了之后觉得非常有趣，也用作者Andrej Karpathy写的<a href="https://github.com/karpathy/char-rnn">char-rnn</a>跑了一些实验玩玩。</p>
+
+<h1>代码实验</h1>
+
+<p>作为码农，我最开始自然地想到用<code>rnn</code>来训练代码啦！</p>
+
+<h2>lua源代码</h2>
+
+<p>我把lua-5.2.3的代码都写到一个文件里作为训练数据。<code>lua</code>的代码实在是太精炼了，竟然1M不到，只有544K！我没有更改<code>char-rnn</code>的默认参数，跑完了所有的50个<code>epoch</code>。取样时我一下就把<code>temperature</code>设为1（<code>temperature</code>是一个0到1的参数，越大随机性越高，设为1也就是机器原创性最好的条件了），结果还是比我想象中的好很多：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>LUA_API const char *lua_string(lua_State *L, int toidx);
+</span><span class='line'>LUAI_FUNC void luaV_op (lua_State *L);
+</span><span class='line'>
+</span><span class='line'>LUA_API void  (lua_setloge) (lua_State *L, lua_Degrawiol) set) {
+</span><span class='line'>  int i;
+</span><span class='line'>  for (i = n - "indininple")";
+</span><span class='line'>  for (p = luaL_int(func, nup+n, nup), &winzed);
+</span><span class='line'>  return ts;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>LUA_API void lua_touserdata (lua_State *L, int nargp) {
+</span><span class='line'>  lua_CFunction fo = h-&gt;next;  /* path list of `must the stack is string */
+</span><span class='line'>  while (p-&gt;cactconul == NA_JUMP) {  /* remove result back */
+</span><span class='line'>      lua_xmove(L, 1);  /* remove functions in empty liblering */
+</span><span class='line'>      if (!(!ass_epp(lua_Number)(e) - 1))
+</span><span class='line'>        lua_pop(L, 1, 1, i, o2);  /* remove it informed is name */
+</span><span class='line'>      else {
+</span><span class='line'>        lua_getuserval(L, idx2a(L), nvalue(o));
+</span><span class='line'>      lua_pushvalue(L, unsupvalue);
+</span><span class='line'>          return finuserode(L, nargs, ns);
+</span><span class='line'>          finit = strchr(*(s, p, lewvalues));
+</span><span class='line'>        lua_pushliteral(L, "tobove");
+</span><span class='line'>        tb = uv-&gt;u.l.pastpvarsing; i++)  /* logits avoid strings */
+</span><span class='line'>        lua_Number k = luaL_checkint(L, 2, 1), lua_isnumber(L, idx) != 0)
+</span><span class='line'>                            const char *p, expdesc v, int skiZc, L-&gt;clock, int);
+</span><span class='line'>      if (lua_getisteop(L, i) != LUA_REGERMADDER) {  /* no move
+</span><span class='line'>(followed framaling) */
+</span><span class='line'>        L-&gt;oldpc = size_t, L-&gt;stack + G(L)-&gt;currentline;
+</span><span class='line'>      checknext(ls, TK_EOS, NO_JUMP);
+</span><span class='line'>    i &gt;= casch_k == NO_ORTENS sizeof(char + 1));
+</span><span class='line'>    switch (ls-&gt;cause)
+</span><span class='line'>      luai_writh(g));
+</span><span class='line'>    j-&gt;basstring = NOPribig/ gch(o)-&gt;marked;  /* an open unsigned
+</span><span class='line'>instect tocome */
+</span><span class='line'>    lua_pushvalue(L, -1);  /* put to use name */
+</span><span class='line'>  }
+</span><span class='line'>  else {
+</span><span class='line'>    int nvars[i] = g-&gt;gcvalue[g-- &lt; data = orr.in_PAXTABL;
+</span><span class='line'>lua_pushbouceran(L, v2);  /* value stack */
+</span><span class='line'>        sav_char_(luaL_optint(L, strfrot));
+</span><span class='line'>  c = sig_meth (level) {
+</span><span class='line'>      prongc = (**s == '-');
+</span><span class='line'>      else {
+</span><span class='line'>        break;
+</span><span class='line'>    }
+</span><span class='line'>    case GCSsweep = mode;  /* skip liblare `next' */
+</span><span class='line'>    if (gnodead(t, a)) {  /* called old return */
+</span><span class='line'>      lua_pushstring(L, name);
+</span><span class='line'>      setnilvalue(o);
+</span><span class='line'>  }
+</span><span class='line'>  else {
+</span><span class='line'>    while (l &lt; l)
+</span><span class='line'>      closeL;
+</span><span class='line'>      return NULL;
+</span><span class='line'>    }
+</span><span class='line'>    ttydebuffield(L, LUA_FINTFOCLEN);  /* signed invalid of capture is
+</span><span class='line'>a sunpting */
+</span><span class='line'>    setsvalue2s(L, L, luaL_checkinteger)(L, 1), LUA_TFuLLEA) +
+</span><span class='line'>(L-&gt;size = LUA_RIDS);  /* elual library operand matched (filencat) */
+</span><span class='line'>    if (stmp) res = rowninizers[i]; i-valid */
+</span><span class='line'>    makes = 0;
+</span><span class='line'>    }
+</span><span class='line'>    if (l &lt;= i &lt; args) {
+</span><span class='line'>    luaL_addchar(&b, collectar(s, n, 1));
+</span><span class='line'>    if (lua_isnoneornil(L, 2))  /* not noting thave arguments */
+</span><span class='line'>      /* stat -&gt; == L-&gt;ci-&gt;nexps - '?' */
+</span><span class='line'>      if (fermst = 1) {
+</span><span class='line'>      if (luaS_eqstr(luaL_checknumber(L, 1))) {
+</span><span class='line'>        if (*(s != k &gt;&gt; 2] || ttisstring(g-&gt;GCasbertocaum(L)) != 0 &&
+</span><span class='line'>!luaD_freall(L, hvars(luaL_len(p, 0));
+</span><span class='line'>      break;
+</span><span class='line'>    }
+</span><span class='line'>    case LC_LOADG2(L); lua_pushcclosure(L, idx12x(f));
+</span><span class='line'>    setobj2s(L,
+</span><span class='line'>                 "L_callint " function");
+</span><span class='line'>                                               singleballstatis);
+</span><span class='line'>  shrint (lua_tointeger(L, 1), luaT_gettmotableark, (lua__collok(L, 1,
+</span><span class='line'>0, 2))) == l2);
+</span><span class='line'>  return 1;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>static int db_setret (lua_State *L) {
+</span><span class='line'>  int status = lua_load(L, lua_tointeger(L, L, "cnonal "-") " too pvarial be
+</span><span class='line'>* with number of yi-valid function");
+</span><span class='line'>  (func == LUA_TFUNCTI NUM: baset2(obj2gco(k));
+</span><span class='line'>  checkStaceenstarn(l, nvalue(o));
+</span><span class='line'>  api_incr_top(L);
+</span><span class='line'>  lua_unlock(L);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>LUA_API const char *lua_pushstring (lua_State *L, int n, const char *e) {
+</span><span class='line'>  const char *msg = lua_tolstring(L, -1, &ls);
+</span><span class='line'>  lua_unlock(L);
+</span><span class='line'>  if (status == LUA_OK) dectal(SeEMASK);
+</span><span class='line'>  return 1;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>static void pushfunccall (lua_State *L) {
+</span><span class='line'>  Labell check;
+</span><span class='line'>   lua_assert(argv[i] == LUA_TTABLE);  /* table to compert */
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>采样结果比较像的是：</p>
+
+<ul>
+<li><p>结构体和函数命名。有相当一部分和<code>lua</code>源代码是一样的，例如<code>LUA_API</code>、<code>LUAI_FUNC</code>、<code>lua_State</code>、<code>lua_pushvalue</code>、<code>luaL_checkint</code>等等。即使是rnn自造的，也有一些挺符合规范的，例如<code>lua_string</code>、<code>luaV_op</code>，几乎可以以假乱真。一个稍微差一点的例子是<code>luaT_gettmotableark</code>，尽管末尾造的词看不出意义，但仍然符合<code>lua</code>源代码里API的命名规则：<code>lua${一个大写字母表示API类型}_${方法名}</code>（例如<code>lua</code>源代码里，<code>table</code>类型的API叫做<code>luaT_xxx</code>，<code>string</code>类型的叫做<code>luaS_xxx</code>，<code>lua</code>虚拟机的API叫做<code>luaV_xxx</code>）。</p></li>
+<li><p><code>lua</code> API中经常用状态机结构体指针作为参数传递，<code>rnn</code>采样的结果中，也经常以<code>lua_State *L</code>作为函数定义的第一个参数，在调用函数时也常常以<code>L</code>作为第一个传入的参数。</p></li>
+</ul>
+
+
+<p>比较不理想的是：</p>
+
+<ul>
+<li><p>括号、双引号不成对而引起的语法错误。</p></li>
+<li><p>上下文的语义相关性差，例如上面那段代码最后的函数<code>pushfunccall</code>，传入参数<code>L</code>是没有被用到的，里面用到的<code>argv</code>并没有被声明。</p></li>
+</ul>
+
+
+<h2>cocos2d-x源代码</h2>
+
+<p>我用<code>cocos2d-x</code>的源代码做了实验。<code>cocos2d-x</code>的代码就臃肿得多了，合起来有32M。由于数据较大，我训练时就把<code>rnn_size</code>调高，设了700，<code>num_layers</code>设了2。一开始用CPU训练，特别慢，中途我就弃疗了。后来把OpenCL配置好，用集显来训练，比原来大概快了一倍——毕竟是集显没多少核，所以无法达到10倍的加速比，要是能用以前实验室的K20X跑就好了。</p>
+
+<p>这个实验跑得特别慢，我中间机器还重启过，重跑了<code>train.lua</code>，目前只跑了11.32个<code>epoch</code>。所以采样结果就不太理想了，要么是一大段注释，要么各种语法错误，这应该跟<code>cocos2d-x</code>的代码风格和采用<code>C</code>、<code>C++</code>、<code>lua</code>、<code>Python</code>、<code>Objective-C</code>等多种语言也有关系。我把<code>temperature</code>设为0.5才出来下面东拼西凑得稍微像样的结果：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/* &lt;/key&gt; TE'Casting C++ Transfer SQLite core constraints.
+</span><span class='line'>
+</span><span class='line'> */
+</span><span class='line'>
+</span><span class='line'>typedef struct SPender {
+</span><span class='line'>
+</span><span class='line'>    /*! The return code for the content of the content of the control
+</span><span class='line'>object may be passed to the first character. "
+</span><span class='line'>
+</span><span class='line'>                                              no tileset -- called
+</span><span class='line'>requested to not support android definitions are allocated as the ba
+</span><span class='line'>
+</span><span class='line'>ckup processed to any this
+</span><span class='line'>
+</span><span class='line'>        * directory.
+</span><span class='line'>
+</span><span class='line'>     */
+</span><span class='line'>
+</span><span class='line'>    std::string getControllerDataBits() const;
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    /** @brief Retrieves a GLProgram with the specified name of the
+</span><span class='line'>current position of the container.
+</span><span class='line'>
+</span><span class='line'>     * @param vector The new z-order of the key of this node below.
+</span><span class='line'>
+</span><span class='line'>     *  @param contains The integer key for the key.
+</span><span class='line'>
+</span><span class='line'>     *  @return the integer key for setting the key to write to the
+</span><span class='line'>key for the key.
+</span><span class='line'>
+</span><span class='line'>     *  @param[in]          the number of the key of the key.
+</span><span class='line'>
+</span><span class='line'>    */
+</span><span class='line'>
+</span><span class='line'>    virtual void visit(const char* target, int defaultValueCount);
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    /** create a new function with an automatic code from a loader to
+</span><span class='line'>the ceater's container with a dictionary, the format of the first
+</span><span class='line'>
+</span><span class='line'> in the writer. The tile did the
+</span><span class='line'>
+</span><span class='line'>        types since they are not supported
+</span><span class='line'>
+</span><span class='line'>    */
+</span><span class='line'>
+</span><span class='line'>    bool onFloat;
+</span><span class='line'>
+</span><span class='line'>    /*! The cropping to allow the third particular after the width, in
+</span><span class='line'>screen coordinates. The value must be the offset to the interfac
+</span><span class='line'>
+</span><span class='line'>e to disk.
+</span><span class='line'>
+</span><span class='line'>     */
+</span><span class='line'>
+</span><span class='line'>    void setUniformValue(const std::string &url);
+</span><span class='line'>
+</span><span class='line'>    /** @brief Returns the number of tilesets the one node's container
+</span><span class='line'>window, it means the default world set is the standard orientati
+</span><span class='line'>
+</span><span class='line'>on, the director will be returned.
+</span><span class='line'>
+</span><span class='line'>     *  @return The number of elements also returns NULL.
+</span><span class='line'>
+</span><span class='line'>     *  @return An autorelease object pointer, or a NULL pointer.
+</span><span class='line'>
+</span><span class='line'>    */
+</span><span class='line'>
+</span><span class='line'>    inline const char* getTileGID() const { return _restoreOriginalFrame; };
+</span><span class='line'>
+</span><span class='line'>    inline Vec2 _projection;
+</span><span class='line'>
+</span><span class='line'>    std::string _subStepping;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>自然语言实验</h1>
+
+<h2>英文文章</h2>
+
+<p>我写了个很简单的爬虫去爬一个<a href="http://www.musicweb-international.com/">英文音乐网站</a>上的乐评文章，完整地爬了1.8G，但后来我发现：这个网站的样式有改版，而我是通过<code>css</code>去筛选乐评的，导致里面有些数据有问题。这个网站上的乐评基本是碟评，我最开始也想到把碟的标题、曲目和乐评都抓出来一起训练，但后来也是因为网页样式不够统一而作罢，只抓了乐评的内容。最后用的数据大概只有两千多篇乐评文章，12M，所有的内容我都过了一遍，删掉了其中有问题的数据——因为当时不知道有问题的数据大概长啥样，只用正则表达式很简单地筛掉了完全没有出现英文字符的数据，所以这两千多条数据我竟然是很蠢地人肉看的orz&hellip;</p>
+
+<p>训练时把<code>rnn_size</code>设到了300，一共训练了50个<code>epoch</code>。采样时我传了一些音乐家的名字作为<code>-primetext</code>参数，不过奇怪的是，产生的文本并不是我所想的“命题作文”，里面包含我所设定的音乐家名字的很少。</p>
+
+<p>下面是<code>temperature</code>为0.8时产生的一些文本：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>                John Eliot Gardiners' music has been recorded by Machiavey
+</span><span class='line'>            Brahms and the Telarc hand. Here, though it seems the
+</span><span class='line'>‘death’ with Ian Walton in the soloist
+</span><span class='line'>                    sounds truly resigned as Bartók in . The
+</span><span class='line'>                  assurance composer brings to the narrative evocation
+</span><span class='line'>                  climax. There’s much lovely theme for Mass
+</span><span class='line'>                and of the Boris. All composers look forward to
+</span><span class='line'>her cycles, and the notes that sticed him much snob-is off-air points
+</span><span class='line'>out.  The detailed and the Canzonetta (Sheher
+</span><span class='line'>                is in the collective for distribution for the
+</span><span class='line'>                  father to the and spirit of the composer’s voice from DG
+</span><span class='line'>                many Greeks.
+</span><span class='line'>              The last piece is rather than true to the programme
+</span><span class='line'>                for their top recommendation. Add to Ireland’s
+</span><span class='line'>                  first performance has one of the most slight lovely small
+</span><span class='line'>                  performances of Parama Mozdianic’s music as well
+</span><span class='line'>as composer and should
+</span><span class='line'>                    write and there is little of its own
+</span><span class='line'>individual aspects. The recording of both the recording by Royal Eleno
+</span><span class='line'>Stevens, the disc
+</span><span class='line'>                  () “…Better and far criticised into the second
+</span><span class='line'>movement – most popular of a composer
+</span><span class='line'>                    to summarise what was able to depict the way
+</span><span class='line'>through it with
+</span><span class='line'>                introspective substance to the rest of the most
+</span><span class='line'>                  enjoyable theme. It is worth a major prelude, he
+</span><span class='line'>had been a versatile, subdued violinist who points out with
+</span><span class='line'>                the end of the Sarah and of the Roman concerto for
+</span><span class='line'>                a performance in the late CD arrangement of the
+</span><span class='line'>soloist which make the strange
+</span><span class='line'>                music that tells the sounds to create in the
+</span><span class='line'>                  change of rare and warm long, romantic partnership.
+</span><span class='line'>                  So too much of it all recently is perfectly
+</span><span class='line'>contradictoned, for me,
+</span><span class='line'>                  but the harmonies are in the more prominent
+</span><span class='line'>            music at the start to “Goldsmith” because
+</span><span class='line'>                the result is not as if not merely moving in the
+</span><span class='line'>first two sessions. From there  were my repeat that one may seem like
+</span><span class='line'>a position appear to be listening to my beef?” Protestating the
+</span><span class='line'>            concert-half and the same text – making “destinal” the
+</span><span class='line'>use of the innocent
+</span><span class='line'>            performances in the pleasure of the piece,
+</span><span class='line'>                  but there was a time to convince the ‘allegro
+</span><span class='line'>                from the shameful of the experience as the price
+</span><span class='line'>of the piece’ (the
+</span><span class='line'>                  most movement of Byrd
+</span><span class='line'>                John Carroll) and his own sights of the first movement from
+</span><span class='line'>                  his opera too. This was the earlier half of the
+</span><span class='line'>text. So this is long realised
+</span><span class='line'>                from one of the best deserts projects which work very well
+</span><span class='line'>                as like yourself, I should even prevent the
+</span><span class='line'>correct paces on a prejudice and clear that can also work certainly
+</span><span class='line'>                - a compelling performance as principal force and
+</span><span class='line'>his live performers in
+</span><span class='line'>                the shadow of the work. This is the disc of the talking.
+</span><span class='line'>                  This was a well-used recording …. Yet for this
+</span><span class='line'>                  recording has more intense from a disc amasted
+</span><span class='line'>the Roman Bale’s choir,
+</span><span class='line'>                    a pastoral player from the following ‘Composer’ (tr.
+</span><span class='line'>                  8) the first slow piece all low delicate and
+</span><span class='line'>intense and stunning and then chosen music.</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>These are composers that would say that John Williams has said that
+</span><span class='line'>happily should be struck by the singers of the score for a sequel
+</span><span class='line'>evocative and character of several Scarlatti.
+</span><span class='line'>  The score is also released and with the price of the separately
+</span><span class='line'>sopranctic piece and making a case of practical distinction with the
+</span><span class='line'>'methoy of information a tragically devout and distant and generally
+</span><span class='line'>small exploration).  Strobbe injustice that the sound is subtly but
+</span><span class='line'>distanced over flat illustrate scores by the score by Glennie twistens
+</span><span class='line'>and the preceding musicians who are uncommonly detailed with much of
+</span><span class='line'>the original MGM track. Debney writes down the score, it is, as this
+</span><span class='line'>classic opera, Supermulation player
+</span><span class='line'>  of Bernard Herrmann and the writing of the Sinfonia (Herberton Koon
+</span><span class='line'>& Glyniform Graham) where he wrote some composers, and is a pleasant
+</span><span class='line'>work for very little before I think I am of completely different
+</span><span class='line'>settings of the score it is, in the background forty band of score for
+</span><span class='line'> and , one of the most original excerpts only a revelation to warning
+</span><span class='line'>you without
+</span><span class='line'>computer use I don’t certainly is
+</span><span class='line'>be creating a small sound. Morricone’s ‘Discovery’ is all the same
+</span><span class='line'>passages featuring luxurial taste. \rAOr tradition and Victoria’s
+</span><span class='line'>sampled confusion from the cinema setting.
+</span><span class='line'>His admirable period of recognizably derivatives recalling its
+</span><span class='line'>subject. Highly recommended.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>整篇还是比较前言不搭后语，但是单看句子还是比较通顺的，也用了不少音乐家的名字（Gardiner、Brahms、Scarlatti）、厂牌名（Telarc、DG）和音乐术语（Canzonetta、Sinfonia）。</p>
+
+<h2>中文古诗词</h2>
+
+<p>我觉得中国古诗词是极好的数据集：</p>
+
+<ul>
+<li><p>我对把文学作品当做机器学习的数据集也很感兴趣，很好奇最后会产生什么样的“作品”。</p></li>
+<li><p>个人认为机器对于处理structed data更为在行，而在文学中，古典诗词无疑是很有规律的。相比之下，散文、小说等现代文学总归是太散了些。</p></li>
+<li><p>还有其他一些规律性很强的文体，例如日本的俳句和川柳，但我朝的古诗词起码我们能看得懂——字啊！</p></li>
+</ul>
+
+
+<p>接下来就是从哪里获得数据的问题了。虽然电子书网站不少，不难下载到这方面文本的txt，但这种txt有些问题我不太满意：</p>
+
+<ul>
+<li><p>会把某些字拆开，例如把“勖”写成“冒力”。</p></li>
+<li><p>会插入一些注解，但我并不想把注释加到训练数据里面。</p></li>
+</ul>
+
+
+<p>后来我发现<a href="http://ctext.org/">Chinese Text Project</a>上有一些资源，而且并没有上述问题，所以我也写了一个简单的<a href="https://github.com/yszheda/ctext_crawler">爬虫</a>去爬《全唐诗》。不过该网站禁止使用自动下载软件，我最开始忘了调爬虫的<code>DOWNLOAD_DELAY</code>参数，所以在爬了一些数据后就被封了&hellip;后来又用代理继续爬，总共爬了2.7M（4794首诗），每首诗按照如下格式存成了json文件：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>   {
+</span><span class='line'>      "title" : "《寄溫飛卿箋紙》",
+</span><span class='line'>      "content" : "\n三十六鱗充使時，數番猶得裹相思。\n待將袍襖重抄了，盡寫襄陽播掿詞。",
+</span><span class='line'>      "author" : " 段成式著"
+</span><span class='line'>   },</span></code></pre></td></tr></table></div></figure>
+
+
+<p>我用<code>char-rnn</code>训练了50个<code>epoch</code>，诗人<code>rnn</code>在脾气最大（<code>temperature</code>为1）时所作的大作如果集结出版，就叫它<a href="https://coding.net/u/GaloisPlusPlus/p/galoisplusplus/git/raw/source/source/downloads/code/rnn/quantangshi-sample.json">《循神网诗选》</a>（循神网=循环神经网络=Recurrent Neural Networks=RNN）吧XDD</p>
+
+<p>《循神网诗选》中，标题和署名是模仿得最难以分辨的，能一眼看出是机器胡诌的极少——例如有一则标题很长的诗。但是诗的内容总体就是胡言乱语了。不过还有一些有意思的句子：“萬里曙山牢”，用“萬里”“牢”形容山，很形象啊；“春風寒酒憔悴殺”，用的词“寒”“憔悴”意象很相近啊。不过由于前言不搭后语，整联写得好的比较少，《循选》读下来，似乎就“秋水燕蘭樹，春暉漫柳霧”还有对仗工整之处。不过刚刚学诗的循神网来说也是个奇迹，循神网真是骨骼精奇啊！</p>
+
+<p>另外要说明一下，<code>char-rnn</code>目前是以byte而非utf8的一个word来处理的，神奇的是我几乎没在采样中发现有不符合utf8编码的情况——191首诗里仅有三四首不能正确解码——看来<code>rnn</code>竟然很好地掌握了utf8编码的规律。<code>json</code>格式就更不在话下啦！</p>
+
+<p><code>char-rnn</code>上也有一些utf8 word的<a href="https://github.com/karpathy/char-rnn/pull/12">PR</a>，但因为兼容性问题没被接受，我也照着他们改的地方写了个patch，还有点问题，等调好了之后再跑古诗词的实验，应该会有更有趣的结果。</p>
+
+<h1>其他structed data</h1>
+
+<p>此外，我想到网络数据包也是一种可以用来训练的structed data，所以也用<code>tcpdump</code>抓了一些包做实验。不过需要按照<a href="https://github.com/karpathy/char-rnn/issues/51#issuecomment-129625032">这个issue</a>所说的，稍微改下<code>char-rnn</code>的代码。目前还没跑完训练，等训练完50个<code>epoch</code>后，再来看看采样生成的数据能用<code>tcpdump</code>读取的正确率有多高。</p>
+
+<p>说到非文本的structed data，我还想到了图片、语音和音乐，其中我最感兴趣的还是音乐——各位应该也猜到本乐渣想对音乐下手了吧XD。但是用<code>rnn</code>来训练音乐有一些问题，这也使得它暂时还处于我的脑洞阶段：</p>
+
+<ul>
+<li><p>最能反映音乐“原貌”的恐怕还是音频，但是音频文件有不同格式的编解码，并不符合<code>rnn</code>的character-level language model。就好比<a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">Andrej Karpathy那篇博文</a>里所举的“hello”的例子：如果“hello”这个文本被加密过，那么两个连续的“l”很可能被加密函数映射成不同的字符，诸如字母"h"后较大可能跟的是字母“e”这种规律也将失效。音频虽然对聆听者而言最能反映音乐“原貌”，但音频文件本身与音乐“原貌”还相距甚远，或许需要从中提取有用的特征作为数据集，才能体现音乐中的有规律之处。</p></li>
+<li><p>不能直接用音频文件，只能退而求其次了。你应该想到一种很古老的将音乐图像化的方式——乐谱——了吧？不过乐谱在我看来还主要是作曲家记谱的工具，用于还原音乐演奏会失真。例如钢琴乐谱上虽然会有踏板记号，但实际演奏时踏板应该踩多深、踩多久？此外乐谱也没有记录下演奏者手指所用的力度等细节，而这些细节往往又是庸才与大师之间的鸿沟。后来我想到一种比乐谱更为精确的方式，那就是<a href="https://en.wikipedia.org/wiki/Piano_roll">纸卷录音</a>。不过目前虽然不乏用纸卷放在自动钢琴上重放而录制的录音，但纸卷本身却很难在网上找到。</p></li>
+<li><p>即使有了纸卷这种能较精确还原音乐的载体，还有一个关键问题，那就是如何把这种图像转化成文本，而且这种编解码转换应该是可逆的。我发现，就算对于精确度稍逊的乐谱来说，这种要求也很难实现。Andrej Karpathy那篇博文里提到一篇采用rnn训练音乐的<a href="https://highnoongmt.wordpress.com/2015/05/22/lisls-stis-recurrent-neural-networks-for-folk-music-generation/">文章</a>，里面用了一种很简单的<a href="http://abcnotation.com/blog/2010/01/31/how-to-understand-abc-the-basics/">ABC记谱法</a>来把乐谱转成文本，再把<code>rnn</code>生成的文本转成midi。不过这种记谱法实在是太简陋了，连和弦都无法表示，更遑论多声部的旋律了。</p></li>
+</ul>
+
+
+<p>说到编解码，我还想到上个月听的巴西生物艺术家<a href="http://ekac.org/">Eduardo Kac</a>的一场讲座。其中他早年的一件作品<a href="http://www.ekac.org/geninfo2.html">Genesis</a>给我的印象很深：Kac从《圣经》里摘了一句话“Let man have dominion over the fish of the sea, and over the fowl of the air, and over every living thing that moves upon the earth.”，把它转成莫尔斯码，又把莫尔斯码转换成ACTG序列。他将这段序列植入细菌中，然后邀请观众对细菌施以紫外光照，让细菌产生变异。在展览结束后，Kac把这段变异后的DNA重新转成莫尔斯码，最后再转成英语（编解码过程和结果可以看<a href="http://www.ekac.org/genseries.html">这个网页</a>的前两张图）。 Kac的这个作品给了我一些启发，我也由此开下脑洞：如果把某段DNA序列拿给rnn做训练，采样得到新的DNA序列，那么后者将合成什么样的蛋白质、表现出怎样的性状？这想法太疯狂啦，还好我不是biohacker XD</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Galoisplusplus</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-08-17T10:12:00+08:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/blog/categories/cs/'>cs</a>, <a class='category' href='/blog/blog/categories/tech/'>tech</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://yszheda.github.io/blog/blog/2016/08/17/have-fun-with-rnn/" data-via="" data-counturl="http://yszheda.github.io/blog/blog/2016/08/17/have-fun-with-rnn/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/blog/2016/08/07/take-tmux-snapshots-automatically-2/" title="Previous Post: Take Tmux Snapshots Automatically (2)">&laquo; Take Tmux Snapshots Automatically (2)</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/blog/2016/09/04/Simon-Boccanegra/" title="Next Post: 斯卡拉歌剧院演绎威尔第《西蒙·波卡涅拉》">斯卡拉歌剧院演绎威尔第《西蒙·波卡涅拉》 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/blog/2019/04/07/macbeth-by-tang-shu-wing/">《麦克白》的布莱希特剧场实践</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2019/01/01/those-concerts-in-2018/">盘点2018年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/05/22/cudaErrorCudartUnloading/">cudaErrorCudartUnloading问题排查及建议方案</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/01/01/those-concerts-in-2017/">盘点2017年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2017/11/11/Jonas-Kaufmann-recital/">Jonas Kaufmann独奏会之艺术歌曲</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<!--
+Copyright &copy; 2020 - Galoisplusplus -
+-->
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+</body>
+</html>

@@ -1,0 +1,1408 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Galoisplusplus</title>
+  <meta name="author" content="Galoisplusplus">
+
+  
+  <meta name="description" content="本渣不久前答完辩毕了业，很快就入职开始新的搬砖历程——在一个只有四名码农的团队里做cocos2d-x的前端开发——说起来我们还是公司第一个做大型手游和cocos2d-x手游的团队呢！搬砖的第一步自然是配置相关环境啦，这里就来记录一下自己近来在这方面的学习和折腾吧。 配置Mac OS &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yszheda.github.io/blog/posts/7">
+  <link href="/blog/favicon.png" rel="icon">
+  <link href="/blog/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/blog/atom.xml" rel="alternate" title="Galoisplusplus" type="application/atom+xml">
+  <script src="/blog/javascripts/modernizr-2.0.js"></script>
+  <!--
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  -->
+  <script src="//libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/blog/javascripts/octopress.js" type="text/javascript"></script>
+  
+<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!--
+<link href="http://fonts.googleapis.com/css?family=Crimson+Text:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/blog/">Galoisplusplus</a></h1>
+  
+    <h2>A fan of science, technology and Classical music.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/blog/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:yszheda.github.io/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/blog/">Blog</a></li>
+  <li><a href="/blog/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2014/08/03/customize-dev-environment-for-cocos2d-x/">Customize Development Environment for Cocos2d-x</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-03T02:13:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>本渣不久前答完辩毕了业，很快就入职开始新的搬砖历程——在一个只有四名码农的团队里做cocos2d-x的前端开发——说起来我们还是公司第一个做大型手游和cocos2d-x手游的团队呢！搬砖的第一步自然是配置相关环境啦，这里就来记录一下自己近来在这方面的学习和折腾吧。</p>
+
+<h1>配置Mac OS X开发及iOS打包环境</h1>
+
+<h2>安装<code>XCode</code></h2>
+
+<h2>安装命令行工具</h2>
+
+<ul>
+<li>安装Xcode Command Line Tools：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>xcode-select --install</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>安装OS X下的包管理器<a href="http://brew.sh/">Homebrew</a>（Mac OS X已自带<code>ruby</code>）：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>之后就可以用<code>brew install</code>安装<code>python</code>、<code>git</code>等package 。</p>
+
+<h1>配置Android打包环境</h1>
+
+<h2>安装<code>Java</code></h2>
+
+<p>在<a href="https://java.com/download">官网</a>下载安装即可。</p>
+
+<h2>Android sdk</h2>
+
+<p>由于Google被墙了，要在<code>Android</code>官网下载需要翻墙，在以下国内站点下载也可以：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># 中国科学院开源协会
+</span><span class='line'>http://mirrors.opencas.cn
+</span><span class='line'> 
+</span><span class='line'># 腾讯Bugly镜像
+</span><span class='line'>http://android-mirror.bugly.qq.com:8080</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>sdk</code>下载后，再安装<code>platform-tools</code>、<code>extra-android-support</code>、<code>android-20</code>和<code>build-tools-20.0.0</code>。
+可以通过<code>Android SDK Manager</code>图形界面安装，也可以在<code>sdk</code>的<code>tools</code>目录下通过命令行安装：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>./android update sdk --no-ui --all --filter platform-tools
+</span><span class='line'>./android update sdk --no-ui --all --filter extra-android-support
+</span><span class='line'>./android update sdk --no-ui --all --filter android-20
+</span><span class='line'>./android update sdk --no-ui --all --filter build-tools-20.0.0</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如果要用代理安装可以用：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>./android update sdk --no-ui --all --filter platform-tools --proxy-host android-mirror.bugly.qq.com --proxy-port 8080 -s
+</span><span class='line'>./android update sdk --no-ui --all --filter extra-android-support --proxy-host android-mirror.bugly.qq.com --proxy-port 8080 -s
+</span><span class='line'>./android update sdk --no-ui --all --filter android-20 --proxy-host android-mirror.bugly.qq.com --proxy-port 8080 -s
+</span><span class='line'>./android update sdk --no-ui --all --filter build-tools-20.0.0 --proxy-host android-mirror.bugly.qq.com --proxy-port 8080 -s</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>adb</h3>
+
+<p>在sdk工具中平时开发用得最多的是<code>adb</code>，这里把一些<code>adb</code>常用命令也记一下：</p>
+
+<ul>
+<li>启动adb服务：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb start-server</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>关闭adb服务：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb kill-server</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>列举Android设备：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb devices</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>通过usb连接Android设备：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb usb</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>安装apk包：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb install -r &lt;apk&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>卸载应用：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb uninstall &lt;app&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>可以通过以下命令获取app名字：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell pm list packages</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>清除应用数据：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell pm clear &lt;app&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>查看日志：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb logcat</span></code></pre></td></tr></table></div></figure>
+
+
+<p>查看cocos2d-x游戏的日志可以用pipe给grep做过滤：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb logcat | grep cocos2d</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>adb logcat</code>本身的过滤选项可以查看<a href="https://developer.android.com/studio/command-line/logcat.html">官方文档</a>。</p>
+
+<ul>
+<li>清除日志缓存：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb logcat -c</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>进入设备终端：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>从Android设备拷贝文件到电脑：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb pull &lt;remote&gt; &lt;local&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>从电脑拷贝文件到Android设备：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb push &lt;local&gt; &lt;remote&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>查看GPU渲染数据。在Android设备的“开发者选项”中选择“GPU呈现模式分析（开启在adb shell dumpsys gfxinfo中）”，就可以用以下命令输出某app最后120帧的渲染情况：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys gfxinfo &lt;app&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>例如查看Google Calendar的渲染情况：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys gfxinfo com.google.android.calendar</span></code></pre></td></tr></table></div></figure>
+
+
+<p>输出：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Profile data in ms:
+</span><span class='line'>
+</span><span class='line'>        com.google.android.calendar/com.android.calendar.AllInOneCalendarActivity/android.view.ViewRootImpl@423c4ad0
+</span><span class='line'>        Draw    Process Execute
+</span><span class='line'>        15.60   3.92    17.66
+</span><span class='line'>        54.51   10.14   23.59
+</span><span class='line'>        1.59    3.00    1.57
+</span><span class='line'>        13.04   13.78   1.54</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Draw、Process、Execute三项加起来就是一帧渲染的总时间了，接下来可以用sdk的<code>systrace</code>工具来做进一步的性能分析，这就不是本文要讨论的话题了。</p>
+
+<p><code>adb shell dumpsys</code>还有其他很多选项（<code>adb shell service list</code>里列举的都能用），不过对于cocos2d-x开发来说并不常用：</p>
+
+<ul>
+<li>查看CPU使用情况：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys cpuinfo</span></code></pre></td></tr></table></div></figure>
+
+
+<p>当然，Android系统也是Linux，所以也可以用：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell cat /proc/cpuinfo</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>查看内存使用情况：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys meminfo</span></code></pre></td></tr></table></div></figure>
+
+
+<p>也可以用：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell cat /proc/meminfo</span></code></pre></td></tr></table></div></figure>
+
+
+<p>还可以针对某个app查看内存占用：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys meminfo &lt;app&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>查看activity：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys activity</span></code></pre></td></tr></table></div></figure>
+
+
+<p>查看window：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys window</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>查看电池使用情况：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys battery</span></code></pre></td></tr></table></div></figure>
+
+
+<p>更详细的信息可以用以下命令：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys batterystats</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>查看wifi使用情况：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell dumpsys wifi</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Android NDK</h2>
+
+<p>和SDK一样，可以翻墙到<code>Android</code>官网或者在国内镜像站点下载。
+cocos2d-x对NDK r10的支持有问题，采用NDK r9d。</p>
+
+<p><strong>Update: 目前cocos2d-x已支持NDK r10。</strong></p>
+
+<h3>ndk-stack</h3>
+
+<p>在NDK工具中平时开发用得最多的是<code>ndk-stack</code>，主要用来分析crash。</p>
+
+<p>一种是实时分析crash：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb logcat | ndk-stack -sym $PROJECT_PATH/obj/local/armeabi</span></code></pre></td></tr></table></div></figure>
+
+
+<p>另一种是分析现有的crash dump：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ndk-stack -sym $PROJECT_PATH/obj/local/armeabi -dump &lt;dump-file&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>安装<code>ant</code></h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>brew install ant</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>cocos2d-x游戏引擎</h1>
+
+<p>下载<a href="https://github.com/cocos2d/cocos2d-x">cocos2d-x</a>代码，执行以下命令下载所有代码：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git clone https://github.com/cocos2d/cocos2d-x.git
+</span><span class='line'>cd cocos2d-x
+</span><span class='line'>python download-deps.py
+</span><span class='line'>git submodule update --init</span></code></pre></td></tr></table></div></figure>
+
+
+<p>再执行<code>setup.py</code>，这个脚本会在<code>~/.bash_profile</code>或<code>~/.bash_login</code>或<code>~/.profile</code>中设好<code>COCOS_CONSOLE_ROOT</code>、<code>COCOS_X_ROOT</code>、<code>COCOS_TEMPLATES_ROOT</code>、<code>NDK_ROOT</code>、<code>ANDROID_SDK_ROOT</code>、<code>ANT_ROOT</code>等环境变量。之后<code>source</code>一下被写入环境变量的文件，就可以用<code>cocos</code>命令了。</p>
+
+<h1><del>IDE?</del></h1>
+
+<p>本渣一开始用XCode，但XCode实在太慢太卡了，XVim也一点都不好用。作为vim粉，要毛线IDE，果断用vim做为cocos2d-x开发编辑器XD</p>
+
+<p>由于平时主要是写C++，所以本渣主要用了以下的vim插件：</p>
+
+<ul>
+<li><p><a href="http://www.vim.org/scripts/script.php?script_id=31">a.vim</a>：快速在<code>.h/.hpp</code>和<code>.c/.cpp</code>之间切换</p></li>
+<li><p><a href="http://www.vim.org/scripts/script.php?script_id=213">c.vim</a>：针对C/C++的代码片段（code snippet）、热键等综合工具</p></li>
+<li><p><a href="http://www.vim.org/scripts/script.php?script_id=2540">snipmate</a>：代码片段自动补全</p></li>
+<li><p><a href="http://www.vim.org/scripts/script.php?script_id=3302">clang_complete</a>：使用强大的<code>clang</code>来做C/C++的代码自动补全</p></li>
+<li><p><a href="https://github.com/rking/ag.vim">ag.vim</a>：想必用过<a href="https://github.com/ggreer/the_silver_searcher">ag</a>的都非常喜欢它完秒<code>ack</code>和<code>grep</code>的速度，<code>ag.vim</code>就是在vim中用ag进行搜索（其实用<code>:!ag</code>也可以哈）。</p></li>
+<li><p><a href="http://valloric.github.io/YouCompleteMe/">YouCompleteMe</a>：YCM是本渣非常喜欢的神器！不过要在cocos2d-x开发中更好使用YCM需要配置<code>.ycm_extra_conf.py</code>文件，本渣写了<a href="https://gist.github.com/yszheda/72401e99c1235d32bcaf">一份</a>放到项目目录下，对于cocos2d-x项目基本是够用的。</p></li>
+</ul>
+
+
+<p>后来本渣在Stackoverflow上看到一个话题<a href="http://stackoverflow.com/questions/34573846/cocos2d-x-c-development-tool-no-need-to-be-a-full-ide">Cocos2d-x C++ development tool (no need to be a full IDE)</a>，题主希望开发工具能做到：</p>
+
+<blockquote><p>auto code complement, class function hint, code formatting and available to see cocos2d-x source code conveniently.</p></blockquote>
+
+<p>这么简单的需求，vim完全能胜任啊！而且还不需要用以上所有插件，所以本渣写了个酱紫的<a href="http://stackoverflow.com/questions/34573846/cocos2d-x-c-development-tool-no-need-to-be-a-full-ide/35481145#35481145">回答</a>。</p>
+
+<h1>参考资料</h1>
+
+<p><a href="http://qa.blog.163.com/blog/static/190147002201611833520773/">Android性能－gfxinfo、systrace、traceview</a></p>
+
+<p><a href="http://blog.chengyunfeng.com/?p=458">Android 性能分析案例</a></p>
+
+<p><a href="https://developer.android.com/ndk/guides/ndk-stack.html">ndk-stack官方文档</a></p>
+
+<p><a href="http://stackoverflow.com/questions/18436383/how-to-check-crash-log-using-android-ndk-in-cocos2d-x">How to check crash log using android ndk in cocos2d-x</a></p>
+
+<p><a href="http://blog.csdn.net/xyang81/article/details/42319789">Android NDK开发Crash错误定位</a></p>
+
+<p><a href="http://blog.bookbook.in/ji-zhu/-cocos2dx-li-yong-ndkbeng-kui-ri-zhi-cha-zhao-bug">[cocos2dx]利用NDK崩溃日志查找BUG</a></p>
+
+<p><a href="http://blog.csdn.net/oldmtn/article/details/8889654">android使用ndk-stack调试JNI部分的C/C++代码</a></p>
+
+<p><a href="http://yi.github.io/work/2014/06/20/%E5%9C%A8MacOS%E4%B8%8A%E8%AE%BE%E7%BD%AEquickx%E5%92%8Ccocos2dx%E7%9A%84Vim%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/">在macos上设置quickx和cocos2dx的vim开发环境</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2014/07/30/memory-management-in-cocos2d-x-v3/">Cocos2d-x V3.x内存管理分析</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-30T22:13:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>cocos2d-x移植自Objective C的cocos2d，其内存管理其实也来自于OC。因而对于写过OC程序的朋友来讲，cocos2d-x的内存管理应该是一目了然的，但对于本渣这枚没接触过OC的C++码农来说，或许直接看cocos2d-x源代码才是最直接快捷的方式。</p>
+
+<h1>Node类</h1>
+
+<p>我们首先来看<em>Node</em>类的代码，<em>Node</em>是cocos2d-x中极重要的基类，许多常用的<em>Scene</em>、<em>Layer</em>、<em>MenuItem</em>等都继承自Node。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2014/07/30/memory-management-in-cocos2d-x-v3/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2014/07/25/git-svn-tips/">Git-svn Tips</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-25T11:22:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li>用<code>git</code> clone远端svn仓库（repo）：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git svn clone http://svn.example.com/project [-T trunk] [-b branches] [-t tags]</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>用<code>git-svn</code>从远端svn仓库拉取提交（commit）到本地：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git svn rebase</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>用<code>git-svn</code>把本地推送到远端svn仓库：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git svn dcommit</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>用<code>git-svn</code>checkout远端svn仓库的另一条svn支线（branch）到本地git支线：</li>
+</ul>
+
+
+<p>假设我们要checkout的支线叫"another-branch"，首先在<code>.git/config</code>添加：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[svn-remote "another-branch"]
+</span><span class='line'>  url = http://svn.example.com/project/branches/another-branch
+</span><span class='line'>  fetch = :refs/remotes/another-branch</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然后在命令行里执行：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git svn fetch another-branch
+</span><span class='line'>$ git checkout -b another-branch remotes/another-branch</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>使用<code>git-svn</code>来获取svn仓库的所有svn支线的改动：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git svn fetch --fetch-all</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>用<code>git-svn</code>某条svn支线复制提交到另一条svn支线：</li>
+</ul>
+
+
+<p>我一开始想复杂了，写了下面的脚本，先在原来的支线上生成某一提交的patch，然后到另一支线打上该patch：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#!/bin/bash
+</span><span class='line'>if [ $1 == "-h" ]; then
+</span><span class='line'>    echo "Usage: "
+</span><span class='line'>    echo "$(basename $0) &lt;git commit SHA1&gt;"
+</span><span class='line'>    exit 0
+</span><span class='line'>fi
+</span><span class='line'>
+</span><span class='line'>SHA1=$1
+</span><span class='line'>
+</span><span class='line'>REPO_DIR=""
+</span><span class='line'>PATCH_DIR=""
+</span><span class='line'>
+</span><span class='line'>SOURCE_BRANCH=master
+</span><span class='line'>DEST_BRANCH=dev
+</span><span class='line'>
+</span><span class='line'># cd ${REPO_DIR}
+</span><span class='line'>git stash
+</span><span class='line'>git checkout ${SOURCE_BRANCH}
+</span><span class='line'>
+</span><span class='line'>patch_file=`git format-patch -1 ${SHA1} -o ${PATCH_DIR}`
+</span><span class='line'>
+</span><span class='line'>git checkout ${DEST_BRANCH}
+</span><span class='line'>git svn rebase
+</span><span class='line'>
+</span><span class='line'># Apply patch for any svn repo:
+</span><span class='line'># patch -p1 -i ${patch_file}
+</span><span class='line'># In a git-svn repo, use `git am` instead:
+</span><span class='line'>git am ${patch_file}
+</span><span class='line'>
+</span><span class='line'># Check the commit manually
+</span><span class='line'># tig
+</span><span class='line'>
+</span><span class='line'>git svn dcommit
+</span><span class='line'>
+</span><span class='line'>git checkout ${SOURCE_BRANCH}
+</span><span class='line'>git stash pop</span></code></pre></td></tr></table></div></figure>
+
+
+<p>后来发现<code>git-svn</code>checkout的svn支线其实和git支线没什么两样，用<code>git cherry-pick</code>就可以了。</p>
+
+<ul>
+<li>将远端svn仓库的忽略文件列表加到git设置：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git svn show-ignore &gt;&gt; .git/info/exclude</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>References</h1>
+
+<p><a href="https://blog.tfd.co.uk/2008/11/21/adding-a-branch-to-git/">Adding a Branch to Git</a></p>
+
+<p><a href="https://coderwall.com/p/vfop7g/add-an-svn-remote-to-your-git-repo">Add an SVN remote to your Git repo</a></p>
+
+<p><a href="http://stackoverflow.com/questions/746151/add-svn-repo-to-existing-git-repo">Add svn repo to existing git repo?</a></p>
+
+<p><a href="http://stackoverflow.com/questions/3239759/checkout-remote-branch-using-git-svn">Checkout remote branch using git svn</a></p>
+
+<p><a href="http://ivanz.com/2009/01/15/selective-import-of-svn-branches-into-a-gitgit-svn-repository/">Selective import of SVN branches into a git/git-svn repository</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2014/06/23/optimizing-special-matrix-multiplication-in-cuda/">加速CUDA中的一类特殊矩阵乘法</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-23T20:56:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>矩阵乘法是利用GPU加速一般运算的经典范例，在NVIDIA官方的<a href="http://docs.nvidia.com/cuda/cuda-c-programming-guide">CUDA C Programming Guide</a>和<a href="http://docs.nvidia.com/cuda/cuda-c-best-practices-guide">CUDA C Best Practices Guide</a>也都有示范代码来说明如何加速矩阵乘法。本渣这里要介绍的是如何加速矩阵乘法的一类特殊情况——大小悬殊的两个矩阵的乘法。</p>
+
+<p>这里稍稍碎碎念一会，其实这个主题主要来自本渣的论文，而本渣所做的主要是用GPU来加速Reed-Solomon Codes的编解码。这种编解码的过程是矩阵乘法，照例说可以直接使用<a href="https://developer.nvidia.com/cublas">cuBLAS</a>等实现矩阵乘法的CUDA library来做。但由于Reed-Solomon Codes所用到的运算都是定义在伽罗华域（Galois Field）中的，不同于普通的实数运算，所以无法直接调用<a href="https://developer.nvidia.com/cublas">cuBLAS</a>等library。不巧，这些library所开放的API又不允许operator overloading，再加上矩阵乘法的source code也没有开源（<a href="http://icl.cs.utk.edu/magma/">MAGMA</a>倒是个<del>open source</del>公布了代码的library，但是它对矩阵乘法的实现只是调用<a href="https://developer.nvidia.com/cublas">cuBLAS</a>的函数、外加优化某些特殊情况罢了），这使得本渣需要自力更生去琢磨如何加速Reed-Solomon Codes编解码的矩阵乘法。在完成实现之后，本渣发现不少技术细节不足以登学术论文的大雅之堂，于是就想把它们记录进这篇技术文章中。
+在我们的Reed-Solomon Codes的实际应用场景中，用到的是以8-bit byte为一个数值单位的矩阵，矩阵乘法通常是一个小矩阵乘以一个扁长的大矩阵的形式：小矩阵的行数和列数一般不超过三位数，大矩阵的行数即为小矩阵的列数，而大矩阵的列数一般大于百万的数量级。
+虽然本渣的优化主要根据这些实际情况来做，但优化的技巧仍可以拓展到一般的小矩阵乘以大矩阵的情况的。</p>
+
+<!--
+大小悬殊的两个矩阵进行相乘，因此本渣的优化也主要针对小矩阵乘以大矩阵这种矩阵乘法的特殊情况。
+-->
+
+
+<p>在介绍本渣<del>独特</del>的优化技巧之前，让我们先从最简单的做法回顾起：</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2014/06/23/optimizing-special-matrix-multiplication-in-cuda/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2014/05/22/practical-vim-reading-notes/">Practical Vim 读书笔记</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-05-22T13:00:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>之前我在<a href="http://drewneil.com/">Drew Neil</a>大牛的<a href="http://vimcasts.org/episodes/">vimcasts</a>网站上学到了不少Vim技巧，也知道他出了一本<a href="http://pragprog.com/book/dnvim/practical-vim">《Practical Vim》</a>的书，当时就很想拜读一下：</p>
+
+<p><img src="http://imagery.pragprog.com/products/241/dnvim.jpg"></p>
+
+<p>后来在图书馆预约了这本书，等了许久它才轮流到我手上。这本书包含了121个Vim的Tips，总体上属于基础及稍进阶级别。
+我比较欣赏此书的还是各种范例，不少是实际使用Vim时经常会遇到的场景。此外，强大的Vim神器常常会提供给我们许多种解决方案来处理同一问题，该书也包含了一些方法论的探讨。
+读这本书的同时我也摘了一些笔记放到<a href="http://yszheda.github.io/wiki/PracticalVim.html">我的个人wiki</a>上，部分示例也放上了录屏：</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2014/05/22/practical-vim-reading-notes/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2014/05/14/rms-a-free-digital-society/">RMS: A Free Digital Society</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-05-14T15:45:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>RMS（Richard Stallman）这次居然来学校布道了，我也有幸能近距离围观到传说中的自由软件神教教主。
+这次RMS做了一次非技术性的演讲，题目是「A Free Digital Society」。
+由于没有翻译，直接听英文还是略累的，好在RMS的语速不快，发音清楚，所以我还能听懂大意：
+RMS澄清了各种对自由软件（free software）的误解，例如把free理解成「免费」（RMS还是用中文说「自由」和「免费」的，发音特别准XD）、把free等同于open source、把GNU Linux（OS）等同于Linux（kernel）等等。
+他也列举了当下数字信息社会的种种「不自由」，例如DRM、Social Network、SaaS等。</p>
+
+<p>这次的讲座我录了音，根据Medical Wei同学建议放到了archive.org上，采用CC BY 4.0授权：</p>
+
+<iframe src="https://archive.org/embed/RMSAFreeDigitalSociety" width="500" height="30" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe>
+
+
+<p>下载请猛戳<a href="https://archive.org/details/RMSAFreeDigitalSociety">这里</a>。我放的录音是WAV格式，archive.org自动帮我转成了MP3和OGG，我推荐下载OGG格式的录音，因为OGG是符合free和open标准的格式，而且文件也更小。</p>
+
+<h2>后续</h2>
+
+<p>我把讲座末尾问答环节的录音也传上来了。老实说QA的部分没什么干货，甚至有位提问者还把GNU读成G-N-U，在RMS再次纠正他的发音之后还又用G-N-U念了一次&hellip;&hellip;这一段的笑声和鼓掌也挺多，大家就当听着玩哈～如果你是通过上面的播放器来听的，会先听到QA部分的录音，可以按“下一首”的按钮来直接跳到讲座的部分。</p>
+
+<h2>后续++</h2>
+
+<p>这次活动的主办方也把讲座的录像放到了archive.org上，采用的是CC BY-ND 4.0授权：</p>
+
+<iframe src="https://archive.org/embed/RMS-Hsinchu-2014" width="640" height="480" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe>
+
+
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2014/05/14/rms-a-free-digital-society/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2014/04/10/awk-tips/">Awk Tips</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-10T20:45:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>近期做毕设实验用了大量自动化脚本，借机做点<code>awk</code>的记录，其实都没神马技术含量，比较基础，大神们轻拍～</p>
+
+<h2>统计相关</h2>
+
+<h3>最大最小值</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='awk'><span class='line'><span class="nx">awk</span> <span class="s1">&#39;NR == 1 { min = max = $1 }{ if ($1 &gt; max) { max = $1; } if ($1 &lt; min) { min = $1; } print min, max }&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>总和、平均值</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='awk'><span class='line'><span class="nx">awk</span> <span class="s1">&#39;{ sum = 0; for(i = 1; i &lt;= NF; i++) { sum += $i; } avg = sum / NF; print sum, avg }&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>中位数</h3>
+
+<p>中位数是其中较为麻烦的一项。首先需要把数据进行排序。如果数据的数目是奇数，那么中位数就是中间的那个数据；否则则是中间两个数据的算术平均值。</p>
+
+<p>这里先假设数组已经排好序，那么我们可以用以下的awk脚本来处理：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='awk'><span class='line'><span class="nx">awk</span> <span class="s1">&#39;{ a[NR] = $1; } END { if (NR % 2) { print a[(NR + 1) / 2]; } else { print (a[NR/2] + a[NR/2 + 1]) / 2; } }&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>对数组排序的部分我是用<code>sort</code>来做的，当然也可以用<code>awk</code>的<code>asort</code>函数。</p>
+
+<p>下面举一个实际的例子：以下是Table-100time文件，需要求每一行的以上各项统计值。其中第一列是行号，不列入统计。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class='awk'><span class='line'><span class="mi">1</span> <span class="mf">1099.603271</span> <span class="mf">625.161804</span> <span class="mf">610.000183</span> <span class="mf">626.810974</span> <span class="mf">1123.747559</span> <span class="mf">1108.142944</span> <span class="mf">1118.393188</span> <span class="mf">1097.084351</span> <span class="mf">1115.050903</span> <span class="mf">1120.240723</span> <span class="mf">1105.154419</span> <span class="mf">1113.885498</span> <span class="mf">1113.874878</span> <span class="mf">1113.099365</span> <span class="mf">1111.149902</span> <span class="mf">1123.582397</span> <span class="mf">1114.776978</span> <span class="mf">1101.797852</span> <span class="mf">1113.121094</span> <span class="mf">1077.672852</span> <span class="mf">1122.087891</span> <span class="mf">1124.917480</span> <span class="mf">1113.838135</span> <span class="mf">1107.574707</span> <span class="mf">1112.188232</span> <span class="mf">1122.553223</span> <span class="mf">1121.828857</span> <span class="mf">1113.358521</span> <span class="mf">1111.792603</span> <span class="mf">1122.107422</span> <span class="mf">1106.260498</span> <span class="mf">1122.025024</span> <span class="mf">612.053528</span> <span class="mf">575.379456</span> <span class="mf">893.525818</span> <span class="mf">1130.349243</span> <span class="mf">614.986938</span> <span class="mf">886.635559</span> <span class="mf">895.587341</span> <span class="mf">1115.676270</span> <span class="mf">1113.105835</span> <span class="mf">1116.982178</span> <span class="mf">1113.773071</span> <span class="mf">1115.756714</span> <span class="mf">1103.920288</span> <span class="mf">1115.773682</span> <span class="mf">1071.231445</span> <span class="mf">1115.358765</span> <span class="mf">1122.167725</span> <span class="mf">1126.683228</span> <span class="mf">1117.181885</span> <span class="mf">1118.453857</span> <span class="mf">1120.608521</span> <span class="mf">1110.655640</span> <span class="mf">1110.968872</span> <span class="mf">1110.284302</span> <span class="mf">1108.375366</span> <span class="mf">1112.826660</span> <span class="mf">1118.803589</span> <span class="mf">1116.816406</span> <span class="mf">1120.060181</span> <span class="mf">1110.062378</span> <span class="mf">1109.777466</span> <span class="mf">1104.469482</span> <span class="mf">1109.132446</span> <span class="mf">1097.460815</span> <span class="mf">1118.085205</span> <span class="mf">1114.240479</span> <span class="mf">1115.615967</span> <span class="mf">1100.754150</span> <span class="mf">1105.984985</span> <span class="mf">1112.360474</span> <span class="mf">613.934448</span> <span class="mf">1113.597</span>
+</span><span class='line'><span class="mi">046</span> <span class="mf">1122.492676</span> <span class="mf">1108.549683</span> <span class="mf">978.940369</span> <span class="mf">831.665161</span> <span class="mf">1123.176147</span> <span class="mf">1146.721802</span> <span class="mf">1156.943604</span> <span class="mf">636.618469</span> <span class="mf">645.765564</span> <span class="mf">1153.194214</span> <span class="mf">589.766296</span> <span class="mf">1110.810913</span> <span class="mf">1108.724976</span> <span class="mf">1105.940796</span> <span class="mf">1121.304443</span> <span class="mf">1116.116577</span> <span class="mf">992.231262</span> <span class="mf">1150.437744</span> <span class="mf">1108.551025</span> <span class="mf">869.626648</span> <span class="mf">1113.281372</span> <span class="mf">574.230530</span> <span class="mf">1111.740479</span> <span class="mf">1111.650635</span> <span class="mf">1105.286011</span> <span class="mf">1114.131470</span>
+</span><span class='line'><span class="mi">2</span> <span class="mf">0.063136</span> <span class="mf">0.015616</span> <span class="mf">0.060320</span> <span class="mf">0.014816</span> <span class="mf">0.060768</span> <span class="mf">0.060000</span> <span class="mf">0.060896</span> <span class="mf">0.061248</span> <span class="mf">0.061120</span> <span class="mf">0.059712</span> <span class="mf">0.015968</span> <span class="mf">0.062656</span> <span class="mf">0.062208</span> <span class="mf">0.061568</span> <span class="mf">0.061632</span> <span class="mf">0.061408</span> <span class="mf">0.062048</span> <span class="mf">0.062656</span> <span class="mf">0.062112</span> <span class="mf">0.069280</span> <span class="mf">0.061728</span> <span class="mf">0.063200</span> <span class="mf">0.062112</span> <span class="mf">0.060736</span> <span class="mf">0.061056</span> <span class="mf">0.062944</span> <span class="mf">0.067616</span> <span class="mf">0.060544</span> <span class="mf">0.061152</span> <span class="mf">0.060928</span> <span class="mf">0.068000</span> <span class="mf">0.061664</span> <span class="mf">0.069120</span> <span class="mf">0.063232</span> <span class="mf">0.059808</span> <span class="mf">0.059648</span> <span class="mf">0.060512</span> <span class="mf">0.014240</span> <span class="mf">0.064032</span> <span class="mf">0.060288</span> <span class="mf">0.062144</span> <span class="mf">0.060896</span> <span class="mf">0.069280</span> <span class="mf">0.061920</span> <span class="mf">0.060992</span> <span class="mf">0.061472</span> <span class="mf">0.058848</span> <span class="mf">0.059872</span> <span class="mf">0.071296</span> <span class="mf">0.062432</span> <span class="mf">0.062592</span> <span class="mf">0.061888</span> <span class="mf">0.062848</span> <span class="mf">0.060416</span> <span class="mf">0.061440</span> <span class="mf">0.066528</span> <span class="mf">0.062944</span> <span class="mf">0.059904</span> <span class="mf">0.061856</span> <span class="mf">0.065088</span> <span class="mf">0.060064</span> <span class="mf">0.061440</span> <span class="mf">0.060288</span> <span class="mf">0.061920</span> <span class="mf">0.059936</span> <span class="mf">0.061984</span> <span class="mf">0.061024</span> <span class="mf">0.061728</span> <span class="mf">0.062048</span> <span class="mf">0.060896</span> <span class="mf">0.062336</span> <span class="mf">0.060896</span> <span class="mf">0.062240</span> <span class="mf">0.062112</span> <span class="mf">0.061600</span> <span class="mf">0.059744</span> <span class="mf">0.066912</span> <span class="mf">0.014688</span> <span class="mf">0.060512</span> <span class="mf">0.062976</span> <span class="mf">0.063008</span> <span class="mf">0.070976</span> <span class="mf">0.015936</span> <span class="mf">0.063616</span> <span class="mf">0.054592</span> <span class="mf">0.060704</span> <span class="mf">0.060832</span> <span class="mf">0.061344</span> <span class="mf">0.059968</span> <span class="mf">0.060640</span> <span class="mf">0.051264</span> <span class="mf">0.062656</span> <span class="mf">0.062400</span> <span class="mf">0.059872</span> <span class="mf">0.063648</span> <span class="mf">0.056448</span> <span class="mf">0.060768</span> <span class="mi">0</span>
+</span><span class='line'><span class="p">.</span><span class="mi">060576</span> <span class="mf">0.061728</span> <span class="mf">0.063040</span>
+</span><span class='line'><span class="mi">3</span> <span class="mf">0.028128</span> <span class="mf">0.027616</span> <span class="mf">0.026240</span> <span class="mf">0.024736</span> <span class="mf">0.024544</span> <span class="mf">0.027072</span> <span class="mf">0.026912</span> <span class="mf">0.027328</span> <span class="mf">0.027808</span> <span class="mf">0.027456</span> <span class="mf">0.031616</span> <span class="mf">0.025504</span> <span class="mf">0.026816</span> <span class="mf">0.024672</span> <span class="mf">0.024672</span> <span class="mf">0.027200</span> <span class="mf">0.027168</span> <span class="mf">0.025344</span> <span class="mf">0.025536</span> <span class="mf">0.025888</span> <span class="mf">0.026880</span> <span class="mf">0.024384</span> <span class="mf">0.027968</span> <span class="mf">0.024096</span> <span class="mf">0.027424</span> <span class="mf">0.028544</span> <span class="mf">0.025920</span> <span class="mf">0.027072</span> <span class="mf">0.026976</span> <span class="mf">0.025472</span> <span class="mf">0.029568</span> <span class="mf">0.024768</span> <span class="mf">0.032480</span> <span class="mf">0.027744</span> <span class="mf">0.026592</span> <span class="mf">0.026784</span> <span class="mf">0.024576</span> <span class="mf">0.023328</span> <span class="mf">0.027584</span> <span class="mf">0.026720</span> <span class="mf">0.026624</span> <span class="mf">0.027872</span> <span class="mf">0.034592</span> <span class="mf">0.028640</span> <span class="mf">0.026560</span> <span class="mf">0.026720</span> <span class="mf">0.026496</span> <span class="mf">0.027072</span> <span class="mf">0.025376</span> <span class="mf">0.026368</span> <span class="mf">0.025248</span> <span class="mf">0.027904</span> <span class="mf">0.027104</span> <span class="mf">0.027616</span> <span class="mf">0.027776</span> <span class="mf">0.026912</span> <span class="mf">0.026528</span> <span class="mf">0.026816</span> <span class="mf">0.028032</span> <span class="mf">0.027136</span> <span class="mf">0.027584</span> <span class="mf">0.027232</span> <span class="mf">0.026464</span> <span class="mf">0.029056</span> <span class="mf">0.027456</span> <span class="mf">0.027168</span> <span class="mf">0.027072</span> <span class="mf">0.024576</span> <span class="mf">0.027552</span> <span class="mf">0.025088</span> <span class="mf">0.026976</span> <span class="mf">0.027168</span> <span class="mf">0.026784</span> <span class="mf">0.027424</span> <span class="mf">0.026784</span> <span class="mf">0.026912</span> <span class="mf">0.035392</span> <span class="mf">0.040512</span> <span class="mf">0.028480</span> <span class="mf">0.035488</span> <span class="mf">0.027712</span> <span class="mf">0.032832</span> <span class="mf">0.026944</span> <span class="mf">0.035296</span> <span class="mf">0.024384</span> <span class="mf">0.027552</span> <span class="mf">0.024192</span> <span class="mf">0.026592</span> <span class="mf">0.027296</span> <span class="mf">0.027392</span> <span class="mf">0.029408</span> <span class="mf">0.028160</span> <span class="mf">0.023392</span> <span class="mf">0.027040</span> <span class="mf">0.024800</span> <span class="mf">0.024448</span> <span class="mf">0.027520</span> <span class="mf">0.027488</span> <span class="mf">0.026912</span> <span class="mf">0.028352</span>
+</span><span class='line'><span class="mi">4</span> <span class="mf">720.253540</span> <span class="mf">717.565735</span> <span class="mf">715.817139</span> <span class="mf">717.748474</span> <span class="mf">718.543030</span> <span class="mf">715.734741</span> <span class="mf">717.143311</span> <span class="mf">715.751343</span> <span class="mf">715.887451</span> <span class="mf">715.781006</span> <span class="mf">718.229675</span> <span class="mf">715.808960</span> <span class="mf">719.805298</span> <span class="mi">7</span>
+</span><span class='line'><span class="mf">19.283142</span> <span class="mf">716.932983</span> <span class="mf">715.766663</span> <span class="mf">715.821899</span> <span class="mf">715.742126</span> <span class="mf">718.466309</span> <span class="mf">718.681396</span> <span class="mf">715.724670</span> <span class="mf">719.399963</span> <span class="mf">715.779358</span> <span class="mf">718.264465</span> <span class="mf">715.671326</span> <span class="mf">718.540466</span> <span class="mf">715.748169</span> <span class="mf">718.249634</span> <span class="mf">716.992737</span> <span class="mf">718.466797</span> <span class="mf">716.194458</span> <span class="mf">717.444519</span> <span class="mf">717.247070</span> <span class="mf">715.825623</span> <span class="mf">717.434021</span> <span class="mf">716.618286</span> <span class="mf">715.681519</span> <span class="mf">715.655029</span> <span class="mf">715.848206</span> <span class="mf">717.192139</span> <span class="mf">718.314575</span> <span class="mf">718.943909</span> <span class="mf">718.412842</span> <span class="mf">717.466309</span> <span class="mf">717.111267</span> <span class="mf">717.610962</span> <span class="mf">715.848877</span> <span class="mf">721.035767</span> <span class="mf">716.860535</span> <span class="mf">717.362793</span> <span class="mf">715.776123</span> <span class="mf">719.968140</span> <span class="mf">715.818481</span> <span class="mf">717.481934</span> <span class="mf">715.704834</span> <span class="mf">719.049866</span> <span class="mf">720.205078</span> <span class="mf">719.389282</span> <span class="mf">717.336487</span> <span class="mf">724.044067</span> <span class="mf">717.548279</span> <span class="mf">717.358459</span> <span class="mf">717.179626</span> <span class="mf">717.550232</span> <span class="mf">718.712952</span> <span class="mf">717.472229</span> <span class="mf">720.543335</span> <span class="mf">716.905273</span> <span class="mf">718.393005</span> <span class="mf">723.254089</span> <span class="mf">715.945129</span> <span class="mf">715.756897</span> <span class="mf">715.725586</span> <span class="mf">720.922485</span> <span class="mf">715.875732</span> <span class="mf">719.713623</span> <span class="mf">715.756836</span> <span class="mf">719.216492</span> <span class="mf">715.723267</span> <span class="mf">718.503784</span> <span class="mf">722.632935</span> <span class="mf">718.873718</span> <span class="mf">715.936157</span> <span class="mf">717.273560</span> <span class="mf">721.847961</span> <span class="mf">717.286560</span> <span class="mf">718.792480</span> <span class="mf">720.974731</span> <span class="mf">719.742310</span> <span class="mf">720.751404</span> <span class="mf">715.751953</span> <span class="mf">717.330139</span> <span class="mf">717.142151</span> <span class="mf">719.528503</span> <span class="mf">718.555725</span> <span class="mf">716.737610</span> <span class="mf">719.197266</span> <span class="mf">718.070374</span> <span class="mf">720.632996</span> <span class="mf">718.734375</span>
+</span><span class='line'><span class="mi">5</span> <span class="mf">516.273010</span> <span class="mf">343.065674</span> <span class="mf">656.750610</span> <span class="mf">626.545898</span> <span class="mf">709.740112</span> <span class="mf">677.137573</span> <span class="mf">709.918213</span> <span class="mf">591.302612</span> <span class="mf">698.008240</span> <span class="mf">711.465088</span> <span class="mf">659.250183</span> <span class="mf">591.888367</span> <span class="mf">705.064270</span> <span class="mf">704.222046</span> <span class="mf">656.991394</span> <span class="mf">646.187683</span> <span class="mf">704.989136</span> <span class="mf">598.788391</span> <span class="mf">703.356201</span> <span class="mf">685.694885</span> <span class="mf">719.180054</span> <span class="mf">669.689514</span> <span class="mf">642.316528</span> <span class="mf">641.993225</span> <span class="mf">640.972778</span> <span class="mf">649.164490</span> <span class="mi">716</span><span class="p">.</span>
+</span><span class='line'><span class="mi">288208</span> <span class="mf">708.772888</span> <span class="mf">707.416382</span> <span class="mf">704.347412</span> <span class="mf">586.610229</span> <span class="mf">636.456482</span> <span class="mf">313.203125</span> <span class="mf">377.224243</span> <span class="mf">388.061737</span> <span class="mf">641.782410</span> <span class="mf">544.509583</span> <span class="mf">397.306976</span> <span class="mf">277.899902</span> <span class="mf">546.433</span>
+</span><span class='line'><span class="mi">533</span> <span class="mf">639.272949</span> <span class="mf">630.372742</span> <span class="mf">648.397034</span> <span class="mf">640.577515</span> <span class="mf">642.346191</span> <span class="mf">640.025818</span> <span class="mf">299.147125</span> <span class="mf">641.151489</span> <span class="mf">642.511658</span> <span class="mf">639.431702</span> <span class="mf">458.824402</span> <span class="mf">467.759552</span> <span class="mf">465.540985</span>
+</span><span class='line'> <span class="mf">520.931091</span> <span class="mf">641.239502</span> <span class="mf">649.059692</span> <span class="mf">651.762390</span> <span class="mf">667.363892</span> <span class="mf">653.447388</span> <span class="mf">655.450989</span> <span class="mf">650.086426</span> <span class="mf">646.288879</span> <span class="mf">644.759949</span> <span class="mf">641.802612</span> <span class="mf">648.356995</span> <span class="mf">637.783386</span> <span class="mi">64</span>
+</span><span class='line'><span class="mf">8.014709</span> <span class="mf">642.980835</span> <span class="mf">634.090210</span> <span class="mf">640.974365</span> <span class="mf">637.239380</span> <span class="mf">642.302795</span> <span class="mf">631.172485</span> <span class="mf">595.006836</span> <span class="mf">647.026001</span> <span class="mf">651.397522</span> <span class="mf">554.663391</span> <span class="mf">327.290649</span> <span class="mf">648.838074</span> <span class="mf">691.1</span>
+</span><span class='line'><span class="mi">94458</span> <span class="mf">700.736389</span> <span class="mf">334.126831</span> <span class="mf">692.194702</span> <span class="mf">701.258423</span> <span class="mf">544.619934</span> <span class="mf">515.694275</span> <span class="mf">650.980957</span> <span class="mf">647.714172</span> <span class="mf">638.059814</span> <span class="mf">643.856995</span> <span class="mf">514.265930</span> <span class="mf">677.103210</span> <span class="mf">651.1687</span>
+</span><span class='line'><span class="mi">01</span> <span class="mf">306.423187</span> <span class="mf">647.868347</span> <span class="mf">495.291565</span> <span class="mf">600.393921</span> <span class="mf">622.958679</span> <span class="mf">642.191162</span> <span class="mf">651.052124</span>
+</span><span class='line'><span class="mi">6</span> <span class="mf">720.316650</span> <span class="mf">717.581360</span> <span class="mf">715.877441</span> <span class="mf">717.763306</span> <span class="mf">718.603821</span> <span class="mf">715.794739</span> <span class="mf">717.204224</span> <span class="mf">715.812561</span> <span class="mf">715.948547</span> <span class="mf">715.840698</span> <span class="mf">718.245667</span> <span class="mf">715.871643</span> <span class="mf">719.867493</span> <span class="mi">7</span>
+</span><span class='line'><span class="mf">19.344727</span> <span class="mf">716.994629</span> <span class="mf">715.828064</span> <span class="mf">715.883972</span> <span class="mf">715.804810</span> <span class="mf">718.528442</span> <span class="mf">718.750671</span> <span class="mf">715.786377</span> <span class="mf">719.463135</span> <span class="mf">715.841492</span> <span class="mf">718.325195</span> <span class="mf">715.732361</span> <span class="mf">718.603394</span> <span class="mi">715</span><span class="p">.</span>
+</span><span class='line'><span class="mi">815796</span> <span class="mf">718.310181</span> <span class="mf">717.053894</span> <span class="mf">718.527710</span> <span class="mf">716.262451</span> <span class="mf">717.506165</span> <span class="mf">717.316162</span> <span class="mf">715.888855</span> <span class="mf">717.493835</span> <span class="mf">716.677917</span> <span class="mf">715.742004</span> <span class="mf">715.669250</span> <span class="mf">715.912231</span> <span class="mf">717.252</span>
+</span><span class='line'><span class="mi">441</span> <span class="mf">718.376709</span> <span class="mf">719.004822</span> <span class="mf">718.482117</span> <span class="mf">717.528198</span> <span class="mf">717.172241</span> <span class="mf">717.672424</span> <span class="mf">715.907715</span> <span class="mf">721.095642</span> <span class="mf">716.931824</span> <span class="mf">717.425232</span> <span class="mf">715.838745</span> <span class="mf">720.030029</span> <span class="mf">715.881348</span>
+</span><span class='line'> <span class="mf">717.542358</span> <span class="mf">715.766296</span> <span class="mf">719.116394</span> <span class="mf">720.268005</span> <span class="mf">719.449158</span> <span class="mf">717.398315</span> <span class="mf">724.109131</span> <span class="mf">717.608337</span> <span class="mf">717.419922</span> <span class="mf">717.239929</span> <span class="mf">717.612122</span> <span class="mf">718.772888</span> <span class="mf">717.534241</span> <span class="mi">72</span>
+</span><span class='line'><span class="mf">0.604370</span> <span class="mf">716.966980</span> <span class="mf">718.455078</span> <span class="mf">723.315002</span> <span class="mf">716.007446</span> <span class="mf">715.817810</span> <span class="mf">715.787842</span> <span class="mf">720.984619</span> <span class="mf">715.937317</span> <span class="mf">719.773376</span> <span class="mf">715.823730</span> <span class="mf">719.231201</span> <span class="mf">715.783752</span> <span class="mf">718.5</span>
+</span><span class='line'><span class="mi">66772</span> <span class="mf">722.695923</span> <span class="mf">718.944702</span> <span class="mf">715.952087</span> <span class="mf">717.337158</span> <span class="mf">721.902527</span> <span class="mf">717.347290</span> <span class="mf">718.853333</span> <span class="mf">721.036072</span> <span class="mf">719.802307</span> <span class="mf">720.812073</span> <span class="mf">715.803223</span> <span class="mf">717.392822</span> <span class="mf">717.2045</span>
+</span><span class='line'><span class="mi">29</span> <span class="mf">719.588379</span> <span class="mf">718.619385</span> <span class="mf">716.794067</span> <span class="mf">719.258057</span> <span class="mf">718.130920</span> <span class="mf">720.694702</span> <span class="mf">718.797424</span>
+</span><span class='line'><span class="mi">7</span> <span class="mf">1615.904297</span> <span class="mf">968.255066</span> <span class="mf">1266.777100</span> <span class="mf">1253.381592</span> <span class="mf">1833.512207</span> <span class="mf">1785.307617</span> <span class="mf">1828.338257</span> <span class="mf">1688.414307</span> <span class="mf">1813.086914</span> <span class="mf">1831.733276</span> <span class="mf">1764.436279</span> <span class="mf">1705.799316</span> <span class="mi">1</span>
+</span><span class='line'><span class="mf">818.966064</span> <span class="mf">1817.346069</span> <span class="mf">1768.166016</span> <span class="mf">1769.797363</span> <span class="mf">1819.793335</span> <span class="mf">1700.611572</span> <span class="mf">1816.502808</span> <span class="mf">1763.393555</span> <span class="mf">1841.294800</span> <span class="mf">1794.631348</span> <span class="mf">1756.182617</span> <span class="mf">1749.592041</span> <span class="mi">175</span>
+</span><span class='line'><span class="mf">3.188477</span> <span class="mf">1771.746338</span> <span class="mf">1838.142944</span> <span class="mf">1822.158447</span> <span class="mf">1819.235962</span> <span class="mf">1826.480347</span> <span class="mf">1692.900269</span> <span class="mf">1758.506348</span> <span class="mf">925.289124</span> <span class="mf">952.631470</span> <span class="mf">1281.614136</span> <span class="mf">1772.158447</span> <span class="mf">1159.52</span>
+</span><span class='line'><span class="mi">1118</span> <span class="mf">1283.965820</span> <span class="mf">1173.514893</span> <span class="mf">1662.136475</span> <span class="mf">1752.405396</span> <span class="mf">1747.382812</span> <span class="mf">1762.204590</span> <span class="mf">1756.362915</span> <span class="mf">1746.293091</span> <span class="mf">1755.826172</span> <span class="mf">1370.405029</span> <span class="mf">1756.537354</span> <span class="mf">1764.7048</span>
+</span><span class='line'><span class="mi">34</span> <span class="mf">1766.141357</span> <span class="mf">1576.031494</span> <span class="mf">1586.241333</span> <span class="mf">1586.176636</span> <span class="mf">1631.614258</span> <span class="mf">1752.236206</span> <span class="mf">1759.370850</span> <span class="mf">1760.164307</span> <span class="mf">1780.217407</span> <span class="mf">1772.279053</span> <span class="mf">1772.294434</span> <span class="mf">1770.174194</span>
+</span><span class='line'> <span class="mf">1756.378418</span> <span class="mf">1754.563965</span> <span class="mf">1746.301147</span> <span class="mf">1757.516846</span> <span class="mf">1735.271484</span> <span class="mf">1766.126953</span> <span class="mf">1757.245850</span> <span class="mf">1749.733765</span> <span class="mf">1741.753662</span> <span class="mf">1743.251343</span> <span class="mf">1754.690430</span> <span class="mf">1245.133789</span> <span class="mi">1</span>
+</span><span class='line'><span class="mf">708.631348</span> <span class="mf">1769.545410</span> <span class="mf">1759.974121</span> <span class="mf">1533.639160</span> <span class="mf">1158.996338</span> <span class="mf">1772.042725</span> <span class="mf">1837.951782</span> <span class="mf">1857.707764</span> <span class="mf">970.778137</span> <span class="mf">1337.987183</span> <span class="mf">1854.487915</span> <span class="mf">1134.410645</span> <span class="mi">1626</span>
+</span><span class='line'><span class="p">.</span><span class="mi">532715</span> <span class="mf">1759.730103</span> <span class="mf">1753.681641</span> <span class="mf">1759.391602</span> <span class="mf">1760.000977</span> <span class="mf">1506.526611</span> <span class="mf">1827.569092</span> <span class="mf">1759.743164</span> <span class="mf">1176.076904</span> <span class="mf">1761.174561</span> <span class="mf">1069.546631</span> <span class="mf">1712.161865</span> <span class="mf">1734.6</span>
+</span><span class='line'><span class="mi">36719</span> <span class="mf">1747.504028</span> <span class="mf">1765.211914</span>
+</span><span class='line'><span class="mi">8</span> <span class="mf">2340.071533</span> <span class="mf">1689.605957</span> <span class="mf">1992.927368</span> <span class="mf">1975.017212</span> <span class="mf">2555.832031</span> <span class="mf">2504.885254</span> <span class="mf">2559.110352</span> <span class="mf">2407.793701</span> <span class="mf">2532.718018</span> <span class="mf">2551.314697</span> <span class="mf">2521.514160</span> <span class="mf">2425.311523</span> <span class="mf">2542.544434</span> <span class="mf">2540.422119</span> <span class="mf">2488.926758</span> <span class="mf">2489.232666</span> <span class="mf">2554.735596</span> <span class="mf">2420.110107</span> <span class="mf">2538.753662</span> <span class="mf">2486.242432</span> <span class="mf">2560.750732</span> <span class="mf">2517.833984</span> <span class="mf">2475.721191</span> <span class="mf">2471.649902</span> <span class="mf">2472.583252</span> <span class="mf">2494.048584</span> <span class="mf">2557.614502</span> <span class="mf">2544.040771</span> <span class="mf">2540.066650</span> <span class="mf">2548.778564</span> <span class="mf">2412.888916</span> <span class="mf">2479.761230</span> <span class="mf">1658.584473</span> <span class="mf">1672.889282</span> <span class="mf">2002.672607</span> <span class="mf">2492.464355</span> <span class="mf">1878.801880</span> <span class="mf">2003.776245</span> <span class="mf">1893.851440</span> <span class="mf">2383.073242</span> <span class="mf">2474.485596</span> <span class="mf">2470.081055</span> <span class="mf">2484.501953</span> <span class="mf">2477.659424</span> <span class="mf">2479.066162</span> <span class="mf">2490.251709</span> <span class="mf">2091.606201</span> <span class="mf">2481.179443</span> <span class="mf">2485.382080</span> <span class="mf">2487.158691</span> <span class="mf">2295.618408</span> <span class="mf">2325.068115</span> <span class="mf">2305.705322</span> <span class="mf">2352.801025</span> <span class="mf">2472.260498</span> <span class="mf">2482.116211</span> <span class="mf">2483.993652</span> <span class="mf">2503.430664</span> <span class="mf">2493.295898</span> <span class="mf">2500.223633</span> <span class="mf">2491.596436</span> <span class="mf">2477.452148</span> <span class="mf">2475.478760</span> <span class="mf">2467.430908</span> <span class="mf">2480.087646</span> <span class="mf">2456.450684</span> <span class="mf">2490.367432</span> <span class="mf">2477.877441</span> <span class="mf">2471.899902</span> <span class="mf">2469.067871</span> <span class="mf">2463.063965</span> <span class="mf">2474.175049</span> <span class="mf">1977.751953</span> <span class="mf">2433.125244</span> <span class="mf">2489.358887</span> <span class="mf">2492.018311</span> <span class="mf">2375.827637</span> <span class="mf">1900.094604</span> <span class="mf">2491.512695</span> <span class="mf">2560.443604</span> <span class="mf">2584.575684</span> <span class="mf">1712.179321</span> <span class="mf">2058.241699</span> <span class="mf">2575.792725</span> <span class="mf">1863.588135</span> <span class="mf">2347.553955</span> <span class="mf">2482.250488</span> <span class="mf">2478.283447</span> <span class="mf">2482.996338</span> <span class="mf">2484.401855</span> <span class="mf">2321.362549</span> <span class="mf">2549.145264</span> <span class="mf">2480.642578</span> <span class="mf">1900.880493</span> <span class="mf">2483.422363</span> <span class="mf">1789.904663</span> <span class="mf">2435.025635</span> <span class="mf">2456.335205</span> <span class="mf">2472.076172</span> <span class="mf">2487.675781</span>
+</span><span class='line'><span class="mi">9</span> <span class="mf">3513.309782</span> <span class="mf">2274.641538</span> <span class="mf">2958.232285</span> <span class="mf">3932.669376</span> <span class="mf">3786.126188</span> <span class="mf">2849.826237</span> <span class="mf">5700.254664</span> <span class="mf">2816.492436</span> <span class="mf">3832.746619</span> <span class="mf">3702.420506</span> <span class="mf">2870.630259</span> <span class="mf">4930.524634</span> <span class="mf">3626.383660</span> <span class="mf">5457.465817</span> <span class="mf">2911.674854</span> <span class="mf">5826.706631</span> <span class="mf">3063.118128</span> <span class="mf">3468.595578</span> <span class="mf">3017.246258</span> <span class="mf">3891.089669</span> <span class="mf">3560.750380</span> <span class="mf">4003.229298</span> <span class="mf">4297.342606</span> <span class="mf">3008.550484</span> <span class="mf">3794.148238</span> <span class="mf">6804.888446</span> <span class="mf">5513.992633</span> <span class="mf">5023.367652</span> <span class="mf">5088.919598</span> <span class="mf">3093.680407</span> <span class="mf">5314.446895</span> <span class="mf">7401.844282</span> <span class="mf">3076.878939</span> <span class="mf">1882.124608</span> <span class="mf">4415.104581</span> <span class="mf">4005.727143</span> <span class="mf">7425.384389</span> <span class="mf">3842.665568</span> <span class="mf">2190.021208</span> <span class="mf">2748.342060</span> <span class="mf">4561.191134</span> <span class="mf">2963.751309</span> <span class="mf">2996.609632</span> <span class="mf">5380.739438</span> <span class="mf">4874.685792</span> <span class="mf">4581.670467</span> <span class="mf">3519.148784</span> <span class="mf">4109.830963</span> <span class="mf">3950.539100</span> <span class="mf">4080.477292</span> <span class="mf">2624.230874</span> <span class="mf">4931.277735</span> <span class="mf">2882.874944</span> <span class="mf">2807.562003</span> <span class="mf">3849.681022</span> <span class="mf">3160.494618</span> <span class="mf">3747.134412</span> <span class="mf">3917.208341</span> <span class="mf">2737.369608</span> <span class="mf">5956.795812</span> <span class="mf">4988.859466</span> <span class="mf">3666.625523</span> <span class="mf">5128.424549</span> <span class="mf">4919.731474</span> <span class="mf">5295.796236</span> <span class="mf">3325.609938</span> <span class="mf">5754.361423</span> <span class="mf">4226.240290</span> <span class="mf">3721.524204</span> <span class="mf">3620.667546</span> <span class="mf">6138.143649</span> <span class="mf">4914.947320</span> <span class="mf">5018.477593</span> <span class="mf">2904.721095</span> <span class="mf">3774.158545</span> <span class="mf">5614.797046</span> <span class="mf">5422.969243</span> <span class="mf">3521.075405</span> <span class="mf">22676.448882</span> <span class="mf">5749.432579</span> <span class="mf">4491.578183</span> <span class="mf">5113.269873</span> <span class="mf">4966.596379</span> <span class="mf">4017.531402</span> <span class="mf">3255.207807</span> <span class="mf">5896.712478</span> <span class="mf">5836.628444</span> <span class="mf">7583.357894</span> <span class="mf">5566.682519</span> <span class="mf">3725.477136</span> <span class="mf">3611.446564</span> <span class="mf">3415.802801</span> <span class="mf">5165.599688</span> <span class="mf">3288.680153</span> <span class="mf">3752.247671</span> <span class="mf">3340.728295</span> <span class="mf">3451.722113</span> <span class="mf">7003.061383</span> <span class="mf">4741.995198</span> <span class="mf">6129.824958</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>对于中位数，首先我们先考虑其中一行（例如第一行），先用<code>cut</code>把第一列去掉：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>cat Table-100time <span class="p">|</span> sed -n <span class="s1">&#39;1p&#39;</span> <span class="p">|</span> cut -d <span class="s2">&quot; &quot;</span> -f 2-
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里OT一下，<code>sed</code>和<code>cut</code>恰好一个负责选取行，一个负责选取列。
+这在脚本中是很好用的，以下我给出它们这种用法的一般形式：</p>
+
+<p><code>sed</code>选取<code>{beginLine}</code>到<code>{endLine}</code>中间的行：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>sed -n <span class="s1">&#39;{beginLine}, {endLine}p&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>对应于</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>awk <span class="s1">&#39;NR==2&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>和</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>awk <span class="s1">&#39;FNR==2&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>cut</code>选取<code>{beginColumn}</code>到<code>{endColumn}</code>中间的列：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>cut -f <span class="o">{</span>beginColumn<span class="o">}</span>-<span class="o">{</span>endColumn<span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>之后我们需要用<code>sort</code>来排序，但<code>sort</code>只对行排序，我的方法是通过<code>xargs</code>把分隔符由空格转为换行：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>cat Table-100time <span class="p">|</span> sed -n <span class="s1">&#39;1p&#39;</span> <span class="p">|</span> cut -d <span class="s2">&quot; &quot;</span> -f 2- <span class="p">|</span> xargs -n1 <span class="nb">echo</span> <span class="p">|</span> sort -n
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>接下来就可以pipe给<code>awk</code>脚本来处理了：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>cat Table-100time <span class="p">|</span> sed -n <span class="s1">&#39;1p&#39;</span> <span class="p">|</span> cut -d <span class="s2">&quot; &quot;</span> -f 2- <span class="p">|</span> xargs -n1 <span class="nb">echo</span> <span class="p">|</span> sort -n <span class="p">|</span> awk <span class="s1">&#39;{ a[NR] = $1; } END { if (NR % 2) { print a[(NR + 1) / 2]; } else { print (a[NR/2] + a[NR/2 + 1]) / 2; } }&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>最后要处理的是Table-100time这种多行的表格</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>cat Table-100time <span class="p">|</span> xargs -L1 -i bash -c <span class="s1">$&#39;echo {} | cut -d &quot; &quot; -f 2- | xargs -n1 echo | sort -n | awk \&#39;{ a[NR] = $1; } END { if (NR % 2) { print a[(NR + 1) / 2]; } else { print (a[NR/2] + a[NR/2 + 1]) / 2; } }\&#39;&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>多文件处理</h2>
+
+<p>除了<code>FILENAME</code>以外，在<code>awk</code>中辨别文件主要还有<code>FNR</code>和<code>NR</code>这两个内置变量。具体定义可以参考<a href="http://www.gnu.org/software/gawk/manual/gawk.html#Auto_002dset">官方文档</a>：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>FNR
+</span><span class='line'>The current record number in the current file. awk increments FNR each <span class="nb">time </span>it reads a new record <span class="o">(</span>see Records<span class="o">)</span>. awk resets FNR to zero each <span class="nb">time </span>it starts a new input file.
+</span><span class='line'>
+</span><span class='line'>NR
+</span><span class='line'>The number of input records awk has processed since the beginning of the program’s execution <span class="o">(</span>see Records<span class="o">)</span>. awk increments NR each <span class="nb">time </span>it reads a new record.
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>下面同样举一个具体例子：<code>accurate-data</code>和<code>simulated-data</code>都是以<code>&lt;key&gt; &lt;value&gt;</code>形式组织的数据，二者有着完全一致的key，而且事先排过序，需要求两者所记录的value的差值绝对值。</p>
+
+<p>我用了以下的脚本，其实逻辑很简单，先把第一个文件的key-value pair存到一个hash map中，读到第二个文件相同key的值时便与hash map的值比较求绝对值：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>awk <span class="s1">&#39;NR == FNR { a[$1] = $NF }</span>
+</span><span class='line'><span class="s1">NR &gt; FNR &amp;&amp; a[$1] &gt; $NF { print $1&quot;\t&quot;a[$1]-$NF }</span>
+</span><span class='line'><span class="s1">NR &gt; FNR &amp;&amp; a[$1] &lt; $NF { print $1&quot;\t&quot;$NF-a[$1] }&#39;</span> accurate-data simulated-data &gt; diff
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>其他</h2>
+
+<p>有次我需要比较hadoop程序的执行时间，由于<code>hadoop job -history</code>输出的log中的时间有不同单位，不便比较，所以我用以下命令做预处理再比较（初始数据存放在<code>time-table</code>中，输出到<code>timeResult</code>）：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>cat <span class="nb">time</span>-table <span class="p">|</span> sed <span class="s1">&#39;s/.*(\(.*\))/\0 \1/&#39;</span> <span class="p">|</span> awk <span class="s1">&#39;</span>
+</span><span class='line'><span class="s1">#BEGIN{</span>
+</span><span class='line'><span class="s1">{</span>
+</span><span class='line'><span class="s1">if(match($4,/(.+),(.+)/)){ </span>
+</span><span class='line'><span class="s1">min=gensub(/(.+)mins,(.+)sec/, &quot;\\1&quot;, &quot;g&quot;, $4)</span>
+</span><span class='line'><span class="s1">sec=gensub(/(.+)mins,(.+)sec/, &quot;\\2&quot;, &quot;g&quot;, $4)</span>
+</span><span class='line'><span class="s1">time=min*60+sec</span>
+</span><span class='line'><span class="s1">#print min</span>
+</span><span class='line'><span class="s1">#print sec</span>
+</span><span class='line'><span class="s1">#print time</span>
+</span><span class='line'><span class="s1">printf &quot;%s %s %s\n&quot;, $1, $2, time &gt;&gt; &quot;timeResult&quot;</span>
+</span><span class='line'><span class="s1">}</span>
+</span><span class='line'><span class="s1">else</span>
+</span><span class='line'><span class="s1">{</span>
+</span><span class='line'><span class="s1">sec=gensub(/(.+)sec/, &quot;\\1&quot;, &quot;g&quot;, $4)</span>
+</span><span class='line'><span class="s1">time=sec</span>
+</span><span class='line'><span class="s1">#print sec</span>
+</span><span class='line'><span class="s1">#print time</span>
+</span><span class='line'><span class="s1">printf &quot;%s %s %s\n&quot;, $1, $2, time &gt;&gt; &quot;timeResult&quot;</span>
+</span><span class='line'><span class="s1">}</span>
+</span><span class='line'><span class="s1">}</span>
+</span><span class='line'><span class="s1">&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>参考资料</h2>
+
+<p>[1]<a href="http://www.gnu.org/software/gawk/manual/gawk.html">The GNU Awk User’s Guide</a></p>
+
+<p>[2]<a href="http://tldp.org/LDP/abs/html/awk.html">ABS(Advanced Bash-Scripting Guide)</a></p>
+
+<p>[3]<a href="http://www.thegeekstuff.com/2010/01/8-powerful-awk-built-in-variables-fs-ofs-rs-ors-nr-nf-filename-fnr/">8 Powerful Awk Built-in Variables – FS, OFS, RS, ORS, NR, NF, FILENAME, FNR</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2014/03/15/the-bfo-concert/">The BFO Concert</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-15T20:45:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>今晚去听布达佩斯节日管弦乐团（Budapest Festival Orchestra）的音乐会。
+BFO成立至今也不过三十年，却早已成为享誉全球的著名乐团，甚至在《留声机》的一次排名中被列入世界前十名交响乐团之中。
+BFO的音乐总监兼创办人之一的Ivan Fischer是一位出生音乐世家的匈牙利指挥家（他的兄长Adam Fischer也是一位指挥家，师承自Swarowsky和Ferrara）。
+这位指挥家的技能树可谓是相当全面，他学过小提琴、钢琴、大提琴和作曲，这些技能对于指挥来说，无论是对作品的解析、还是对作为乐团一大主体的弦乐的调教、抑或是对乐团整体音色的把控都大有帮助，可谓是基本没有硬伤了。
+Ivan Fischer师从过指挥大师Swarowsky，算是Claudio Abbado、Zubin Mehta、Giuseppe Sinopoli等著名指挥家的同门，也当过哈大眼Harnoncourt大师的助手。</p>
+
+<p>这次的曲目有一首是格拉祖诺夫（Glazunov）的小提琴协奏曲，担任独奏的是法国小提琴家Renaud Capuçon。
+Capuçon师承自Gérard Poulet，算是法比学派的正统传人了。
+不过我对他的印象倒不是一位独奏家，而是主要来自于他录制的室内乐：例如他在2011年卢加诺（Lugano）音乐节与Argerich还有他弟弟Gautier Capuçon合作的拉赫玛尼诺夫悲歌三重奏，以及与皮尔斯、王健等人合作的舒曼钢琴五重奏等。
+此外，据说这位小提琴家还曾在马勒青年管弦乐团当过首席。
+目前他使用的是瓜乃利1737年所制名琴“Panette”，该琴之前的主人是我所崇敬的小提琴家斯特恩。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2014/03/15/the-bfo-concert/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2014/03/07/the-lso-concert/">The LSO Concert</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-07T20:45:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>几个月前我就看到了伦敦交响乐团（London Symphony Orchestra）音乐会的消息，当时就觉得这一场不容错过。
+首先是阵容很强大：LSO是一个跟BPO、VPO并称三巨头的<del>腐国</del>英国老牌乐团；
+这次指挥是LSO的首席客座指挥Daniel Harding，他当过Abbado和Simon Rattle的助理，并曾是马勒室内乐团（ Mahler Chamber Orchestra）的音乐总监，当今指挥家的青年才俊中Yannick Nézet-Séguin、Dudamel和他都算是优秀代表；
+钢琴独奏是我朝的钢琴家王羽佳。
+其次曲目我也很感兴趣：
+第一首曲目是穆索尔斯基的《荒山之夜》（Mussorgsky: A Night on the Bare Mountain）。
+这次演的是原版，而这曲子演的最多的版本是与穆索尔斯基同属“强力集团”的里姆斯基-科萨科夫（Rimsky-Korsakov）的改编版（好吧，此公特别喜欢改其他作曲家的作品）。
+原版描写的是：群妖在荒山聚集，召唤出大boss撒旦，撒旦深入群众，喜大普奔，撒旦周围颂扬之声不绝如缕，龙心大悦，随举办联欢晚会与群魔同乐。
+穆索尔斯基的原版在当时并不被接受，甚至连他的老师、“强力集团”的头头——巴拉基列夫（Balakirev）都抨击这部作品。
+后来里姆斯基-科萨科夫说「卧槽这作品太不符合主旋律了！」，于是把末尾改成：远处教堂的钟声传来，撒旦变成战斗力不足5的渣渣，群妖们纷纷回去洗洗睡，之后天亮了<del>撒旦死了（杀人游戏乱入XD）</del>。
+（本曲的另一个著名改编也采用了“邪不压正”的主旋律结尾：同样热衷于改编乐曲的指挥家Stokowski在电影《Fantasia》中也加入了自己对《荒山之夜》的改编，在这首曲子之后接的是舒伯特的《圣母颂》。）
+值得一提的是，这段多出的主旋律改编自穆索尔斯基另一部作品《the Dream Vision of the Peasant Lad》。此外，里姆斯基-科萨科夫还修改了原作的配器。经他之手，《荒山之夜》成了一部很受欢迎的音乐会曲目。
+第二首曲目是我最喜欢的拉三（Rachmaninov: Piano Concerto No. 3 in d minor, Op. 30）。
+拉赫的这部作品不仅技巧艰深，而且诠释难度一点也不亚于演奏难度，对职业钢琴家来说也是极具挑战性的作品。
+最后一首曲目是斯特拉文斯基的《彼得鲁什卡》（Stravinsky: Petrushka）。斯氏早期的三首芭蕾舞剧作品中，《火鸟》最为保守（毕竟斯氏是里姆斯基-科萨科夫的徒儿嘛），《春之祭》口味最重，《彼得鲁什卡》介于这二者中间。
+从现代人的角度来看，《彼得鲁什卡》的剧情其实挺扯的，无非是糅合剧中剧、木偶的三角恋+凶杀、魔幻片+恐怖片的元素罢了。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2014/03/07/the-lso-concert/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2014/03/02/angela-hewitt-piano-recital/">Angela Hewitt Piano Recital</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-02T20:45:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>昨晚去听了Angela Hewitt的钢琴独奏会。Hewitt的演出还是挺难得的——她08年曾来帝都弹《平均律》，对观众的表现留下了不好的印象，之后就已经基本不来大陆了。这次的曲目也很有意思，上半场是BWV808和贝多芬第31号钢琴奏鸣曲（op110），下半场是BWV903和李斯特的奏鸣曲。这些曲子曲风迥异，但却都有一段赋格。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2014/03/02/angela-hewitt-piano-recital/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="8">&larr; Older</a>
+    
+    <a href="/blog/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="6">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/blog/2019/04/07/macbeth-by-tang-shu-wing/">《麦克白》的布莱希特剧场实践</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2019/01/01/those-concerts-in-2018/">盘点2018年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/05/22/cudaErrorCudartUnloading/">cudaErrorCudartUnloading问题排查及建议方案</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/01/01/those-concerts-in-2017/">盘点2017年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2017/11/11/Jonas-Kaufmann-recital/">Jonas Kaufmann独奏会之艺术歌曲</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<!--
+Copyright &copy; 2020 - Galoisplusplus -
+-->
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+</body>
+</html>

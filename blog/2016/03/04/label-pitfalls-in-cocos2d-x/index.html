@@ -1,0 +1,861 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>cocos2d-x文本类Label的一些坑 - Galoisplusplus</title>
+  <meta name="author" content="Galoisplusplus">
+
+  
+  <meta name="description" content="Label pitfalls in cocos2d-x">
+  <meta name="keywords" content="cocos2d-x, cocos, cocos2d, 游戏开发, 手游开发, mobile game, game devolopment">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yszheda.github.io/blog/blog/2016/03/04/label-pitfalls-in-cocos2d-x">
+  <link href="/blog/favicon.png" rel="icon">
+  <link href="/blog/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/blog/atom.xml" rel="alternate" title="Galoisplusplus" type="application/atom+xml">
+  <script src="/blog/javascripts/modernizr-2.0.js"></script>
+  <!--
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  -->
+  <script src="//libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/blog/javascripts/octopress.js" type="text/javascript"></script>
+  
+<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!--
+<link href="http://fonts.googleapis.com/css?family=Crimson+Text:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/blog/">Galoisplusplus</a></h1>
+  
+    <h2>A fan of science, technology and Classical music.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/blog/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:yszheda.github.io/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/blog/">Blog</a></li>
+  <li><a href="/blog/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">cocos2d-x文本类Label的一些坑</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-03-04T11:22:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>cocos2d-x v3.2的Label实现bug真是不少，前段时间恰好排查了几个与之相关的问题，在此记录一下。</p>
+
+<h1>文字换行</h1>
+
+<p>文字换行是一个困扰我们挺长时间的问题：之前就常常有文字超过指定长度却没有换行的情况出现，后来加入韩文、泰文等“奇葩”文字后问题就更严重了。cocos2d-x引擎在v3.2后大改了这部分的实现，但由于涉及的改动太多，无法作为一个独立的patch单独apply过来，而且更新引擎版本对我们上线的游戏代价太大，也不可行。好在本渣不久前终于从各种游戏系统开发中抽出时间，完整地把这部分代码review了一遍，结果发现全是<code>LabelTextFormatter::multilineText</code>中几行代码惹的祸，缩小了排查范围便不难fix了：</p>
+
+<!-- more -->
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="kt">bool</span> <span class="n">LabelTextFormatter</span><span class="o">::</span><span class="n">multilineText</span><span class="p">(</span><span class="n">Label</span> <span class="o">*</span><span class="n">theLabel</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">auto</span> <span class="n">limit</span> <span class="o">=</span> <span class="n">theLabel</span><span class="o">-&gt;</span><span class="n">_limitShowCount</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">auto</span> <span class="n">strWhole</span> <span class="o">=</span> <span class="n">theLabel</span><span class="o">-&gt;</span><span class="n">_currentUTF16String</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">char16_t</span><span class="o">&gt;</span> <span class="n">multiline_string</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">multiline_string</span><span class="p">.</span><span class="n">reserve</span><span class="p">(</span> <span class="n">limit</span> <span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">char16_t</span><span class="o">&gt;</span> <span class="n">last_word</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">last_word</span><span class="p">.</span><span class="n">reserve</span><span class="p">(</span> <span class="mi">25</span> <span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">bool</span>   <span class="n">isStartOfLine</span>  <span class="o">=</span> <span class="nb">false</span><span class="p">,</span> <span class="n">isStartOfWord</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">float</span>  <span class="n">startOfLine</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">startOfWord</span>   <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">skip</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">tIndex</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">float</span> <span class="n">scalsX</span> <span class="o">=</span> <span class="n">theLabel</span><span class="o">-&gt;</span><span class="n">getScaleX</span><span class="p">();</span>
+</span><span class='line'>    <span class="kt">float</span> <span class="n">lineWidth</span> <span class="o">=</span> <span class="n">theLabel</span><span class="o">-&gt;</span><span class="n">_maxLineWidth</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">bool</span> <span class="n">breakLineWithoutSpace</span> <span class="o">=</span> <span class="n">theLabel</span><span class="o">-&gt;</span><span class="n">_lineBreakWithoutSpaces</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">Label</span><span class="o">::</span><span class="n">LetterInfo</span><span class="o">*</span> <span class="n">info</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span><span class="o">+</span><span class="n">skip</span> <span class="o">&lt;</span> <span class="n">limit</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">info</span> <span class="o">=</span> <span class="o">&amp;</span> <span class="n">theLabel</span><span class="o">-&gt;</span><span class="n">_lettersInfo</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="n">skip</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">justSkipped</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">while</span> <span class="p">(</span><span class="n">info</span><span class="o">-&gt;</span><span class="n">def</span><span class="p">.</span><span class="n">validDefinition</span> <span class="o">==</span> <span class="nb">false</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">justSkipped</span><span class="o">++</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">tIndex</span> <span class="o">=</span> <span class="n">j</span><span class="o">+</span><span class="n">skip</span><span class="o">+</span><span class="n">justSkipped</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">strWhole</span><span class="p">[</span><span class="n">tIndex</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;\n&#39;</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">StringUtils</span><span class="o">::</span><span class="n">trimUTF16Vector</span><span class="p">(</span><span class="n">last_word</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="n">last_word</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="sc">&#39;\n&#39;</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">multiline_string</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">multiline_string</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">last_word</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">last_word</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+</span><span class='line'>                <span class="n">last_word</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+</span><span class='line'>                <span class="n">isStartOfWord</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">isStartOfLine</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">startOfWord</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">startOfLine</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">if</span><span class="p">(</span><span class="n">tIndex</span> <span class="o">&lt;</span> <span class="n">limit</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">info</span> <span class="o">=</span> <span class="o">&amp;</span> <span class="n">theLabel</span><span class="o">-&gt;</span><span class="n">_lettersInfo</span><span class="p">.</span><span class="n">at</span><span class="p">(</span> <span class="n">tIndex</span> <span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">else</span>
+</span><span class='line'>                <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="n">skip</span> <span class="o">+=</span> <span class="n">justSkipped</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">tIndex</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="n">skip</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">tIndex</span> <span class="o">&gt;=</span> <span class="n">limit</span><span class="p">)</span>
+</span><span class='line'>            <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">char16_t</span> <span class="n">character</span> <span class="o">=</span> <span class="n">strWhole</span><span class="p">[</span><span class="n">tIndex</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">isStartOfWord</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">startOfWord</span> <span class="o">=</span> <span class="n">info</span><span class="o">-&gt;</span><span class="n">position</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">scalsX</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">isStartOfWord</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">isStartOfLine</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">startOfLine</span> <span class="o">=</span> <span class="n">startOfWord</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">isStartOfLine</span>  <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// 1) Whitespace.</span>
+</span><span class='line'>        <span class="c1">// 2) This character is non-CJK, but the last character is CJK</span>
+</span><span class='line'>        <span class="kt">bool</span> <span class="n">isspace</span> <span class="o">=</span> <span class="n">StringUtils</span><span class="o">::</span><span class="n">isUnicodeSpace</span><span class="p">(</span><span class="n">character</span><span class="p">);</span>
+</span><span class='line'>        <span class="kt">bool</span> <span class="n">isCJK</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">isspace</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">isCJK</span> <span class="o">=</span> <span class="n">StringUtils</span><span class="o">::</span><span class="n">isCJKUnicode</span><span class="p">(</span><span class="n">character</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">isspace</span> <span class="o">||</span>
+</span><span class='line'>            <span class="p">(</span><span class="o">!</span><span class="n">last_word</span><span class="p">.</span><span class="n">empty</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">StringUtils</span><span class="o">::</span><span class="n">isCJKUnicode</span><span class="p">(</span><span class="n">last_word</span><span class="p">.</span><span class="n">back</span><span class="p">())</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">isCJK</span><span class="p">))</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// if current character is white space, put it into the current word</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">isspace</span><span class="p">)</span> <span class="n">last_word</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">character</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">multiline_string</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">multiline_string</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">last_word</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">last_word</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+</span><span class='line'>            <span class="n">last_word</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+</span><span class='line'>            <span class="n">isStartOfWord</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">startOfWord</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>            <span class="c1">// put the CJK character in the last word</span>
+</span><span class='line'>            <span class="c1">// and put the non-CJK(ASCII) character in the current word</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">isspace</span><span class="p">)</span> <span class="n">last_word</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">character</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">continue</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">float</span> <span class="n">posRight</span> <span class="o">=</span> <span class="p">(</span><span class="n">info</span><span class="o">-&gt;</span><span class="n">position</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">info</span><span class="o">-&gt;</span><span class="n">def</span><span class="p">.</span><span class="n">xAdvance</span><span class="p">)</span> <span class="o">*</span> <span class="n">scalsX</span><span class="p">;</span>
+</span><span class='line'>        <span class="c1">// Out of bounds.</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">posRight</span> <span class="o">-</span> <span class="n">startOfLine</span> <span class="o">&gt;</span> <span class="n">lineWidth</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">breakLineWithoutSpace</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">isCJK</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">last_word</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">character</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="kt">int</span> <span class="n">found</span> <span class="o">=</span> <span class="n">StringUtils</span><span class="o">::</span><span class="n">getIndexOfLastNotChar16</span><span class="p">(</span><span class="n">multiline_string</span><span class="p">,</span> <span class="sc">&#39; &#39;</span><span class="p">);</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">found</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>                    <span class="n">StringUtils</span><span class="o">::</span><span class="n">trimUTF16Vector</span><span class="p">(</span><span class="n">multiline_string</span><span class="p">);</span>
+</span><span class='line'>                <span class="k">else</span>
+</span><span class='line'>                    <span class="n">multiline_string</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">multiline_string</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>                    <span class="n">multiline_string</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="sc">&#39;\n&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="n">isStartOfLine</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">startOfLine</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">else</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">StringUtils</span><span class="o">::</span><span class="n">trimUTF16Vector</span><span class="p">(</span><span class="n">last_word</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="c1">//issue #8492:endless loop if not using system font, and constrained length is less than one character width</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">isStartOfLine</span> <span class="o">&amp;&amp;</span> <span class="n">startOfWord</span> <span class="o">==</span> <span class="n">startOfLine</span> <span class="o">&amp;&amp;</span> <span class="n">last_word</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>                    <span class="n">last_word</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">character</span><span class="p">);</span>
+</span><span class='line'>                <span class="k">else</span>
+</span><span class='line'>                    <span class="o">--</span><span class="n">j</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="n">last_word</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="sc">&#39;\n&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="n">multiline_string</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">multiline_string</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">last_word</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">last_word</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+</span><span class='line'>                <span class="n">last_word</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="n">isStartOfWord</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">isStartOfLine</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">startOfWord</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">startOfLine</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">else</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// Character is normal.</span>
+</span><span class='line'>            <span class="n">last_word</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">character</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">multiline_string</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">multiline_string</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">last_word</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">last_word</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">u16string</span> <span class="n">strNew</span><span class="p">(</span><span class="n">multiline_string</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">multiline_string</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">theLabel</span><span class="o">-&gt;</span><span class="n">_currentUTF16String</span> <span class="o">=</span> <span class="n">strNew</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">theLabel</span><span class="o">-&gt;</span><span class="n">computeStringNumLines</span><span class="p">();</span>
+</span><span class='line'>    <span class="n">theLabel</span><span class="o">-&gt;</span><span class="n">computeHorizontalKernings</span><span class="p">(</span><span class="n">theLabel</span><span class="o">-&gt;</span><span class="n">_currentUTF16String</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>描边显示不均匀</h1>
+
+<p>这是我们之前常常被美术大大们吐槽的地方：文字加描边后有的地方粗有的地方细，好蓝看啊&hellip;
+后来本渣在网上看到大神的<a href="http://my.oschina.net/u/1414326/blog/279456?fromerr=xX53o9Rq">patch</a>，又自我扫盲了FreeType的基础概念，总算看懂了。cocos2d-x引擎在<code>FontFreeType::getGlyphBitmap</code>函数中会把不带描边的文字字形（glyph）和描边文字字形的bitmap都存到同一个数组里，在<code>FontFreeType::renderCharAt</code>中渲染。而描边文字字形是调用FreeType API生成的，其轮廓和不带描边的文字字形轮廓的间距并不能确保一定是我们所指定的描边大小，这个patch便是记下该间距和描边大小的offset，在拷贝bitmap时根据offset作调整。
+其实cocos2d-x引擎在v3.2之后也改了这部分代码，但其实现思路却不如上述patch清晰，于是本渣便用了后者，并做了一点微小改动。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span> <span class="n">FontFreeType</span><span class="o">::</span><span class="n">getGlyphBitmap</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">short</span> <span class="n">theChar</span><span class="p">,</span> <span class="kt">long</span> <span class="o">&amp;</span><span class="n">outWidth</span><span class="p">,</span> <span class="kt">long</span> <span class="o">&amp;</span><span class="n">outHeight</span><span class="p">,</span> <span class="n">Rect</span> <span class="o">&amp;</span><span class="n">outRect</span><span class="p">,</span><span class="kt">int</span> <span class="o">&amp;</span><span class="n">xAdvance</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="kt">bool</span> <span class="n">invalidChar</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">ret</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">do</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">_fontRef</span><span class="p">)</span>
+</span><span class='line'>            <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">auto</span> <span class="n">glyphIndex</span> <span class="o">=</span> <span class="n">FT_Get_Char_Index</span><span class="p">(</span><span class="n">_fontRef</span><span class="p">,</span> <span class="n">theChar</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">glyphIndex</span><span class="p">)</span>
+</span><span class='line'>            <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">_distanceFieldEnabled</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">FT_Load_Glyph</span><span class="p">(</span><span class="n">_fontRef</span><span class="p">,</span><span class="n">glyphIndex</span><span class="p">,</span><span class="n">FT_LOAD_RENDER</span> <span class="o">|</span> <span class="n">FT_LOAD_NO_HINTING</span> <span class="o">|</span> <span class="n">FT_LOAD_NO_AUTOHINT</span><span class="p">))</span>
+</span><span class='line'>                <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">else</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">FT_Load_Glyph</span><span class="p">(</span><span class="n">_fontRef</span><span class="p">,</span><span class="n">glyphIndex</span><span class="p">,</span><span class="n">FT_LOAD_RENDER</span> <span class="o">|</span> <span class="n">FT_LOAD_NO_AUTOHINT</span><span class="p">))</span>
+</span><span class='line'>                <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">outRect</span><span class="p">.</span><span class="n">origin</span><span class="p">.</span><span class="n">x</span>    <span class="o">=</span> <span class="n">_fontRef</span><span class="o">-&gt;</span><span class="n">glyph</span><span class="o">-&gt;</span><span class="n">metrics</span><span class="p">.</span><span class="n">horiBearingX</span> <span class="o">&gt;&gt;</span> <span class="mi">6</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">outRect</span><span class="p">.</span><span class="n">origin</span><span class="p">.</span><span class="n">y</span>    <span class="o">=</span> <span class="o">-</span> <span class="p">(</span><span class="n">_fontRef</span><span class="o">-&gt;</span><span class="n">glyph</span><span class="o">-&gt;</span><span class="n">metrics</span><span class="p">.</span><span class="n">horiBearingY</span> <span class="o">&gt;&gt;</span> <span class="mi">6</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">outRect</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span>  <span class="o">=</span>   <span class="p">(</span><span class="n">_fontRef</span><span class="o">-&gt;</span><span class="n">glyph</span><span class="o">-&gt;</span><span class="n">metrics</span><span class="p">.</span><span class="n">width</span>  <span class="o">&gt;&gt;</span> <span class="mi">6</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">outRect</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">height</span> <span class="o">=</span>   <span class="p">(</span><span class="n">_fontRef</span><span class="o">-&gt;</span><span class="n">glyph</span><span class="o">-&gt;</span><span class="n">metrics</span><span class="p">.</span><span class="n">height</span> <span class="o">&gt;&gt;</span> <span class="mi">6</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">xAdvance</span> <span class="o">=</span> <span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_fontRef</span><span class="o">-&gt;</span><span class="n">glyph</span><span class="o">-&gt;</span><span class="n">metrics</span><span class="p">.</span><span class="n">horiAdvance</span> <span class="o">&gt;&gt;</span> <span class="mi">6</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">outWidth</span>  <span class="o">=</span> <span class="n">_fontRef</span><span class="o">-&gt;</span><span class="n">glyph</span><span class="o">-&gt;</span><span class="n">bitmap</span><span class="p">.</span><span class="n">width</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">outHeight</span> <span class="o">=</span> <span class="n">_fontRef</span><span class="o">-&gt;</span><span class="n">glyph</span><span class="o">-&gt;</span><span class="n">bitmap</span><span class="p">.</span><span class="n">rows</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">ret</span> <span class="o">=</span> <span class="n">_fontRef</span><span class="o">-&gt;</span><span class="n">glyph</span><span class="o">-&gt;</span><span class="n">bitmap</span><span class="p">.</span><span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// apply patch from: http://my.oschina.net/u/1414326/blog/279456?fromerr=xX53o9Rq</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">_outlineSize</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">auto</span> <span class="n">copyBitmap</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">unsigned</span> <span class="kt">char</span><span class="p">[</span><span class="n">outWidth</span> <span class="o">*</span> <span class="n">outHeight</span><span class="p">];</span>
+</span><span class='line'>            <span class="n">memcpy</span><span class="p">(</span><span class="n">copyBitmap</span><span class="p">,</span> <span class="n">ret</span><span class="p">,</span> <span class="n">outWidth</span> <span class="o">*</span> <span class="n">outHeight</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="kt">long</span> <span class="n">bitmapWidth</span><span class="p">;</span>
+</span><span class='line'>            <span class="kt">long</span> <span class="n">bitmapHeight</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">FT_BBox</span> <span class="n">bbox</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">auto</span> <span class="n">outlineBitmap</span> <span class="o">=</span> <span class="n">getGlyphBitmapWithOutline</span><span class="p">(</span><span class="n">theChar</span><span class="p">,</span> <span class="n">bbox</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span><span class="p">(</span><span class="n">outlineBitmap</span> <span class="o">==</span> <span class="k">nullptr</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">ret</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">;</span>
+</span><span class='line'>                <span class="k">delete</span> <span class="p">[]</span> <span class="n">copyBitmap</span><span class="p">;</span>
+</span><span class='line'>                <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="kt">long</span> <span class="n">glyphMinX</span> <span class="o">=</span> <span class="n">outRect</span><span class="p">.</span><span class="n">origin</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span><span class='line'>            <span class="kt">long</span> <span class="n">glyphMaxX</span> <span class="o">=</span> <span class="n">outRect</span><span class="p">.</span><span class="n">origin</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">outWidth</span><span class="p">;</span>
+</span><span class='line'>            <span class="kt">long</span> <span class="n">glyphMinY</span> <span class="o">=</span> <span class="o">-</span><span class="n">outHeight</span> <span class="o">-</span> <span class="n">outRect</span><span class="p">.</span><span class="n">origin</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span><span class='line'>            <span class="kt">long</span> <span class="n">glyphMaxY</span> <span class="o">=</span> <span class="o">-</span><span class="n">outRect</span><span class="p">.</span><span class="n">origin</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">auto</span> <span class="n">outlineMinX</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">.</span><span class="n">xMin</span> <span class="o">&gt;&gt;</span> <span class="mi">6</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">auto</span> <span class="n">outlineMaxX</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">.</span><span class="n">xMax</span> <span class="o">&gt;&gt;</span> <span class="mi">6</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">auto</span> <span class="n">outlineMinY</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">.</span><span class="n">yMin</span> <span class="o">&gt;&gt;</span> <span class="mi">6</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">auto</span> <span class="n">outlineMaxY</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">.</span><span class="n">yMax</span> <span class="o">&gt;&gt;</span> <span class="mi">6</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">auto</span> <span class="n">outlineWidth</span> <span class="o">=</span> <span class="n">outlineMaxX</span> <span class="o">-</span> <span class="n">outlineMinX</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">auto</span> <span class="n">outlineHeight</span> <span class="o">=</span> <span class="n">outlineMaxY</span> <span class="o">-</span> <span class="n">outlineMinY</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">bitmapWidth</span> <span class="o">=</span> <span class="n">outlineMaxX</span> <span class="o">-</span> <span class="n">outlineMinX</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">bitmapHeight</span> <span class="o">=</span> <span class="n">outlineMaxY</span> <span class="o">-</span> <span class="n">outlineMinY</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="kt">int</span> <span class="n">offsetWidth</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>            <span class="kt">int</span> <span class="n">offsetHeight</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">if</span><span class="p">(</span><span class="n">glyphMinX</span> <span class="o">-</span> <span class="n">outlineMinX</span> <span class="o">!=</span> <span class="n">_outlineSize</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">offsetWidth</span> <span class="o">=</span> <span class="n">glyphMinX</span> <span class="o">-</span> <span class="n">outlineMinX</span> <span class="o">-</span> <span class="n">_outlineSize</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">if</span><span class="p">(</span><span class="n">outlineMaxY</span> <span class="o">-</span> <span class="n">glyphMaxY</span> <span class="o">!=</span> <span class="n">_outlineSize</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">offsetHeight</span> <span class="o">=</span> <span class="n">outlineMaxY</span> <span class="o">-</span> <span class="n">glyphMaxY</span> <span class="o">-</span> <span class="n">_outlineSize</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="kt">long</span> <span class="n">index</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">auto</span> <span class="n">blendImage</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">unsigned</span> <span class="kt">char</span><span class="p">[</span><span class="n">bitmapWidth</span> <span class="o">*</span> <span class="n">bitmapHeight</span> <span class="o">*</span> <span class="mi">2</span><span class="p">];</span>
+</span><span class='line'>            <span class="n">memset</span><span class="p">(</span><span class="n">blendImage</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">bitmapWidth</span> <span class="o">*</span> <span class="n">bitmapHeight</span> <span class="o">*</span> <span class="mi">2</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">bitmapWidth</span><span class="p">;</span> <span class="o">++</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="n">bitmapHeight</span><span class="p">;</span> <span class="o">++</span><span class="n">y</span><span class="p">)</span>
+</span><span class='line'>                <span class="p">{</span>
+</span><span class='line'>                    <span class="n">index</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="n">bitmapWidth</span><span class="p">;</span>
+</span><span class='line'>                    <span class="n">blendImage</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">outlineBitmap</span><span class="p">[</span><span class="n">index</span><span class="p">];</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="kt">long</span> <span class="n">maxX</span> <span class="o">=</span> <span class="n">outWidth</span> <span class="o">+</span> <span class="n">_outlineSize</span><span class="p">;</span>
+</span><span class='line'>            <span class="kt">long</span> <span class="n">maxY</span> <span class="o">=</span> <span class="n">outHeight</span> <span class="o">+</span> <span class="n">_outlineSize</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">_outlineSize</span> <span class="o">+</span> <span class="n">offsetWidth</span><span class="p">;</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">maxX</span> <span class="o">+</span> <span class="n">offsetWidth</span> <span class="o">&amp;</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">bitmapWidth</span><span class="p">;</span> <span class="o">++</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="n">_outlineSize</span> <span class="o">+</span> <span class="n">offsetHeight</span><span class="p">;</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="n">maxY</span> <span class="o">+</span> <span class="n">offsetHeight</span> <span class="o">&amp;</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="n">bitmapHeight</span><span class="p">;</span> <span class="o">++</span><span class="n">y</span><span class="p">)</span>
+</span><span class='line'>                <span class="p">{</span>
+</span><span class='line'>                    <span class="n">index</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="n">bitmapWidth</span><span class="p">;</span>
+</span><span class='line'>                    <span class="kt">long</span> <span class="n">index2</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">_outlineSize</span> <span class="o">-</span> <span class="n">offsetWidth</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">_outlineSize</span> <span class="o">-</span> <span class="n">offsetHeight</span><span class="p">)</span> <span class="o">*</span> <span class="n">outWidth</span><span class="p">;</span>
+</span><span class='line'>                    <span class="n">blendImage</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">copyBitmap</span><span class="p">[</span><span class="n">index2</span><span class="p">];</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">outRect</span><span class="p">.</span><span class="n">origin</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">.</span><span class="n">xMin</span> <span class="o">&gt;&gt;</span> <span class="mi">6</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">outRect</span><span class="p">.</span><span class="n">origin</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="o">-</span> <span class="p">(</span><span class="n">bbox</span><span class="p">.</span><span class="n">yMax</span> <span class="o">&gt;&gt;</span> <span class="mi">6</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">xAdvance</span> <span class="o">+=</span> <span class="n">bitmapWidth</span> <span class="o">-</span> <span class="n">outRect</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">outRect</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span>  <span class="o">=</span>  <span class="n">bitmapWidth</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">outRect</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">height</span> <span class="o">=</span>  <span class="n">bitmapHeight</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">outWidth</span>  <span class="o">=</span> <span class="n">bitmapWidth</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">outHeight</span> <span class="o">=</span> <span class="n">bitmapHeight</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">delete</span> <span class="p">[]</span> <span class="n">outlineBitmap</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">delete</span> <span class="p">[]</span> <span class="n">copyBitmap</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">ret</span> <span class="o">=</span> <span class="n">blendImage</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">invalidChar</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">invalidChar</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">outRect</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span>  <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">outRect</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">height</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">xAdvance</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="k">nullptr</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>       <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>其他</h1>
+
+<p>由于v3.2的Label实现质量不高，所以还是得时时关注cocos2d-x引擎这方面的改动。例如前段时间便apply了上游的这个patch：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="err">@@</span> <span class="o">-</span><span class="mi">154</span><span class="p">,</span><span class="mi">13</span> <span class="o">+</span><span class="mi">154</span><span class="p">,</span><span class="mi">15</span> <span class="err">@@</span> <span class="kt">bool</span> <span class="n">FontFreeType</span><span class="o">::</span><span class="n">createFontObject</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&amp;</span><span class="n">fontName</span><span class="p">,</span> <span class="kt">int</span> <span class="n">fontSize</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'> <span class="n">FontFreeType</span><span class="o">::~</span><span class="n">FontFreeType</span><span class="p">()</span>
+</span><span class='line'> <span class="p">{</span>
+</span><span class='line'><span class="o">-</span>    <span class="k">if</span> <span class="p">(</span><span class="n">_stroker</span><span class="p">)</span>
+</span><span class='line'><span class="o">-</span>    <span class="p">{</span>
+</span><span class='line'><span class="o">-</span>        <span class="n">FT_Stroker_Done</span><span class="p">(</span><span class="n">_stroker</span><span class="p">);</span>
+</span><span class='line'><span class="o">-</span>    <span class="p">}</span>
+</span><span class='line'><span class="o">-</span>    <span class="k">if</span> <span class="p">(</span><span class="n">_fontRef</span><span class="p">)</span>
+</span><span class='line'><span class="o">-</span>    <span class="p">{</span>
+</span><span class='line'><span class="o">-</span>        <span class="n">FT_Done_Face</span><span class="p">(</span><span class="n">_fontRef</span><span class="p">);</span>
+</span><span class='line'><span class="o">+</span>    <span class="k">if</span> <span class="p">(</span><span class="n">_FTInitialized</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'><span class="o">+</span>        <span class="k">if</span> <span class="p">(</span><span class="n">_stroker</span><span class="p">)</span>
+</span><span class='line'><span class="o">+</span>        <span class="p">{</span>
+</span><span class='line'><span class="o">+</span>            <span class="n">FT_Stroker_Done</span><span class="p">(</span><span class="n">_stroker</span><span class="p">);</span>
+</span><span class='line'><span class="o">+</span>        <span class="p">}</span>
+</span><span class='line'><span class="o">+</span>        <span class="k">if</span> <span class="p">(</span><span class="n">_fontRef</span><span class="p">)</span>
+</span><span class='line'><span class="o">+</span>        <span class="p">{</span>
+</span><span class='line'><span class="o">+</span>            <span class="n">FT_Done_Face</span><span class="p">(</span><span class="n">_fontRef</span><span class="p">);</span>
+</span><span class='line'><span class="o">+</span>        <span class="p">}</span>
+</span><span class='line'>     <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>     <span class="n">s_cacheFontData</span><span class="p">[</span><span class="n">_fontName</span><span class="p">].</span><span class="n">referenceCount</span> <span class="o">-=</span> <span class="mi">1</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Galoisplusplus</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-03-04T11:22:00+08:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/blog/categories/cocos2d-x/'>cocos2d-x</a>, <a class='category' href='/blog/blog/categories/cs/'>cs</a>, <a class='category' href='/blog/blog/categories/tech/'>tech</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://yszheda.github.io/blog/blog/2016/03/04/label-pitfalls-in-cocos2d-x/" data-via="" data-counturl="http://yszheda.github.io/blog/blog/2016/03/04/label-pitfalls-in-cocos2d-x/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/blog/2016/02/16/how-to-fix-wrong-chmod-777-problem/" title="Previous Post: 小记Linux/UNIX下错误权限恢复">&laquo; 小记Linux/UNIX下错误权限恢复</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/blog/2016/03/12/svn-precommit-hook/" title="Next Post: svn pre-commit hook两三事">svn pre-commit hook两三事 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/blog/2019/04/07/macbeth-by-tang-shu-wing/">《麦克白》的布莱希特剧场实践</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2019/01/01/those-concerts-in-2018/">盘点2018年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/05/22/cudaErrorCudartUnloading/">cudaErrorCudartUnloading问题排查及建议方案</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/01/01/those-concerts-in-2017/">盘点2017年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2017/11/11/Jonas-Kaufmann-recital/">Jonas Kaufmann独奏会之艺术歌曲</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<!--
+Copyright &copy; 2020 - Galoisplusplus -
+-->
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+</body>
+</html>

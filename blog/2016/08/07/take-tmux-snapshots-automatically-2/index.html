@@ -1,0 +1,340 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Take Tmux Snapshots Automatically (2) - Galoisplusplus</title>
+  <meta name="author" content="Galoisplusplus">
+
+  
+  <meta name="description" content="Take Tmux Snapshots Automatically">
+  <meta name="keywords" content="tmux, snapshots, cron, bash, shell, 脚本, Archlinux, linux, Linux, UNIX">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yszheda.github.io/blog/blog/2016/08/07/take-tmux-snapshots-automatically-2">
+  <link href="/blog/favicon.png" rel="icon">
+  <link href="/blog/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/blog/atom.xml" rel="alternate" title="Galoisplusplus" type="application/atom+xml">
+  <script src="/blog/javascripts/modernizr-2.0.js"></script>
+  <!--
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  -->
+  <script src="//libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/blog/javascripts/octopress.js" type="text/javascript"></script>
+  
+<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!--
+<link href="http://fonts.googleapis.com/css?family=Crimson+Text:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/blog/">Galoisplusplus</a></h1>
+  
+    <h2>A fan of science, technology and Classical music.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/blog/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:yszheda.github.io/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/blog/">Blog</a></li>
+  <li><a href="/blog/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Take Tmux Snapshots Automatically (2)</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-08-07T16:12:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>还记得本渣以前写的<a href="http://galoisplusplus.coding.me/blog/2014/02/23/take-tmux-snapshots-automatically/">给tmux现场做备胎的脚本</a>吗？其实后来本渣就没再去拓展<a href="https://gist.github.com/yszheda/9138288">这个脚本</a>了，不是因为之前的脚本运行得够好不需要再改了，而是在写好那个脚本那年，有一个工具横空出世，让本渣觉得再也不用造轮子了——好了，不卖关子了，这个工具就是<code>tmux</code>的<a href="https://github.com/tmux-plugins/tmux-resurrect">resurrect插件</a>！</p>
+
+<p>resurrect官方有一个<a href="https://vimeo.com/104763018">使用录屏</a></p>
+
+<iframe src="https://player.vimeo.com/video/104763018" width="640" height="360" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+
+
+<p><a href="https://vimeo.com/104763018">Tmux Resurrect plugin</a> from <a href="https://vimeo.com/brunosutic">Bruno Sutic</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
+
+
+<p>怎么样？狂拽酷炫屌！我们想要有的功能基本都有了吧！而且resurrect还部分支持<a href="https://github.com/tmux-plugins/tmux-resurrect/blob/master/docs/restoring_programs.md">恢复panel里运行的程序</a>啊有木有！要知道这并不好实现，以前本渣写备胎脚本时也折腾过，当时还只能在恢复panel时给出上次运行程序的提示。
+不过resurrect插件需要手动保存和恢复<code>tmux</code>现场，如果需要自动化的话，可以再配合<a href="https://github.com/tmux-plugins/tmux-continuum">continuum插件</a>来使用。</p>
+
+<p>好了，软文就写到这么多了，下面我们来看看如何安装使用。</p>
+
+<p>首先查看<code>tmux</code>版本：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>tmux -V</span></code></pre></td></tr></table></div></figure>
+
+
+<p>resurrect插件需要<code>tmux</code>1.9以上的版本。如果你的版本低于1.9，那么升级是必须的，其实把<code>tmux</code>升级到1.9以上还是蛮推荐的。</p>
+
+<p>这里推荐安装<a href="https://github.com/tmux-plugins/tpm">tpm (Tmux Plugin Manager)</a>做<code>tmux</code>插件管理，再通过<code>tpm</code>安装continuum等插件：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm</span></code></pre></td></tr></table></div></figure>
+
+
+<p>编辑<code>~/.tmux.conf</code>，在文件末尾加入以下几行:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Set default shell to zsh
+</span><span class='line'># set-option -g default-shell /bin/zsh
+</span><span class='line'>
+</span><span class='line'># Use the following line to fix OS X tmux problems
+</span><span class='line'># set-option -g default-command "reattach-to-user-namespace -l zsh"
+</span><span class='line'>
+</span><span class='line'># List of plugins
+</span><span class='line'>set -g @plugin 'tmux-plugins/tpm'
+</span><span class='line'>set -g @plugin 'tmux-plugins/tmux-sensible'
+</span><span class='line'>set -g @plugin 'tmux-plugins/tmux-resurrect'
+</span><span class='line'>set -g @plugin 'tmux-plugins/tmux-continuum'
+</span><span class='line'>
+</span><span class='line'># Other examples:
+</span><span class='line'># set -g @plugin 'github_username/plugin_name'
+</span><span class='line'># set -g @plugin 'git@github.com/user/plugin'
+</span><span class='line'># set -g @plugin 'git@bitbucket.com/user/plugin'
+</span><span class='line'>
+</span><span class='line'># Enable automatic restore
+</span><span class='line'>set -g @continuum-restore 'on'
+</span><span class='line'>
+</span><span class='line'># Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
+</span><span class='line'>run '~/.tmux/plugins/tpm/tpm'</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如果你的默认shell是<code>zsh</code>，请把这句的注释去掉：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>set-option -g default-shell /bin/zsh</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如果你用的是Mac OSX，把这句的注释也去掉：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>set-option -g default-command "reattach-to-user-namespace -l zsh"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这主要是<code>tmux</code>在OSX下水土不服（更详细的问题描述可以看这篇文章：<a href="http://www.economyofeffort.com/2013/07/29/reattach-to-user-namespace-the-fix-for-your-tmux-in-os-x-woes/">Reattach-to-user-namespace: The Fix for Your Tmux in OS X Woes</a>），需要用<a href="https://github.com/ChrisJohnsen/tmux-MacOSX-pasteboard">reattach-to-user-namespace</a>黑科技，所以你最好也用<a href="http://www.macports.org"><em>MacPorts</em></a>或者<a href="http://brew.sh"><em>Homebrew</em></a>装下这个工具：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>port install tmux-pasteboard</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>brew install reattach-to-user-namespace</span></code></pre></td></tr></table></div></figure>
+
+
+<p>在终端下执行以下命令更新<code>tmux</code>配置，运行<code>tpm</code>：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>tmux source ~/.tmux.conf</span></code></pre></td></tr></table></div></figure>
+
+
+<p>最后在<code>tmux</code>下运行<code>prefix + I</code>（如果你没改键绑定的话就是<code>&lt;Ctrl&gt;-b + &lt;Shift&gt;-i</code>）安装插件。你还可以通过<code>prefix + U</code>（<code>&lt;Ctrl&gt;-b + &lt;Shift&gt;-u</code>）更新插件，用<code>prefix + &lt;Alt&gt; + u</code>删除插件。</p>
+
+<p>安装完成之后，你可以在<code>~/.tmux/plugins/</code>里找到每个插件的代码目录。resurrect插件还有一个<code>run_tests</code>脚本用于检查是否安装正确，不过要运行这个脚本需要装上虚拟化神器<a href="https://www.vagrantup.com">vagrant</a>。</p>
+
+<p>如果安装正确，continuum插件会每隔15分钟产生一份备胎，我们也可以用<code>prefix + &lt;Ctrl&gt;-s</code>手动备份，用<code>prefix + &lt;Ctrl&gt;-r</code>手动恢复——vimer吐槽一记，这热键定义得好emacs风&hellip;</p>
+
+<p>下面我们来看看resurrect插件产生的<code>tmux</code>环境备胎。在<code>tmux</code>环境备胎生成之后，在<code>~/.tmux/resurrect/</code>目录下就会有名为<code>tmux_resurrect_$(date).txt</code>的文本文件，同时会有一个叫<code>last</code>的软链接指向最新的<code>tmux_resurrect_$(date).txt</code>。那么这个神秘的txt文件里有啥呢？这里本渣随意贴上一份：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>pane    0       0       :apt-fast       1       :*      0       :/home/ys    1       sudo  :sudo apt-fast install linux-image-3.13.0-70-generic-dbgsym
+</span><span class='line'>pane    0       1       :~      0       :       0       :/home/ys    1       zsh     :
+</span><span class='line'>pane    0       2       :~      0       :-      0       :/home/ys    1       zsh     :
+</span><span class='line'>window  0       0       1       :*      c51d,95x28,0,0,0
+</span><span class='line'>window  0       1       0       :       c51e,95x28,0,0,1
+</span><span class='line'>window  0       2       0       :-      c51f,95x28,0,0,2
+</span><span class='line'>state   0</span></code></pre></td></tr></table></div></figure>
+
+
+<p>啊哈，看起来思路和本渣<a href="https://gist.github.com/yszheda/9138288">之前脚本</a>的<a href="http://galoisplusplus.coding.me/blog/2014/02/23/take-tmux-snapshots-automatically/">思路</a>差不多嘛！只不过resurrect插件记录的信息更详细，还做了键绑定。resurrect的代码也不难懂，如果你对它的实现感兴趣的话可以去阅读一下啦～</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Galoisplusplus</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-08-07T16:12:00+08:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/blog/categories/cs/'>cs</a>, <a class='category' href='/blog/blog/categories/tech/'>tech</a>, <a class='category' href='/blog/blog/categories/tmux/'>tmux</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://yszheda.github.io/blog/blog/2016/08/07/take-tmux-snapshots-automatically-2/" data-via="" data-counturl="http://yszheda.github.io/blog/blog/2016/08/07/take-tmux-snapshots-automatically-2/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/blog/2016/08/02/setup-private-docker-registry/" title="Previous Post: 搭建Docker私有仓库折腾记">&laquo; 搭建Docker私有仓库折腾记</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/blog/2016/08/17/have-fun-with-rnn/" title="Next Post: RNN(Recurrent Neural Networks)的有趣实验">RNN(Recurrent Neural Networks)的有趣实验 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/blog/2019/04/07/macbeth-by-tang-shu-wing/">《麦克白》的布莱希特剧场实践</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2019/01/01/those-concerts-in-2018/">盘点2018年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/05/22/cudaErrorCudartUnloading/">cudaErrorCudartUnloading问题排查及建议方案</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/01/01/those-concerts-in-2017/">盘点2017年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2017/11/11/Jonas-Kaufmann-recital/">Jonas Kaufmann独奏会之艺术歌曲</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<!--
+Copyright &copy; 2020 - Galoisplusplus -
+-->
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+</body>
+</html>

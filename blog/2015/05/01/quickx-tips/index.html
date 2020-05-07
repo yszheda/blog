@@ -1,0 +1,974 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>quick-cocos2d-x tips - Galoisplusplus</title>
+  <meta name="author" content="Galoisplusplus">
+
+  
+  <meta name="description" content="quick-cocos2d-x tips">
+  <meta name="keywords" content="cocos2d-x quick-cocos2d-x quickx cocos2d cocos game gameDev 游戏开发 游戏 手游开发 手游 手机游戏">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yszheda.github.io/blog/blog/2015/05/01/quickx-tips">
+  <link href="/blog/favicon.png" rel="icon">
+  <link href="/blog/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/blog/atom.xml" rel="alternate" title="Galoisplusplus" type="application/atom+xml">
+  <script src="/blog/javascripts/modernizr-2.0.js"></script>
+  <!--
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  -->
+  <script src="//libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/blog/javascripts/octopress.js" type="text/javascript"></script>
+  
+<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!--
+<link href="http://fonts.googleapis.com/css?family=Crimson+Text:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/blog/">Galoisplusplus</a></h1>
+  
+    <h2>A fan of science, technology and Classical music.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/blog/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:yszheda.github.io/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/blog/">Blog</a></li>
+  <li><a href="/blog/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Quick-cocos2d-x Tips</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-05-01T14:00:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>承接<a href="http://galoisplusplus.coding.me/blog/2015/01/04/quick-cocos2d-x-pitfalls/">上一篇</a>，这篇主要谈谈本渣在quickx用的一些脚本或自己折腾的一些定制，本文也将不时更新。</p>
+
+<p>如无特殊说明，相关函数放在一个<code>MyPackage</code>的lua global table中：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='lua'><span class='line'><span class="n">MyPackage</span> <span class="o">=</span> <span class="n">MyPackage</span> <span class="ow">or</span> <span class="p">{}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!-- more -->
+
+
+<h2>UI组件</h2>
+
+<h3>滚动列表相关</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+</pre></td><td class='code'><pre><code class='lua'><span class='line'><span class="cm">--[[--</span>
+</span><span class='line'><span class="cm">Refresh UIListView at the current postion.</span>
+</span><span class='line'><span class="cm">NOTE: only needed in async mode</span>
+</span><span class='line'><span class="cm">]]</span>
+</span><span class='line'><span class="k">function</span> <span class="nc">MyPackage</span><span class="p">.</span><span class="nf">refreshUIListView</span><span class="p">(</span><span class="n">listView</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">if</span> <span class="ow">not</span> <span class="n">listView</span><span class="p">.</span><span class="n">bAsyncLoad</span> <span class="k">then</span>
+</span><span class='line'>        <span class="n">listView</span><span class="p">:</span><span class="n">reload</span><span class="p">()</span>
+</span><span class='line'>        <span class="k">return</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="o">#</span><span class="n">listView</span><span class="p">.</span><span class="n">items_</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="k">then</span>
+</span><span class='line'>        <span class="n">listView</span><span class="p">:</span><span class="n">reload</span><span class="p">()</span>
+</span><span class='line'>        <span class="k">return</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">originPos</span> <span class="o">=</span> <span class="n">MyPackage</span><span class="p">.</span><span class="n">getOriginPosOfUIListView</span><span class="p">(</span><span class="n">listView</span><span class="p">)</span>
+</span><span class='line'>    <span class="c1">-- index of the previous beginning item</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">beginIdx</span> <span class="o">=</span> <span class="n">listView</span><span class="p">.</span><span class="n">items_</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">idx_</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">listView</span><span class="p">:</span><span class="n">removeAllItems</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">listView</span><span class="p">.</span><span class="n">container</span><span class="p">:</span><span class="n">setPosition</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">listView</span><span class="p">.</span><span class="n">container</span><span class="p">:</span><span class="n">setContentSize</span><span class="p">(</span><span class="n">cc</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">MyPackage</span><span class="p">.</span><span class="n">drawUIListViewFromIdx</span><span class="p">(</span><span class="n">listView</span><span class="p">,</span> <span class="n">beginIdx</span><span class="p">,</span> <span class="n">originPos</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">originPos</span><span class="p">.</span><span class="n">y</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="cm">--[[--</span>
+</span><span class='line'><span class="cm">NOTE: only needed in async mode</span>
+</span><span class='line'><span class="cm">]]</span>
+</span><span class='line'><span class="k">function</span> <span class="nc">MyPackage</span><span class="p">.</span><span class="nf">getOriginPosOfUIListView</span><span class="p">(</span><span class="n">listView</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">if</span> <span class="ow">not</span> <span class="n">listView</span><span class="p">.</span><span class="n">bAsyncLoad</span> <span class="k">then</span>
+</span><span class='line'>        <span class="k">return</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">getContainerCascadeBoundingBox</span> <span class="o">=</span> <span class="k">function</span> <span class="p">(</span><span class="n">listView</span><span class="p">)</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">boundingBox</span>
+</span><span class='line'>        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">item</span> <span class="k">in</span> <span class="nb">ipairs</span><span class="p">(</span><span class="n">listView</span><span class="p">.</span><span class="n">items_</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>            <span class="kd">local</span> <span class="n">w</span><span class="p">,</span><span class="n">h</span> <span class="o">=</span> <span class="n">item</span><span class="p">:</span><span class="n">getItemSize</span><span class="p">()</span>
+</span><span class='line'>            <span class="kd">local</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">item</span><span class="p">:</span><span class="n">getPosition</span><span class="p">()</span>
+</span><span class='line'>            <span class="kd">local</span> <span class="n">anchor</span> <span class="o">=</span> <span class="n">item</span><span class="p">:</span><span class="n">getAnchorPoint</span><span class="p">()</span>
+</span><span class='line'>            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">anchor</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">w</span>
+</span><span class='line'>            <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">anchor</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">h</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="k">if</span> <span class="n">boundingBox</span> <span class="k">then</span>
+</span><span class='line'>              <span class="n">boundingBox</span> <span class="o">=</span> <span class="n">cc</span><span class="p">.</span><span class="n">rectUnion</span><span class="p">(</span><span class="n">boundingBox</span><span class="p">,</span> <span class="n">cc</span><span class="p">.</span><span class="n">rect</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">))</span>
+</span><span class='line'>          <span class="k">else</span>
+</span><span class='line'>              <span class="n">boundingBox</span> <span class="o">=</span> <span class="n">cc</span><span class="p">.</span><span class="n">rect</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+</span><span class='line'>          <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="kd">local</span> <span class="n">point</span> <span class="o">=</span> <span class="n">listView</span><span class="p">.</span><span class="n">container</span><span class="p">:</span><span class="n">convertToWorldSpace</span><span class="p">(</span><span class="n">cc</span><span class="p">.</span><span class="n">p</span><span class="p">(</span><span class="n">boundingBox</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">boundingBox</span><span class="p">.</span><span class="n">y</span><span class="p">))</span>
+</span><span class='line'>      <span class="n">boundingBox</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">point</span><span class="p">.</span><span class="n">x</span>
+</span><span class='line'>      <span class="n">boundingBox</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">point</span><span class="p">.</span><span class="n">y</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">boundingBox</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">local</span> <span class="n">cascadeBound</span> <span class="o">=</span> <span class="n">getContainerCascadeBoundingBox</span><span class="p">(</span><span class="n">listView</span><span class="p">)</span>
+</span><span class='line'><span class="c1">--   local cascadeBound = listView.scrollNode:getCascadeBoundingBox()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">localPos</span> <span class="o">=</span> <span class="n">listView</span><span class="p">:</span><span class="n">convertToNodeSpace</span><span class="p">(</span><span class="n">cc</span><span class="p">.</span><span class="n">p</span><span class="p">(</span><span class="n">cascadeBound</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">y</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">originPosX</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">originPosY</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">cc</span><span class="p">.</span><span class="n">ui</span><span class="p">.</span><span class="n">UIScrollView</span><span class="p">.</span><span class="n">DIRECTION_VERTICAL</span> <span class="o">==</span> <span class="n">listView</span><span class="p">.</span><span class="n">direction</span> <span class="k">then</span>
+</span><span class='line'>        <span class="c1">-- ahead part of view</span>
+</span><span class='line'>        <span class="n">originPosY</span> <span class="o">=</span> <span class="n">localPos</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">height</span> <span class="o">-</span> <span class="n">listView</span><span class="p">.</span><span class="n">viewRect_</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">listView</span><span class="p">.</span><span class="n">viewRect_</span><span class="p">.</span><span class="n">height</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="c1">-- left part of view</span>
+</span><span class='line'>      <span class="n">originPosX</span> <span class="o">=</span> <span class="o">-</span> <span class="n">listView</span><span class="p">.</span><span class="n">viewRect_</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">localPos</span><span class="p">.</span><span class="n">x</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">cc</span><span class="p">.</span><span class="n">p</span><span class="p">(</span><span class="n">originPosX</span><span class="p">,</span> <span class="n">originPosY</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="cm">--[[--</span>
+</span><span class='line'><span class="cm">Draw UIListView from the `beginIdx`th item at position (`originPosX`, `originPosY`).</span>
+</span><span class='line'><span class="cm">NOTE: only needed in async mode</span>
+</span><span class='line'><span class="cm">]]</span>
+</span><span class='line'><span class="k">function</span> <span class="nc">MyPackage</span><span class="p">.</span><span class="nf">drawUIListViewFromIdx</span><span class="p">(</span><span class="n">listView</span><span class="p">,</span> <span class="n">beginIdx</span><span class="p">,</span> <span class="n">originPosX</span><span class="p">,</span> <span class="n">originPosY</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">if</span> <span class="ow">not</span> <span class="n">listView</span><span class="p">.</span><span class="n">bAsyncLoad</span> <span class="k">then</span>
+</span><span class='line'>        <span class="n">listView</span><span class="p">:</span><span class="n">reload</span><span class="p">()</span>
+</span><span class='line'>        <span class="k">return</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">listView</span><span class="p">:</span><span class="n">removeAllItems</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">listView</span><span class="p">.</span><span class="n">container</span><span class="p">:</span><span class="n">setPosition</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">listView</span><span class="p">.</span><span class="n">container</span><span class="p">:</span><span class="n">setContentSize</span><span class="p">(</span><span class="n">cc</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">beginIdx</span> <span class="o">=</span> <span class="n">beginIdx</span> <span class="ow">or</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">originPosX</span> <span class="o">=</span> <span class="n">originPosX</span> <span class="ow">or</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">originPosY</span> <span class="o">=</span> <span class="n">originPosY</span> <span class="ow">or</span> <span class="mi">0</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">count</span> <span class="o">=</span> <span class="n">listView</span><span class="p">.</span><span class="n">delegate_</span><span class="p">[</span><span class="n">cc</span><span class="p">.</span><span class="n">ui</span><span class="p">.</span><span class="n">UIListView</span><span class="p">.</span><span class="n">DELEGATE</span><span class="p">](</span><span class="n">listView</span><span class="p">,</span> <span class="n">cc</span><span class="p">.</span><span class="n">ui</span><span class="p">.</span><span class="n">UIListView</span><span class="p">.</span><span class="n">COUNT_TAG</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">listView</span><span class="p">.</span><span class="n">items_</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">itemW</span><span class="p">,</span> <span class="n">itemH</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">item</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">containerW</span><span class="p">,</span> <span class="n">containerH</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="n">beginIdx</span><span class="p">,</span> <span class="n">count</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">item</span><span class="p">,</span> <span class="n">itemW</span><span class="p">,</span> <span class="n">itemH</span> <span class="o">=</span> <span class="n">listView</span><span class="p">:</span><span class="n">loadOneItem_</span><span class="p">(</span><span class="n">cc</span><span class="p">.</span><span class="n">p</span><span class="p">(</span><span class="n">originPosX</span><span class="p">,</span> <span class="n">originPosY</span><span class="p">),</span> <span class="n">i</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">cc</span><span class="p">.</span><span class="n">ui</span><span class="p">.</span><span class="n">UIScrollView</span><span class="p">.</span><span class="n">DIRECTION_VERTICAL</span> <span class="o">==</span> <span class="n">listView</span><span class="p">.</span><span class="n">direction</span> <span class="k">then</span>
+</span><span class='line'>            <span class="n">originPosY</span> <span class="o">=</span> <span class="n">originPosY</span> <span class="o">-</span> <span class="n">itemH</span>
+</span><span class='line'>            <span class="n">containerH</span> <span class="o">=</span> <span class="n">containerH</span> <span class="o">+</span> <span class="n">itemH</span>
+</span><span class='line'>        <span class="k">else</span>
+</span><span class='line'>            <span class="n">originPosX</span> <span class="o">=</span> <span class="n">originPosX</span> <span class="o">+</span> <span class="n">itemW</span>
+</span><span class='line'>            <span class="n">containerW</span> <span class="o">=</span> <span class="n">containerW</span> <span class="o">+</span> <span class="n">itemW</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">containerW</span> <span class="o">&gt;</span> <span class="n">listView</span><span class="p">.</span><span class="n">viewRect_</span><span class="p">.</span><span class="n">width</span> <span class="o">+</span> <span class="n">listView</span><span class="p">.</span><span class="n">redundancyViewVal</span>
+</span><span class='line'>            <span class="ow">or</span> <span class="n">containerH</span> <span class="o">&gt;</span> <span class="n">listView</span><span class="p">.</span><span class="n">viewRect_</span><span class="p">.</span><span class="n">height</span> <span class="o">+</span> <span class="n">listView</span><span class="p">.</span><span class="n">redundancyViewVal</span> <span class="k">then</span>
+</span><span class='line'>            <span class="k">break</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="n">cc</span><span class="p">.</span><span class="n">ui</span><span class="p">.</span><span class="n">UIScrollView</span><span class="p">.</span><span class="n">DIRECTION_VERTICAL</span> <span class="o">==</span> <span class="n">listView</span><span class="p">.</span><span class="n">direction</span> <span class="k">then</span>
+</span><span class='line'>      <span class="n">listView</span><span class="p">.</span><span class="n">container</span><span class="p">:</span><span class="n">setPosition</span><span class="p">(</span><span class="n">listView</span><span class="p">.</span><span class="n">viewRect_</span><span class="p">.</span><span class="n">x</span><span class="p">,</span>
+</span><span class='line'>          <span class="n">listView</span><span class="p">.</span><span class="n">viewRect_</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">listView</span><span class="p">.</span><span class="n">viewRect_</span><span class="p">.</span><span class="n">height</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>      <span class="n">listView</span><span class="p">.</span><span class="n">container</span><span class="p">:</span><span class="n">setPosition</span><span class="p">(</span><span class="n">listView</span><span class="p">.</span><span class="n">viewRect_</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">listView</span><span class="p">.</span><span class="n">viewRect_</span><span class="p">.</span><span class="n">y</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">listView</span><span class="p">:</span><span class="n">increaseOrReduceItem_</span><span class="p">()</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">function</span> <span class="nc">MyPackage</span><span class="p">.</span><span class="nf">elasticMoveUIScrollView</span><span class="p">(</span><span class="n">scrollView</span><span class="p">,</span> <span class="n">scrollToBottom</span><span class="p">,</span> <span class="n">scrollToRight</span><span class="p">)</span>
+</span><span class='line'>  <span class="kd">local</span> <span class="n">cascadeBound</span> <span class="o">=</span> <span class="n">scrollView</span><span class="p">:</span><span class="n">getScrollNodeRect</span><span class="p">()</span>
+</span><span class='line'>  <span class="kd">local</span> <span class="n">disX</span><span class="p">,</span> <span class="n">disY</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="kd">local</span> <span class="n">viewRect</span> <span class="o">=</span> <span class="n">scrollView</span><span class="p">:</span><span class="n">getViewRectInWorldSpace</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">width</span> <span class="o">&lt;</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">width</span> <span class="k">then</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">scrollToRight</span> <span class="k">then</span>
+</span><span class='line'>          <span class="n">disX</span> <span class="o">=</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">width</span> <span class="o">-</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">width</span>
+</span><span class='line'>        <span class="k">else</span>
+</span><span class='line'>            <span class="n">disX</span> <span class="o">=</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">x</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">x</span> <span class="k">then</span>
+</span><span class='line'>            <span class="n">disX</span> <span class="o">=</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">x</span>
+</span><span class='line'>        <span class="k">elseif</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">width</span> <span class="o">&lt;</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">width</span> <span class="k">then</span>
+</span><span class='line'>            <span class="n">disX</span> <span class="o">=</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">width</span> <span class="o">-</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">width</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">height</span> <span class="o">&lt;</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">height</span> <span class="k">then</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">scrollToBottom</span> <span class="k">then</span>
+</span><span class='line'>            <span class="n">disY</span> <span class="o">=</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">y</span>
+</span><span class='line'>        <span class="k">else</span>
+</span><span class='line'>            <span class="n">disY</span> <span class="o">=</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">height</span> <span class="o">-</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">height</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">y</span> <span class="o">&gt;</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">y</span> <span class="k">then</span>
+</span><span class='line'>            <span class="n">disY</span> <span class="o">=</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">y</span>
+</span><span class='line'>        <span class="k">elseif</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">height</span> <span class="o">&lt;</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">height</span> <span class="k">then</span>
+</span><span class='line'>            <span class="n">disY</span> <span class="o">=</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">viewRect</span><span class="p">.</span><span class="n">height</span> <span class="o">-</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">cascadeBound</span><span class="p">.</span><span class="n">height</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="mi">0</span> <span class="o">==</span> <span class="n">disX</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">==</span> <span class="n">disY</span> <span class="k">then</span>
+</span><span class='line'>      <span class="k">return</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">posX</span><span class="p">,</span> <span class="n">posY</span> <span class="o">=</span> <span class="n">scrollView</span><span class="p">.</span><span class="n">scrollNode</span><span class="p">:</span><span class="n">getPosition</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">scrollView</span><span class="p">.</span><span class="n">position_</span> <span class="o">=</span> <span class="n">cc</span><span class="p">.</span><span class="n">p</span><span class="p">(</span><span class="n">posX</span> <span class="o">+</span> <span class="n">disX</span><span class="p">,</span> <span class="n">posY</span> <span class="o">+</span> <span class="n">disY</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">scrollView</span><span class="p">.</span><span class="n">scrollNode</span><span class="p">:</span><span class="n">setPosition</span><span class="p">(</span><span class="n">scrollView</span><span class="p">.</span><span class="n">position_</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em><em>更新</em>：以上改动已挪到<a href="https://github.com/yszheda/quickx-extensions">yszheda/quickx-extensions</a>的UIScrollView或UIListView中。</em></p>
+
+<h2>lua语言相关</h2>
+
+<h3>bool转数字</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='lua'><span class='line'><span class="k">function</span> <span class="nc">MyPackage</span><span class="p">.</span><span class="nf">bool2number</span><span class="p">(</span><span class="n">bool</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">bool</span> <span class="ow">and</span> <span class="mi">1</span> <span class="ow">or</span> <span class="mi">0</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>table相关</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='lua'><span class='line'><span class="k">function</span> <span class="nc">MyPackage</span><span class="p">.</span><span class="nf">removeValueFromArray</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">idx</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="k">in</span> <span class="nb">ipairs</span><span class="p">(</span><span class="n">array</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="n">value</span> <span class="k">then</span>
+</span><span class='line'>            <span class="n">idx</span> <span class="o">=</span> <span class="n">i</span>
+</span><span class='line'>            <span class="k">break</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">idx</span> <span class="k">then</span>
+</span><span class='line'>        <span class="nb">table.remove</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">function</span> <span class="nc">MyPackage</span><span class="p">.</span><span class="nf">hasValueInArray</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">hasValue</span> <span class="o">=</span> <span class="kc">false</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="k">in</span> <span class="nb">ipairs</span><span class="p">(</span><span class="n">array</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="n">value</span> <span class="k">then</span>
+</span><span class='line'>            <span class="n">hasValue</span> <span class="o">=</span> <span class="kc">true</span>
+</span><span class='line'>            <span class="k">break</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">hasValue</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>UTF8字符串</h3>
+
+<p>cocos2d-x的label默认为UTF8编码，一般场景下主要需要以下两个功能：</p>
+
+<ul>
+<li><p>字符串长度</p></li>
+<li><p>截取子串</p></li>
+</ul>
+
+
+<p>原先本渣用cocos2d-x时写了个C++函数来求长度：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="kt">long</span> <span class="kt">long</span> <span class="nf">utf8StringSize</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">str</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="kt">char</span><span class="o">*</span> <span class="n">charArray</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">char</span><span class="p">[</span><span class="n">str</span><span class="p">.</span><span class="n">length</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">strcpy</span><span class="p">(</span><span class="n">charArray</span><span class="p">,</span> <span class="n">str</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+</span><span class='line'>    <span class="kt">char</span><span class="o">*</span> <span class="n">s</span> <span class="o">=</span> <span class="n">charArray</span><span class="p">;</span>
+</span><span class='line'>    <span class="cm">/*-----------------------------------------------------------------------------</span>
+</span><span class='line'><span class="cm">     *  References: http://stackoverflow.com/questions/4063146/getting-the-actual-length-of-a-utf-8-encoded-stdstring</span>
+</span><span class='line'><span class="cm">     *-----------------------------------------------------------------------------*/</span>
+</span><span class='line'>    <span class="kt">long</span> <span class="kt">long</span> <span class="n">len</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">while</span> <span class="p">(</span><span class="o">*</span><span class="n">s</span><span class="p">)</span> <span class="n">len</span> <span class="o">+=</span> <span class="p">(</span><span class="o">*</span><span class="n">s</span><span class="o">++</span> <span class="o">&amp;</span> <span class="mh">0xc0</span><span class="p">)</span> <span class="o">!=</span> <span class="mh">0x80</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">delete</span> <span class="p">[]</span> <span class="n">charArray</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">len</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>cocos2d-x <code>Helper</code>也提供了接口来做字符串截取：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">static</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">getSubStringOfUTF8String</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">str</span><span class="p">,</span>
+</span><span class='line'>                                   <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">::</span><span class="n">size_type</span> <span class="n">start</span><span class="p">,</span>
+</span><span class='line'>                                   <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">::</span><span class="n">size_type</span> <span class="n">length</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>在lua方面，quickx已经提供<code>string.utf8len</code>来求字符串长度，本渣仿照其实现写了个截取子串的函数：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='lua'><span class='line'><span class="k">function</span> <span class="nc">MyPackage</span><span class="p">.</span><span class="nf">utf8str</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">num</span><span class="p">)</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="k">function</span> <span class="nf">utf8CharSize</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">arr</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mh">0xc0</span><span class="p">,</span> <span class="mh">0xe0</span><span class="p">,</span> <span class="mh">0xf0</span><span class="p">,</span> <span class="mh">0xf8</span><span class="p">,</span> <span class="mh">0xfc</span><span class="p">}</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">size</span> <span class="o">=</span> <span class="o">#</span><span class="n">arr</span>
+</span><span class='line'>        <span class="k">while</span> <span class="n">arr</span><span class="p">[</span><span class="n">size</span><span class="p">]</span> <span class="k">do</span>
+</span><span class='line'>            <span class="k">if</span> <span class="n">char</span> <span class="o">&gt;=</span> <span class="n">arr</span><span class="p">[</span><span class="n">size</span><span class="p">]</span> <span class="k">then</span>
+</span><span class='line'>                <span class="k">break</span>
+</span><span class='line'>            <span class="k">end</span>
+</span><span class='line'>            <span class="n">size</span> <span class="o">=</span> <span class="n">size</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">size</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">startIdx</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">while</span> <span class="n">start</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">do</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">char</span> <span class="o">=</span> <span class="nb">string.byte</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="n">startIdx</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">startIdx</span> <span class="o">=</span> <span class="n">startIdx</span> <span class="o">+</span> <span class="n">utf8CharSize</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">start</span> <span class="o">=</span> <span class="n">start</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">endIdx</span> <span class="o">=</span> <span class="n">startIdx</span>
+</span><span class='line'>    <span class="k">while</span> <span class="n">num</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">do</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">endIdx</span> <span class="o">&gt;</span> <span class="o">#</span><span class="n">str</span> <span class="k">then</span>
+</span><span class='line'>            <span class="n">endIdx</span> <span class="o">=</span> <span class="o">#</span><span class="n">str</span>
+</span><span class='line'>            <span class="k">break</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">char</span> <span class="o">=</span> <span class="nb">string.byte</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="n">endIdx</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">endIdx</span> <span class="o">=</span> <span class="n">endIdx</span> <span class="o">+</span> <span class="n">utf8CharSize</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">num</span> <span class="o">=</span> <span class="n">num</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">str</span><span class="p">:</span><span class="n">sub</span><span class="p">(</span><span class="n">startIdx</span><span class="p">,</span> <span class="n">endIdx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>不过目前lua5.3已经有UTF8库，可以不用自行造轮子了。另外，关于其他UTF8相关的lua问题可以参考<a href="http://lua-users.org/wiki/LuaUnicode">Lua Unicode</a>。</p>
+
+<h2>其他Helper Functions</h2>
+
+<h3>更新view的callbackWrapper</h3>
+
+<p>我们经常碰到如下的情景：
+游戏向后端请求数据，在拿到数据之后执行某个callback去更新某个view。
+这种网络请求通常是异步的，如果所请求的数据回来时相关的view被释放，则执行操作该view的callback会导致问题（例如访问非法内存地址）。
+这时候我们可以用<code>tolua.isnull</code>来判断相关的view对象是否被释放。
+由于每个这种类型的callback都有必要加上这样的guard code，所以本渣干脆做了如下的接口：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='lua'><span class='line'><span class="k">function</span> <span class="nc">MyPackage</span><span class="p">.</span><span class="nf">callbackWrapper</span><span class="p">(</span><span class="n">views</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">function</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">view</span> <span class="k">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">views</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>            <span class="k">if</span> <span class="n">tolua</span><span class="p">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">view</span><span class="p">)</span> <span class="k">then</span>
+</span><span class='line'>                <span class="k">return</span>
+</span><span class='line'>            <span class="k">end</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">callback</span> <span class="o">~=</span> <span class="kc">nil</span> <span class="k">then</span>
+</span><span class='line'>            <span class="n">callback</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>拿到一个node九个端点的坐标</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+</pre></td><td class='code'><pre><code class='lua'><span class='line'><span class="cm">--[[--</span>
+</span><span class='line'><span class="cm">get the nine positions of a node (the following variables are defined in display.lua of quickx):</span>
+</span><span class='line'><span class="cm">display.CENTER</span>
+</span><span class='line'><span class="cm">display.LEFT_TOP</span>
+</span><span class='line'><span class="cm">display.CENTER_TOP</span>
+</span><span class='line'><span class="cm">display.RIGHT_TOP</span>
+</span><span class='line'><span class="cm">display.CENTER_LEFT</span>
+</span><span class='line'><span class="cm">display.CENTER_RIGHT</span>
+</span><span class='line'><span class="cm">display.BOTTOM_LEFT</span>
+</span><span class='line'><span class="cm">display.BOTTOM_RIGHT</span>
+</span><span class='line'><span class="cm">display.BOTTOM_CENTER</span>
+</span><span class='line'><span class="cm">]]</span>
+</span><span class='line'><span class="k">function</span> <span class="nc">MyPackage</span><span class="p">.</span><span class="nf">getPositionOfNode</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">alignType</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span> <span class="ow">or</span> <span class="n">tolua</span><span class="p">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="k">then</span>
+</span><span class='line'>        <span class="k">return</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">size</span> <span class="o">=</span> <span class="n">node</span><span class="p">:</span><span class="n">getContentSize</span><span class="p">()</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">size</span><span class="p">.</span><span class="n">width</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">size</span><span class="p">.</span><span class="n">height</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">then</span>
+</span><span class='line'>        <span class="n">size</span> <span class="o">=</span> <span class="n">node</span><span class="p">:</span><span class="n">getCascadeBoundingBox</span><span class="p">()</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">pos</span> <span class="o">=</span> <span class="n">cc</span><span class="p">.</span><span class="n">p</span><span class="p">(</span><span class="n">node</span><span class="p">:</span><span class="n">getPosition</span><span class="p">())</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">anchorPoint</span> <span class="o">=</span> <span class="n">cc</span><span class="p">.</span><span class="n">p</span><span class="p">(</span><span class="n">node</span><span class="p">:</span><span class="n">getAnchorPoint</span><span class="p">())</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="n">alignType</span> <span class="o">==</span> <span class="n">display</span><span class="p">.</span><span class="n">LEFT_TOP</span> <span class="ow">or</span>
+</span><span class='line'>        <span class="n">alignType</span> <span class="o">==</span> <span class="n">display</span><span class="p">.</span><span class="n">LEFT_CENTER</span> <span class="ow">or</span>
+</span><span class='line'>        <span class="n">alignType</span> <span class="o">==</span> <span class="n">display</span><span class="p">.</span><span class="n">LEFT_BOTTOM</span> <span class="k">then</span>
+</span><span class='line'>        <span class="n">pos</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">pos</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">size</span><span class="p">.</span><span class="n">width</span> <span class="o">*</span> <span class="n">anchorPoint</span><span class="p">.</span><span class="n">x</span>
+</span><span class='line'>    <span class="k">elseif</span> <span class="n">alignType</span> <span class="o">==</span> <span class="n">display</span><span class="p">.</span><span class="n">CENTER_TOP</span> <span class="ow">or</span>
+</span><span class='line'>        <span class="n">alignType</span> <span class="o">==</span> <span class="n">display</span><span class="p">.</span><span class="n">CENTER</span> <span class="ow">or</span>
+</span><span class='line'>        <span class="n">alignType</span> <span class="o">==</span> <span class="n">display</span><span class="p">.</span><span class="n">CENTER_BOTTOM</span> <span class="k">then</span>
+</span><span class='line'>        <span class="n">pos</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">pos</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">size</span><span class="p">.</span><span class="n">width</span> <span class="o">*</span> <span class="n">anchorPoint</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">size</span><span class="p">.</span><span class="n">width</span> <span class="o">*</span> <span class="mf">0.5</span>
+</span><span class='line'>    <span class="k">elseif</span> <span class="n">alignType</span> <span class="o">==</span> <span class="n">display</span><span class="p">.</span><span class="n">RIGHT_TOP</span> <span class="ow">or</span>
+</span><span class='line'>        <span class="n">alignType</span> <span class="o">==</span> <span class="n">display</span><span class="p">.</span><span class="n">RIGHT_CENTER</span> <span class="ow">or</span>
+</span><span class='line'>        <span class="n">alignType</span> <span class="o">==</span> <span class="n">display</span><span class="p">.</span><span class="n">RIGHT_BOTTOM</span> <span class="k">then</span>
+</span><span class='line'>        <span class="n">pos</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">pos</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">size</span><span class="p">.</span><span class="n">width</span> <span class="o">*</span> <span class="n">anchorPoint</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">size</span><span class="p">.</span><span class="n">width</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="n">alignType</span> <span class="o">==</span> <span class="n">display</span><span class="p">.</span><span class="n">BOTTOM_LEFT</span> <span class="ow">or</span>
+</span><span class='line'>        <span class="n">alignType</span> <span class="o">==</span> <span class="n">display</span><span class="p">.</span><span class="n">BOTTOM_CENTER</span> <span class="ow">or</span>
+</span><span class='line'>        <span class="n">alignType</span> <span class="o">==</span> <span class="n">display</span><span class="p">.</span><span class="n">BOTTOM_RIGHT</span> <span class="k">then</span>
+</span><span class='line'>        <span class="n">pos</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">size</span><span class="p">.</span><span class="n">height</span> <span class="o">*</span> <span class="n">anchorPoint</span><span class="p">.</span><span class="n">y</span>
+</span><span class='line'>    <span class="k">elseif</span> <span class="n">alignType</span> <span class="o">==</span> <span class="n">display</span><span class="p">.</span><span class="n">CENTER_LEFT</span> <span class="ow">or</span>
+</span><span class='line'>        <span class="n">alignType</span> <span class="o">==</span> <span class="n">display</span><span class="p">.</span><span class="n">CENTER</span> <span class="ow">or</span>
+</span><span class='line'>        <span class="n">alignType</span> <span class="o">==</span> <span class="n">display</span><span class="p">.</span><span class="n">CENTER_RIGHT</span> <span class="k">then</span>
+</span><span class='line'>        <span class="n">pos</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">size</span><span class="p">.</span><span class="n">height</span> <span class="o">*</span> <span class="n">anchorPoint</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">size</span><span class="p">.</span><span class="n">height</span> <span class="o">*</span> <span class="mf">0.5</span>
+</span><span class='line'>    <span class="k">elseif</span> <span class="n">alignType</span> <span class="o">==</span> <span class="n">display</span><span class="p">.</span><span class="n">TOP_LEFT</span> <span class="ow">or</span>
+</span><span class='line'>        <span class="n">alignType</span> <span class="o">==</span> <span class="n">display</span><span class="p">.</span><span class="n">TOP_CENTER</span> <span class="ow">or</span>
+</span><span class='line'>        <span class="n">alignType</span> <span class="o">==</span> <span class="n">display</span><span class="p">.</span><span class="n">TOP_RIGHT</span> <span class="k">then</span>
+</span><span class='line'>        <span class="n">pos</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">size</span><span class="p">.</span><span class="n">height</span> <span class="o">*</span> <span class="n">anchorPoint</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">size</span><span class="p">.</span><span class="n">height</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">pos</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>在某个container中加入sprite，可指定根据container大小进行缩放及对齐方式</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class='lua'><span class='line'><span class="k">function</span> <span class="nc">MyPackage</span><span class="p">.</span><span class="nf">displaySpriteOnContainer</span><span class="p">(</span><span class="n">sprite</span><span class="p">,</span> <span class="n">container</span><span class="p">,</span> <span class="n">scaleToFit</span><span class="p">,</span> <span class="n">alignType</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">tolua</span><span class="p">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">container</span><span class="p">)</span> <span class="k">then</span>
+</span><span class='line'>        <span class="k">return</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">-- default settings</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">scaleToFit</span> <span class="o">=</span> <span class="p">(</span><span class="n">scaleToFit</span> <span class="o">~=</span> <span class="kc">false</span><span class="p">)</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">alignType</span> <span class="o">=</span> <span class="n">alignType</span> <span class="ow">or</span> <span class="n">display</span><span class="p">.</span><span class="n">CENTER</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="ow">not</span> <span class="n">tolua</span><span class="p">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">sprite</span><span class="p">)</span> <span class="k">then</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">originSize</span> <span class="o">=</span> <span class="n">sprite</span><span class="p">:</span><span class="n">getContentSize</span><span class="p">()</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">originSize</span><span class="p">.</span><span class="n">width</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">originSize</span><span class="p">.</span><span class="n">height</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">then</span>
+</span><span class='line'>            <span class="n">originSize</span> <span class="o">=</span> <span class="n">sprite</span><span class="p">:</span><span class="n">getCascadeBoundingBox</span><span class="p">()</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">targetSize</span> <span class="o">=</span> <span class="n">container</span><span class="p">:</span><span class="n">getContentSize</span><span class="p">()</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">targetSize</span><span class="p">.</span><span class="n">width</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">targetSize</span><span class="p">.</span><span class="n">height</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">then</span>
+</span><span class='line'>            <span class="n">targetSize</span> <span class="o">=</span> <span class="n">container</span><span class="p">:</span><span class="n">getCascadeBoundingBox</span><span class="p">()</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="n">scaleToFit</span> <span class="k">then</span>
+</span><span class='line'>            <span class="n">sprite</span><span class="p">:</span><span class="n">setScale</span><span class="p">(</span><span class="n">targetSize</span><span class="p">.</span><span class="n">width</span> <span class="o">/</span> <span class="n">originSize</span><span class="p">.</span><span class="n">width</span><span class="p">,</span> <span class="n">targetSize</span><span class="p">.</span><span class="n">height</span> <span class="o">/</span> <span class="n">originSize</span><span class="p">.</span><span class="n">height</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">-- NOTE: ignore container&#39;s anchor point</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">pos</span> <span class="o">=</span> <span class="n">MyPackage</span><span class="p">.</span><span class="n">getPositionOfNode</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">alignType</span><span class="p">)</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">leftBottomPos</span> <span class="o">=</span> <span class="n">MyPackage</span><span class="p">.</span><span class="n">getPositionOfNode</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">display</span><span class="p">.</span><span class="n">LEFT_BOTTOM</span><span class="p">)</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">posX</span> <span class="o">=</span> <span class="n">pos</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">leftBottomPos</span><span class="p">.</span><span class="n">x</span>
+</span><span class='line'>        <span class="kd">local</span> <span class="n">posY</span> <span class="o">=</span> <span class="n">pos</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">leftBottomPos</span><span class="p">.</span><span class="n">y</span>
+</span><span class='line'>        <span class="n">display</span><span class="p">.</span><span class="n">align</span><span class="p">(</span><span class="n">sprite</span><span class="p">,</span> <span class="n">alignType</span><span class="p">,</span> <span class="n">posX</span><span class="p">,</span> <span class="n">posY</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">container</span><span class="p">:</span><span class="n">addChild</span><span class="p">(</span><span class="n">sprite</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Galoisplusplus</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-05-01T14:00:00+08:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/blog/categories/cocos2d-x/'>cocos2d-x</a>, <a class='category' href='/blog/blog/categories/cs/'>cs</a>, <a class='category' href='/blog/blog/categories/tech/'>tech</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://yszheda.github.io/blog/blog/2015/05/01/quickx-tips/" data-via="" data-counturl="http://yszheda.github.io/blog/blog/2015/05/01/quickx-tips/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/blog/2015/04/05/Natalia-Gutman-Cello-Recital/" title="Previous Post: Natalia Gutman Cello Recital">&laquo; Natalia Gutman Cello Recital</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/blog/2015/06/08/auto-batch-in-cocos2d-x/" title="Next Post: cocos2d-x中的auto-batching">cocos2d-x中的auto-batching &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/blog/2019/04/07/macbeth-by-tang-shu-wing/">《麦克白》的布莱希特剧场实践</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2019/01/01/those-concerts-in-2018/">盘点2018年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/05/22/cudaErrorCudartUnloading/">cudaErrorCudartUnloading问题排查及建议方案</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/01/01/those-concerts-in-2017/">盘点2017年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2017/11/11/Jonas-Kaufmann-recital/">Jonas Kaufmann独奏会之艺术歌曲</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<!--
+Copyright &copy; 2020 - Galoisplusplus -
+-->
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+</body>
+</html>

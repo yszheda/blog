@@ -4,7 +4,7 @@
   <title><![CDATA[Category: tmux | Galoisplusplus]]></title>
   <link href="http://yszheda.github.io/blog/blog/categories/tmux/atom.xml" rel="self"/>
   <link href="http://yszheda.github.io/blog/"/>
-  <updated>2020-05-06T20:55:06+08:00</updated>
+  <updated>2020-05-07T20:38:55+08:00</updated>
   <id>http://yszheda.github.io/blog/</id>
   <author>
     <name><![CDATA[Galoisplusplus]]></name>
@@ -211,7 +211,70 @@ $ tmux send-keys -t "${session_name}:${window_name}" "cd ${pane_current_path}; e
 我采用的方式也比较简单，通过<code>ps</code>看看当前有没有<code>tmux</code>进程：没有的话说明需要恢复，此时先执行<code>tmux start-server</code>；有的话则进行snapshots的保存。</p>
 
 <p>完整的脚本如下（或者参考我的<a href="https://gist.github.com/yszheda/9138288">gist</a>）：
-{% include_code tmuxEnvSaver.sh %}</p>
+<figure class='code'><figcaption><span> (tmuxEnvSaver.sh)</span> <a href='/downloads/code/tmuxEnvSaver.sh'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'><span class="nv">tmuxSnapshot</span><span class="o">=</span>/.tmux_snapshot
+</span><span class='line'><span class="nv">tmuxEXE</span><span class="o">=</span>/usr/local/bin/tmux
+</span><span class='line'>save_snap<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>        <span class="k">${</span><span class="nv">tmuxEXE</span><span class="k">}</span> list-windows -a -F<span class="s2">&quot;#{session_name} #{window_name} #{pane_current_command} #{pane_current_path}&quot;</span> &gt; <span class="k">${</span><span class="nv">tmuxSnapshot</span><span class="k">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>restore_snap<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>        <span class="k">${</span><span class="nv">tmuxEXE</span><span class="k">}</span> start-server
+</span><span class='line'>        <span class="k">while</span> <span class="nv">IFS</span><span class="o">=</span><span class="s1">&#39; &#39;</span> <span class="nb">read</span> -r session_name window_name pane_current_command pane_current_path
+</span><span class='line'>        <span class="k">do</span>
+</span><span class='line'>                <span class="k">${</span><span class="nv">tmuxEXE</span><span class="k">}</span> has-session -t <span class="s2">&quot;${session_name}&quot;</span> 2&gt;/dev/null
+</span><span class='line'>                <span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> !<span class="o">=</span> <span class="m">0</span> <span class="o">]</span>
+</span><span class='line'>                <span class="k">then</span>
+</span><span class='line'>                        <span class="k">${</span><span class="nv">tmuxEXE</span><span class="k">}</span> new-session -d -s <span class="s2">&quot;${session_name}&quot;</span> -n <span class="k">${</span><span class="nv">window_name</span><span class="k">}</span>
+</span><span class='line'>                <span class="k">else</span>
+</span><span class='line'>                        <span class="k">${</span><span class="nv">tmuxEXE</span><span class="k">}</span> new-window -d -t <span class="k">${</span><span class="nv">session_name</span><span class="k">}</span> -n <span class="s2">&quot;${window_name}&quot;</span>
+</span><span class='line'>                <span class="k">fi</span>
+</span><span class='line'>                <span class="k">${</span><span class="nv">tmuxEXE</span><span class="k">}</span> send-keys -t <span class="s2">&quot;${session_name}:${window_name}&quot;</span> <span class="s2">&quot;cd ${pane_current_path}; echo \&quot;Hint: last time you are executing &#39;${pane_current_command}&#39;.\&quot;&quot;</span> ENTER
+</span><span class='line'>        <span class="k">done</span> &lt; <span class="k">${</span><span class="nv">tmuxSnapshot</span><span class="k">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>ps aux<span class="p">|</span>grep -w tmux<span class="p">|</span>grep -v grep
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> !<span class="o">=</span> <span class="m">0</span> <span class="o">]</span>
+</span><span class='line'><span class="k">then</span>
+</span><span class='line'>        restore_snap
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'>        save_snap
+</span><span class='line'><span class="k">fi</span>
+</span></code></pre></td></tr></table></div></figure></p>
 
 <p>我设了如下的crontab：
 <code>

@@ -1,0 +1,706 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Galoisplusplus</title>
+  <meta name="author" content="Galoisplusplus">
+
+  
+  <meta name="description" content="前段时间学校的EECS楼发生火灾，最近隔三差五停电检修，打断我在server上跑的实验。
+而且我习惯上用tmux开多个session和window，一遇到停电我的tmux现场就悲剧了。
+复电重开机之后要把tmux现场手动重新建好也很麻烦， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yszheda.github.io/blog/posts/8">
+  <link href="/blog/favicon.png" rel="icon">
+  <link href="/blog/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/blog/atom.xml" rel="alternate" title="Galoisplusplus" type="application/atom+xml">
+  <script src="/blog/javascripts/modernizr-2.0.js"></script>
+  <!--
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  -->
+  <script src="//libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/blog/javascripts/octopress.js" type="text/javascript"></script>
+  
+<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!--
+<link href="http://fonts.googleapis.com/css?family=Crimson+Text:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/blog/">Galoisplusplus</a></h1>
+  
+    <h2>A fan of science, technology and Classical music.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/blog/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:yszheda.github.io/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/blog/">Blog</a></li>
+  <li><a href="/blog/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2014/02/23/take-tmux-snapshots-automatically/">Take Tmux Snapshots Automatically</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-23T16:12:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>前段时间学校的EECS楼发生火灾，最近隔三差五停电检修，打断我在server上跑的实验。
+而且我习惯上用tmux开多个session和window，一遇到停电我的tmux现场就悲剧了。
+复电重开机之后要把tmux现场手动重新建好也很麻烦，于是我就挤出一点时间琢磨着写个简单的script去自动保存和重载tmux的副本。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2014/02/23/take-tmux-snapshots-automatically/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2014/01/21/r-dot-i-p-claudio-abbado/">R.I.P. Maestro Claudio Abbado</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-21T00:25:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>一开始看到阿巴多大师辞世的消息还以为是网上的谣言，等到查了wiki上的链接才确信了这一古典音乐界的噩耗。
+尽管与肺癌斗争了十余年，大师在复出后仍然精力旺盛，没想到却这么突然得撒手人寰，让人震惊之余颇为伤怀。</p>
+
+<p>我已经记不起当初是如何了解阿巴多大师的，只知道伴随我青少年时期的音乐常常少不了大师棒下的演绎。前段时间我还翻出大师以前一些指挥琉森音乐节管弦乐团的视频来看，04年音乐会版的《特里斯坦与伊索尔德》第二幕、09年和王羽佳合作的普三、当然还有大师擅长的马勒交响曲，都百听不厌。复出的大师真是燃烧生命来诠释这些音乐，同时又从音乐中汲取养分来和病魔对抗。如今这些音乐已成绝响，可惜的是，大师没能在琉森音乐节录下所有的马勒交响曲。</p>
+
+<p>阿巴多大师为人崇敬的，除了优秀的音乐，还有他的人格魅力及传奇生平。1990年，与世无争的大师接过了柏林爱乐首席指挥的担子。他的前任正是举世闻名的“指挥帝王”卡拉扬，在卡拉扬的盛名之下，阿巴多的接任所承受的压力和世人瞩目可想而知。而阿巴多确也不负众望，乃至于今天一些报道他死讯的新闻称他为「继卡拉扬之后乐坛上的新“帝王”」，却不知阿巴多和“帝王”卡拉扬的唯我独尊恰恰相反，为人谦和的他与乐手们平等沟通，更像是他们的朋友（据说交流时乐手们都直呼其名Claudio）。而在阿巴多达到事业顶峰之际，病魔的来临却使他不得不离开指挥台，成为BPO历史上第一位主动隐退的指挥家。就在外界以为从此将与他的演绎告别时，阿巴多在经过一段时间疗养之后，凭着顽强的意志和对音乐理想的追求，重新以卢塞恩（现更名「琉森」）音乐节艺术总监的身份重返乐坛。复出后的阿巴多依然沉稳内敛，回避媒体，专注音乐。</p>
+
+<p>阿巴多：「音乐是生命的升华&hellip;&hellip;寂静是音乐的延续。」</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2014/01/21/r-dot-i-p-claudio-abbado/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2013/12/21/the-art-of-loving-reading-notes/">弗洛姆《爱的艺术》读书笔记</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-21T13:00:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>最近跟舍友小书虫借了一本心理学家弗洛姆的著名作品《爱的艺术》：</p>
+
+<p><img src="http://img3.douban.com/lpic/s3074574.jpg"></p>
+
+<p>与浩如烟海的扯淡文艺书不同，这本一百来页的小书中逻辑之缜密、结构之严谨令人折服，而且弗洛姆的文笔使得这些一环扣一环的哲学论述毫不枯燥无味。以下我把一些内容整理成了思维导图，弗洛姆严密的思维和精炼的警句由此可以窥见一斑：</p>
+
+<iframe width='640' height='480' frameborder='0' src='http://mind42.com/mindmap/9c6dd80b-6322-4140-b64f-459459aea7e9?rel=embed'></iframe>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2013/11/21/upgrading-compilers-on-centos/">Upgrading Compilers on CentOS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-21T00:45:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>这篇日志应该叫「六美分历险记」的，「六美分」顾名思义嘛，自然是指CentOS-6。</p>
+
+<p>下面扯扯为何对本屌来说是「历险」和为虾米要「历险」：
+偶对red hat系的向来无爱。当偶还是linux小白时，就曾在虚拟机里折腾过高大上的fedora，没用过多久就遇到了kernel panic啊有木有！差点把小白吓退散了有木有！
+后来很长一段时间都是随大众用Ubuntu，接触了Debian系的<em>dpkg</em>就果断和<em>rpm</em>阵营分道扬镳啊，直到又重新折腾起「中立邪恶」的Arch，现在玩的是非主流的吃豆人(pacman)——<del>还是能把系统滚死的吃豆人哦，刺激吧XD</del>。
+在Arch的蛊惑下，偶走向了「追新」的sb之路，不隔三差五来一次upgrade享受之后「咦，居然没挂」的快感简直就像少了什么——<del>何弃疗</del>。
+阔素捏，实验室的机器偏偏全是六美分，服务器嘛，要稳定才是王道，这偶也素明事理滴（想起前几天看到<a href="http://www.zhihu.com/question/21421588">知乎某问题</a>，Arch党表示躺中啊XD）。
+但是&hellip;&hellip;本屌一看gcc还是4.4.7就不爽啊，package要老至少也要对c++11支持好点吧&hellip;&hellip;
+于是一不做二不休，发挥在Arch下折腾的本事，手动更新gcc，顺带把clang也装上。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2013/11/21/upgrading-compilers-on-centos/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2013/11/15/the-cbso-concert/">The CBSO Concert</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-15T11:45:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>CBSO (City of Birmingham Symphony Orchestra)的这场音乐会还是偶在台北听的第一场音乐会。</p>
+
+<p>&lt;剧透>下面容我碎碎念一会~&lt;/剧透></p>
+
+<p>&lt;碎碎念></p>
+
+<p>说来惭愧，偶去年来台后还一直没去过台北国家音乐厅听过音乐会。偶当时一开始关注两厅院的「月節目簡介」就发现大师级的演奏家并不多，票价又贵，套票、学生票也不给力。想来还是之前在法兰西听的最爽，一场9欧的youth season ticket就可以欣赏到COE (Chamber Orchestra of Europe)、ONCT (Orchestre national du Capitole de Toulouse)、Orchestre de Paris等名团及Bernard Haitink、Christoph Eschenbach、Herbert Blomstedt、Gil Shaham等名家的演奏，而且位置一般不差（我一等二等三等座都抽到过，一般最差的是五等座）。在欧洲偶甚至还看到了Ivry Gitlis和Martha Argerich这种骨灰级大师的演奏，真心是过去想都想不到的。阔西这样的好日子是一去不复返了。
+后来因为搬砖各种忙，偶也就无暇关注了。
+据说Anne-Sophie Mutter今年有来过台北演奏，虽然穆特名气很大，但偶对她的演奏无爱，所以当时也不甚在意。
+真正引起偶注意的是Itzhak Perlman大师来台，可惜音乐会的时间偶恰好不在台湾，否则是一定不会错过的。
+后来Simon Rattle率BPO来台，可是票价高得惊人，绝非偶这种穷屌丝所能担当得起，于是也只能作罢。
+再后来是郑京和(Kyung Wha Chung)的独奏会，由于时间卡在本苦逼码农的搬砖高峰期略尴尬，加上自己兴趣不大，最后就没去了。
+这时候偶又重新关注起两厅院的「月節目簡介」，因此看到了这场CBSO的音乐会。当时看到Hilary Hahn要演奏西小协(Sibelius Violin Concerto in D minor, Op. 47)后，偶就果断去买票了。</p>
+
+<p>&lt;/碎碎念></p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2013/11/15/the-cbso-concert/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2013/09/19/have-fun-with-vim-wiki/">Have Fun With Vim Wiki</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-19T15:31:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>写blog确实是一种消化和深入理解知识的方式，但往往要整理一个完整的主题相当的耗时间。
+平时我也想记一记一些有用然而散乱的tips，慢慢积累起来。
+作为一位Vim忠实粉，我理所当然找到了大名鼎鼎的Vim插件<a href="http://www.vim.org/scripts/script.php?script_id=2226">Vimwiki</a>，
+并开始借此搭建我的个人wiki。</p>
+
+<p>用<a href="https://github.com/tpope/vim-pathogen">pathogen</a>这个管理Vim插件的插件把Vimwiki安装上后，需要在.vimrc中加入一些设置，其中最重要的是指定你所写的wiki源文件的路径和要发布的html文件的路径：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>let g:vimwiki_list = [{'path': '~/my_site/', 'path_html': '~/public_html/'}]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>接下来就可以在你所指定的'path'下创建.wiki文件，编辑完后是用以下Vim命令</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>:Vimwiki2HTML</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Vimwiki插件就会自动将该.wiki文件转化为同名的html页面（例如topic.wiki生成的是topic.html）并把html放到你所指定的'path_html'下。
+如果要转化所有条目可以用以下的Vim命令：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>:VimwikiAll2HTML</span></code></pre></td></tr></table></div></figure>
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2013/09/19/have-fun-with-vim-wiki/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2013/07/22/learn-branch-predictor-from-simplescalar-source-1/">Learn Branch Prediction From SimpleScalar Source (1)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-07-22T17:10:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>作为一名CSer，最好的学习方式之一无疑是tracing code，看源代码——
+不知你此时是否与我一样想起了Linus那句名言「talk is cheap, show me the <del>fucking</del> code!」?
+可是对计算机体系结构来说，很多技术直接是由硬件实现的，因而也被蒙上一层神秘的面纱。
+好在还有一些模拟器（simulator）软件，例如SimpleScalar(<a href="http://www.simplescalar.com/">http://www.simplescalar.com/</a>)就是这样一套模拟处理器性能的工具集。
+之前我有幸通过做一些project接触SimpleScalar并读了一些cache技术的源代码。
+在此我借SimpleScalar源代码为工具介绍branch prediction技术，
+也算是对几个月前折腾时光的一种整理吧~</p>
+
+<p>首先先简单介绍下branch prediction是做神马。
+branch是instruction sets里面十分常见的一类指令。
+一般可以分为：</p>
+
+<ul>
+<li><p>conditional branch：只在某条件下才跳转。例如<code>MIPS</code>里的<code>beq</code>/<code>bne</code>等。</p></li>
+<li><p>unconditional branch（或简称jump）: 无条件跳转。例如<code>MIPS</code>里的<code>j</code>/<code>jr</code>等。</p></li>
+<li><p>还有一类特殊的跳转指令，就是function call和return。</p></li>
+</ul>
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2013/07/22/learn-branch-predictor-from-simplescalar-source-1/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2013/06/08/mpi-debug-tips/">MPI Debug Tips</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-08T00:12:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>debug一个并行程序（parallel program）向来是件很麻烦的事情（<code>Erlang</code>等functional programming language另当别论），
+对于像MPI这种非shared memory的inter-process model来说尤其如此。</p>
+
+<h2>与调试并行程序相关的工具</h2>
+
+<h3>非开源工具</h3>
+
+<p>目前我所了解的商业调试器（debugger）有：</p>
+
+<ul>
+<li><a href="http://www.roguewave.com/products/totalview.aspx">TotalView</a></li>
+<li><a href="http://www.allinea.com/products/ddt/">Allinea DDT</a></li>
+</ul>
+
+
+<p>据说parallel debug的能力很屌，
+本人没用过表示不知，
+<del>说不定只是界面做得好看而已</del>。
+不过我想大部分人应该跟本屌一样是用不起这些商业产品的，
+<del>高富帅们请无视</del>。
+以下我介绍下一些有用的open source工具：</p>
+
+<h3>开源工具</h3>
+
+<h4>- <a href="http://valgrind.org">Valgrind Memcheck</a></h4>
+
+<p>首先推荐<code>valgrind</code>的<code>memcheck</code>。
+大部分MPI标准的实现（implementation）（如<a href="http://www.open-mpi.org/">openmpi</a>、<a href="http://www.mpich.org/">mpich</a>）支持的是C、C++和Fortran语言。
+Fortran语言我不了解，但C和C++以复杂的内存管理（memory management）见长可是出了名的XD。
+有些时候所谓的MPI程序的bug，不过是一般sequential程序常见的内存错误罢了。
+这个时候用memcheck检查就可以很容易找到bug的藏身之处。
+你可能会争论说你用了RAII（Resource Allocation Is Initialization）等方式来管理内存，
+不会有那些naive的问题，
+但我还是建议你使用memcheck检查你程序的可执行文件，
+因为memcheck除了检查内存错误，
+还可以检查message passing相关的错误，
+例如：MPI_Send一块没有完全初始化的buffer、
+用来发送消息的buffer大小小于MPI_Send所指定的大小、
+用来接受消息的buffer大小小于MPI_Recv所指定的大小等等，
+<del>我想你的那些方法应该对这些不管用吧？</del>。</p>
+
+<p>这里假设你已经安装并配置好了memcheck，例如如果你用的是openmpi，那么执行以下命令</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>ompi_info <span class="p">|</span> grep memchecker
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>会得到类似</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>MCA memchecker: valgrind <span class="o">(</span>MCA v2.0, API v2.0, Component v1.6.4<span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>的结果。
+否则请参照<a href="http://valgrind.org/docs/manual/mc-manual.html#mc-manual.mpiwrap">Valgrind User Manual 4.9. Debugging MPI Parallel Programs with Valgrind</a>进行配置。</p>
+
+<p>使用memcheck需要在compile时下<code>-g</code>参数。
+运行memcheck用下面的命令：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>mpirun <span class="o">[</span>mpirun-args<span class="o">]</span> valgrind <span class="o">[</span>valgrind-args<span class="o">]</span> &lt;application&gt; <span class="o">[</span>app-args<span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2013/06/08/mpi-debug-tips/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2013/04/13/latex-tips/">LaTeX Tips</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-04-13T17:21:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>早先我用MS office或open source的<a href="http://www.openoffice.org/">OOo</a>来编辑文档，后来渐渐转向google docs和LibreOffice，学会了$\LaTeX$后，由于$\LaTeX$所见即所得（WYSIWYG）的特征节省了我不少排版的时间，所以如今成为我撰写文档、幻灯片（beamer）的主要工具。以下主要是我折腾$\LaTeX$的点点滴滴，有些也许很少能被用到（例如插入u3d来显示3D物体），大部分与也主要是一些不错的辅助工具和如何解决我遇到的一些问题，如果你只是初学者、想系统地学习$\LaTeX$，那么我建议你看一下大名鼎鼎的<a href="http://www.ctan.org/tex-archive/info/lshort/">A (Not So) Short In­tro­duc­tion to $\LaTeX$</a>；如果你看完这篇文章觉得有些工具不错、想继续深入了解，我想最科学的方式还是阅读官方文档、订阅官方的user maillist，当然也欢迎与我交流啦XD</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/blog/2013/04/13/latex-tips/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/blog/2013/04/12/hello-world/">Hello World</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-04-12T22:19:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><em>Octopress</em>確實是個好東東，花了半小時折騰了下，現在終於可以用<em>Markdown</em>來寫blog了！</p>
+
+<p>不過偶還是被它自動生成的<em>Liquid</em>模板坑了555，吐嘈一下&hellip;</p>
+
+<p>另一個要吐嘈的是在對嵌入的code做syntax highlight時總是無法<code>rake generate</code>成功。查到octopress是用<em>pygments</em>來做highlight的，但明明在<code>pygmentize -L</code>中有顯示的programming language（例如C）卻無法正確被highlight！這不科學！</p>
+
+<p>後來看到這其實是python版本的問題，Archlinux下默認以python開頭的package都是python3的，而octopress所用的<strong>pygments.rb</strong>其實只支持python2！
+我也看到octopress的github上有類似的issue，但是我merge了貌似已經fix bug的branch2.1，還是沒有解決問題。</p>
+
+<p>還好之後看到了一個較好的workaround方法：
+<a href="http://www.wongdev.com/blog/2013/01/16/octopress-on-archlinux/">http://www.wongdev.com/blog/2013/01/16/octopress-on-archlinux/</a>
+主要是用virtualenvwrapper來產生不同版本python的虛擬環境，關於virtualenvwrapper詳細的介紹可以參見：
+<a href="http://virtualenvwrapper.readthedocs.org/en/latest/">1</a>
+<a href="https://pypi.python.org/pypi/virtualenv">2</a>
+<a href="https://wiki.archlinux.org/index.php/Python_VirtualEnv">3</a></p>
+
+<p>其實呢，粗暴地把<strong>pygments.rb</strong>中的<code>#!/usr/bin/env python</code>的python改成python2很可能也可以的&hellip;</p>
+
+<p>PS.</p>
+
+<h2>关于在gitcafe部署octopress</h2>
+
+<p>gitcafe上等价于github的gh-pages分支的叫做gitcafe-pages，详见<a href="http://blog.gitcafe.com/116.html">gitcafe的官方blog</a>。
+所以首先要改的是把Rakefile里面的所有的gh-pages改为gitcafe-pages。</p>
+
+<p>另外一个要注意的是，第一次配置时会提示"Enter the read/write url for your repository"，那是在指定git remote add origin后边的url。gitcafe的url格式与github的不一样，应该是git@gitcafe.com:your_username/your_username.git，而非git@github.com:your_username/your_username.github.io.git （这个其实就是执行Rakefile里面setup_github_pages这个task，你可以把提示For example那一行修改掉）。</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="9">&larr; Older</a>
+    
+    <a href="/blog/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="7">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/blog/2019/04/07/macbeth-by-tang-shu-wing/">《麦克白》的布莱希特剧场实践</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2019/01/01/those-concerts-in-2018/">盘点2018年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/05/22/cudaErrorCudartUnloading/">cudaErrorCudartUnloading问题排查及建议方案</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/01/01/those-concerts-in-2017/">盘点2017年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2017/11/11/Jonas-Kaufmann-recital/">Jonas Kaufmann独奏会之艺术歌曲</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<!--
+Copyright &copy; 2020 - Galoisplusplus -
+-->
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+</body>
+</html>

@@ -1,0 +1,1408 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>cocos2d-x前端开发UI流程 - Galoisplusplus</title>
+  <meta name="author" content="Galoisplusplus">
+
+  
+  <meta name="description" content="UI Workflow for Cocos2d-x Client Development">
+  <meta name="keywords" content="cocos2d-x, quick, quickx, quick-cocos2d-x, cocos, cocos2d, 游戏开发, 手游开发, mobile game, game devolopment, cocostudio, TexturePacker">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yszheda.github.io/blog/blog/2015/09/18/ui-workflow-for-cocos2d-x-project">
+  <link href="/blog/favicon.png" rel="icon">
+  <link href="/blog/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/blog/atom.xml" rel="alternate" title="Galoisplusplus" type="application/atom+xml">
+  <script src="/blog/javascripts/modernizr-2.0.js"></script>
+  <!--
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  -->
+  <script src="//libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/blog/javascripts/octopress.js" type="text/javascript"></script>
+  
+<!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!--
+<link href="http://fonts.googleapis.com/css?family=Crimson+Text:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/blog/">Galoisplusplus</a></h1>
+  
+    <h2>A fan of science, technology and Classical music.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/blog/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:yszheda.github.io/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/blog/">Blog</a></li>
+  <li><a href="/blog/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">cocos2d-x前端开发UI流程</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-09-18T23:22:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>手游前端开发中有一项很基础的流程，就是把美术资源拼成程序能用的UI界面。由于cocos2d-x并没有一套成熟的工具链，我们最开始是由美术大大们出效果图和切图资源，然后我们码农根据效果图，在<code>C++</code>代码中写设置位置、大小等界面逻辑。这种原始的人肉写界面代码的方法需要编译、链接、运行后才能看到最终的界面效果，如果效果不满意还需要重新来一遍，无疑大大降低了开发效率——说起来都是泪啊555&hellip;&hellip;在经过一个多月挣扎之后，我们后来采用了<code>cocostudio</code> v1.0这个编辑器。虽然<code>cocostudio</code>还很不成熟，要让美术大大们上手也有难度，这项工作还是我们码农来做的，但相比之前好多了：<code>cocostudio</code> v1.0可以自动生成一个界面UI的配置json文件及其所需要的多张图集，免去了许多界面代码的编写和调试，而且将多张图片合并成图集可以减少draw calls开销。可是，随着系统越做越多，这一编辑器的弊端就越发明显。除了这个工具本身的bug导致各种所见非所得、给开发带来不便以外，由它自动生成的图集也带来了严重的问题：</p>
+
+<p>一是我们无法指定图集里有哪些图片。这又引发了不同系统共用的图片被加到不同图集里的问题，因为我们无法把共用图片管理起来，去指定UI编辑器使用共用的资源、不要把共用图片和每个系统各自的图片放到同一张图集里。后来我们开始做多语言版本，无法管理图集里的图片资源这一问题就更为严重了。</p>
+
+<!--
+：因为同一张图片多语言版本的，图片大小一变，由`cocostudio`切分的多张图集。
+-->
+
+
+<p>二是该UI编辑器生成的图集对图片的packing算法并不理想，导致图集尺寸和文件大小偏大，而图片尺寸和大小一直是cocos2d-x游戏内存和存储空间占用的大头。</p>
+
+<p>本渣虽然早就有心想针对这些问题去革新这套UI流程，无奈大家的开发工作一直繁重。最近正好运营市场的大大们不知怎么就拍脑袋要给我们游戏换皮，把目前所有的UI界面全部换掉。趁着这么个<del>劳民伤财的</del>机会，本渣研究出一套更好的UI流程，因此也被组里暂时<del>甩给这个烫手山芋</del>委以前端开发负责人的重任，带领大家在有限的时间内按照新流程去完成换皮&hellip;&hellip;</p>
+
+<!-- more -->
+
+
+<h1>目标(Goal)</h1>
+
+<ul>
+<li><p>支持指定图集里的碎图，方便多语言版本开发。</p></li>
+<li><p>优化图集大小，支持重用图片资源。</p></li>
+<li><p>为了防止不同图集下有同名图片造成sprite frame名字冲突，最好要有类似namespace的机制。</p></li>
+<li><p>尽可能便捷。</p></li>
+</ul>
+
+
+<h1>策略(Strategy)</h1>
+
+<ul>
+<li><p>采用能支持指定图集碎图的<code>cocostudio</code> v2.1beta版本编辑器。v2.1beta版导出的不是之前v1.0版所生成的<code>json</code>文件，而是`csb``二进制文件，加载还会快一些。我们之所以不用v2.1正式版而用beta版，是因为该正式版还有一些v2.1beta版所没有的bug。</p></li>
+<li><p>图集用<code>TexturePacker</code>生成，不采用<code>cocostudio</code>导出的图集。<code>TexturePacker</code>的packing显然比<code>cocostudio</code>要专业的多，而且也有更多选项和更丰富的功能。</p></li>
+<li><p>为了防止不同图集下有同名图片造成sprite frame名字冲突，每一个图集都在sprite frame名字里加上独一无二的路径名。</p></li>
+<li><p>确定了UI编辑器和图集生成工具后，只需要让<code>cocostudio</code>导出的csb知道正确的sprite frame、png和plist名称就可以了。</p></li>
+</ul>
+
+
+<h1>工具(Tools)</h1>
+
+<ul>
+<li><p><code>TexturePacker</code>，用于生成图集。</p></li>
+<li><p><code>cocostudio</code> v2.1beta，用于编辑UI界面。</p></li>
+<li><p><code>Python2</code>或者<code>bash</code>环境，用于运行相关脚本。</p>
+
+<ul>
+<li><code>Python</code>环境需要安装<code>lxml</code>库：先安装<code>pip</code>，然后运行<code>pip install lxml</code>。</li>
+</ul>
+</li>
+</ul>
+
+
+<h1>流程(Workflow)</h1>
+
+<p>1.最开始，我们首先创建两个文件夹<code>tp_proj</code>和<code>cs_proj</code>，分别作为<code>TexturePacker</code>和<code>cocostudio</code>项目和资源文件的目录。因为我们需要做多语言版本，这两个目录底下再根据语言种类创建一系列目录：<code>en</code>、<code>fa</code>、<code>de</code>等等。这些目录都要做版本控制。</p>
+
+<p>2.由本渣把被多个系统共用的资源整理出来——呼呼，幸好UI主美大大是个很有条理的大好人，帮本渣整理了绝大部分，发张好人卡嘻嘻——拷到公共资源目录（例如<code>tp_proj/${lang}/common1/common1</code>）下，每个人把各自要做的系统资源也拷到单独的目录下（例如武将系统的拷到<code>tp_proj/${lang}/hero1/hero1</code>）。</p>
+
+<ul>
+<li><p><strong>注意：由于<code>TexturePacker</code>导入资源的需要，这里必须是两级目录！</strong>第二个<code>common1</code>决定了<code>TexturePacker</code>生成的sprite frame名称遵循<code>common1/${spriteFrameName}</code>的格式，这就是之前所提到的防止名字冲突的做法。</p></li>
+<li><p>同理，同一目录下的文件当然不能同名。</p></li>
+<li><p>至于为何需要<code>common1</code>、<code>hero1</code>后面的数字下面会提到。</p></li>
+</ul>
+
+
+<p>3.在<code>TexturePacker</code>中将第一级目录（例如<code>tp_proj/${lang}/common1</code>）拖进右边的Sprites栏，导出的plist和png指定到项目的目标资源目录下。plist和png的命名还是按规范来（例如上例就是<code>common1.png</code>和<code>common1.plist</code>）。这时候点击Publish按钮就可以生成图集了。</p>
+
+<p><img src="/blog/images/ui-workflow/1_1_tp.png"></p>
+
+<p><img src="/blog/images/ui-workflow/1_2_tp.png"></p>
+
+<ul>
+<li><p><strong>注意：在<code>TexturePacker</code>的"Size constraints"选项里选Any Size，不要选择默认的POT！</strong></p></li>
+<li><p><code>TexturePacker</code>的tps项目文件统一放到第一级目录（例如<code>tp_proj/${lang}/common1</code>）下，和图片一起提交到版本控制里。</p></li>
+<li><p>至于图集的最大尺寸（"Max Size"）下面会再讨论。</p></li>
+<li><p>最好保存下<code>TexturePacker</code>项目文件tps，将它加到版本控制中。</p></li>
+</ul>
+
+
+<p>4.新建<code>cocostudio</code>项目，导入资源时选择之前放图片的二级目录（例如<code>tp_proj/${lang}/common1/common1</code>）：</p>
+
+<p><img src="/blog/images/ui-workflow/2_1_import.png"></p>
+
+<p><img src="/blog/images/ui-workflow/2_2_import.png"></p>
+
+<p><img src="/blog/images/ui-workflow/2_3_import.png"></p>
+
+<p>5.新建合图(Sprite Sheet)文件，注意文件名必须是之前<code>TexturePacker</code>所导出的图集名字：</p>
+
+<p><img src="/blog/images/ui-workflow/3_1_csi.png"></p>
+
+<p><img src="/blog/images/ui-workflow/3_2_csi.png"></p>
+
+<p><img src="/blog/images/ui-workflow/3_3_csi.png"></p>
+
+<p>6.在合图文件中把相应的导入资源拖进去：</p>
+
+<p><img src="/blog/images/ui-workflow/4_1_csi.png"></p>
+
+<p>这时资源左上角会有记号：</p>
+
+<p><img src="/blog/images/ui-workflow/4_3_csi.png"></p>
+
+<ul>
+<li><em>注意：右侧的设置（如“最大尺寸”）要与<code>TexturePacker</code>的设置一致。</em></li>
+</ul>
+
+
+<p><img src="/blog/images/ui-workflow/4_2_csi.png"></p>
+
+<ul>
+<li><em>注意：如果你之前的plist和png文件的实际资源目录和cocos资源搜索路径不同（比方说实际资源目录是资源搜索路径下的atlases目录），做好合图文件后需要在<code>cocostudio</code>新建一个atlases文件夹，把所有合图文件移到atlases下。只是因为目前项目搜索路径不包括atlases，需要把这一相对路径写入对应的csb里，否则<code>cocos2d-x</code>的<code>SpriteFrameCache</code>将无法正确找到图集。</em></li>
+</ul>
+
+
+<p>7.现在可以新建Node/Layer/Scene来做具体某个系统的界面了，资源都是直接用导入的图片，接下来都是平常做UI的流程了。不过最好别引入<code>cocostudio</code>默认的UI资源，例如按钮默认的图片，把按钮三种状态的图都填了：</p>
+
+<p><span class='caption-wrapper'><img class='caption' src='/blog/images/ui-workflow/5_1_button.png' width='' height='' title=''这是cocostudio默认的按钮三种状态的图''><span class='caption-text'>&lsquo;这是cocostudio默认的按钮三种状态的图&rsquo;</span></span></p>
+
+<p><span class='caption-wrapper'><img class='caption' src='/blog/images/ui-workflow/5_2_button.png' width='' height='' title=''[不推荐的方式]没有指定按钮disabled状态的图片''><span class='caption-text'>&lsquo;[不推荐的方式]没有指定按钮disabled状态的图片&rsquo;</span></span></p>
+
+<p><span class='caption-wrapper'><img class='caption' src='/blog/images/ui-workflow/5_3_button.png' width='' height='' title=''[推荐的方式]指定按钮三种状态的图片''><span class='caption-text'>&lsquo;[推荐的方式]指定按钮三种状态的图片&rsquo;</span></span></p>
+
+<ul>
+<li>关于<code>cocostudio</code> v2.1beta使用注意事项，之后会继续谈。</li>
+</ul>
+
+
+<p>8.点击Publish，这时候我们只需要把<code>cocostudio</code>项目目录中res下的csb文件拷到资源目录下面就可以啦！</p>
+
+<p><img src="/blog/images/ui-workflow/6_2_publish.png"></p>
+
+<p>当然，别忘了把<code>cocostudio</code>项目相关的图片、ccs、csd、csi等文件都加到版本控制里。</p>
+
+<p><img src="/blog/images/ui-workflow/6_1_proj.png"></p>
+
+<p>9.对于多语言版本，一般很少需要做编辑UI界面的改动，只需要更新对应<code>tp_proj/${lang}</code>下的图片资源，生成相应的图集即可。</p>
+
+<h1>Q&amp;A</h1>
+
+<ul>
+<li><p><strong>Q. 图集做多大？</strong></p></li>
+<li><p>A:
+根据cocos2d-x的<a href="http://www.cocos2d-x.org/wiki/Max_size_of_textures_in_cocos2d-x_depends_on_each_platform">官方说法</a>，一般是2048x2048，除非需要支持龊设备才用1024x1024。</p></li>
+<li><p><strong>Q. 做某个系统UI的图集超过上述最大尺寸肿么办？</strong></p></li>
+<li><p>A:</p>
+
+<ul>
+<li><p>其实<code>TexturePacker</code>是支持分多张图集的，但我们不采用，否则在<code>cocostudio</code>中做合图文件必须保证合图文件和图集的sprite frame名字完全一致，这对于这种方案很麻烦。</p></li>
+<li><p>当图集超尺寸时就把多出的图放到新目录下（例如<code>tp_proj/${lang}/common2/common2</code>，这就是需要加数字的原因啦！），直到每个目录做的图集都在最大尺寸内为止（其实就是bin packing问题哈，不过反正我们做UI又不需要求最优解是吧？XD）。以后加新资源都先往数字最大的目录下加，图集超尺寸就继续建新目录。</p></li>
+</ul>
+</li>
+<li><p><strong>Q. UI图片资源有更新肿么办？</strong></p></li>
+<li><p>A:</p>
+
+<ul>
+<li><p>更新图集目录（例如<code>tp_proj/${lang}/common2/common2</code>）的图片再重新生成图集就可以了。</p>
+
+<ul>
+<li>如果图集变大超过尺寸参考上一个问题。</li>
+</ul>
+</li>
+<li><p>如果想在<code>cocostudio</code>看到最新的改动，需要再重新导入资源，因为<code>cocostudio</code>会把资源拷贝一份到自己项目目录下的<code>cocostudio</code>目录。这可能麻烦一点，但本渣已经帮你想好了，为此写了个<code>bash</code>脚本用<code>rsync</code>把<code>TexturePacker</code>项目的图片都同步到指定的或者所有<code>cocostudio</code>项目的<code>cocostudio</code>目录，你先把<code>cocostudio</code>关了，运行同步脚本就好。神马？你用的是windows不支持shell脚本？哎唷大熊弟，干嘛用渣win这种系统啊&hellip;&hellip;好吧，本渣终于找到了个能用的<code>Python</code>的仿<code>rsync</code>库，现在也有<code>Python</code>版脚本啦！</p></li>
+</ul>
+</li>
+<li><p><strong>Q. 我做的系统里一些图片资源以前被其他系统用到，我不想把它们放入新的图集，如何找到它们放在哪个图集里？</strong></p></li>
+<li><p>A:
+图片同名自然好找的啦，那样你就不用问了。如果不同名呢？嘿嘿，本渣早就想到了，写好了<a href="https://gist.github.com/yszheda/05382886bdbd3abd279a">脚本</a>，支持搜索与指定的文件内容相同的文件、以及搜索所有与指定目录里文件内容相同的文件：</p></li>
+</ul>
+
+
+<figure class='code'><figcaption><span> (find_texture.py)</span> <a href='/blog/downloads/code/find_texture.py'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c">#!/usr/bin/env python</span>
+</span><span class='line'><span class="c"># coding:utf-8</span>
+</span><span class='line'><span class="c"># find duplicate png in tp projects</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">sys</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">getopt</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">os</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">hashlib</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">filecmp</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="n">TEXTURE_ROOT</span> <span class="o">=</span> <span class="s">&#39;tp_proj&#39;</span>
+</span><span class='line'><span class="n">HASH_FUNC</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span>
+</span><span class='line'><span class="n">DEFAULT_LANG</span> <span class="o">=</span> <span class="s">&#39;en&#39;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">get_pwd</span><span class="p">():</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">chunk_reader</span><span class="p">(</span><span class="n">fobj</span><span class="p">,</span> <span class="n">chunk_size</span><span class="o">=</span><span class="mi">1024</span><span class="p">):</span>
+</span><span class='line'>    <span class="c"># Reference:</span>
+</span><span class='line'>    <span class="c"># http://stackoverflow.com/questions/748675/finding-duplicate-files-and-removing-them</span>
+</span><span class='line'>    <span class="sd">&quot;&quot;&quot;Generator that reads a file in chunks of bytes&quot;&quot;&quot;</span>
+</span><span class='line'>    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">chunk</span> <span class="o">=</span> <span class="n">fobj</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">chunk_size</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">if</span> <span class="ow">not</span> <span class="n">chunk</span><span class="p">:</span>
+</span><span class='line'>            <span class="k">return</span>
+</span><span class='line'>        <span class="k">yield</span> <span class="n">chunk</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">gen_hash_obj</span><span class="p">(</span><span class="n">file_name</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">hashobj</span> <span class="o">=</span> <span class="n">HASH_FUNC</span><span class="p">()</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">chunk_reader</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)):</span>
+</span><span class='line'>        <span class="n">hashobj</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">hashobj</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">update_dir_hashmap</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">hashmap_list</span><span class="p">):</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+</span><span class='line'>        <span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+</span><span class='line'>            <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">file_name</span><span class="p">))</span>
+</span><span class='line'>            <span class="n">hashobj</span> <span class="o">=</span> <span class="n">gen_hash_obj</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+</span><span class='line'>            <span class="n">file_id</span> <span class="o">=</span> <span class="n">hashobj</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+</span><span class='line'>            <span class="k">for</span> <span class="n">hashmap</span> <span class="ow">in</span> <span class="n">hashmap_list</span><span class="p">:</span>
+</span><span class='line'>                <span class="n">duplicate_info</span> <span class="o">=</span> <span class="n">hashmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file_id</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="k">if</span> <span class="n">duplicate_info</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+</span><span class='line'>                    <span class="n">duplicate_info</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="n">duplicate_info</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+</span><span class='line'>                <span class="n">hashmap</span><span class="p">[</span><span class="n">file_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">duplicate_info</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">find_duplicates</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">lang</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">pwd</span> <span class="o">=</span> <span class="n">get_pwd</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">search_path</span> <span class="o">=</span> <span class="n">pwd</span> <span class="o">+</span> <span class="n">TEXTURE_ROOT</span> <span class="o">+</span> <span class="n">lang</span>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;Comparing </span><span class="si">%s</span><span class="s"> and </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">search_path</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">total_hashmap</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class='line'>    <span class="n">input_dir_hashmap</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class='line'>    <span class="n">update_dir_hashmap</span><span class="p">(</span><span class="n">search_path</span><span class="p">,</span> <span class="p">[</span><span class="n">total_hashmap</span><span class="p">])</span>
+</span><span class='line'>    <span class="n">update_dir_hashmap</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="p">[</span><span class="n">total_hashmap</span><span class="p">,</span> <span class="n">input_dir_hashmap</span><span class="p">])</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">input_dir_hashmap</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span class='line'>        <span class="n">duplicate_info</span> <span class="o">=</span> <span class="n">total_hashmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">duplicate_info</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+</span><span class='line'>            <span class="k">print</span> <span class="s">&quot;========================================&quot;</span>
+</span><span class='line'>            <span class="k">print</span> <span class="s">&quot;The following </span><span class="si">%s</span><span class="s"> files are duplicated:&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">duplicate_info</span><span class="p">)</span>
+</span><span class='line'>            <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">duplicate_info</span><span class="p">:</span>
+</span><span class='line'>                <span class="k">print</span> <span class="n">file_path</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">find_file</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">lang</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">pwd</span> <span class="o">=</span> <span class="n">get_pwd</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">search_path</span> <span class="o">=</span> <span class="n">pwd</span> <span class="o">+</span> <span class="n">TEXTURE_ROOT</span> <span class="o">+</span> <span class="n">lang</span>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;Searching </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">search_path</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">isFound</span> <span class="o">=</span> <span class="bp">None</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">search_path</span><span class="p">):</span>
+</span><span class='line'>        <span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+</span><span class='line'>            <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+</span><span class='line'>            <span class="k">if</span> <span class="n">filecmp</span><span class="o">.</span><span class="n">cmp</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">full_path</span><span class="p">):</span>
+</span><span class='line'>                <span class="k">print</span> <span class="s">&quot;The texture is already added as: </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="n">full_path</span>
+</span><span class='line'>                <span class="n">isFound</span> <span class="o">=</span> <span class="bp">True</span>
+</span><span class='line'>                <span class="k">if</span> <span class="ow">not</span> <span class="n">isFound</span><span class="p">:</span>
+</span><span class='line'>                    <span class="k">print</span> <span class="s">&quot;The texture has not been added: </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="n">input_file</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">usage</span><span class="p">():</span>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&#39;Usage: &#39;</span> <span class="o">+</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s">&#39; -f &lt;texture file&gt; -d &lt;dir&gt; [-l &lt;lang&gt;]&#39;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">lang</span> <span class="o">=</span> <span class="n">DEFAULT_LANG</span>
+</span><span class='line'>    <span class="n">input_dir</span> <span class="o">=</span> <span class="bp">None</span>
+</span><span class='line'>    <span class="n">input_file</span> <span class="o">=</span> <span class="bp">None</span>
+</span><span class='line'>    <span class="k">try</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">opts</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="n">getopt</span><span class="o">.</span><span class="n">getopt</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="s">&quot;hf:d:l:&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;help&#39;</span><span class="p">,</span>
+</span><span class='line'>                                                     <span class="s">&#39;file=&#39;</span><span class="p">,</span>
+</span><span class='line'>                                                     <span class="s">&#39;dir=&#39;</span><span class="p">,</span>
+</span><span class='line'>                                                     <span class="s">&#39;lang=&#39;</span><span class="p">])</span>
+</span><span class='line'>        <span class="k">if</span> <span class="ow">not</span> <span class="n">opts</span><span class="p">:</span>
+</span><span class='line'>            <span class="k">print</span> <span class="s">&#39;No options supplied&#39;</span>
+</span><span class='line'>            <span class="n">usage</span><span class="p">()</span>
+</span><span class='line'>    <span class="k">except</span> <span class="n">getopt</span><span class="o">.</span><span class="n">GetoptError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+</span><span class='line'>        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="n">opt</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">opts</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">opt</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;-f&#39;</span><span class="p">,</span> <span class="s">&#39;--file&#39;</span><span class="p">):</span>
+</span><span class='line'>            <span class="n">input_file</span> <span class="o">=</span> <span class="n">arg</span>
+</span><span class='line'>        <span class="k">elif</span> <span class="n">opt</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;-d&#39;</span><span class="p">,</span> <span class="s">&#39;--dir&#39;</span><span class="p">):</span>
+</span><span class='line'>            <span class="n">input_dir</span> <span class="o">=</span> <span class="n">arg</span>
+</span><span class='line'>        <span class="k">elif</span> <span class="n">opt</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;-l&#39;</span><span class="p">,</span> <span class="s">&#39;--lang&#39;</span><span class="p">):</span>
+</span><span class='line'>            <span class="n">lang</span> <span class="o">=</span> <span class="n">arg</span>
+</span><span class='line'>        <span class="k">elif</span> <span class="n">opt</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;-h&#39;</span><span class="p">,</span> <span class="s">&#39;--help&#39;</span><span class="p">):</span>
+</span><span class='line'>            <span class="n">usage</span><span class="p">()</span>
+</span><span class='line'>            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="n">input_dir</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">find_duplicates</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">lang</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="n">input_file</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">find_file</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">lang</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span class='line'>    <span class="n">main</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><p><strong>Q. 我想把一些图片资源从一张图集里移到另一张图集里，或者把某些图片删掉，会影响到用到这些资源的<code>cocostudio</code>项目，该怎么办？</strong></p></li>
+<li><p>A:
+在<code>cocostudio</code>里手动操作？当然可以啊，但是神烦！
+本渣也考虑到了，好在<code>cocostudio</code>项目文件不过就是些<code>XML</code>嘛，果断写了一些自动化脚本。
+你只需要把<code>cocostudio</code>下的资源整理好（例如移动或删除）——相信聪明的你已经想到：只需要把<code>TexturePacker</code>项目所管理的图片资源整理好，运行下前面提到的同步脚本就可以，不用再在<code>cocostudio</code>项目里再整理一遍——运行下<code>refresh_cocostudio_proj.sh</code>就可以了：</p></li>
+</ul>
+
+
+<figure class='code'><figcaption><span> (refresh_csi.sh)</span> <a href='/blog/downloads/code/cocostudio/bash/refresh_csi.sh'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'><span class="c"># Refresh cocostudio SpriteFrameSheet *.csi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">CSI_FILE</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[[</span> ! -f <span class="k">${</span><span class="nv">CSI_FILE</span><span class="k">}</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;${CSI_FILE} is not existed!&quot;</span>
+</span><span class='line'>    <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># echo ${CSI_FILE}</span>
+</span><span class='line'><span class="nv">ATLAS_NAME</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="k">${</span><span class="nv">CSI_FILE</span><span class="k">}</span> <span class="p">|</span> awk -F<span class="s2">&quot;/&quot;</span> <span class="s1">&#39;{print $NF}&#39;</span> <span class="p">|</span> sed <span class="s1">&#39;s/.csi//&#39;</span><span class="sb">`</span>
+</span><span class='line'><span class="c"># echo &quot;${ATLAS_NAME}&quot;</span>
+</span><span class='line'><span class="nv">RES_PATH</span><span class="o">=</span><span class="s2">&quot;$(dirname ${CSI_FILE})/../&quot;</span>
+</span><span class='line'><span class="c"># echo &quot;${RES_PATH}&quot;</span>
+</span><span class='line'><span class="nv">ATLAS_RES_PATH</span><span class="o">=</span><span class="s2">&quot;${RES_PATH}/${ATLAS_NAME}&quot;</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[[</span> -d <span class="k">${</span><span class="nv">ATLAS_RES_PATH</span><span class="k">}</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span><span class='line'><span class="c">#    echo &quot;${ATLAS_RES_PATH} exist!&quot;</span>
+</span><span class='line'>    sed -i.bak <span class="s1">&#39;/FilePathData/d&#39;</span> <span class="k">${</span><span class="nv">CSI_FILE</span><span class="k">}</span>
+</span><span class='line'>    <span class="nv">line</span><span class="o">=</span><span class="sb">`</span>cat <span class="s2">&quot;${CSI_FILE}&quot;</span> <span class="p">|</span> grep -n <span class="s2">&quot;&lt;ImageFiles&gt;&quot;</span> <span class="p">|</span> awk -F<span class="s2">&quot;:&quot;</span> <span class="s1">&#39;{print $1}&#39;</span><span class="sb">`</span>
+</span><span class='line'>    <span class="nv">line</span><span class="o">=</span><span class="sb">`</span>expr <span class="k">${</span><span class="nv">line</span><span class="k">}</span> + 1<span class="sb">`</span>
+</span><span class='line'><span class="c">#    echo $line</span>
+</span><span class='line'>    <span class="k">for</span> PNG_FILE in <span class="sb">`</span>ls <span class="s2">&quot;${ATLAS_RES_PATH}/&quot;</span> <span class="p">|</span> grep <span class="s2">&quot;.png$&quot;</span> <span class="p">|</span> awk -F<span class="s2">&quot;/&quot;</span> <span class="s1">&#39;{print $NF}&#39;</span><span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+</span><span class='line'><span class="c">#        echo ${PNG_FILE}</span>
+</span><span class='line'>        <span class="c"># Note: on mac, sed is different (e.g. command i expects \ followed by text)</span>
+</span><span class='line'>        <span class="c"># Please use gsed instead, or set `alias sed=gsed`</span>
+</span><span class='line'>        gsed -i.bak <span class="s2">&quot;${line}i\ \ \ \ \ \ &lt;FilePathData Path=\&quot;${ATLAS_NAME}/${PNG_FILE}\&quot; /&gt;&quot;</span> <span class="k">${</span><span class="nv">CSI_FILE</span><span class="k">}</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'>    rm <span class="k">${</span><span class="nv">CSI_FILE</span><span class="k">}</span>.bak
+</span><span class='line'><span class="k">fi</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span> (refresh_csd.sh)</span> <a href='/blog/downloads/code/cocostudio/bash/refresh_csd.sh'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'><span class="c"># Refresh cocostudio csd</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">CSD_FILE</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[[</span> ! -f <span class="k">${</span><span class="nv">CSD_FILE</span><span class="k">}</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;${CSD_FILE} is not existed!&quot;</span>
+</span><span class='line'>    <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># cp ${CSD_FILE}{,-bak}</span>
+</span><span class='line'><span class="c"># echo &quot;Backup original ${CSD_FILE} to ${CSD_FILE}-bak&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">RES_PATH</span><span class="o">=</span><span class="sb">`</span>dirname <span class="k">${</span><span class="nv">CSD_FILE</span><span class="k">}</span><span class="sb">`</span>
+</span><span class='line'><span class="k">for</span> PNG in <span class="sb">`</span>cat <span class="k">${</span><span class="nv">CSD_FILE</span><span class="k">}</span> <span class="p">|</span> grep Plist <span class="p">|</span> grep -o <span class="s1">&#39;Path=&quot;[^&quot;]*&#39;</span> <span class="p">|</span> sed <span class="s1">&#39;s/Path=\&quot;//&#39;</span> <span class="p">|</span> grep png <span class="p">|</span> sort <span class="p">|</span> uniq<span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+</span><span class='line'><span class="c">#    echo ${PNG}</span>
+</span><span class='line'>    <span class="nv">PNG_NAME</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="k">${</span><span class="nv">PNG</span><span class="k">}</span> <span class="p">|</span> awk -F<span class="s2">&quot;/&quot;</span> <span class="s1">&#39;{print $NF}&#39;</span><span class="sb">`</span>
+</span><span class='line'>    <span class="nv">OLD_NAMESPACE</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="k">${</span><span class="nv">PNG</span><span class="k">}</span> <span class="p">|</span> awk -F<span class="s2">&quot;/&quot;</span> <span class="s1">&#39;{print $(NF-1)}&#39;</span><span class="sb">`</span>
+</span><span class='line'><span class="c">#    echo ${PNG_NAME}</span>
+</span><span class='line'>    <span class="nv">PNG_REAL_PATHS</span><span class="o">=</span><span class="sb">`</span>find <span class="k">${</span><span class="nv">RES_PATH</span><span class="k">}</span> -name <span class="k">${</span><span class="nv">PNG_NAME</span><span class="k">}</span><span class="sb">`</span>
+</span><span class='line'>    <span class="nv">IS_NAMESPACE_CHANGED</span><span class="o">=</span><span class="nb">false</span>
+</span><span class='line'><span class="nb">    </span><span class="k">for</span> PNG_REAL_PATH in <span class="k">${</span><span class="nv">PNG_REAL_PATHS</span><span class="p">[@]</span><span class="k">}</span><span class="p">;</span> <span class="k">do</span>
+</span><span class='line'>        <span class="nv">REAL_NAMESPACE</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="k">${</span><span class="nv">PNG_REAL_PATH</span><span class="k">}</span> <span class="p">|</span> awk -F <span class="s2">&quot;/&quot;</span> <span class="s1">&#39;{print $(NF-1)}&#39;</span><span class="sb">`</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">[[</span> <span class="s2">&quot;${OLD_NAMESPACE}&quot;</span> <span class="o">=</span> <span class="s2">&quot;${REAL_NAMESPACE}&quot;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span><span class='line'>            <span class="nv">IS_NAMESPACE_CHANGED</span><span class="o">=</span><span class="nb">true</span>
+</span><span class='line'><span class="nb">            break</span>
+</span><span class='line'><span class="nb">        </span><span class="k">fi</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> <span class="k">${</span><span class="nv">IS_NAMESPACE_CHANGED</span><span class="k">}</span> <span class="o">=</span> <span class="nb">false</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span><span class='line'><span class="c">#        echo &quot;old namespace: ${OLD_NAMESPACE}&quot;</span>
+</span><span class='line'><span class="c">#        echo &quot;real namespace: ${REAL_NAMESPACE}&quot;</span>
+</span><span class='line'><span class="c">#        cat ${CSD_FILE} | grep ${PNG_NAME} | grep Path | grep Plist | sed &#39;s/${OLD_NAMESPACE}/${REAL_NAMESPACE}/g&#39;</span>
+</span><span class='line'>        <span class="nv">REPLACE_LINES</span><span class="o">=</span><span class="sb">`</span>cat <span class="k">${</span><span class="nv">CSD_FILE</span><span class="k">}</span> <span class="p">|</span> grep -n <span class="k">${</span><span class="nv">PNG_NAME</span><span class="k">}</span> <span class="p">|</span> grep Path <span class="p">|</span> grep Plist <span class="p">|</span> awk -F<span class="s2">&quot;:&quot;</span> <span class="s1">&#39;{print $1}&#39;</span><span class="sb">`</span>
+</span><span class='line'>        <span class="nb">declare</span> -a <span class="nv">lines</span><span class="o">=(</span> <span class="nv">$REPLACE_LINES</span> <span class="o">)</span>
+</span><span class='line'><span class="c">#        echo ${lines}</span>
+</span><span class='line'>        <span class="k">for</span> line in <span class="s2">&quot;${lines[@]}&quot;</span><span class="p">;</span> <span class="k">do</span>
+</span><span class='line'><span class="c">#            echo &quot;Replace ${line}&quot;</span>
+</span><span class='line'>            sed -i.bak <span class="s2">&quot;${line}s/${OLD_NAMESPACE}/${REAL_NAMESPACE}/g&quot;</span> <span class="k">${</span><span class="nv">CSD_FILE</span><span class="k">}</span>
+</span><span class='line'>        <span class="k">done</span>
+</span><span class='line'>        rm <span class="k">${</span><span class="nv">CSD_FILE</span><span class="k">}</span>.bak
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="k">done</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span> (refresh_ccs.sh)</span> <a href='/blog/downloads/code/cocostudio/bash/refresh_ccs.sh'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'><span class="c"># Refresh cocostudio ccs</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">CCS_FILE</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[[</span> ! -f <span class="k">${</span><span class="nv">CCS_FILE</span><span class="k">}</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;${CCS_FILE} is not existed!&quot;</span>
+</span><span class='line'>    <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">ATLAS_NAME</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="k">${</span><span class="nv">CCS_FILE</span><span class="k">}</span> <span class="p">|</span> awk -F<span class="s2">&quot;/&quot;</span> <span class="s1">&#39;{print $NF}&#39;</span> <span class="p">|</span> sed <span class="s1">&#39;s/.ccs//&#39;</span><span class="sb">`</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">HEADER</span><span class="o">=</span><span class="s2">&quot;&lt;Solution&gt;</span>
+</span><span class='line'><span class="s2">  &lt;PropertyGroup Name=\&quot;${ATLAS_NAME}\&quot; Version=\&quot;2.0.8.0\&quot; Type=\&quot;CocosStudio\&quot; /&gt;</span>
+</span><span class='line'><span class="s2">  &lt;SolutionFolder&gt;</span>
+</span><span class='line'><span class="s2">    &lt;Group ctype=\&quot;ResourceGroup\&quot;&gt;</span>
+</span><span class='line'><span class="s2">      &lt;RootFolder Name=\&quot;.\&quot;&gt;</span>
+</span><span class='line'><span class="s2">&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">FOOTER</span><span class="o">=</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="s2">      &lt;/RootFolder&gt;</span>
+</span><span class='line'><span class="s2">    &lt;/Group&gt;</span>
+</span><span class='line'><span class="s2">  &lt;/SolutionFolder&gt;</span>
+</span><span class='line'><span class="s2">&lt;/Solution&gt;</span>
+</span><span class='line'><span class="s2">&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">INITIAL_XML_DEPTH</span><span class="o">=</span>4
+</span><span class='line'>
+</span><span class='line'><span class="nv">CSD_FMT</span><span class="o">=</span><span class="s2">&quot;&lt;Project Name=\&quot;%s\&quot; /&gt;&quot;</span>
+</span><span class='line'><span class="nv">CSI_FMT</span><span class="o">=</span><span class="s2">&quot;&lt;PlistInfo Name=\&quot;%s\&quot; /&gt;&quot;</span>
+</span><span class='line'><span class="nv">PNG_FMT</span><span class="o">=</span><span class="s2">&quot;&lt;Image Name=\&quot;%s\&quot; /&gt;&quot;</span>
+</span><span class='line'><span class="nv">FILE_FMT</span><span class="o">=</span><span class="s2">&quot;&lt;File Name=\&quot;%s\&quot; /&gt;&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">CSD_EXT</span><span class="o">=</span><span class="s2">&quot;csd&quot;</span>
+</span><span class='line'><span class="nv">CSI_EXT</span><span class="o">=</span><span class="s2">&quot;csi&quot;</span>
+</span><span class='line'><span class="nv">PNG_EXT</span><span class="o">=</span><span class="s2">&quot;png&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">function</span> file_xml <span class="o">{</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">FILE</span><span class="o">=</span><span class="s2">&quot;$1&quot;</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">DEPTH</span><span class="o">=</span><span class="s2">&quot;$2&quot;</span>
+</span><span class='line'><span class="c">#    DEPTH=`expr ${DEPTH} + ${INITIAL_XML_DEPTH}`</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">FILE_NAME</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="k">${</span><span class="nv">FILE</span><span class="k">}</span> <span class="p">|</span> awk -F<span class="s2">&quot;/&quot;</span> <span class="s1">&#39;{print $NF}&#39;</span><span class="sb">`</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">EXTENTION</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="k">${</span><span class="nv">FILE_NAME</span><span class="k">}</span> <span class="p">|</span> awk -F<span class="s2">&quot;.&quot;</span> <span class="s1">&#39;{print $NF}&#39;</span><span class="sb">`</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">XML</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> <span class="s2">&quot;${EXTENTION}&quot;</span> <span class="o">=</span> <span class="s2">&quot;${CSD_EXT}&quot;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span><span class='line'>        <span class="nv">XML</span><span class="o">=</span><span class="sb">`</span><span class="nb">printf</span> <span class="s2">&quot;${CSD_FMT}&quot;</span> <span class="s2">&quot;${FILE_NAME}&quot;</span><span class="sb">`</span>
+</span><span class='line'>    <span class="k">elif</span> <span class="o">[[</span> <span class="s2">&quot;${EXTENTION}&quot;</span> <span class="o">=</span> <span class="s2">&quot;${CSI_EXT}&quot;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span><span class='line'>        <span class="nv">XML</span><span class="o">=</span><span class="sb">`</span><span class="nb">printf</span> <span class="s2">&quot;${CSI_FMT}&quot;</span> <span class="s2">&quot;${FILE_NAME}&quot;</span><span class="sb">`</span>
+</span><span class='line'>    <span class="k">elif</span> <span class="o">[[</span> <span class="s2">&quot;${EXTENTION}&quot;</span> <span class="o">=</span> <span class="s2">&quot;${PNG_EXT}&quot;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span><span class='line'>        <span class="nv">XML</span><span class="o">=</span><span class="sb">`</span><span class="nb">printf</span> <span class="s2">&quot;${PNG_FMT}&quot;</span> <span class="s2">&quot;${FILE_NAME}&quot;</span><span class="sb">`</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>        <span class="nv">XML</span><span class="o">=</span><span class="sb">`</span><span class="nb">printf</span> <span class="s2">&quot;${FILE_FMT}&quot;</span> <span class="s2">&quot;${FILE_NAME}&quot;</span><span class="sb">`</span>
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="o">((</span><span class="nv">i</span> <span class="o">=</span> 0<span class="p">;</span> i &lt; <span class="k">${</span><span class="nv">DEPTH</span><span class="k">}</span><span class="p">;</span> i++<span class="o">))</span><span class="p">;</span> <span class="k">do</span>
+</span><span class='line'>        <span class="nv">XML</span><span class="o">=</span><span class="s2">&quot;  ${XML}&quot;</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;${XML}&quot;</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">function</span> folder_xml <span class="o">{</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">FOLDER</span><span class="o">=</span><span class="s2">&quot;$1&quot;</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">DEPTH</span><span class="o">=</span><span class="s2">&quot;$2&quot;</span>
+</span><span class='line'><span class="c">#    DEPTH=`expr ${DEPTH} + ${INITIAL_XML_DEPTH}`</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">#    echo ${FOLDER}</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">FOLDER_NAME</span><span class="o">=</span><span class="sb">`</span>basename <span class="k">${</span><span class="nv">FOLDER</span><span class="k">}</span><span class="sb">`</span>
+</span><span class='line'><span class="c">#    echo ${FOLDER_NAME}</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">HEADER</span><span class="o">=</span><span class="sb">`</span><span class="nb">printf</span> <span class="s2">&quot;&lt;Folder Name=\&quot;%s\&quot;&gt;&quot;</span> <span class="s2">&quot;${FOLDER_NAME}&quot;</span><span class="sb">`</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">FOOTER</span><span class="o">=</span><span class="s2">&quot;&lt;/Folder&gt;&quot;</span>
+</span><span class='line'>    <span class="k">for</span> <span class="o">((</span><span class="nv">i</span> <span class="o">=</span> 0<span class="p">;</span> i &lt; <span class="k">${</span><span class="nv">DEPTH</span><span class="k">}</span><span class="p">;</span> i++<span class="o">))</span><span class="p">;</span> <span class="k">do</span>
+</span><span class='line'>        <span class="nv">HEADER</span><span class="o">=</span><span class="s2">&quot;  ${HEADER}&quot;</span>
+</span><span class='line'>        <span class="nv">FOOTER</span><span class="o">=</span><span class="s2">&quot;  ${FOOTER}&quot;</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">XML</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="s2">&quot;${HEADER}&quot;</span><span class="sb">`</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">CONTENT</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">ITEM_DEPTH</span><span class="o">=</span><span class="sb">`</span>expr <span class="k">${</span><span class="nv">DEPTH</span><span class="k">}</span> + 1<span class="sb">`</span>
+</span><span class='line'>    <span class="k">for</span> ITEM in <span class="sb">`</span>ls <span class="k">${</span><span class="nv">FOLDER</span><span class="k">}</span><span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+</span><span class='line'>        <span class="nb">local </span><span class="nv">ITEM_PATH</span><span class="o">=</span><span class="s2">&quot;${FOLDER}/${ITEM}&quot;</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">[[</span> -f <span class="s2">&quot;${ITEM_PATH}&quot;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span><span class='line'>            <span class="nv">CONTENT</span><span class="o">=</span><span class="s2">&quot;${CONTENT}\n`file_xml ${ITEM_PATH} ${ITEM_DEPTH}`&quot;</span>
+</span><span class='line'>        <span class="k">elif</span> <span class="o">[[</span> -d <span class="s2">&quot;${ITEM_PATH}&quot;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span><span class='line'>            <span class="nv">CONTENT</span><span class="o">=</span><span class="s2">&quot;${CONTENT}\n`folder_xml ${ITEM_PATH} ${ITEM_DEPTH}`&quot;</span>
+</span><span class='line'>        <span class="k">fi</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nv">XML</span><span class="o">=</span><span class="s2">&quot;${XML}`echo &quot;</span><span class="k">${</span><span class="nv">CONTENT</span><span class="k">}</span><span class="s2">&quot;`&quot;</span>
+</span><span class='line'>    <span class="nv">XML</span><span class="o">=</span><span class="s2">&quot;${XML}\n`echo &quot;</span><span class="k">${</span><span class="nv">FOOTER</span><span class="k">}</span><span class="s2">&quot;`&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;${XML}&quot;</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">RES_PATH</span><span class="o">=</span><span class="s2">&quot;`dirname ${CCS_FILE}`/cocosstudio/&quot;</span>
+</span><span class='line'><span class="c"># CONTENT=`folder_xml ${RES_PATH} ${INITIAL_XML_DEPTH}`</span>
+</span><span class='line'><span class="nv">CONTENT</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+</span><span class='line'><span class="k">for</span> ITEM in <span class="sb">`</span>ls <span class="k">${</span><span class="nv">RES_PATH</span><span class="k">}</span><span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="nv">ITEM_PATH</span><span class="o">=</span><span class="s2">&quot;${RES_PATH}/${ITEM}&quot;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> -f <span class="s2">&quot;${ITEM_PATH}&quot;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span><span class='line'>        <span class="nv">CONTENT</span><span class="o">=</span><span class="s2">&quot;${CONTENT}\n`file_xml ${ITEM_PATH} ${INITIAL_XML_DEPTH}`&quot;</span>
+</span><span class='line'>    <span class="k">elif</span> <span class="o">[[</span> -d <span class="s2">&quot;${ITEM_PATH}&quot;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span><span class='line'>        <span class="nv">CONTENT</span><span class="o">=</span><span class="s2">&quot;${CONTENT}\n`folder_xml ${ITEM_PATH} ${INITIAL_XML_DEPTH}`&quot;</span>
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="k">done</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">printf</span> <span class="s2">&quot;${HEADER}&quot;</span> &gt; <span class="k">${</span><span class="nv">CCS_FILE</span><span class="k">}</span>
+</span><span class='line'><span class="nb">printf</span> <span class="s2">&quot;${CONTENT}&quot;</span> &gt;&gt; <span class="k">${</span><span class="nv">CCS_FILE</span><span class="k">}</span>
+</span><span class='line'><span class="nb">printf</span> <span class="s2">&quot;${FOOTER}&quot;</span> &gt;&gt; <span class="k">${</span><span class="nv">CCS_FILE</span><span class="k">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span> (refresh_cocostudio_proj.sh)</span> <a href='/blog/downloads/code/cocostudio/bash/refresh_cocostudio_proj.sh'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'><span class="c"># Refresh the following files of the given cocostudio project:</span>
+</span><span class='line'><span class="c"># *.ccs</span>
+</span><span class='line'><span class="c"># *.csi: cocostudio SpriteFrameSheet</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">UI_PROJECT_PATH</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">PWD</span><span class="o">=</span><span class="sb">`</span>dirname <span class="nv">$0</span><span class="sb">`</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">for</span> RES_PATH in <span class="sb">`</span>find <span class="s2">&quot;${UI_PROJECT_PATH}&quot;</span> -name <span class="s2">&quot;cocosstudio&quot;</span><span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+</span><span class='line'><span class="c">#    echo ${RES_PATH}</span>
+</span><span class='line'>    <span class="k">for</span> CSI_FILE in <span class="sb">`</span>find <span class="s2">&quot;${RES_PATH}&quot;</span> -name <span class="s2">&quot;*.csi&quot;</span><span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+</span><span class='line'>        <span class="nb">echo</span> <span class="s2">&quot;Refresh CSI: ${CSI_FILE}&quot;</span>
+</span><span class='line'>        <span class="k">${</span><span class="nv">PWD</span><span class="k">}</span>/refresh_csi.sh <span class="k">${</span><span class="nv">CSI_FILE</span><span class="k">}</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'><span class="k">done</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">for</span> CSD_FILE in <span class="sb">`</span>find <span class="s2">&quot;${UI_PROJECT_PATH}&quot;</span> -name <span class="s2">&quot;*.csd&quot;</span><span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;Refresh CSD: ${CSD_FILE}&quot;</span>
+</span><span class='line'>    <span class="k">${</span><span class="nv">PWD</span><span class="k">}</span>/refresh_csd.sh <span class="k">${</span><span class="nv">CSD_FILE</span><span class="k">}</span>
+</span><span class='line'><span class="k">done</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">for</span> CCS_FILE in <span class="sb">`</span>find <span class="s2">&quot;${UI_PROJECT_PATH}&quot;</span> -name <span class="s2">&quot;*.ccs&quot;</span><span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;Refresh CCS: ${CCS_FILE}&quot;</span>
+</span><span class='line'>    <span class="k">${</span><span class="nv">PWD</span><span class="k">}</span>/refresh_ccs.sh <span class="k">${</span><span class="nv">CCS_FILE</span><span class="k">}</span>
+</span><span class='line'><span class="k">done</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>肿么又是shell？用渣win的筒子们，本渣没有放弃你们，有<code>Python</code>版！还好，这些写起来可没有之前找<code>rsync</code>的<code>Python</code>库那么麻烦&hellip;&hellip;
+这些脚本都放到了<a href="https://github.com/yszheda/cocostudio_scripts">这里</a></p>
+
+<p>对了，你们最后还是需要打开<code>cocostudio</code>发布一下csb的，因为<code>cocostudio</code>代码没公开，本渣不造它是肿么生成二进制文件的，否则早就想放脚本里了&hellip;&hellip;</p>
+
+<ul>
+<li><p><strong>Q. 每次往图集项目目录里添加或修改图片后都要打开<code>TexturePacker</code>点publish吗？</strong></p></li>
+<li><p>A:
+不用，因为<code>TexturePacker</code>有命令行工具，本渣又写好了脚本&hellip;&hellip;你懂的。</p></li>
+<li><p><strong>Q. 之前提到<code>TexturePacker</code>有一些选项（例如"Size constraints"选项）不能用默认值，如果我忘了改怎么办？</strong></p></li>
+</ul>
+
+
+<p>唉，本渣造你们和我一样懒啦，早就写了批量更新<code>TexturePacker</code>的tps项目文件的<a href="https://gist.github.com/yszheda/655d565e832b38beeb098ccfca68b684">脚本</a>。另外，本渣还发现，tps里记录的是文件的相对路径，由于一些人放的相对路径与项目版本控制主线里的相对路径不一致产生了问题，有的甚至还带有中文路径，脚本里也做了相应的检查和处理。</p>
+
+<figure class='code'><figcaption><span> (refresh_tps.py)</span> <a href='/blog/downloads/code/refresh_tps.py'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c">#!/usr/bin/env python</span>
+</span><span class='line'><span class="c"># coding:utf-8</span>
+</span><span class='line'><span class="c"># Refresh TexturePacker *.tps</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">sys</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">os</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">xml.sax</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">cStringIO</span>
+</span><span class='line'><span class="c"># import string</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">re</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">shutil</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">CJK_REGEX</span> <span class="o">=</span> <span class="s">ur&#39;[\u4e00-\u9fff]+&#39;</span>
+</span><span class='line'><span class="c"># Configure your resource path here</span>
+</span><span class='line'><span class="c"># e.g. &#39;resources/${lang}/images&#39;, you should put &#39;resources/{1}/images&#39;</span>
+</span><span class='line'><span class="n">DEFAULT_RES_PATH_FORMAT</span> <span class="o">=</span> <span class="s">&#39;XXX/{1}&#39;</span>
+</span><span class='line'><span class="n">TP_PROJ_ROOT</span> <span class="o">=</span> <span class="s">&#39;tp_proj&#39;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">TPSHandler</span><span class="p">(</span><span class="n">xml</span><span class="o">.</span><span class="n">sax</span><span class="o">.</span><span class="n">ContentHandler</span><span class="p">):</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">lang</span><span class="p">):</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">output</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">lang</span> <span class="o">=</span> <span class="n">lang</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="bp">None</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="bp">None</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">startElement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">attributes</span><span class="p">):</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">startElement</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">attributes</span><span class="p">)</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="n">tag</span>
+</span><span class='line'>        <span class="c"># print self.tag, self.key</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">endElement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">endElement</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># A simple way to check CJK characters</span>
+</span><span class='line'>    <span class="c"># http://stackoverflow.com/questions/2718196/find-all-chinese-text-in-a-string-using-python-and-regex</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">containsCJK</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">CJK_REGEX</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">CJKAlert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">u&quot;</span><span class="si">%s</span><span class="s"> 含有中文字符: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">defaultResPath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">DEFAULT_RES_PATH_FORMAT</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lang</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">resetPath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+</span><span class='line'>        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+</span><span class='line'>            <span class="bp">self</span><span class="o">.</span><span class="n">defaultResPath</span><span class="p">(),</span>
+</span><span class='line'>            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">content</span><span class="p">),</span>
+</span><span class='line'>        <span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">characters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+</span><span class='line'>        <span class="k">if</span> <span class="ow">not</span> <span class="n">content</span><span class="o">.</span><span class="n">isspace</span><span class="p">():</span>
+</span><span class='line'>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s">&#39;key&#39;</span><span class="p">:</span>
+</span><span class='line'>                <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">content</span>
+</span><span class='line'>            <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+</span><span class='line'>                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="s">&#39;dataFormat&#39;</span><span class="p">:</span>
+</span><span class='line'>                        <span class="n">content</span> <span class="o">=</span> <span class="s">&#39;cocos2d&#39;</span>
+</span><span class='line'>                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="s">&#39;sizeConstraints&#39;</span><span class="p">:</span>
+</span><span class='line'>                        <span class="n">content</span> <span class="o">=</span> <span class="s">&#39;AnySize&#39;</span>
+</span><span class='line'>                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="s">&#39;textureFileName&#39;</span><span class="p">:</span>
+</span><span class='line'>                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">containsCJK</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
+</span><span class='line'>                            <span class="bp">self</span><span class="o">.</span><span class="n">CJKAlert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+</span><span class='line'>                            <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resetPath</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+</span><span class='line'>                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="s">&#39;dataFileName&#39;</span><span class="p">:</span>
+</span><span class='line'>                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">containsCJK</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
+</span><span class='line'>                            <span class="bp">self</span><span class="o">.</span><span class="n">CJKAlert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+</span><span class='line'>                            <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resetPath</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+</span><span class='line'>                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="s">&#39;javaFileName&#39;</span><span class="p">:</span>
+</span><span class='line'>                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">containsCJK</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
+</span><span class='line'>                            <span class="bp">self</span><span class="o">.</span><span class="n">CJKAlert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+</span><span class='line'>                            <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resetPath</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">characters</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">get_new_content</span><span class="p">(</span><span class="n">tps_file</span><span class="p">,</span> <span class="n">lang</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">parser</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">sax</span><span class="o">.</span><span class="n">make_parser</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">xml_content_buf</span> <span class="o">=</span> <span class="n">cStringIO</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">xml_generator</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">sax</span><span class="o">.</span><span class="n">saxutils</span><span class="o">.</span><span class="n">XMLGenerator</span><span class="p">(</span><span class="n">xml_content_buf</span><span class="p">,</span> <span class="s">&#39;UTF-8&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">xml_generator</span><span class="o">.</span><span class="n">startDocument</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">parser</span><span class="o">.</span><span class="n">setContentHandler</span><span class="p">(</span><span class="n">TPSHandler</span><span class="p">(</span><span class="n">xml_generator</span><span class="p">,</span> <span class="n">lang</span><span class="p">))</span>
+</span><span class='line'>    <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">tps_file</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">xml_generator</span><span class="o">.</span><span class="n">endDocument</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># print xml_content_buf.getvalue()</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">xml_content_buf</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">write_tps_file</span><span class="p">(</span><span class="n">tps_file</span><span class="p">,</span> <span class="n">buf</span><span class="p">):</span>
+</span><span class='line'>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tps_file</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">buf</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">fd</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c"># From Python Cookbook</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">splitall</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">allparts</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'>    <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">parts</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">path</span><span class="p">:</span>  <span class="c"># sentinel for absolute paths</span>
+</span><span class='line'>            <span class="n">allparts</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span class='line'>            <span class="k">break</span>
+</span><span class='line'>        <span class="k">elif</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">path</span><span class="p">:</span>  <span class="c"># sentinel for relative paths</span>
+</span><span class='line'>            <span class="n">allparts</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</span><span class='line'>            <span class="k">break</span>
+</span><span class='line'>        <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>            <span class="n">path</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span class='line'>            <span class="n">allparts</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">allparts</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">get_lang</span><span class="p">(</span><span class="n">tps_file</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">tps_file</span><span class="p">)</span>
+</span><span class='line'>    <span class="c"># Find last occurrence of TP_PROJ_ROOT in the full path</span>
+</span><span class='line'>    <span class="n">path_regex</span> <span class="o">=</span> <span class="n">TP_PROJ_ROOT</span> <span class="o">+</span> <span class="s">&#39;(.*)&#39;</span>
+</span><span class='line'>    <span class="n">postfix</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">path_regex</span><span class="p">,</span> <span class="n">full_path</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</span><span class='line'>    <span class="c"># NOTE: the first element of postfix is &#39;/&#39; or &#39;\&#39;</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">splitall</span><span class="p">(</span><span class="n">postfix</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">refresh_tps_file</span><span class="p">(</span><span class="n">tps_file</span><span class="p">):</span>
+</span><span class='line'>    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tps_file</span><span class="p">):</span>
+</span><span class='line'>        <span class="n">err_msg</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> is not existed!&quot;</span> <span class="o">%</span> <span class="n">tps_file</span>
+</span><span class='line'>        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">lang</span> <span class="o">=</span> <span class="n">get_lang</span><span class="p">(</span><span class="n">tps_file</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">new_content</span> <span class="o">=</span> <span class="n">get_new_content</span><span class="p">(</span><span class="n">tps_file</span><span class="p">,</span> <span class="n">lang</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">write_tps_file</span><span class="p">(</span><span class="n">tps_file</span><span class="p">,</span> <span class="n">new_content</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">tps_file</span> <span class="o">=</span> <span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tps_file</span><span class="p">):</span>
+</span><span class='line'>        <span class="n">refresh_tps_file</span><span class="p">(</span><span class="n">tps_file</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">err_msg</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> is not existed!&quot;</span> <span class="o">%</span> <span class="n">tps_file</span>
+</span><span class='line'>        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span class='line'>    <span class="n">main</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Future Works</h1>
+
+<p>本渣看到sunjiahua大神写了把<code>Photoshop</code>的psd文件转化成<code>cocostudio</code>的csd文件的<a href="https://github.com/sunjianhua/PhotoshopLayerToCocosStudioCSD">工具</a>，如果针对上述流程也有一套psd2csd的工具，那么将会进一步简化流程，提升工作效率。不过大神的工具暂时无法直接拿来用，psd脚本竟然是用混乱邪恶的<code>js</code>，还是等本渣有空以后再继续折腾吧&hellip;&hellip;</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Galoisplusplus</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-09-18T23:22:00+08:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/blog/categories/cocos2d-x/'>cocos2d-x</a>, <a class='category' href='/blog/blog/categories/cs/'>cs</a>, <a class='category' href='/blog/blog/categories/tech/'>tech</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://yszheda.github.io/blog/blog/2015/09/18/ui-workflow-for-cocos2d-x-project/" data-via="" data-counturl="http://yszheda.github.io/blog/blog/2015/09/18/ui-workflow-for-cocos2d-x-project/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/blog/2015/09/05/Shlomo-Mintz-Plays-Bach-Partita-for-Solo-Violin/" title="Previous Post: Shlomo Mintz演奏巴赫小无组曲">&laquo; Shlomo Mintz演奏巴赫小无组曲</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/blog/2015/10/24/The-24-hour-Ring-by-Tyrolean-Festival-Erl/" title="Next Post: 蒂罗尔音乐节24小时音乐会版《指环》随想">蒂罗尔音乐节24小时音乐会版《指环》随想 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/blog/2019/04/07/macbeth-by-tang-shu-wing/">《麦克白》的布莱希特剧场实践</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2019/01/01/those-concerts-in-2018/">盘点2018年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/05/22/cudaErrorCudartUnloading/">cudaErrorCudartUnloading问题排查及建议方案</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2018/01/01/those-concerts-in-2017/">盘点2017年度的现场音乐会</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2017/11/11/Jonas-Kaufmann-recital/">Jonas Kaufmann独奏会之艺术歌曲</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<!--
+Copyright &copy; 2020 - Galoisplusplus -
+-->
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+</body>
+</html>

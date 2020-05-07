@@ -4,7 +4,7 @@
   <title><![CDATA[Category: debug | Galoisplusplus]]></title>
   <link href="http://yszheda.github.io/blog/blog/categories/debug/atom.xml" rel="self"/>
   <link href="http://yszheda.github.io/blog/"/>
-  <updated>2020-05-06T20:55:06+08:00</updated>
+  <updated>2020-05-07T20:38:55+08:00</updated>
   <id>http://yszheda.github.io/blog/</id>
   <author>
     <name><![CDATA[Galoisplusplus]]></name>
@@ -143,16 +143,15 @@ while(gdb_break) {};
 二者如果你在「测试-发布-测试-&hellip;」的开发周期里，debug模式所加的代码经常要「加入-删掉-加入-&hellip;」很是蛋疼。</p>
 
 <p>（
-什么？你犯二了，在源代码中加了一句
-```c</p>
+什么？你犯二了，在源代码中加了一句</p>
 
-<h1>define MPI_DEBUG</h1>
-
-<pre><code>好吧，你也可以不改动这一句，只需在编译时加入
+<pre><code class="c">#define MPI_DEBUG
 </code></pre>
 
-<p>-UMPI_DEBUG
-```
+<p>好吧，你也可以不改动这一句，只需在编译时加入
+<code>
+-UMPI_DEBUG
+</code>
 就可以生成正常模式的可执行文件。
 ）</p>
 
@@ -221,89 +220,168 @@ mpirun [mpirun-args] -x INITIAL_SLEEP_TIME &lt;application&gt; [app-args]
 <p>这里就简单以我碰到的一个悲剧为例吧，
 BTW为了找到bug，我在编译时没有加优化参数。
 以下是运行时吐出的一堆错误信息（555好长好长的）：
-```
-$ mpirun -np 2 ./mandelbrot_mpi_static 10 -2 2 -2 2 100 100 disable
-[PP01:13214] <strong><em> Process received signal </em></strong>
-[PP01:13215] <strong><em> Process received signal </em></strong>
-[PP01:13215] Signal: Segmentation fault (11)
-[PP01:13215] Signal code: Address not mapped (1)
-[PP01:13215] Failing at address: 0x1123000
-[PP01:13214] Signal: Segmentation fault (11)
-[PP01:13214] Signal code: Address not mapped (1)
-[PP01:13214] Failing at address: 0xbf7000
-[PP01:13214] [ 0] /lib64/libpthread.so.0(+0xf500) [0x7f6917014500]
-[PP01:13215] [ 0] /lib64/libpthread.so.0(+0xf500) [0x7f41a45d9500]
-[PP01:13215] [ 1] /lib64/libc.so.6(memcpy+0x15b) [0x7f41a42c0bfb]
-[PP01:13215] [ 2] /opt/OPENMPI-1.4.4/lib/libmpi.so.0
-(ompi_convertor_pack+0x14a) [0x7f41a557325a]
-[PP01:13215] [ 3] /opt/OPENMPI-1.4.4/lib/openmpi/mca_btl_sm.so
-(+0x1ccd) [0x7f41a1189ccd]
-[PP01:13215] [ 4] /opt/OPENMPI-1.4.4/lib/openmpi/mca_pml_ob1.so
-(+0xc51b) [0x7f41a19a651b]
-[PP01:13215] [ 5] /opt/OPENMPI-1.4.4/lib/openmpi/mca_pml_ob1.so
-(+0x7dd8) [0x7f41a19a1dd8]
-[PP01:13215] [ 6] /opt/OPENMPI-1.4.4/lib/openmpi/mca_btl_sm.so
-(+0x4078) [0x7f41a118c078]
-[PP01:13215] [ 7] /opt/OPENMPI-1.4.4/lib/libopen-pal.so.0
-(opal_progress+0x5a) [0x7f41a509be8a]
-[PP01:13215] [ 8] /opt/OPENMPI-1.4.4/lib/openmpi/mca_pml_ob1.so
-(+0x552d) [0x7f41a199f52d]
-[PP01:13215] [ 9] /opt/OPENMPI-1.4.4/lib/openmpi/mca_coll_sync.so
-(+0x1742) [0x7f41a02e3742]
-[PP01:13215] [10] /opt/OPENMPI-1.4.4/lib/libmpi.so.0
-(MPI_Gatherv+0x116) [0x7f41a5580906]
-[PP01:13215] [11] ./mandelbrot_mpi_static(main+0x68c) [0x401b16]
-[PP01:13215] [12] /lib64/libc.so.6(<strong>libc_start_main+0xfd) [0x7f41a4256cdd]
-[PP01:13215] [13] ./mandelbrot_mpi_static() [0x4010c9]
-[PP01:13215] <strong><em> End of error message </em></strong>
-[PP01:13214] [ 1] /lib64/libc.so.6(memcpy+0x15b) [0x7f6916cfbbfb]
-[PP01:13214] [ 2] /opt/OPENMPI-1.4.4/lib/libmpi.so.0
-(ompi_convertor_unpack+0xca) [0x7f6917fae04a]
-[PP01:13214] [ 3] /opt/OPENMPI-1.4.4/lib/openmpi/mca_pml_ob1.so
-(+0x9621) [0x7f69143de621]
-[PP01:13214] [ 4] /opt/OPENMPI-1.4.4/lib/openmpi/mca_btl_sm.so
-(+0x4078) [0x7f6913bc7078]
-[PP01:13214] [ 5] /opt/OPENMPI-1.4.4/lib/libopen-pal.so.0
-(opal_progress+0x5a) [0x7f6917ad6e8a]
-[PP01:13214] [ 6] /opt/OPENMPI-1.4.4/lib/openmpi/mca_pml_ob1.so
-(+0x48b5) [0x7f69143d98b5]
-[PP01:13214] [ 7] /opt/OPENMPI-1.4.4/lib/openmpi/mca_coll_basic.so
-(+0x3a94) [0x7f6913732a94]
-[PP01:13214] [ 8] /opt/OPENMPI-1.4.4/lib/openmpi/mca_coll_sync.so
-(+0x1742) [0x7f6912d1e742]
-[PP01:13214] [ 9] /opt/OPENMPI-1.4.4/lib/libmpi.so.0
-(MPI_Gatherv+0x116) [0x7f6917fbb906]
-[PP01:13214] [10] ./mandelbrot_mpi_static(main+0x68c) [0x401b16]
-[PP01:13214] [11] /lib64/libc.so.6(</strong>libc_start_main+0xfd) [0x7f6916c91cdd]
-[PP01:13214] [12] ./mandelbrot_mpi_static() [0x4010c9]</p>
-
-<h2>[PP01:13214] <strong><em> End of error message </em></strong></h2>
-
-<p>mpirun noticed that process rank 1 with PID 13215</p>
-
-<h2>on node PP01 exited on signal 11 (Segmentation fault).</h2>
-
-<pre><code>
-注意到这一行：
-</code></pre>
-
-<p>[PP01:13215] [10] /opt/OPENMPI-1.4.4/lib/libmpi.so.0
-(MPI_Gatherv+0x116) [0x7f41a5580906]
-<code>
-通过（这跟在gdb中用disas指令是一样的）
-</code>
-objdump -D /opt/OPENMPI-1.4.4/lib/libmpi.so.0
-<code>
-找到MPI\_Gatherv的入口：
-</code>
-00000000000527f0 <PMPI_Gatherv>:
-<code>
-找到(MPI\_Gatherv+0x116)的位置（地址52906）：
-</code>
-   52906:       83 f8 00                cmp    $0x0,%eax
-   52909:       74 26                   je     52931 &lt;PMPI_Gatherv+0x141>
-   5290b:       0f 8c 37 02 00 00       jl     52b48 &lt;PMPI_Gatherv+0x358>
-```
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ mpirun -np 2 ./mandelbrot_mpi_static 10 -2 2 -2 2 100 100 disable
+</span><span class='line'>[PP01:13214] &lt;strong&gt;&lt;em&gt; Process received signal &lt;/em&gt;&lt;/strong&gt;
+</span><span class='line'>[PP01:13215] &lt;strong&gt;&lt;em&gt; Process received signal &lt;/em&gt;&lt;/strong&gt;
+</span><span class='line'>[PP01:13215] Signal: Segmentation fault (11)
+</span><span class='line'>[PP01:13215] Signal code: Address not mapped (1)
+</span><span class='line'>[PP01:13215] Failing at address: 0x1123000
+</span><span class='line'>[PP01:13214] Signal: Segmentation fault (11)
+</span><span class='line'>[PP01:13214] Signal code: Address not mapped (1)
+</span><span class='line'>[PP01:13214] Failing at address: 0xbf7000
+</span><span class='line'>[PP01:13214] [ 0] /lib64/libpthread.so.0(+0xf500) [0x7f6917014500]
+</span><span class='line'>[PP01:13215] [ 0] /lib64/libpthread.so.0(+0xf500) [0x7f41a45d9500]
+</span><span class='line'>[PP01:13215] [ 1] /lib64/libc.so.6(memcpy+0x15b) [0x7f41a42c0bfb]
+</span><span class='line'>[PP01:13215] [ 2] /opt/OPENMPI-1.4.4/lib/libmpi.so.0
+</span><span class='line'>(ompi_convertor_pack+0x14a) [0x7f41a557325a]
+</span><span class='line'>[PP01:13215] [ 3] /opt/OPENMPI-1.4.4/lib/openmpi/mca_btl_sm.so
+</span><span class='line'>(+0x1ccd) [0x7f41a1189ccd]
+</span><span class='line'>[PP01:13215] [ 4] /opt/OPENMPI-1.4.4/lib/openmpi/mca_pml_ob1.so
+</span><span class='line'>(+0xc51b) [0x7f41a19a651b]
+</span><span class='line'>[PP01:13215] [ 5] /opt/OPENMPI-1.4.4/lib/openmpi/mca_pml_ob1.so
+</span><span class='line'>(+0x7dd8) [0x7f41a19a1dd8]
+</span><span class='line'>[PP01:13215] [ 6] /opt/OPENMPI-1.4.4/lib/openmpi/mca_btl_sm.so
+</span><span class='line'>(+0x4078) [0x7f41a118c078]
+</span><span class='line'>[PP01:13215] [ 7] /opt/OPENMPI-1.4.4/lib/libopen-pal.so.0
+</span><span class='line'>(opal_progress+0x5a) [0x7f41a509be8a]
+</span><span class='line'>[PP01:13215] [ 8] /opt/OPENMPI-1.4.4/lib/openmpi/mca_pml_ob1.so
+</span><span class='line'>(+0x552d) [0x7f41a199f52d]
+</span><span class='line'>[PP01:13215] [ 9] /opt/OPENMPI-1.4.4/lib/openmpi/mca_coll_sync.so
+</span><span class='line'>(+0x1742) [0x7f41a02e3742]
+</span><span class='line'>[PP01:13215] [10] /opt/OPENMPI-1.4.4/lib/libmpi.so.0
+</span><span class='line'>(MPI_Gatherv+0x116) [0x7f41a5580906]
+</span><span class='line'>[PP01:13215] [11] ./mandelbrot_mpi_static(main+0x68c) [0x401b16]
+</span><span class='line'>[PP01:13215] [12] /lib64/libc.so.6(&lt;strong&gt;libc_start_main+0xfd) [0x7f41a4256cdd]
+</span><span class='line'>[PP01:13215] [13] ./mandelbrot_mpi_static() [0x4010c9]
+</span><span class='line'>[PP01:13215] &lt;strong&gt;&lt;em&gt; End of error message &lt;/em&gt;&lt;/strong&gt;
+</span><span class='line'>[PP01:13214] [ 1] /lib64/libc.so.6(memcpy+0x15b) [0x7f6916cfbbfb]
+</span><span class='line'>[PP01:13214] [ 2] /opt/OPENMPI-1.4.4/lib/libmpi.so.0
+</span><span class='line'>(ompi_convertor_unpack+0xca) [0x7f6917fae04a]
+</span><span class='line'>[PP01:13214] [ 3] /opt/OPENMPI-1.4.4/lib/openmpi/mca_pml_ob1.so
+</span><span class='line'>(+0x9621) [0x7f69143de621]
+</span><span class='line'>[PP01:13214] [ 4] /opt/OPENMPI-1.4.4/lib/openmpi/mca_btl_sm.so
+</span><span class='line'>(+0x4078) [0x7f6913bc7078]
+</span><span class='line'>[PP01:13214] [ 5] /opt/OPENMPI-1.4.4/lib/libopen-pal.so.0
+</span><span class='line'>(opal_progress+0x5a) [0x7f6917ad6e8a]
+</span><span class='line'>[PP01:13214] [ 6] /opt/OPENMPI-1.4.4/lib/openmpi/mca_pml_ob1.so
+</span><span class='line'>(+0x48b5) [0x7f69143d98b5]
+</span><span class='line'>[PP01:13214] [ 7] /opt/OPENMPI-1.4.4/lib/openmpi/mca_coll_basic.so
+</span><span class='line'>(+0x3a94) [0x7f6913732a94]
+</span><span class='line'>[PP01:13214] [ 8] /opt/OPENMPI-1.4.4/lib/openmpi/mca_coll_sync.so
+</span><span class='line'>(+0x1742) [0x7f6912d1e742]
+</span><span class='line'>[PP01:13214] [ 9] /opt/OPENMPI-1.4.4/lib/libmpi.so.0
+</span><span class='line'>(MPI_Gatherv+0x116) [0x7f6917fbb906]
+</span><span class='line'>[PP01:13214] [10] ./mandelbrot_mpi_static(main+0x68c) [0x401b16]
+</span><span class='line'>[PP01:13214] [11] /lib64/libc.so.6(&lt;/strong&gt;libc_start_main+0xfd) [0x7f6916c91cdd]
+</span><span class='line'>[PP01:13214] [12] ./mandelbrot_mpi_static() [0x4010c9]&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;h2&gt;[PP01:13214] &lt;strong&gt;&lt;em&gt; End of error message &lt;/em&gt;&lt;/strong&gt;&lt;/h2&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;mpirun noticed that process rank 1 with PID 13215&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;h2&gt;on node PP01 exited on signal 11 (Segmentation fault).&lt;/h2&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;pre&gt;&lt;code&gt;
+</span><span class='line'>注意到这一行：
+</span><span class='line'>&lt;/code&gt;&lt;/pre&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;[PP01:13215] [10] /opt/OPENMPI-1.4.4/lib/libmpi.so.0
+</span><span class='line'>(MPI_Gatherv+0x116) [0x7f41a5580906]
+</span><span class='line'>&lt;code&gt;
+</span><span class='line'>通过（这跟在gdb中用disas指令是一样的）
+</span><span class='line'>&lt;/code&gt;
+</span><span class='line'>objdump -D /opt/OPENMPI-1.4.4/lib/libmpi.so.0
+</span><span class='line'>&lt;code&gt;
+</span><span class='line'>找到MPI\_Gatherv的入口：
+</span><span class='line'>&lt;/code&gt;
+</span><span class='line'>00000000000527f0 &lt;PMPI_Gatherv&gt;:
+</span><span class='line'>&lt;code&gt;
+</span><span class='line'>找到(MPI\_Gatherv+0x116)的位置（地址52906）：
+</span><span class='line'>&lt;/code&gt;
+</span><span class='line'>   52906:       83 f8 00                cmp    $0x0,%eax
+</span><span class='line'>   52909:       74 26                   je     52931 &lt;PMPI_Gatherv+0x141&gt;
+</span><span class='line'>   5290b:       0f 8c 37 02 00 00       jl     52b48 &lt;PMPI_Gatherv+0x358&gt;</span></code></pre></td></tr></table></div></figure>
 地址为52931的&lt;PMPI_Gatherv+0x141>之后的code主要是return，%eax应该是判断是否要return的counter。
 现在寄存器%eax就成了最大的嫌疑，有理由<del> 相信 </del>猜某个对该寄存器的不正确操作导致了segmentation fault。
 <del>好吧，其实debug很多时候还得靠猜，

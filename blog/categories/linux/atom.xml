@@ -4,7 +4,7 @@
   <title><![CDATA[Category: linux | Galoisplusplus]]></title>
   <link href="http://yszheda.github.io/blog/blog/categories/linux/atom.xml" rel="self"/>
   <link href="http://yszheda.github.io/blog/"/>
-  <updated>2020-05-06T20:55:06+08:00</updated>
+  <updated>2020-05-07T20:38:55+08:00</updated>
   <id>http://yszheda.github.io/blog/</id>
   <author>
     <name><![CDATA[Galoisplusplus]]></name>
@@ -54,7 +54,7 @@
 
 <p>本渣最后解决前面提到的两个问题的黑科技是：把<code>require</code> client端代码的部分从<code>nginx</code>的content阶段，挪到了<code>nginx</code> lua module的init阶段：</p>
 
-<p>{% img <a href="https://cloud.githubusercontent.com/assets/2137369/15272097/77d1c09e-1a37-11e6-97ef-d9767035fc3e.png">https://cloud.githubusercontent.com/assets/2137369/15272097/77d1c09e-1a37-11e6-97ef-d9767035fc3e.png</a> %}</p>
+<p><img class="<a" src="href="https://cloud.githubusercontent.com/assets/2137369/15272097/77d1c09e-1a37-11e6-97ef-d9767035fc3e.png">https://cloud.githubusercontent.com/assets/2137369/15272097/77d1c09e-1a37-11e6-97ef-d9767035fc3e.png</a>"></p>
 
 <p>init阶段会在<code>nginx</code> master进程加载<code>nginx</code>配置时执行，之后才由master进程clone出worker进程。全局常量放在这个阶段初始化，就不会有某些worker进程没有定义全局变量的报错；处理策划表的代码放在这个阶段执行，就把CPU开销转移到加载<code>nginx</code>配置上，不会增加请求的响应时间，可谓是一石二鸟。</p>
 
@@ -289,11 +289,11 @@ root hard     nofile         65535
 
 <p>不采用HTTP Keep-Alive，请求某一网页的html和css会通过不同的TCP连接去完成：</p>
 
-<p>{% img <a href="https://hpbn.co/assets/diagrams/84cf0f29175e4b11a2343e73105637c5.svg">https://hpbn.co/assets/diagrams/84cf0f29175e4b11a2343e73105637c5.svg</a> %}</p>
+<p><img class="<a" src="href="https://hpbn.co/assets/diagrams/84cf0f29175e4b11a2343e73105637c5.svg">https://hpbn.co/assets/diagrams/84cf0f29175e4b11a2343e73105637c5.svg</a>"></p>
 
 <p>同样的场景，采用HTTP Keep-Alive，就可以在同一TCP连接中请求尽可能多的资源，从而避免建立TCP连接的overhead：</p>
 
-<p>{% img <a href="https://hpbn.co/assets/diagrams/cf6057a54f005a288d832d293965ee0d.svg">https://hpbn.co/assets/diagrams/cf6057a54f005a288d832d293965ee0d.svg</a> %}</p>
+<p><img class="<a" src="href="https://hpbn.co/assets/diagrams/cf6057a54f005a288d832d293965ee0d.svg">https://hpbn.co/assets/diagrams/cf6057a54f005a288d832d293965ee0d.svg</a>"></p>
 
 <p>以上两张图是从Ilya Grigorik的<a href="https://hpbn.co/">High Performance Browser Networking</a>引用过来的，如果你对HTTP Keep-Alive不熟悉的话，可以参考下这本书。</p>
 
