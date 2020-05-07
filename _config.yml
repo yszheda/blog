@@ -3,11 +3,12 @@
 # ----------------------- #
 
 url: http://yszheda.github.io/blog
-title: My Octopress Blog
-subtitle: A blogging framework for hackers.
-author: Your Name
-simple_search: https://www.google.com/search
-description:
+title: Galoisplusplus
+subtitle: A fan of science, technology and Classical music.
+author: Galoisplusplus
+simple_search: http://google.com/search
+description: 記錄一些思考和技術筆記，或許會亂入些古典音樂~
+keywords: cocos2d-x, game develop, quick-cocos2d-x, cocos, cocos2d, lua, c++, c, Computer Science, Technology, Programming, Free Software, GNU, Linux, Storage System, Erasure Codes, Vim, Archlinux, Architecture, Classical Music
 
 # Default date format is "ordinal" (resulting in "July 22nd 2007")
 # You can customize the format as defined in
