@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/custom.css" media="screen">
+
+        <link rel="dns-prefetch" href="//fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+
+        <meta name="author" content="Galoisplusplus" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="cocos2d-x, CS, tech, quick, quickx, quick-cocos2d-x, cocos, cocos2d, 游戏开发, 手游开发, mobile game, game devolopment, tech, " />
+
+<meta property="og:title" content="cocos2d-x游戏的性能检测 "/>
+<meta property="og:url" content="http://yszheda.github.io/blog/2015/07/20/20150720-profilers-for-cocos2d-x.html" />
+<meta property="og:description" content="前段时间本渣负责了一些优化我们cocos2d-x游戏性能方面的工作，在这里做一点记录。 OpenGL指标 在debug版的cocos2d-x游戏里，通常会在左下角显示三个指标（当然，是否显示这三个指 …" />
+<meta property="og:site_name" content="Galoisplusplus" />
+<meta property="og:article:author" content="Galoisplusplus" />
+<meta property="og:article:published_time" content="2015-07-20T11:22:00+08:00" />
+<meta name="twitter:title" content="cocos2d-x游戏的性能检测 ">
+<meta name="twitter:description" content="前段时间本渣负责了一些优化我们cocos2d-x游戏性能方面的工作，在这里做一点记录。 OpenGL指标 在debug版的cocos2d-x游戏里，通常会在左下角显示三个指标（当然，是否显示这三个指 …">
+
+        <title>cocos2d-x游戏的性能检测  · Galoisplusplus
+</title>
+
+
+
+        <!-- MathJax for LaTeX support -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+            tex2jax: {
+              inlineMath: [['$', '$'], ['\\(', '\\)']],
+              displayMath: [['$$', '$$'], ['\\[', '\\]']],
+              processEscapes: true,
+              processEnvironments: true
+            }
+          });
+        </script>
+        <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    </head>
+    <body>
+        <div id="content">
+            <div class="navbar navbar-static-top">
+                <div class="navbar-inner">
+                    <div class="container-fluid">
+                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </a>
+                        <a class="brand" href="http://yszheda.github.io/blog/"><span class=site-name>Galoisplusplus</span></a>
+                        <div class="nav-collapse collapse">
+                            <ul class="nav pull-right top-menu">
+                                <li >
+                                    <a href=
+                                       http://yszheda.github.io/blog
+                                    >Home</a>
+                                </li>
+                                <li ><a href="http://yszheda.github.io/blog/categories.html">Categories</a></li>
+                                <li ><a href="http://yszheda.github.io/blog/tags.html">Tags</a></li>
+                                <li ><a href="http://yszheda.github.io/blog/archives.html">Archives</a></li>
+                                <li><form class="navbar-search" action="http://yszheda.github.io/blog/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+                <div class="row-fluid">
+                    <div class="span1"></div>
+                    <div class="span10">
+<article itemscope>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+        <h1>
+            <a href="http://yszheda.github.io/blog/2015/07/20/20150720-profilers-for-cocos2d-x.html">
+                cocos2d-x游戏的性能检测
+            </a>
+        </h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+            
+            <p>前段时间本渣负责了一些优化我们cocos2d-x游戏性能方面的工作，在这里做一点记录。</p>
+<!-- more -->
+
+<h1 id="opengl">OpenGL指标</h1>
+<p>在debug版的cocos2d-x游戏里，通常会在左下角显示三个指标（当然，是否显示这三个指标是可以配置的）：</p>
+<ul>
+<li>
+<p><code>GL verts</code>: 绘制的顶点数量</p>
+</li>
+<li>
+<p><code>GL calls</code>: 绘制次数</p>
+</li>
+<li>
+<p><code>FPS</code>: 帧率</p>
+</li>
+</ul>
+<p>可千万别小看了这三个不起眼的指标，对从它们入手进行分析常常能找到一些性能问题的症结。</p>
+<p><code>FPS</code>算是其中最容易理解的指标了，这个值当然是越高越好。根据<code>FPS</code>我们可以对性能问题做一些初步判断，确定是在哪个地方开始掉帧。此外，我们往往会碰到卡帧的情况，这时候画面像是突然被冻住了一般，这种情况其实与绘制渲染无关，而是因为在同一帧的计算量过大，CPU成为了瓶颈。针对这个问题就可以去定位计算的部分，对它进行优化或者将它拆到多帧里去做。</p>
+<p><code>GL calls</code>和<code>GL verts</code>都和绘制渲染有关，不过本渣以前在学校是做GPGPU的，并不觉得这主要是GPU的性能问题，而是数据或命令在CPU和GPU间传输时总线（bus）的问题。当数据量过大时，总线就成为了瓶颈。</p>
+<p>先说下<code>GL calls</code>，这个值越小越好，合理使用<a href="">auto batching</a>可以降低这一指标。最近本渣还通过这一指标意外地解决了我们游戏里的几个和<code>UIListView</code>相关的问题。这些问题都有一个共同点：滚动列表越滚越卡。本渣为此做了如下测试操作：在滚动列表处于初始位置时记下当前的<code>GL calls</code>（比方说记为<code>x</code>），在执行了若干次滚动操作后，让滚动列表回到初始位置，记下<code>GL calls</code>（比方说记为<code>y</code>）。此时前后两者的画面基本一致，绘制的开销应该也是一致的，也就是说<code>x</code>和<code>y</code>应该相等（当然，如果界面上有动画或者新加入的UI元素的话，可能会有些许偏差），然而有问题的地方<code>y</code>总是比<code>x</code>大，而且随着滚动操作的增加而增长。这就基本可以确认是没释放资源导致内存泄露了，review了下对应的代码果然如此：quick-cocos2d-x的<code>UIListView</code>有所谓的<code>async</code>模式，与cocos2d-x的<code>TableView</code>相似，并不会产生列表中的所有cells，而只产生显示区域的cells，当滚动产生新的cell时会先重用不在显示区域的cell实例（instance），从而降低开销；而有问题的代码（当然是本渣的队友小伙伴挖的坑啦，哈哈）在重用旧的cell实例时并没有把没用的UI资源释放掉，从而导致了这一问题。虽然我们码农通过代码并不难排查，但是<code>GL calls</code>这一指标提供了一种不需要看代码就能定位此类问题的方式，特别适合测试人员采用。</p>
+<p>最后说下<code>GL verts</code>，这个值也是越低越好。这里顺带提醒下，有些人想要隐藏某些UI元素时会把它们的透明度设为0、或者把它们完全遮挡住，cocos2d-x对于完全透明或者完全被遮挡的<code>node</code>还是会做绘制的，这时通过<code>GL verts</code>这一指标就可以看出放不放这些“隐藏”UI元素的开销是不同的了。此外还有隐式产生这一问题的情况，例如cocostudio中放入一个带颜色的完全透明的Panel，需要注意避免踩坑（BTW. cocos2d-x对于带颜色的Panel是用<code>LayerColor</code>类来处理的，在我们所用的v3.2版本中，这个类的渲染代码还会引起游戏crash！）。当然，要降低<code>GL verts</code>还是需要和美术大大沟通好的。例如美术大大绞尽脑汁出了一张很精致的大图，但游戏里用不到那么大，还要缩放成0.3倍，这张图不仅很多细节在手机上完全看不清，而且还增加了<code>GL verts</code>开销。要避免这种情况，还是要团队里成员合作好，在美术资源方面要定好合适的大小，控制好图片细节的精细度。</p>
+<h1 id="profiler">性能检测器（Profiler）</h1>
+<p>本渣之前玩过<code>gprof</code>和CUDA的<code>nvprof</code>，深知借助于专业的profiler可以给性能检测带来许多方便，于是前段时间也花了不少精力在找cocos2d-x相关的profiler。</p>
+<h2 id="android">Android</h2>
+<p><a href="http://www.cocos2d-x.org/wiki/Profiling_Cocos2d-x_with_ARM_DS-5_Streamline">官方文档</a>提到ARM的<code>streamline</code>工具，但本渣看下来后并没有采用：一者是需要编译内核，对于我们这种小厂，这种可能玩坏测试机的我们还是玩不起的；二者是这篇文档很旧，当时cocos2d-x只有v2，不确定在我们v3.2的版本上是否能跑起来，而且本渣也没查到其他人在cocos2d-x v3.0以上版本试水的资料。</p>
+<p>本渣最后用的是<code>android-ndk-profiler</code>，这个工具确实能正常运行并产生性能检测报告的。在cocos2d-x项目配置<code>android-ndk-profiler</code>基本照着leenjewel大神<a href="http://leenjewel.github.io/blog/2015/04/17/android-ping-tai-yong-gprof-gei-cocos2d-x-zuo-xing-neng-fen-xi/">这篇文章</a>就可以，因为leenjewel写得很详细，本渣的做法和他差不多，所以这里就不赘述了。<code>android-ndk-profiler</code>的输出基本和<code>gprof</code>一样，如果你不知道如何分析<code>gprof</code>报告的话可以参考<a href="http://www.linuxselfhelp.com/gnu/gprof/html_chapter/gprof_5.html">文档</a>。
+不过<code>android-ndk-profiler</code>一个很大的问题是采样：如果采样率太低，收集到的数据可能不具有代表性；但调高采样率往往会导致crash——像本渣就遇到过在游戏刚启动、画面还没出来时就崩溃了orz...这无疑带来了不少麻烦，目前本渣还木有好的解决方案。</p>
+<p>另外还有一些大神推荐高通的<a href="https://developer.qualcomm.com/software/adreno-gpu-profiler">Adreno Profiler</a>，本渣暂时还木有尝试～</p>
+<h2 id="ios">iOS</h2>
+<p>iOS下当然是用强大的<code>Instruments</code>啦！不过本渣更熟悉<code>Instruments</code>的内存检测工具，之前也曾用<code>Leaks</code>解决了一些<code>C++</code>代码的内存泄漏问题，在用<code>Instruments</code>做性能检测方面暂时没有什么心得～</p>
+<h1 id="android_1">Android开发者模式的性能检测工具</h1>
+<p>Android开发者模式里也有许多如检测GPU Overdraw等的工具，可以在做Android真机调试时进行性能检测和分析。当然，如何使用这些工具就不是本渣这里所要讨论的问题了哈～</p>
+<h1 id="_1">参考资料</h1>
+<p>ARM Streamline:</p>
+<ul>
+<li>
+<p><a href="https://community.arm.com/groups/tools/blog/2013/12/16/profiling-cocos2d-x-game-engine--ds-5-streamline-case-study">ARM官方文档：Profiling Cocos2d-x Game engine -- DS-5 Streamline case study</a></p>
+</li>
+<li>
+<p><a href="http://www.cocos2d-x.org/wiki/Profiling_Cocos2d-x_with_ARM_DS-5_Streamline">cocos2d-x官方wiki，和ARM的差不多：PROFILING COCOS2D-X WITH ARM DS-5 STREAMLINE</a></p>
+</li>
+</ul>
+<p><code>android-ndk-prof</code>：</p>
+<ul>
+<li>
+<p><a href="http://discuss.cocos2d-x.org/t/profiler-and-profiling-on-android-ndk/1218">Profiler and profiling on Android NDK</a></p>
+</li>
+<li>
+<p><a href="https://github.com/richq/android-ndk-profiler/blob/master/docs/Usage.md">android-ndk-profiler官方文档</a></p>
+</li>
+<li>
+<p><a href="http://leenjewel.github.io/blog/2015/04/17/android-ping-tai-yong-gprof-gei-cocos2d-x-zuo-xing-neng-fen-xi/">Android 平台用 Gprof 给 Cocos2d-x 做性能分析</a></p>
+</li>
+</ul>
+<p><code>Adreno Profiler</code>：</p>
+<ul>
+<li>
+<p><a href="http://qiankanglai.me/2015/05/16/Adreno-Profiler/">Adreno Profiler分析任意安卓游戏特效+抓取资源</a></p>
+</li>
+<li>
+<p><a href="http://www.cnblogs.com/ghl_carmack/p/5401906.html">使用Adreno Profiler分析android游戏</a></p>
+</li>
+<li>
+<p><a href="http://www.jikexueyuan.com/course/1369.html">高通在极客学院的课程“Adreno Profiler 性能分析工具解析”</a></p>
+</li>
+</ul>
+<p><code>Instruments</code>:</p>
+<ul>
+<li>
+<p><a href="http://www.cocos2d-x.org/wiki/How_to_Optimise_Memory_Usage">cocos2d-x官方wiki：HOW TO OPTIMISE MEMORY USAGE</a></p>
+</li>
+<li>
+<p><a href="http://www.cocos.com/doc/tutorial/show?id=1837">Cocos开发中性能优化工具介绍（一）：Xcode中Instruments工具使用</a></p>
+</li>
+<li>
+<p><a href="http://www.cnblogs.com/andyque/archive/2011/08/08/2131140.html">子龙山人大神的译文：怎样在xcode里面使用Memory Leaks和Instruments教程</a></p>
+</li>
+</ul>
+
+
+             
+ 
+            
+            
+            
+
+
+
+
+
+
+
+            <hr/>
+        </div>
+        <section id="article-sidebar" class="span2">
+            <h4>Published</h4>
+            <time itemprop="dateCreated" datetime="2015-07-20T11:22:00+08:00">Mon 20 July 2015</time>
+            <h4>Category</h4>
+            <a class="category-link" href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="http://yszheda.github.io/blog/tags.html#cocos-ref">cocos
+                    <span class="superscript">20</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#cocos2d-ref">cocos2d
+                    <span class="superscript">20</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#cocos2d-x-ref">cocos2d-x
+                    <span class="superscript">24</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#cs-ref">CS
+                    <span class="superscript">48</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#game-devolopment-ref">game devolopment
+                    <span class="superscript">21</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#mobile-game-ref">mobile game
+                    <span class="superscript">21</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#quick-ref">quick
+                    <span class="superscript">7</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#quick-cocos2d-x-ref">quick-cocos2d-x
+                    <span class="superscript">7</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#quickx-ref">quickx
+                    <span class="superscript">7</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#shou-you-kai-fa-ref">手游开发
+                    <span class="superscript">21</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#tech-ref">tech
+                    <span class="superscript">48</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#you-xi-kai-fa-ref">游戏开发
+                    <span class="superscript">21</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+<div id="sidebar-social-link">
+    <a href="https://github.com/yszheda" title="" target="_blank" rel="nofollow noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" aria-label="GitHub" role="img" viewBox="0 0 512 512"><rect width="512" height="512" rx="15%" fill="#1B1817"/><path fill="#fff" d="M335 499c14 0 12 17 12 17H165s-2-17 12-17c13 0 16-6 16-12l-1-50c-71 16-86-28-86-28-12-30-28-37-28-37-24-16 1-16 1-16 26 2 40 26 40 26 22 39 59 28 74 22 2-17 9-28 16-35-57-6-116-28-116-126 0-28 10-51 26-69-3-6-11-32 3-67 0 0 21-7 70 26 42-12 86-12 128 0 49-33 70-26 70-26 14 35 6 61 3 67 16 18 26 41 26 69 0 98-60 120-117 126 10 8 18 24 18 48l-1 70c0 6 3 12 16 12z"/></svg>
+    </a>
+    <a href="https://twitter.com/yszheda" title="" target="_blank" rel="nofollow noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" aria-label="Twitter" role="img" viewBox="0 0 512 512"><rect width="512" height="512" rx="15%" fill="#1da1f3"/><path fill="#fff" d="M437 152a72 72 0 0 1-40 12 72 72 0 0 0 32-40 72 72 0 0 1-45 17 72 72 0 0 0-122 65 200 200 0 0 1-145-74 72 72 0 0 0 22 94 72 72 0 0 1-32-7 72 72 0 0 0 56 69 72 72 0 0 1-32 1 72 72 0 0 0 67 50 200 200 0 0 1-105 29 200 200 0 0 0 309-179 200 200 0 0 0 35-37"/></svg>
+    </a>
+</div>
+            
+
+
+
+
+
+            
+
+
+
+
+
+        </section>
+</div>
+</article>
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides.
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo https://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>                    </div>
+                    <div class="span1"></div>
+                </div>
+            </div>
+        </div>
+<footer>
+
+
+
+
+    <div id="fpowered">
+        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
+        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
+    </div>
+</footer>            <script src="//code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script src="http://yszheda.github.io/blog/theme/js/elegant.prod.9e9d5ce754.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    <script>
+    (function () {
+        if (window.location.hash.match(/^#comment-\d+$/)) {
+            $('#comment_thread').collapse('show');
+        }
+    })();
+    window.onhashchange=function(){
+        if (window.location.hash.match(/^#comment-\d+$/))
+            window.location.reload(true);
+    }
+    $('#comment_thread').on('shown', function () {
+        var link = document.getElementById('comment-accordion-toggle');
+        var old_innerHTML = link.innerHTML;
+        $(link).fadeOut(200, function() {
+            $(this).text('Click here to hide comments').fadeIn(200);
+        });
+        $('#comment_thread').on('hidden', function () {
+            $(link).fadeOut(200, function() {
+                $(this).text(old_innerHTML).fadeIn(200);
+            });
+        })
+    })
+</script>
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+        License : MIT -->
+</html>

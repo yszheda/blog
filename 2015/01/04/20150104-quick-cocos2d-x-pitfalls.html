@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/custom.css" media="screen">
+
+        <link rel="dns-prefetch" href="//fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+
+        <meta name="author" content="Galoisplusplus" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="cocos2d-x, CS, tech, quick, quickx, quick-cocos2d-x, cocos, cocos2d, 游戏开发, 手游开发, mobile game, game devolopment, tech, " />
+
+<meta property="og:title" content="quick-cocos2d-x踩坑记——问题与解决方案 "/>
+<meta property="og:url" content="http://yszheda.github.io/blog/2015/01/04/20150104-quick-cocos2d-x-pitfalls.html" />
+<meta property="og:description" content="本渣最近一个月来开始接触quick-cocos2d-x，用lua开发比c++要快些，但也因为quickx目前的一些坑——当然有些其实应该算是2dx引擎本身的坑——让本渣折腾了不少时间。在此做点记录 …" />
+<meta property="og:site_name" content="Galoisplusplus" />
+<meta property="og:article:author" content="Galoisplusplus" />
+<meta property="og:article:published_time" content="2015-01-04T02:00:00+08:00" />
+<meta name="twitter:title" content="quick-cocos2d-x踩坑记——问题与解决方案 ">
+<meta name="twitter:description" content="本渣最近一个月来开始接触quick-cocos2d-x，用lua开发比c++要快些，但也因为quickx目前的一些坑——当然有些其实应该算是2dx引擎本身的坑——让本渣折腾了不少时间。在此做点记录 …">
+
+        <title>quick-cocos2d-x踩坑记——问题与解决方案  · Galoisplusplus
+</title>
+
+
+
+        <!-- MathJax for LaTeX support -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+            tex2jax: {
+              inlineMath: [['$', '$'], ['\\(', '\\)']],
+              displayMath: [['$$', '$$'], ['\\[', '\\]']],
+              processEscapes: true,
+              processEnvironments: true
+            }
+          });
+        </script>
+        <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    </head>
+    <body>
+        <div id="content">
+            <div class="navbar navbar-static-top">
+                <div class="navbar-inner">
+                    <div class="container-fluid">
+                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </a>
+                        <a class="brand" href="http://yszheda.github.io/blog/"><span class=site-name>Galoisplusplus</span></a>
+                        <div class="nav-collapse collapse">
+                            <ul class="nav pull-right top-menu">
+                                <li >
+                                    <a href=
+                                       http://yszheda.github.io/blog
+                                    >Home</a>
+                                </li>
+                                <li ><a href="http://yszheda.github.io/blog/categories.html">Categories</a></li>
+                                <li ><a href="http://yszheda.github.io/blog/tags.html">Tags</a></li>
+                                <li ><a href="http://yszheda.github.io/blog/archives.html">Archives</a></li>
+                                <li><form class="navbar-search" action="http://yszheda.github.io/blog/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+                <div class="row-fluid">
+                    <div class="span1"></div>
+                    <div class="span10">
+<article itemscope>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+        <h1>
+            <a href="http://yszheda.github.io/blog/2015/01/04/20150104-quick-cocos2d-x-pitfalls.html">
+                quick-cocos2d-x踩坑记——问题与解决方案
+            </a>
+        </h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+            
+            <p>本渣最近一个月来开始接触quick-cocos2d-x，用lua开发比c++要快些，但也因为quickx目前的一些坑——当然有些其实应该算是2dx引擎本身的坑——让本渣折腾了不少时间。在此做点记录，希望能让别人少走些弯路。本文将不时更新。</p>
+<!-- more -->
+
+<h2 id="quickxuiloadercocostudio-v15windowsjson">quickx的uiloader只能解析CocoStudio v1.5（windows版）的json</h2>
+<h3 id="_1">现象</h3>
+<p>CocoStudio的Mac版v1导出的json用uiloader解析有问题，另外cocostuio v2暂无导出json的功能，而uiloader只能解析json格式。</p>
+<h3 id="_2">建议</h3>
+<ul>
+<li>如果大量使用quickx的ui类，还是用CocoStudio v1.5为好。</li>
+<li>如果不想切换UI编辑器，可以直接用cocos2d-x的CSLoader，但要小心与quickx的ui类混用的情况（下文会提及）。</li>
+<li>如果不怕折腾，可以研究下CocoStudio v1.5的json格式，改quickx的源代码。</li>
+</ul>
+<h2 id="quickxcocos2d-x">quickx独立的触摸响应与cocos2d-x的存在不兼容问题</h2>
+<h3 id="_3">现象</h3>
+<p>在同时使用cocos2d-x的Widget类和quickx的ui类时，quickx的ui类没有接受响应事件。
+在此仅举一个典型例子，在quickx的UIScrollView中加入一个CSLoader解析的Widget，则UIScrollView无法滚动。
+照理说，Widget的触摸事件的priority是0（graph priority），quickx的LuaEventNode的priority是-1（fixed priority），应该是LuaEventNode先接收touch进行处理才对，
+但是Widget是单点触摸，而LuaEventNode是多点触摸，再加上cocos2d-x是先处理单点再处理多点的，所以触摸事件反而是先到了Widget了。
+不幸的是Widget默认是swallow touch的，所以触摸事件不会到LuaEventNode。</p>
+<h3 id="_4">建议</h3>
+<ul>
+<li>彻底杜绝此类混用。但由于之前提到的uiloader的问题，可能无法完全使用quickx的ui类。</li>
+<li>[workaround]如果不需要多点触摸，可以把LuaEventNode改成单点触摸。</li>
+</ul>
+<h2 id="quickxuiscrollviewuilistviewbug">quickx的UIScrollView/UIListView的bug</h2>
+<p>老实说，这两个ui类确实不够成熟。</p>
+<ul>
+<li>用local node space坐标与world space坐标做比较。引起的问题有：没有惯性滚动；<code>UIListView</code>的item没完全移除viewRect就被remove掉等等。本渣向quickx提交了两个PR：前一个<a href="https://github.com/dualface/v3quick/pull/348">PR#348</a>过了几周才被处理，代码有conflict，最后还是开发者再提了新的PR去merge了；后一个<a href="https://github.com/dualface/v3quick/pull/407">PR#407</a>很快就被merge了。所以目前更新代码就可以了。</li>
+<li><code>UIListView</code>若是所设的item size小于item的<code>cascadeBoundingBox</code>大小，滚动时会有死循环，反复load item和remove item。开发者后来加了个<a href="https://github.com/dualface/v3quick/commit/c233f785019200033f767e15073392c221b1c48f">patch</a>，该bug重现变少了，但还是存在的。本渣trace源代码后发现，死循环的根源在于<code>UIListView:increaseOrReduceItem_</code>函数。本渣实在无法理解quickx开发者为何要把这个每帧会被调用到的函数设计成这么一个计算量很大的递归函数，这不是作死地拉低FPS拉低性能么...于是本渣就把递归调用那部分去掉了...</li>
+<li><code>UIScrollView</code>的惯性滚动行为很不用户友好，于是本渣仿照2dx中<code>CCScrollView</code>的做法实现了这部分逻辑。</li>
+</ul>
+<h2 id="luaeventnode">LuaEventNode崩溃</h2>
+<h3 id="_5">现象</h3>
+<p>点击crash，是cocos2d-x C++的内存管理报错。
+已有人向quickx报过<a href="https://github.com/dualface/v3quick/issues/318">bug</a>，但开发者回复中提到的patch被没有解决问题。</p>
+<h3 id="_6">建议</h3>
+<p>在<code>LuaEventNode</code>的构造函数时retain参数node，在析构函数中release。</p>
+<p><em><em>更新</em>：又有与该issue相关的新patch，或许该bug已经被修好了。</em></p>
+<h2 id="cocostudio">CocoStudio的文字标签加描边后字体颜色会改变</h2>
+<h3 id="_7">现象</h3>
+<p>给CocoStudio的<code>UIText</code>对象加上描边后字体颜色也变掉了。
+这个bug其实是2dx引擎的<code>CSLoader</code>的bug，<code>CSLoader</code>在解析包括<code>UIText</code>的UI组件、并设置它们相应的颜色时，调用的都是<code>node</code>的<code>setColor</code>，而非调用<code>Label</code>自身的<code>setTextColor</code>接口，这就导致了描边颜色和node颜色的混合。</p>
+<h3 id="_8">建议</h3>
+<p>我用了如下的workaround去拿到编辑器中设置的字体颜色，并重置node本身的颜色：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kr">function</span> <span class="nc">MyPackage</span><span class="p">.</span><span class="nf">formatUIText</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">formatFunc</span><span class="p">)</span>
+    <span class="kd">local</span> <span class="n">color</span> <span class="o">=</span> <span class="n">label</span><span class="p">:</span><span class="n">getColor</span><span class="p">()</span>
+    <span class="n">color</span><span class="p">.</span><span class="n">a</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">label</span><span class="p">:</span><span class="n">setColor</span><span class="p">(</span><span class="n">cc</span><span class="p">.</span><span class="n">c3b</span><span class="p">(</span><span class="mh">0xff</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">))</span>
+    <span class="n">label</span><span class="p">:</span><span class="n">setTextColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+    <span class="n">formatFunc</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+<span class="kr">end</span>
+</code></pre></div></td></tr></table></div>
+
+<p>这样就可以用来正常设置描边了，例如：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nv">MyPackage</span>.<span class="nv">formatUIText</span><span class="ss">(</span><span class="nv">testLabel</span>,<span class="w"> </span><span class="nv">function</span><span class="ss">(</span><span class="nv">label</span><span class="ss">)</span>
+<span class="nv">label</span>:<span class="nv">setOutline</span><span class="ss">(</span><span class="nv">cc</span>.<span class="nv">color</span>.<span class="nv">BLUE</span>,<span class="w"> </span><span class="mi">2</span><span class="ss">)</span>
+<span class="k">end</span><span class="ss">)</span>
+</code></pre></div></td></tr></table></div>
+
+<p>当UI的字体较多时，对每一个<code>UIText</code>都调用一遍<code>MyPackage.formatUIText</code>去加同样的描边显然不现实，所以我又加了一个接口：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cm">--[[</span>
+<span class="cm">format all labels under root layout</span>
+<span class="cm">]]</span>
+<span class="kr">function</span> <span class="nc">MyPackage</span><span class="p">.</span><span class="nf">formatAllLabels</span><span class="p">(</span><span class="n">layout</span><span class="p">,</span> <span class="n">formatFunc</span><span class="p">)</span>
+    <span class="kd">local</span> <span class="n">children</span> <span class="o">=</span> <span class="n">layout</span><span class="p">:</span><span class="n">getChildren</span><span class="p">()</span>
+    <span class="kd">local</span> <span class="n">childCount</span> <span class="o">=</span> <span class="n">layout</span><span class="p">:</span><span class="n">getChildrenCount</span><span class="p">()</span>
+    <span class="kr">if</span> <span class="n">childCount</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="kr">then</span>
+        <span class="kr">return</span>
+    <span class="kr">end</span>
+    <span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">childCount</span> <span class="kr">do</span>
+        <span class="kr">if</span> <span class="n">tolua</span><span class="p">.</span><span class="n">type</span><span class="p">(</span><span class="n">children</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">==</span> <span class="s2">&quot;ccui.Text&quot;</span> <span class="kr">then</span>
+            <span class="n">MyPackage</span><span class="p">.</span><span class="n">formatUIText</span><span class="p">(</span><span class="n">children</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">formatFunc</span><span class="p">)</span>
+        <span class="kr">end</span>
+        <span class="n">MyPackage</span><span class="p">.</span><span class="n">formatAllLabels</span><span class="p">(</span><span class="n">children</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">formatFunc</span><span class="p">)</span>
+    <span class="kr">end</span>
+<span class="kr">end</span>
+</code></pre></div></td></tr></table></div>
+
+<p><em>NOTE:关于<code>MyPackage</code>请参见<a href="http://galoisplusplus.coding.me/blog/2015/05/01/quickx-tips/">另一篇博文</a></em></p>
+<h2 id="quickx">quickx按钮显示异常</h2>
+<h3 id="_9">现象</h3>
+<p>quickx的按钮在某些清理<code>TextureCache</code>/<code>SpriteFrameCache</code>的情况下（例如在app切换到后台/收到内存警告时调用<code>removeUnusedSpriteFrames</code>/<code>removeUnuserdTextures</code>）会出现显示问题，一种常见的问题便是按钮的点击状态和正常状态的图片不同，在点击时按钮会消失不见。
+这个现象的原因是quickx的<code>UIButton</code>实现只<code>addChild</code>了当前状态的<code>sprite</code>，其他状态的<code>sprite</code>未曾被<code>retain</code>，只是在状态切换时才动态生成，这就导致了非当前状态的Texture/SpriteFrame很可能会因为<code>reference count</code>（关于何为<code>reference count</code>可以参考本渣另一篇博文<a href="http://galoisplusplus.coding.me/blog/2014/07/30/memory-management-in-cocos2d-x-v3/">cocos2d-x V3.x内存管理分析</a>）不大于1而被清理出内存。</p>
+<h3 id="_10">建议</h3>
+<p>本渣改了quickx <code>UIButton</code>的内部实现，采用了类似2dx中<code>Widget</code>类<code>ccui.Button</code>的方式，保证在初始化按钮时它的每个状态的<code>sprite</code>都被<code>retain</code>过。
+本渣的改动请参考<a href="http://galoisplusplus.coding.me/blog/2015/07/06/patch-for-quickx-button/">另一篇博文</a>。</p>
+
+
+             
+ 
+            
+            
+            
+
+
+
+
+
+
+
+            <hr/>
+        </div>
+        <section id="article-sidebar" class="span2">
+            <h4>Published</h4>
+            <time itemprop="dateCreated" datetime="2015-01-04T02:00:00+08:00">Sun 04 January 2015</time>
+            <h4>Category</h4>
+            <a class="category-link" href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="http://yszheda.github.io/blog/tags.html#cocos-ref">cocos
+                    <span class="superscript">20</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#cocos2d-ref">cocos2d
+                    <span class="superscript">20</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#cocos2d-x-ref">cocos2d-x
+                    <span class="superscript">24</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#cs-ref">CS
+                    <span class="superscript">48</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#game-devolopment-ref">game devolopment
+                    <span class="superscript">21</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#mobile-game-ref">mobile game
+                    <span class="superscript">21</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#quick-ref">quick
+                    <span class="superscript">7</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#quick-cocos2d-x-ref">quick-cocos2d-x
+                    <span class="superscript">7</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#quickx-ref">quickx
+                    <span class="superscript">7</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#shou-you-kai-fa-ref">手游开发
+                    <span class="superscript">21</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#tech-ref">tech
+                    <span class="superscript">48</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#you-xi-kai-fa-ref">游戏开发
+                    <span class="superscript">21</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+<div id="sidebar-social-link">
+    <a href="https://github.com/yszheda" title="" target="_blank" rel="nofollow noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" aria-label="GitHub" role="img" viewBox="0 0 512 512"><rect width="512" height="512" rx="15%" fill="#1B1817"/><path fill="#fff" d="M335 499c14 0 12 17 12 17H165s-2-17 12-17c13 0 16-6 16-12l-1-50c-71 16-86-28-86-28-12-30-28-37-28-37-24-16 1-16 1-16 26 2 40 26 40 26 22 39 59 28 74 22 2-17 9-28 16-35-57-6-116-28-116-126 0-28 10-51 26-69-3-6-11-32 3-67 0 0 21-7 70 26 42-12 86-12 128 0 49-33 70-26 70-26 14 35 6 61 3 67 16 18 26 41 26 69 0 98-60 120-117 126 10 8 18 24 18 48l-1 70c0 6 3 12 16 12z"/></svg>
+    </a>
+    <a href="https://twitter.com/yszheda" title="" target="_blank" rel="nofollow noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" aria-label="Twitter" role="img" viewBox="0 0 512 512"><rect width="512" height="512" rx="15%" fill="#1da1f3"/><path fill="#fff" d="M437 152a72 72 0 0 1-40 12 72 72 0 0 0 32-40 72 72 0 0 1-45 17 72 72 0 0 0-122 65 200 200 0 0 1-145-74 72 72 0 0 0 22 94 72 72 0 0 1-32-7 72 72 0 0 0 56 69 72 72 0 0 1-32 1 72 72 0 0 0 67 50 200 200 0 0 1-105 29 200 200 0 0 0 309-179 200 200 0 0 0 35-37"/></svg>
+    </a>
+</div>
+            
+
+
+
+
+
+            
+
+
+
+
+
+        </section>
+</div>
+</article>
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides.
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo https://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>                    </div>
+                    <div class="span1"></div>
+                </div>
+            </div>
+        </div>
+<footer>
+
+
+
+
+    <div id="fpowered">
+        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
+        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
+    </div>
+</footer>            <script src="//code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script src="http://yszheda.github.io/blog/theme/js/elegant.prod.9e9d5ce754.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    <script>
+    (function () {
+        if (window.location.hash.match(/^#comment-\d+$/)) {
+            $('#comment_thread').collapse('show');
+        }
+    })();
+    window.onhashchange=function(){
+        if (window.location.hash.match(/^#comment-\d+$/))
+            window.location.reload(true);
+    }
+    $('#comment_thread').on('shown', function () {
+        var link = document.getElementById('comment-accordion-toggle');
+        var old_innerHTML = link.innerHTML;
+        $(link).fadeOut(200, function() {
+            $(this).text('Click here to hide comments').fadeIn(200);
+        });
+        $('#comment_thread').on('hidden', function () {
+            $(link).fadeOut(200, function() {
+                $(this).text(old_innerHTML).fadeIn(200);
+            });
+        })
+    })
+</script>
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+        License : MIT -->
+</html>

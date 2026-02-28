@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/custom.css" media="screen">
+
+        <link rel="dns-prefetch" href="//fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+
+        <meta name="author" content="Galoisplusplus" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="tech, CS, awk, bash, shell, 脚本, linux, Linux, UNIX, tech, " />
+
+<meta property="og:title" content="Awk Tips "/>
+<meta property="og:url" content="http://yszheda.github.io/blog/2014/04/10/20140410-awk-tips.html" />
+<meta property="og:description" content="近期做毕设实验用了大量自动化脚本，借机做点awk的记录，其实都没神马技术含量，比较基础，大神们轻拍～ 统计相关 最大最 …" />
+<meta property="og:site_name" content="Galoisplusplus" />
+<meta property="og:article:author" content="Galoisplusplus" />
+<meta property="og:article:published_time" content="2014-04-10T20:45:00+08:00" />
+<meta name="twitter:title" content="Awk Tips ">
+<meta name="twitter:description" content="近期做毕设实验用了大量自动化脚本，借机做点awk的记录，其实都没神马技术含量，比较基础，大神们轻拍～ 统计相关 最大最 …">
+
+        <title>Awk Tips  · Galoisplusplus
+</title>
+
+
+
+        <!-- MathJax for LaTeX support -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+            tex2jax: {
+              inlineMath: [['$', '$'], ['\\(', '\\)']],
+              displayMath: [['$$', '$$'], ['\\[', '\\]']],
+              processEscapes: true,
+              processEnvironments: true
+            }
+          });
+        </script>
+        <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    </head>
+    <body>
+        <div id="content">
+            <div class="navbar navbar-static-top">
+                <div class="navbar-inner">
+                    <div class="container-fluid">
+                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </a>
+                        <a class="brand" href="http://yszheda.github.io/blog/"><span class=site-name>Galoisplusplus</span></a>
+                        <div class="nav-collapse collapse">
+                            <ul class="nav pull-right top-menu">
+                                <li >
+                                    <a href=
+                                       http://yszheda.github.io/blog
+                                    >Home</a>
+                                </li>
+                                <li ><a href="http://yszheda.github.io/blog/categories.html">Categories</a></li>
+                                <li ><a href="http://yszheda.github.io/blog/tags.html">Tags</a></li>
+                                <li ><a href="http://yszheda.github.io/blog/archives.html">Archives</a></li>
+                                <li><form class="navbar-search" action="http://yszheda.github.io/blog/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+                <div class="row-fluid">
+                    <div class="span1"></div>
+                    <div class="span10">
+<article itemscope>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+        <h1>
+            <a href="http://yszheda.github.io/blog/2014/04/10/20140410-awk-tips.html">
+                Awk Tips
+            </a>
+        </h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+            
+            <p>近期做毕设实验用了大量自动化脚本，借机做点<code>awk</code>的记录，其实都没神马技术含量，比较基础，大神们轻拍～</p>
+<h2 id="_1">统计相关</h2>
+<h3 id="_2">最大最小值</h3>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nx">awk</span> <span class="s1">&#39;NR == 1 { min = max = $1 }{ if ($1 &gt; max) { max = $1; } if ($1 &lt; min) { min = $1; } print min, max }&#39;</span>
+</code></pre></div></td></tr></table></div>
+
+<h3 id="_3">总和、平均值</h3>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nx">awk</span> <span class="s1">&#39;{ sum = 0; for(i = 1; i &lt;= NF; i++) { sum += $i; } avg = sum / NF; print sum, avg }&#39;</span>
+</code></pre></div></td></tr></table></div>
+
+<h3 id="_4">中位数</h3>
+<p>中位数是其中较为麻烦的一项。首先需要把数据进行排序。如果数据的数目是奇数，那么中位数就是中间的那个数据；否则则是中间两个数据的算术平均值。</p>
+<p>这里先假设数组已经排好序，那么我们可以用以下的awk脚本来处理：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nx">awk</span> <span class="s1">&#39;{ a[NR] = $1; } END { if (NR % 2) { print a[(NR + 1) / 2]; } else { print (a[NR/2] + a[NR/2 + 1]) / 2; } }&#39;</span>
+</code></pre></div></td></tr></table></div>
+
+<p>对数组排序的部分我是用<code>sort</code>来做的，当然也可以用<code>awk</code>的<code>asort</code>函数。</p>
+<p>下面举一个实际的例子：以下是Table-100time文件，需要求每一行的以上各项统计值。其中第一列是行号，不列入统计。</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="mf">1</span><span class="w"> </span><span class="mf">1099.603271</span><span class="w"> </span><span class="mf">625.161804</span><span class="w"> </span><span class="mf">610.000183</span><span class="w"> </span><span class="mf">626.810974</span><span class="w"> </span><span class="mf">1123.747559</span><span class="w"> </span><span class="mf">1108.142944</span><span class="w"> </span><span class="mf">1118.393188</span><span class="w"> </span><span class="mf">1097.084351</span><span class="w"> </span><span class="mf">1115.050903</span><span class="w"> </span><span class="mf">1120.240723</span><span class="w"> </span><span class="mf">1105.154419</span><span class="w"> </span><span class="mf">1113.885498</span><span class="w"> </span><span class="mf">1113.874878</span><span class="w"> </span><span class="mf">1113.099365</span><span class="w"> </span><span class="mf">1111.149902</span><span class="w"> </span><span class="mf">1123.582397</span><span class="w"> </span><span class="mf">1114.776978</span><span class="w"> </span><span class="mf">1101.797852</span><span class="w"> </span><span class="mf">1113.121094</span><span class="w"> </span><span class="mf">1077.672852</span><span class="w"> </span><span class="mf">1122.087891</span><span class="w"> </span><span class="mf">1124.917480</span><span class="w"> </span><span class="mf">1113.838135</span><span class="w"> </span><span class="mf">1107.574707</span><span class="w"> </span><span class="mf">1112.188232</span><span class="w"> </span><span class="mf">1122.553223</span><span class="w"> </span><span class="mf">1121.828857</span><span class="w"> </span><span class="mf">1113.358521</span><span class="w"> </span><span class="mf">1111.792603</span><span class="w"> </span><span class="mf">1122.107422</span><span class="w"> </span><span class="mf">1106.260498</span><span class="w"> </span><span class="mf">1122.025024</span><span class="w"> </span><span class="mf">612.053528</span><span class="w"> </span><span class="mf">575.379456</span><span class="w"> </span><span class="mf">893.525818</span><span class="w"> </span><span class="mf">1130.349243</span><span class="w"> </span><span class="mf">614.986938</span><span class="w"> </span><span class="mf">886.635559</span><span class="w"> </span><span class="mf">895.587341</span><span class="w"> </span><span class="mf">1115.676270</span><span class="w"> </span><span class="mf">1113.105835</span><span class="w"> </span><span class="mf">1116.982178</span><span class="w"> </span><span class="mf">1113.773071</span><span class="w"> </span><span class="mf">1115.756714</span><span class="w"> </span><span class="mf">1103.920288</span><span class="w"> </span><span class="mf">1115.773682</span><span class="w"> </span><span class="mf">1071.231445</span><span class="w"> </span><span class="mf">1115.358765</span><span class="w"> </span><span class="mf">1122.167725</span><span class="w"> </span><span class="mf">1126.683228</span><span class="w"> </span><span class="mf">1117.181885</span><span class="w"> </span><span class="mf">1118.453857</span><span class="w"> </span><span class="mf">1120.608521</span><span class="w"> </span><span class="mf">1110.655640</span><span class="w"> </span><span class="mf">1110.968872</span><span class="w"> </span><span class="mf">1110.284302</span><span class="w"> </span><span class="mf">1108.375366</span><span class="w"> </span><span class="mf">1112.826660</span><span class="w"> </span><span class="mf">1118.803589</span><span class="w"> </span><span class="mf">1116.816406</span><span class="w"> </span><span class="mf">1120.060181</span><span class="w"> </span><span class="mf">1110.062378</span><span class="w"> </span><span class="mf">1109.777466</span><span class="w"> </span><span class="mf">1104.469482</span><span class="w"> </span><span class="mf">1109.132446</span><span class="w"> </span><span class="mf">1097.460815</span><span class="w"> </span><span class="mf">1118.085205</span><span class="w"> </span><span class="mf">1114.240479</span><span class="w"> </span><span class="mf">1115.615967</span><span class="w"> </span><span class="mf">1100.754150</span><span class="w"> </span><span class="mf">1105.984985</span><span class="w"> </span><span class="mf">1112.360474</span><span class="w"> </span><span class="mf">613.934448</span><span class="w"> </span><span class="mf">1113.597</span>
+<span class="mf">046</span><span class="w"> </span><span class="mf">1122.492676</span><span class="w"> </span><span class="mf">1108.549683</span><span class="w"> </span><span class="mf">978.940369</span><span class="w"> </span><span class="mf">831.665161</span><span class="w"> </span><span class="mf">1123.176147</span><span class="w"> </span><span class="mf">1146.721802</span><span class="w"> </span><span class="mf">1156.943604</span><span class="w"> </span><span class="mf">636.618469</span><span class="w"> </span><span class="mf">645.765564</span><span class="w"> </span><span class="mf">1153.194214</span><span class="w"> </span><span class="mf">589.766296</span><span class="w"> </span><span class="mf">1110.810913</span><span class="w"> </span><span class="mf">1108.724976</span><span class="w"> </span><span class="mf">1105.940796</span><span class="w"> </span><span class="mf">1121.304443</span><span class="w"> </span><span class="mf">1116.116577</span><span class="w"> </span><span class="mf">992.231262</span><span class="w"> </span><span class="mf">1150.437744</span><span class="w"> </span><span class="mf">1108.551025</span><span class="w"> </span><span class="mf">869.626648</span><span class="w"> </span><span class="mf">1113.281372</span><span class="w"> </span><span class="mf">574.230530</span><span class="w"> </span><span class="mf">1111.740479</span><span class="w"> </span><span class="mf">1111.650635</span><span class="w"> </span><span class="mf">1105.286011</span><span class="w"> </span><span class="mf">1114.131470</span>
+<span class="mf">2</span><span class="w"> </span><span class="mf">0.063136</span><span class="w"> </span><span class="mf">0.015616</span><span class="w"> </span><span class="mf">0.060320</span><span class="w"> </span><span class="mf">0.014816</span><span class="w"> </span><span class="mf">0.060768</span><span class="w"> </span><span class="mf">0.060000</span><span class="w"> </span><span class="mf">0.060896</span><span class="w"> </span><span class="mf">0.061248</span><span class="w"> </span><span class="mf">0.061120</span><span class="w"> </span><span class="mf">0.059712</span><span class="w"> </span><span class="mf">0.015968</span><span class="w"> </span><span class="mf">0.062656</span><span class="w"> </span><span class="mf">0.062208</span><span class="w"> </span><span class="mf">0.061568</span><span class="w"> </span><span class="mf">0.061632</span><span class="w"> </span><span class="mf">0.061408</span><span class="w"> </span><span class="mf">0.062048</span><span class="w"> </span><span class="mf">0.062656</span><span class="w"> </span><span class="mf">0.062112</span><span class="w"> </span><span class="mf">0.069280</span><span class="w"> </span><span class="mf">0.061728</span><span class="w"> </span><span class="mf">0.063200</span><span class="w"> </span><span class="mf">0.062112</span><span class="w"> </span><span class="mf">0.060736</span><span class="w"> </span><span class="mf">0.061056</span><span class="w"> </span><span class="mf">0.062944</span><span class="w"> </span><span class="mf">0.067616</span><span class="w"> </span><span class="mf">0.060544</span><span class="w"> </span><span class="mf">0.061152</span><span class="w"> </span><span class="mf">0.060928</span><span class="w"> </span><span class="mf">0.068000</span><span class="w"> </span><span class="mf">0.061664</span><span class="w"> </span><span class="mf">0.069120</span><span class="w"> </span><span class="mf">0.063232</span><span class="w"> </span><span class="mf">0.059808</span><span class="w"> </span><span class="mf">0.059648</span><span class="w"> </span><span class="mf">0.060512</span><span class="w"> </span><span class="mf">0.014240</span><span class="w"> </span><span class="mf">0.064032</span><span class="w"> </span><span class="mf">0.060288</span><span class="w"> </span><span class="mf">0.062144</span><span class="w"> </span><span class="mf">0.060896</span><span class="w"> </span><span class="mf">0.069280</span><span class="w"> </span><span class="mf">0.061920</span><span class="w"> </span><span class="mf">0.060992</span><span class="w"> </span><span class="mf">0.061472</span><span class="w"> </span><span class="mf">0.058848</span><span class="w"> </span><span class="mf">0.059872</span><span class="w"> </span><span class="mf">0.071296</span><span class="w"> </span><span class="mf">0.062432</span><span class="w"> </span><span class="mf">0.062592</span><span class="w"> </span><span class="mf">0.061888</span><span class="w"> </span><span class="mf">0.062848</span><span class="w"> </span><span class="mf">0.060416</span><span class="w"> </span><span class="mf">0.061440</span><span class="w"> </span><span class="mf">0.066528</span><span class="w"> </span><span class="mf">0.062944</span><span class="w"> </span><span class="mf">0.059904</span><span class="w"> </span><span class="mf">0.061856</span><span class="w"> </span><span class="mf">0.065088</span><span class="w"> </span><span class="mf">0.060064</span><span class="w"> </span><span class="mf">0.061440</span><span class="w"> </span><span class="mf">0.060288</span><span class="w"> </span><span class="mf">0.061920</span><span class="w"> </span><span class="mf">0.059936</span><span class="w"> </span><span class="mf">0.061984</span><span class="w"> </span><span class="mf">0.061024</span><span class="w"> </span><span class="mf">0.061728</span><span class="w"> </span><span class="mf">0.062048</span><span class="w"> </span><span class="mf">0.060896</span><span class="w"> </span><span class="mf">0.062336</span><span class="w"> </span><span class="mf">0.060896</span><span class="w"> </span><span class="mf">0.062240</span><span class="w"> </span><span class="mf">0.062112</span><span class="w"> </span><span class="mf">0.061600</span><span class="w"> </span><span class="mf">0.059744</span><span class="w"> </span><span class="mf">0.066912</span><span class="w"> </span><span class="mf">0.014688</span><span class="w"> </span><span class="mf">0.060512</span><span class="w"> </span><span class="mf">0.062976</span><span class="w"> </span><span class="mf">0.063008</span><span class="w"> </span><span class="mf">0.070976</span><span class="w"> </span><span class="mf">0.015936</span><span class="w"> </span><span class="mf">0.063616</span><span class="w"> </span><span class="mf">0.054592</span><span class="w"> </span><span class="mf">0.060704</span><span class="w"> </span><span class="mf">0.060832</span><span class="w"> </span><span class="mf">0.061344</span><span class="w"> </span><span class="mf">0.059968</span><span class="w"> </span><span class="mf">0.060640</span><span class="w"> </span><span class="mf">0.051264</span><span class="w"> </span><span class="mf">0.062656</span><span class="w"> </span><span class="mf">0.062400</span><span class="w"> </span><span class="mf">0.059872</span><span class="w"> </span><span class="mf">0.063648</span><span class="w"> </span><span class="mf">0.056448</span><span class="w"> </span><span class="mf">0.060768</span><span class="w"> </span><span class="mf">0</span>
+<span class="mf">.060576</span><span class="w"> </span><span class="mf">0.061728</span><span class="w"> </span><span class="mf">0.063040</span>
+<span class="mf">3</span><span class="w"> </span><span class="mf">0.028128</span><span class="w"> </span><span class="mf">0.027616</span><span class="w"> </span><span class="mf">0.026240</span><span class="w"> </span><span class="mf">0.024736</span><span class="w"> </span><span class="mf">0.024544</span><span class="w"> </span><span class="mf">0.027072</span><span class="w"> </span><span class="mf">0.026912</span><span class="w"> </span><span class="mf">0.027328</span><span class="w"> </span><span class="mf">0.027808</span><span class="w"> </span><span class="mf">0.027456</span><span class="w"> </span><span class="mf">0.031616</span><span class="w"> </span><span class="mf">0.025504</span><span class="w"> </span><span class="mf">0.026816</span><span class="w"> </span><span class="mf">0.024672</span><span class="w"> </span><span class="mf">0.024672</span><span class="w"> </span><span class="mf">0.027200</span><span class="w"> </span><span class="mf">0.027168</span><span class="w"> </span><span class="mf">0.025344</span><span class="w"> </span><span class="mf">0.025536</span><span class="w"> </span><span class="mf">0.025888</span><span class="w"> </span><span class="mf">0.026880</span><span class="w"> </span><span class="mf">0.024384</span><span class="w"> </span><span class="mf">0.027968</span><span class="w"> </span><span class="mf">0.024096</span><span class="w"> </span><span class="mf">0.027424</span><span class="w"> </span><span class="mf">0.028544</span><span class="w"> </span><span class="mf">0.025920</span><span class="w"> </span><span class="mf">0.027072</span><span class="w"> </span><span class="mf">0.026976</span><span class="w"> </span><span class="mf">0.025472</span><span class="w"> </span><span class="mf">0.029568</span><span class="w"> </span><span class="mf">0.024768</span><span class="w"> </span><span class="mf">0.032480</span><span class="w"> </span><span class="mf">0.027744</span><span class="w"> </span><span class="mf">0.026592</span><span class="w"> </span><span class="mf">0.026784</span><span class="w"> </span><span class="mf">0.024576</span><span class="w"> </span><span class="mf">0.023328</span><span class="w"> </span><span class="mf">0.027584</span><span class="w"> </span><span class="mf">0.026720</span><span class="w"> </span><span class="mf">0.026624</span><span class="w"> </span><span class="mf">0.027872</span><span class="w"> </span><span class="mf">0.034592</span><span class="w"> </span><span class="mf">0.028640</span><span class="w"> </span><span class="mf">0.026560</span><span class="w"> </span><span class="mf">0.026720</span><span class="w"> </span><span class="mf">0.026496</span><span class="w"> </span><span class="mf">0.027072</span><span class="w"> </span><span class="mf">0.025376</span><span class="w"> </span><span class="mf">0.026368</span><span class="w"> </span><span class="mf">0.025248</span><span class="w"> </span><span class="mf">0.027904</span><span class="w"> </span><span class="mf">0.027104</span><span class="w"> </span><span class="mf">0.027616</span><span class="w"> </span><span class="mf">0.027776</span><span class="w"> </span><span class="mf">0.026912</span><span class="w"> </span><span class="mf">0.026528</span><span class="w"> </span><span class="mf">0.026816</span><span class="w"> </span><span class="mf">0.028032</span><span class="w"> </span><span class="mf">0.027136</span><span class="w"> </span><span class="mf">0.027584</span><span class="w"> </span><span class="mf">0.027232</span><span class="w"> </span><span class="mf">0.026464</span><span class="w"> </span><span class="mf">0.029056</span><span class="w"> </span><span class="mf">0.027456</span><span class="w"> </span><span class="mf">0.027168</span><span class="w"> </span><span class="mf">0.027072</span><span class="w"> </span><span class="mf">0.024576</span><span class="w"> </span><span class="mf">0.027552</span><span class="w"> </span><span class="mf">0.025088</span><span class="w"> </span><span class="mf">0.026976</span><span class="w"> </span><span class="mf">0.027168</span><span class="w"> </span><span class="mf">0.026784</span><span class="w"> </span><span class="mf">0.027424</span><span class="w"> </span><span class="mf">0.026784</span><span class="w"> </span><span class="mf">0.026912</span><span class="w"> </span><span class="mf">0.035392</span><span class="w"> </span><span class="mf">0.040512</span><span class="w"> </span><span class="mf">0.028480</span><span class="w"> </span><span class="mf">0.035488</span><span class="w"> </span><span class="mf">0.027712</span><span class="w"> </span><span class="mf">0.032832</span><span class="w"> </span><span class="mf">0.026944</span><span class="w"> </span><span class="mf">0.035296</span><span class="w"> </span><span class="mf">0.024384</span><span class="w"> </span><span class="mf">0.027552</span><span class="w"> </span><span class="mf">0.024192</span><span class="w"> </span><span class="mf">0.026592</span><span class="w"> </span><span class="mf">0.027296</span><span class="w"> </span><span class="mf">0.027392</span><span class="w"> </span><span class="mf">0.029408</span><span class="w"> </span><span class="mf">0.028160</span><span class="w"> </span><span class="mf">0.023392</span><span class="w"> </span><span class="mf">0.027040</span><span class="w"> </span><span class="mf">0.024800</span><span class="w"> </span><span class="mf">0.024448</span><span class="w"> </span><span class="mf">0.027520</span><span class="w"> </span><span class="mf">0.027488</span><span class="w"> </span><span class="mf">0.026912</span><span class="w"> </span><span class="mf">0.028352</span>
+<span class="mf">4</span><span class="w"> </span><span class="mf">720.253540</span><span class="w"> </span><span class="mf">717.565735</span><span class="w"> </span><span class="mf">715.817139</span><span class="w"> </span><span class="mf">717.748474</span><span class="w"> </span><span class="mf">718.543030</span><span class="w"> </span><span class="mf">715.734741</span><span class="w"> </span><span class="mf">717.143311</span><span class="w"> </span><span class="mf">715.751343</span><span class="w"> </span><span class="mf">715.887451</span><span class="w"> </span><span class="mf">715.781006</span><span class="w"> </span><span class="mf">718.229675</span><span class="w"> </span><span class="mf">715.808960</span><span class="w"> </span><span class="mf">719.805298</span><span class="w"> </span><span class="mf">7</span>
+<span class="mf">19.283142</span><span class="w"> </span><span class="mf">716.932983</span><span class="w"> </span><span class="mf">715.766663</span><span class="w"> </span><span class="mf">715.821899</span><span class="w"> </span><span class="mf">715.742126</span><span class="w"> </span><span class="mf">718.466309</span><span class="w"> </span><span class="mf">718.681396</span><span class="w"> </span><span class="mf">715.724670</span><span class="w"> </span><span class="mf">719.399963</span><span class="w"> </span><span class="mf">715.779358</span><span class="w"> </span><span class="mf">718.264465</span><span class="w"> </span><span class="mf">715.671326</span><span class="w"> </span><span class="mf">718.540466</span><span class="w"> </span><span class="mf">715.748169</span><span class="w"> </span><span class="mf">718.249634</span><span class="w"> </span><span class="mf">716.992737</span><span class="w"> </span><span class="mf">718.466797</span><span class="w"> </span><span class="mf">716.194458</span><span class="w"> </span><span class="mf">717.444519</span><span class="w"> </span><span class="mf">717.247070</span><span class="w"> </span><span class="mf">715.825623</span><span class="w"> </span><span class="mf">717.434021</span><span class="w"> </span><span class="mf">716.618286</span><span class="w"> </span><span class="mf">715.681519</span><span class="w"> </span><span class="mf">715.655029</span><span class="w"> </span><span class="mf">715.848206</span><span class="w"> </span><span class="mf">717.192139</span><span class="w"> </span><span class="mf">718.314575</span><span class="w"> </span><span class="mf">718.943909</span><span class="w"> </span><span class="mf">718.412842</span><span class="w"> </span><span class="mf">717.466309</span><span class="w"> </span><span class="mf">717.111267</span><span class="w"> </span><span class="mf">717.610962</span><span class="w"> </span><span class="mf">715.848877</span><span class="w"> </span><span class="mf">721.035767</span><span class="w"> </span><span class="mf">716.860535</span><span class="w"> </span><span class="mf">717.362793</span><span class="w"> </span><span class="mf">715.776123</span><span class="w"> </span><span class="mf">719.968140</span><span class="w"> </span><span class="mf">715.818481</span><span class="w"> </span><span class="mf">717.481934</span><span class="w"> </span><span class="mf">715.704834</span><span class="w"> </span><span class="mf">719.049866</span><span class="w"> </span><span class="mf">720.205078</span><span class="w"> </span><span class="mf">719.389282</span><span class="w"> </span><span class="mf">717.336487</span><span class="w"> </span><span class="mf">724.044067</span><span class="w"> </span><span class="mf">717.548279</span><span class="w"> </span><span class="mf">717.358459</span><span class="w"> </span><span class="mf">717.179626</span><span class="w"> </span><span class="mf">717.550232</span><span class="w"> </span><span class="mf">718.712952</span><span class="w"> </span><span class="mf">717.472229</span><span class="w"> </span><span class="mf">720.543335</span><span class="w"> </span><span class="mf">716.905273</span><span class="w"> </span><span class="mf">718.393005</span><span class="w"> </span><span class="mf">723.254089</span><span class="w"> </span><span class="mf">715.945129</span><span class="w"> </span><span class="mf">715.756897</span><span class="w"> </span><span class="mf">715.725586</span><span class="w"> </span><span class="mf">720.922485</span><span class="w"> </span><span class="mf">715.875732</span><span class="w"> </span><span class="mf">719.713623</span><span class="w"> </span><span class="mf">715.756836</span><span class="w"> </span><span class="mf">719.216492</span><span class="w"> </span><span class="mf">715.723267</span><span class="w"> </span><span class="mf">718.503784</span><span class="w"> </span><span class="mf">722.632935</span><span class="w"> </span><span class="mf">718.873718</span><span class="w"> </span><span class="mf">715.936157</span><span class="w"> </span><span class="mf">717.273560</span><span class="w"> </span><span class="mf">721.847961</span><span class="w"> </span><span class="mf">717.286560</span><span class="w"> </span><span class="mf">718.792480</span><span class="w"> </span><span class="mf">720.974731</span><span class="w"> </span><span class="mf">719.742310</span><span class="w"> </span><span class="mf">720.751404</span><span class="w"> </span><span class="mf">715.751953</span><span class="w"> </span><span class="mf">717.330139</span><span class="w"> </span><span class="mf">717.142151</span><span class="w"> </span><span class="mf">719.528503</span><span class="w"> </span><span class="mf">718.555725</span><span class="w"> </span><span class="mf">716.737610</span><span class="w"> </span><span class="mf">719.197266</span><span class="w"> </span><span class="mf">718.070374</span><span class="w"> </span><span class="mf">720.632996</span><span class="w"> </span><span class="mf">718.734375</span>
+<span class="mf">5</span><span class="w"> </span><span class="mf">516.273010</span><span class="w"> </span><span class="mf">343.065674</span><span class="w"> </span><span class="mf">656.750610</span><span class="w"> </span><span class="mf">626.545898</span><span class="w"> </span><span class="mf">709.740112</span><span class="w"> </span><span class="mf">677.137573</span><span class="w"> </span><span class="mf">709.918213</span><span class="w"> </span><span class="mf">591.302612</span><span class="w"> </span><span class="mf">698.008240</span><span class="w"> </span><span class="mf">711.465088</span><span class="w"> </span><span class="mf">659.250183</span><span class="w"> </span><span class="mf">591.888367</span><span class="w"> </span><span class="mf">705.064270</span><span class="w"> </span><span class="mf">704.222046</span><span class="w"> </span><span class="mf">656.991394</span><span class="w"> </span><span class="mf">646.187683</span><span class="w"> </span><span class="mf">704.989136</span><span class="w"> </span><span class="mf">598.788391</span><span class="w"> </span><span class="mf">703.356201</span><span class="w"> </span><span class="mf">685.694885</span><span class="w"> </span><span class="mf">719.180054</span><span class="w"> </span><span class="mf">669.689514</span><span class="w"> </span><span class="mf">642.316528</span><span class="w"> </span><span class="mf">641.993225</span><span class="w"> </span><span class="mf">640.972778</span><span class="w"> </span><span class="mf">649.164490</span><span class="w"> </span><span class="mf">716.</span>
+<span class="mf">288208</span><span class="w"> </span><span class="mf">708.772888</span><span class="w"> </span><span class="mf">707.416382</span><span class="w"> </span><span class="mf">704.347412</span><span class="w"> </span><span class="mf">586.610229</span><span class="w"> </span><span class="mf">636.456482</span><span class="w"> </span><span class="mf">313.203125</span><span class="w"> </span><span class="mf">377.224243</span><span class="w"> </span><span class="mf">388.061737</span><span class="w"> </span><span class="mf">641.782410</span><span class="w"> </span><span class="mf">544.509583</span><span class="w"> </span><span class="mf">397.306976</span><span class="w"> </span><span class="mf">277.899902</span><span class="w"> </span><span class="mf">546.433</span>
+<span class="mf">533</span><span class="w"> </span><span class="mf">639.272949</span><span class="w"> </span><span class="mf">630.372742</span><span class="w"> </span><span class="mf">648.397034</span><span class="w"> </span><span class="mf">640.577515</span><span class="w"> </span><span class="mf">642.346191</span><span class="w"> </span><span class="mf">640.025818</span><span class="w"> </span><span class="mf">299.147125</span><span class="w"> </span><span class="mf">641.151489</span><span class="w"> </span><span class="mf">642.511658</span><span class="w"> </span><span class="mf">639.431702</span><span class="w"> </span><span class="mf">458.824402</span><span class="w"> </span><span class="mf">467.759552</span><span class="w"> </span><span class="mf">465.540985</span>
+<span class="w"> </span><span class="mf">520.931091</span><span class="w"> </span><span class="mf">641.239502</span><span class="w"> </span><span class="mf">649.059692</span><span class="w"> </span><span class="mf">651.762390</span><span class="w"> </span><span class="mf">667.363892</span><span class="w"> </span><span class="mf">653.447388</span><span class="w"> </span><span class="mf">655.450989</span><span class="w"> </span><span class="mf">650.086426</span><span class="w"> </span><span class="mf">646.288879</span><span class="w"> </span><span class="mf">644.759949</span><span class="w"> </span><span class="mf">641.802612</span><span class="w"> </span><span class="mf">648.356995</span><span class="w"> </span><span class="mf">637.783386</span><span class="w"> </span><span class="mf">64</span>
+<span class="mf">8.014709</span><span class="w"> </span><span class="mf">642.980835</span><span class="w"> </span><span class="mf">634.090210</span><span class="w"> </span><span class="mf">640.974365</span><span class="w"> </span><span class="mf">637.239380</span><span class="w"> </span><span class="mf">642.302795</span><span class="w"> </span><span class="mf">631.172485</span><span class="w"> </span><span class="mf">595.006836</span><span class="w"> </span><span class="mf">647.026001</span><span class="w"> </span><span class="mf">651.397522</span><span class="w"> </span><span class="mf">554.663391</span><span class="w"> </span><span class="mf">327.290649</span><span class="w"> </span><span class="mf">648.838074</span><span class="w"> </span><span class="mf">691.1</span>
+<span class="mf">94458</span><span class="w"> </span><span class="mf">700.736389</span><span class="w"> </span><span class="mf">334.126831</span><span class="w"> </span><span class="mf">692.194702</span><span class="w"> </span><span class="mf">701.258423</span><span class="w"> </span><span class="mf">544.619934</span><span class="w"> </span><span class="mf">515.694275</span><span class="w"> </span><span class="mf">650.980957</span><span class="w"> </span><span class="mf">647.714172</span><span class="w"> </span><span class="mf">638.059814</span><span class="w"> </span><span class="mf">643.856995</span><span class="w"> </span><span class="mf">514.265930</span><span class="w"> </span><span class="mf">677.103210</span><span class="w"> </span><span class="mf">651.1687</span>
+<span class="mf">01</span><span class="w"> </span><span class="mf">306.423187</span><span class="w"> </span><span class="mf">647.868347</span><span class="w"> </span><span class="mf">495.291565</span><span class="w"> </span><span class="mf">600.393921</span><span class="w"> </span><span class="mf">622.958679</span><span class="w"> </span><span class="mf">642.191162</span><span class="w"> </span><span class="mf">651.052124</span>
+<span class="mf">6</span><span class="w"> </span><span class="mf">720.316650</span><span class="w"> </span><span class="mf">717.581360</span><span class="w"> </span><span class="mf">715.877441</span><span class="w"> </span><span class="mf">717.763306</span><span class="w"> </span><span class="mf">718.603821</span><span class="w"> </span><span class="mf">715.794739</span><span class="w"> </span><span class="mf">717.204224</span><span class="w"> </span><span class="mf">715.812561</span><span class="w"> </span><span class="mf">715.948547</span><span class="w"> </span><span class="mf">715.840698</span><span class="w"> </span><span class="mf">718.245667</span><span class="w"> </span><span class="mf">715.871643</span><span class="w"> </span><span class="mf">719.867493</span><span class="w"> </span><span class="mf">7</span>
+<span class="mf">19.344727</span><span class="w"> </span><span class="mf">716.994629</span><span class="w"> </span><span class="mf">715.828064</span><span class="w"> </span><span class="mf">715.883972</span><span class="w"> </span><span class="mf">715.804810</span><span class="w"> </span><span class="mf">718.528442</span><span class="w"> </span><span class="mf">718.750671</span><span class="w"> </span><span class="mf">715.786377</span><span class="w"> </span><span class="mf">719.463135</span><span class="w"> </span><span class="mf">715.841492</span><span class="w"> </span><span class="mf">718.325195</span><span class="w"> </span><span class="mf">715.732361</span><span class="w"> </span><span class="mf">718.603394</span><span class="w"> </span><span class="mf">715.</span>
+<span class="mf">815796</span><span class="w"> </span><span class="mf">718.310181</span><span class="w"> </span><span class="mf">717.053894</span><span class="w"> </span><span class="mf">718.527710</span><span class="w"> </span><span class="mf">716.262451</span><span class="w"> </span><span class="mf">717.506165</span><span class="w"> </span><span class="mf">717.316162</span><span class="w"> </span><span class="mf">715.888855</span><span class="w"> </span><span class="mf">717.493835</span><span class="w"> </span><span class="mf">716.677917</span><span class="w"> </span><span class="mf">715.742004</span><span class="w"> </span><span class="mf">715.669250</span><span class="w"> </span><span class="mf">715.912231</span><span class="w"> </span><span class="mf">717.252</span>
+<span class="mf">441</span><span class="w"> </span><span class="mf">718.376709</span><span class="w"> </span><span class="mf">719.004822</span><span class="w"> </span><span class="mf">718.482117</span><span class="w"> </span><span class="mf">717.528198</span><span class="w"> </span><span class="mf">717.172241</span><span class="w"> </span><span class="mf">717.672424</span><span class="w"> </span><span class="mf">715.907715</span><span class="w"> </span><span class="mf">721.095642</span><span class="w"> </span><span class="mf">716.931824</span><span class="w"> </span><span class="mf">717.425232</span><span class="w"> </span><span class="mf">715.838745</span><span class="w"> </span><span class="mf">720.030029</span><span class="w"> </span><span class="mf">715.881348</span>
+<span class="w"> </span><span class="mf">717.542358</span><span class="w"> </span><span class="mf">715.766296</span><span class="w"> </span><span class="mf">719.116394</span><span class="w"> </span><span class="mf">720.268005</span><span class="w"> </span><span class="mf">719.449158</span><span class="w"> </span><span class="mf">717.398315</span><span class="w"> </span><span class="mf">724.109131</span><span class="w"> </span><span class="mf">717.608337</span><span class="w"> </span><span class="mf">717.419922</span><span class="w"> </span><span class="mf">717.239929</span><span class="w"> </span><span class="mf">717.612122</span><span class="w"> </span><span class="mf">718.772888</span><span class="w"> </span><span class="mf">717.534241</span><span class="w"> </span><span class="mf">72</span>
+<span class="mf">0.604370</span><span class="w"> </span><span class="mf">716.966980</span><span class="w"> </span><span class="mf">718.455078</span><span class="w"> </span><span class="mf">723.315002</span><span class="w"> </span><span class="mf">716.007446</span><span class="w"> </span><span class="mf">715.817810</span><span class="w"> </span><span class="mf">715.787842</span><span class="w"> </span><span class="mf">720.984619</span><span class="w"> </span><span class="mf">715.937317</span><span class="w"> </span><span class="mf">719.773376</span><span class="w"> </span><span class="mf">715.823730</span><span class="w"> </span><span class="mf">719.231201</span><span class="w"> </span><span class="mf">715.783752</span><span class="w"> </span><span class="mf">718.5</span>
+<span class="mf">66772</span><span class="w"> </span><span class="mf">722.695923</span><span class="w"> </span><span class="mf">718.944702</span><span class="w"> </span><span class="mf">715.952087</span><span class="w"> </span><span class="mf">717.337158</span><span class="w"> </span><span class="mf">721.902527</span><span class="w"> </span><span class="mf">717.347290</span><span class="w"> </span><span class="mf">718.853333</span><span class="w"> </span><span class="mf">721.036072</span><span class="w"> </span><span class="mf">719.802307</span><span class="w"> </span><span class="mf">720.812073</span><span class="w"> </span><span class="mf">715.803223</span><span class="w"> </span><span class="mf">717.392822</span><span class="w"> </span><span class="mf">717.2045</span>
+<span class="mf">29</span><span class="w"> </span><span class="mf">719.588379</span><span class="w"> </span><span class="mf">718.619385</span><span class="w"> </span><span class="mf">716.794067</span><span class="w"> </span><span class="mf">719.258057</span><span class="w"> </span><span class="mf">718.130920</span><span class="w"> </span><span class="mf">720.694702</span><span class="w"> </span><span class="mf">718.797424</span>
+<span class="mf">7</span><span class="w"> </span><span class="mf">1615.904297</span><span class="w"> </span><span class="mf">968.255066</span><span class="w"> </span><span class="mf">1266.777100</span><span class="w"> </span><span class="mf">1253.381592</span><span class="w"> </span><span class="mf">1833.512207</span><span class="w"> </span><span class="mf">1785.307617</span><span class="w"> </span><span class="mf">1828.338257</span><span class="w"> </span><span class="mf">1688.414307</span><span class="w"> </span><span class="mf">1813.086914</span><span class="w"> </span><span class="mf">1831.733276</span><span class="w"> </span><span class="mf">1764.436279</span><span class="w"> </span><span class="mf">1705.799316</span><span class="w"> </span><span class="mf">1</span>
+<span class="mf">818.966064</span><span class="w"> </span><span class="mf">1817.346069</span><span class="w"> </span><span class="mf">1768.166016</span><span class="w"> </span><span class="mf">1769.797363</span><span class="w"> </span><span class="mf">1819.793335</span><span class="w"> </span><span class="mf">1700.611572</span><span class="w"> </span><span class="mf">1816.502808</span><span class="w"> </span><span class="mf">1763.393555</span><span class="w"> </span><span class="mf">1841.294800</span><span class="w"> </span><span class="mf">1794.631348</span><span class="w"> </span><span class="mf">1756.182617</span><span class="w"> </span><span class="mf">1749.592041</span><span class="w"> </span><span class="mf">175</span>
+<span class="mf">3.188477</span><span class="w"> </span><span class="mf">1771.746338</span><span class="w"> </span><span class="mf">1838.142944</span><span class="w"> </span><span class="mf">1822.158447</span><span class="w"> </span><span class="mf">1819.235962</span><span class="w"> </span><span class="mf">1826.480347</span><span class="w"> </span><span class="mf">1692.900269</span><span class="w"> </span><span class="mf">1758.506348</span><span class="w"> </span><span class="mf">925.289124</span><span class="w"> </span><span class="mf">952.631470</span><span class="w"> </span><span class="mf">1281.614136</span><span class="w"> </span><span class="mf">1772.158447</span><span class="w"> </span><span class="mf">1159.52</span>
+<span class="mf">1118</span><span class="w"> </span><span class="mf">1283.965820</span><span class="w"> </span><span class="mf">1173.514893</span><span class="w"> </span><span class="mf">1662.136475</span><span class="w"> </span><span class="mf">1752.405396</span><span class="w"> </span><span class="mf">1747.382812</span><span class="w"> </span><span class="mf">1762.204590</span><span class="w"> </span><span class="mf">1756.362915</span><span class="w"> </span><span class="mf">1746.293091</span><span class="w"> </span><span class="mf">1755.826172</span><span class="w"> </span><span class="mf">1370.405029</span><span class="w"> </span><span class="mf">1756.537354</span><span class="w"> </span><span class="mf">1764.7048</span>
+<span class="mf">34</span><span class="w"> </span><span class="mf">1766.141357</span><span class="w"> </span><span class="mf">1576.031494</span><span class="w"> </span><span class="mf">1586.241333</span><span class="w"> </span><span class="mf">1586.176636</span><span class="w"> </span><span class="mf">1631.614258</span><span class="w"> </span><span class="mf">1752.236206</span><span class="w"> </span><span class="mf">1759.370850</span><span class="w"> </span><span class="mf">1760.164307</span><span class="w"> </span><span class="mf">1780.217407</span><span class="w"> </span><span class="mf">1772.279053</span><span class="w"> </span><span class="mf">1772.294434</span><span class="w"> </span><span class="mf">1770.174194</span>
+<span class="w"> </span><span class="mf">1756.378418</span><span class="w"> </span><span class="mf">1754.563965</span><span class="w"> </span><span class="mf">1746.301147</span><span class="w"> </span><span class="mf">1757.516846</span><span class="w"> </span><span class="mf">1735.271484</span><span class="w"> </span><span class="mf">1766.126953</span><span class="w"> </span><span class="mf">1757.245850</span><span class="w"> </span><span class="mf">1749.733765</span><span class="w"> </span><span class="mf">1741.753662</span><span class="w"> </span><span class="mf">1743.251343</span><span class="w"> </span><span class="mf">1754.690430</span><span class="w"> </span><span class="mf">1245.133789</span><span class="w"> </span><span class="mf">1</span>
+<span class="mf">708.631348</span><span class="w"> </span><span class="mf">1769.545410</span><span class="w"> </span><span class="mf">1759.974121</span><span class="w"> </span><span class="mf">1533.639160</span><span class="w"> </span><span class="mf">1158.996338</span><span class="w"> </span><span class="mf">1772.042725</span><span class="w"> </span><span class="mf">1837.951782</span><span class="w"> </span><span class="mf">1857.707764</span><span class="w"> </span><span class="mf">970.778137</span><span class="w"> </span><span class="mf">1337.987183</span><span class="w"> </span><span class="mf">1854.487915</span><span class="w"> </span><span class="mf">1134.410645</span><span class="w"> </span><span class="mf">1626</span>
+<span class="mf">.532715</span><span class="w"> </span><span class="mf">1759.730103</span><span class="w"> </span><span class="mf">1753.681641</span><span class="w"> </span><span class="mf">1759.391602</span><span class="w"> </span><span class="mf">1760.000977</span><span class="w"> </span><span class="mf">1506.526611</span><span class="w"> </span><span class="mf">1827.569092</span><span class="w"> </span><span class="mf">1759.743164</span><span class="w"> </span><span class="mf">1176.076904</span><span class="w"> </span><span class="mf">1761.174561</span><span class="w"> </span><span class="mf">1069.546631</span><span class="w"> </span><span class="mf">1712.161865</span><span class="w"> </span><span class="mf">1734.6</span>
+<span class="mf">36719</span><span class="w"> </span><span class="mf">1747.504028</span><span class="w"> </span><span class="mf">1765.211914</span>
+<span class="mf">8</span><span class="w"> </span><span class="mf">2340.071533</span><span class="w"> </span><span class="mf">1689.605957</span><span class="w"> </span><span class="mf">1992.927368</span><span class="w"> </span><span class="mf">1975.017212</span><span class="w"> </span><span class="mf">2555.832031</span><span class="w"> </span><span class="mf">2504.885254</span><span class="w"> </span><span class="mf">2559.110352</span><span class="w"> </span><span class="mf">2407.793701</span><span class="w"> </span><span class="mf">2532.718018</span><span class="w"> </span><span class="mf">2551.314697</span><span class="w"> </span><span class="mf">2521.514160</span><span class="w"> </span><span class="mf">2425.311523</span><span class="w"> </span><span class="mf">2542.544434</span><span class="w"> </span><span class="mf">2540.422119</span><span class="w"> </span><span class="mf">2488.926758</span><span class="w"> </span><span class="mf">2489.232666</span><span class="w"> </span><span class="mf">2554.735596</span><span class="w"> </span><span class="mf">2420.110107</span><span class="w"> </span><span class="mf">2538.753662</span><span class="w"> </span><span class="mf">2486.242432</span><span class="w"> </span><span class="mf">2560.750732</span><span class="w"> </span><span class="mf">2517.833984</span><span class="w"> </span><span class="mf">2475.721191</span><span class="w"> </span><span class="mf">2471.649902</span><span class="w"> </span><span class="mf">2472.583252</span><span class="w"> </span><span class="mf">2494.048584</span><span class="w"> </span><span class="mf">2557.614502</span><span class="w"> </span><span class="mf">2544.040771</span><span class="w"> </span><span class="mf">2540.066650</span><span class="w"> </span><span class="mf">2548.778564</span><span class="w"> </span><span class="mf">2412.888916</span><span class="w"> </span><span class="mf">2479.761230</span><span class="w"> </span><span class="mf">1658.584473</span><span class="w"> </span><span class="mf">1672.889282</span><span class="w"> </span><span class="mf">2002.672607</span><span class="w"> </span><span class="mf">2492.464355</span><span class="w"> </span><span class="mf">1878.801880</span><span class="w"> </span><span class="mf">2003.776245</span><span class="w"> </span><span class="mf">1893.851440</span><span class="w"> </span><span class="mf">2383.073242</span><span class="w"> </span><span class="mf">2474.485596</span><span class="w"> </span><span class="mf">2470.081055</span><span class="w"> </span><span class="mf">2484.501953</span><span class="w"> </span><span class="mf">2477.659424</span><span class="w"> </span><span class="mf">2479.066162</span><span class="w"> </span><span class="mf">2490.251709</span><span class="w"> </span><span class="mf">2091.606201</span><span class="w"> </span><span class="mf">2481.179443</span><span class="w"> </span><span class="mf">2485.382080</span><span class="w"> </span><span class="mf">2487.158691</span><span class="w"> </span><span class="mf">2295.618408</span><span class="w"> </span><span class="mf">2325.068115</span><span class="w"> </span><span class="mf">2305.705322</span><span class="w"> </span><span class="mf">2352.801025</span><span class="w"> </span><span class="mf">2472.260498</span><span class="w"> </span><span class="mf">2482.116211</span><span class="w"> </span><span class="mf">2483.993652</span><span class="w"> </span><span class="mf">2503.430664</span><span class="w"> </span><span class="mf">2493.295898</span><span class="w"> </span><span class="mf">2500.223633</span><span class="w"> </span><span class="mf">2491.596436</span><span class="w"> </span><span class="mf">2477.452148</span><span class="w"> </span><span class="mf">2475.478760</span><span class="w"> </span><span class="mf">2467.430908</span><span class="w"> </span><span class="mf">2480.087646</span><span class="w"> </span><span class="mf">2456.450684</span><span class="w"> </span><span class="mf">2490.367432</span><span class="w"> </span><span class="mf">2477.877441</span><span class="w"> </span><span class="mf">2471.899902</span><span class="w"> </span><span class="mf">2469.067871</span><span class="w"> </span><span class="mf">2463.063965</span><span class="w"> </span><span class="mf">2474.175049</span><span class="w"> </span><span class="mf">1977.751953</span><span class="w"> </span><span class="mf">2433.125244</span><span class="w"> </span><span class="mf">2489.358887</span><span class="w"> </span><span class="mf">2492.018311</span><span class="w"> </span><span class="mf">2375.827637</span><span class="w"> </span><span class="mf">1900.094604</span><span class="w"> </span><span class="mf">2491.512695</span><span class="w"> </span><span class="mf">2560.443604</span><span class="w"> </span><span class="mf">2584.575684</span><span class="w"> </span><span class="mf">1712.179321</span><span class="w"> </span><span class="mf">2058.241699</span><span class="w"> </span><span class="mf">2575.792725</span><span class="w"> </span><span class="mf">1863.588135</span><span class="w"> </span><span class="mf">2347.553955</span><span class="w"> </span><span class="mf">2482.250488</span><span class="w"> </span><span class="mf">2478.283447</span><span class="w"> </span><span class="mf">2482.996338</span><span class="w"> </span><span class="mf">2484.401855</span><span class="w"> </span><span class="mf">2321.362549</span><span class="w"> </span><span class="mf">2549.145264</span><span class="w"> </span><span class="mf">2480.642578</span><span class="w"> </span><span class="mf">1900.880493</span><span class="w"> </span><span class="mf">2483.422363</span><span class="w"> </span><span class="mf">1789.904663</span><span class="w"> </span><span class="mf">2435.025635</span><span class="w"> </span><span class="mf">2456.335205</span><span class="w"> </span><span class="mf">2472.076172</span><span class="w"> </span><span class="mf">2487.675781</span>
+<span class="mf">9</span><span class="w"> </span><span class="mf">3513.309782</span><span class="w"> </span><span class="mf">2274.641538</span><span class="w"> </span><span class="mf">2958.232285</span><span class="w"> </span><span class="mf">3932.669376</span><span class="w"> </span><span class="mf">3786.126188</span><span class="w"> </span><span class="mf">2849.826237</span><span class="w"> </span><span class="mf">5700.254664</span><span class="w"> </span><span class="mf">2816.492436</span><span class="w"> </span><span class="mf">3832.746619</span><span class="w"> </span><span class="mf">3702.420506</span><span class="w"> </span><span class="mf">2870.630259</span><span class="w"> </span><span class="mf">4930.524634</span><span class="w"> </span><span class="mf">3626.383660</span><span class="w"> </span><span class="mf">5457.465817</span><span class="w"> </span><span class="mf">2911.674854</span><span class="w"> </span><span class="mf">5826.706631</span><span class="w"> </span><span class="mf">3063.118128</span><span class="w"> </span><span class="mf">3468.595578</span><span class="w"> </span><span class="mf">3017.246258</span><span class="w"> </span><span class="mf">3891.089669</span><span class="w"> </span><span class="mf">3560.750380</span><span class="w"> </span><span class="mf">4003.229298</span><span class="w"> </span><span class="mf">4297.342606</span><span class="w"> </span><span class="mf">3008.550484</span><span class="w"> </span><span class="mf">3794.148238</span><span class="w"> </span><span class="mf">6804.888446</span><span class="w"> </span><span class="mf">5513.992633</span><span class="w"> </span><span class="mf">5023.367652</span><span class="w"> </span><span class="mf">5088.919598</span><span class="w"> </span><span class="mf">3093.680407</span><span class="w"> </span><span class="mf">5314.446895</span><span class="w"> </span><span class="mf">7401.844282</span><span class="w"> </span><span class="mf">3076.878939</span><span class="w"> </span><span class="mf">1882.124608</span><span class="w"> </span><span class="mf">4415.104581</span><span class="w"> </span><span class="mf">4005.727143</span><span class="w"> </span><span class="mf">7425.384389</span><span class="w"> </span><span class="mf">3842.665568</span><span class="w"> </span><span class="mf">2190.021208</span><span class="w"> </span><span class="mf">2748.342060</span><span class="w"> </span><span class="mf">4561.191134</span><span class="w"> </span><span class="mf">2963.751309</span><span class="w"> </span><span class="mf">2996.609632</span><span class="w"> </span><span class="mf">5380.739438</span><span class="w"> </span><span class="mf">4874.685792</span><span class="w"> </span><span class="mf">4581.670467</span><span class="w"> </span><span class="mf">3519.148784</span><span class="w"> </span><span class="mf">4109.830963</span><span class="w"> </span><span class="mf">3950.539100</span><span class="w"> </span><span class="mf">4080.477292</span><span class="w"> </span><span class="mf">2624.230874</span><span class="w"> </span><span class="mf">4931.277735</span><span class="w"> </span><span class="mf">2882.874944</span><span class="w"> </span><span class="mf">2807.562003</span><span class="w"> </span><span class="mf">3849.681022</span><span class="w"> </span><span class="mf">3160.494618</span><span class="w"> </span><span class="mf">3747.134412</span><span class="w"> </span><span class="mf">3917.208341</span><span class="w"> </span><span class="mf">2737.369608</span><span class="w"> </span><span class="mf">5956.795812</span><span class="w"> </span><span class="mf">4988.859466</span><span class="w"> </span><span class="mf">3666.625523</span><span class="w"> </span><span class="mf">5128.424549</span><span class="w"> </span><span class="mf">4919.731474</span><span class="w"> </span><span class="mf">5295.796236</span><span class="w"> </span><span class="mf">3325.609938</span><span class="w"> </span><span class="mf">5754.361423</span><span class="w"> </span><span class="mf">4226.240290</span><span class="w"> </span><span class="mf">3721.524204</span><span class="w"> </span><span class="mf">3620.667546</span><span class="w"> </span><span class="mf">6138.143649</span><span class="w"> </span><span class="mf">4914.947320</span><span class="w"> </span><span class="mf">5018.477593</span><span class="w"> </span><span class="mf">2904.721095</span><span class="w"> </span><span class="mf">3774.158545</span><span class="w"> </span><span class="mf">5614.797046</span><span class="w"> </span><span class="mf">5422.969243</span><span class="w"> </span><span class="mf">3521.075405</span><span class="w"> </span><span class="mf">22676.448882</span><span class="w"> </span><span class="mf">5749.432579</span><span class="w"> </span><span class="mf">4491.578183</span><span class="w"> </span><span class="mf">5113.269873</span><span class="w"> </span><span class="mf">4966.596379</span><span class="w"> </span><span class="mf">4017.531402</span><span class="w"> </span><span class="mf">3255.207807</span><span class="w"> </span><span class="mf">5896.712478</span><span class="w"> </span><span class="mf">5836.628444</span><span class="w"> </span><span class="mf">7583.357894</span><span class="w"> </span><span class="mf">5566.682519</span><span class="w"> </span><span class="mf">3725.477136</span><span class="w"> </span><span class="mf">3611.446564</span><span class="w"> </span><span class="mf">3415.802801</span><span class="w"> </span><span class="mf">5165.599688</span><span class="w"> </span><span class="mf">3288.680153</span><span class="w"> </span><span class="mf">3752.247671</span><span class="w"> </span><span class="mf">3340.728295</span><span class="w"> </span><span class="mf">3451.722113</span><span class="w"> </span><span class="mf">7003.061383</span><span class="w"> </span><span class="mf">4741.995198</span><span class="w"> </span><span class="mf">6129.824958</span>
+</code></pre></div></td></tr></table></div>
+
+<p>对于中位数，首先我们先考虑其中一行（例如第一行），先用<code>cut</code>把第一列去掉：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>cat<span class="w"> </span>Table-100time<span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-n<span class="w"> </span><span class="s1">&#39;1p&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>cut<span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot; &quot;</span><span class="w"> </span>-f<span class="w"> </span><span class="m">2</span>-<span class="w"> </span>
+</code></pre></div></td></tr></table></div>
+
+<p>这里OT一下，<code>sed</code>和<code>cut</code>恰好一个负责选取行，一个负责选取列。
+这在脚本中是很好用的，以下我给出它们这种用法的一般形式：</p>
+<p><code>sed</code>选取<code>{beginLine}</code>到<code>{endLine}</code>中间的行：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>sed<span class="w"> </span>-n<span class="w"> </span><span class="s1">&#39;{beginLine}, {endLine}p&#39;</span>
+</code></pre></div></td></tr></table></div>
+
+<p>对应于</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>awk<span class="w"> </span><span class="s1">&#39;NR==2&#39;</span>
+</code></pre></div></td></tr></table></div>
+
+<p>和</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>awk<span class="w"> </span><span class="s1">&#39;FNR==2&#39;</span>
+</code></pre></div></td></tr></table></div>
+
+<p><code>cut</code>选取<code>{beginColumn}</code>到<code>{endColumn}</code>中间的列：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>cut<span class="w"> </span>-f<span class="w"> </span><span class="o">{</span>beginColumn<span class="o">}</span>-<span class="o">{</span>endColumn<span class="o">}</span>
+</code></pre></div></td></tr></table></div>
+
+<p>之后我们需要用<code>sort</code>来排序，但<code>sort</code>只对行排序，我的方法是通过<code>xargs</code>把分隔符由空格转为换行：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>cat<span class="w"> </span>Table-100time<span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-n<span class="w"> </span><span class="s1">&#39;1p&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>cut<span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot; &quot;</span><span class="w"> </span>-f<span class="w"> </span><span class="m">2</span>-<span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>-n1<span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sort<span class="w"> </span>-n
+</code></pre></div></td></tr></table></div>
+
+<p>接下来就可以pipe给<code>awk</code>脚本来处理了：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>cat<span class="w"> </span>Table-100time<span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-n<span class="w"> </span><span class="s1">&#39;1p&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>cut<span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot; &quot;</span><span class="w"> </span>-f<span class="w"> </span><span class="m">2</span>-<span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>-n1<span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sort<span class="w"> </span>-n<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;{ a[NR] = $1; } END { if (NR % 2) { print a[(NR + 1) / 2]; } else { print (a[NR/2] + a[NR/2 + 1]) / 2; } }&#39;</span>
+</code></pre></div></td></tr></table></div>
+
+<p>最后要处理的是Table-100time这种多行的表格</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>cat<span class="w"> </span>Table-100time<span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>-L1<span class="w"> </span>-i<span class="w"> </span>bash<span class="w"> </span>-c<span class="w"> </span><span class="s1">$&#39;echo {} | cut -d &quot; &quot; -f 2- | xargs -n1 echo | sort -n | awk \&#39;{ a[NR] = $1; } END { if (NR % 2) { print a[(NR + 1) / 2]; } else { print (a[NR/2] + a[NR/2 + 1]) / 2; } }\&#39;&#39;</span>
+</code></pre></div></td></tr></table></div>
+
+<h2 id="_5">多文件处理</h2>
+<p>除了<code>FILENAME</code>以外，在<code>awk</code>中辨别文件主要还有<code>FNR</code>和<code>NR</code>这两个内置变量。具体定义可以参考<a href="http://www.gnu.org/software/gawk/manual/gawk.html#Auto_002dset">官方文档</a>：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code>FNR
+The current record number in the current file. awk increments FNR each time it reads a new record (see Records). awk resets FNR to zero each time it starts a new input file.
+
+NR
+The number of input records awk has processed since the beginning of the program’s execution (see Records). awk increments NR each time it reads a new record.
+</code></pre></div></td></tr></table></div>
+
+<p>下面同样举一个具体例子：<code>accurate-data</code>和<code>simulated-data</code>都是以<code>&lt;key&gt; &lt;value&gt;</code>形式组织的数据，二者有着完全一致的key，而且事先排过序，需要求两者所记录的value的差值绝对值。</p>
+<p>我用了以下的脚本，其实逻辑很简单，先把第一个文件的key-value pair存到一个hash map中，读到第二个文件相同key的值时便与hash map的值比较求绝对值：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>awk<span class="w"> </span><span class="s1">&#39;NR == FNR { a[$1] = $NF }</span>
+<span class="s1">NR &gt; FNR &amp;&amp; a[$1] &gt; $NF { print $1&quot;\t&quot;a[$1]-$NF }</span>
+<span class="s1">NR &gt; FNR &amp;&amp; a[$1] &lt; $NF { print $1&quot;\t&quot;$NF-a[$1] }&#39;</span><span class="w"> </span>accurate-data<span class="w"> </span>simulated-data<span class="w"> </span>&gt;<span class="w"> </span>diff
+</code></pre></div></td></tr></table></div>
+
+<h2 id="_6">其他</h2>
+<p>有次我需要比较hadoop程序的执行时间，由于<code>hadoop job -history</code>输出的log中的时间有不同单位，不便比较，所以我用以下命令做预处理再比较（初始数据存放在<code>time-table</code>中，输出到<code>timeResult</code>）：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span></pre></div></td><td class="code"><div><pre><span></span><code>cat<span class="w"> </span>time-table<span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s1">&#39;s/.*(\(.*\))/\0 \1/&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;</span>
+<span class="s1">#BEGIN{</span>
+<span class="s1">{</span>
+<span class="s1">if(match($4,/(.+),(.+)/)){ </span>
+<span class="s1">min=gensub(/(.+)mins,(.+)sec/, &quot;\\1&quot;, &quot;g&quot;, $4)</span>
+<span class="s1">sec=gensub(/(.+)mins,(.+)sec/, &quot;\\2&quot;, &quot;g&quot;, $4)</span>
+<span class="s1">time=min*60+sec</span>
+<span class="s1">#print min</span>
+<span class="s1">#print sec</span>
+<span class="s1">#print time</span>
+<span class="s1">printf &quot;%s %s %s\n&quot;, $1, $2, time &gt;&gt; &quot;timeResult&quot;</span>
+<span class="s1">}</span>
+<span class="s1">else</span>
+<span class="s1">{</span>
+<span class="s1">sec=gensub(/(.+)sec/, &quot;\\1&quot;, &quot;g&quot;, $4)</span>
+<span class="s1">time=sec</span>
+<span class="s1">#print sec</span>
+<span class="s1">#print time</span>
+<span class="s1">printf &quot;%s %s %s\n&quot;, $1, $2, time &gt;&gt; &quot;timeResult&quot;</span>
+<span class="s1">}</span>
+<span class="s1">}</span>
+<span class="s1">&#39;</span>
+</code></pre></div></td></tr></table></div>
+
+<h2 id="_7">参考资料</h2>
+<p>[1]<a href="http://www.gnu.org/software/gawk/manual/gawk.html">The GNU Awk User’s Guide</a></p>
+<p>[2]<a href="http://tldp.org/LDP/abs/html/awk.html">ABS(Advanced Bash-Scripting Guide)</a></p>
+<p>[3]<a href="http://www.thegeekstuff.com/2010/01/8-powerful-awk-built-in-variables-fs-ofs-rs-ors-nr-nf-filename-fnr/">8 Powerful Awk Built-in Variables – FS, OFS, RS, ORS, NR, NF, FILENAME, FNR</a></p>
+
+
+             
+ 
+            
+            
+            
+
+
+
+
+
+
+
+            <hr/>
+        </div>
+        <section id="article-sidebar" class="span2">
+            <h4>Published</h4>
+            <time itemprop="dateCreated" datetime="2014-04-10T20:45:00+08:00">Thu 10 April 2014</time>
+            <h4>Category</h4>
+            <a class="category-link" href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="http://yszheda.github.io/blog/tags.html#awk-ref">awk
+                    <span class="superscript">1</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#bash-ref">bash
+                    <span class="superscript">3</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#cs-ref">CS
+                    <span class="superscript">48</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#jiao-ben-ref">脚本
+                    <span class="superscript">3</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#linux-ref">linux
+                    <span class="superscript">18</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#linux-ref">Linux
+                    <span class="superscript">18</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#shell-ref">shell
+                    <span class="superscript">4</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#tech-ref">tech
+                    <span class="superscript">48</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#unix-ref">UNIX
+                    <span class="superscript">4</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+<div id="sidebar-social-link">
+    <a href="https://github.com/yszheda" title="" target="_blank" rel="nofollow noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" aria-label="GitHub" role="img" viewBox="0 0 512 512"><rect width="512" height="512" rx="15%" fill="#1B1817"/><path fill="#fff" d="M335 499c14 0 12 17 12 17H165s-2-17 12-17c13 0 16-6 16-12l-1-50c-71 16-86-28-86-28-12-30-28-37-28-37-24-16 1-16 1-16 26 2 40 26 40 26 22 39 59 28 74 22 2-17 9-28 16-35-57-6-116-28-116-126 0-28 10-51 26-69-3-6-11-32 3-67 0 0 21-7 70 26 42-12 86-12 128 0 49-33 70-26 70-26 14 35 6 61 3 67 16 18 26 41 26 69 0 98-60 120-117 126 10 8 18 24 18 48l-1 70c0 6 3 12 16 12z"/></svg>
+    </a>
+    <a href="https://twitter.com/yszheda" title="" target="_blank" rel="nofollow noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" aria-label="Twitter" role="img" viewBox="0 0 512 512"><rect width="512" height="512" rx="15%" fill="#1da1f3"/><path fill="#fff" d="M437 152a72 72 0 0 1-40 12 72 72 0 0 0 32-40 72 72 0 0 1-45 17 72 72 0 0 0-122 65 200 200 0 0 1-145-74 72 72 0 0 0 22 94 72 72 0 0 1-32-7 72 72 0 0 0 56 69 72 72 0 0 1-32 1 72 72 0 0 0 67 50 200 200 0 0 1-105 29 200 200 0 0 0 309-179 200 200 0 0 0 35-37"/></svg>
+    </a>
+</div>
+            
+
+
+
+
+
+            
+
+
+
+
+
+        </section>
+</div>
+</article>
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides.
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo https://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>                    </div>
+                    <div class="span1"></div>
+                </div>
+            </div>
+        </div>
+<footer>
+
+
+
+
+    <div id="fpowered">
+        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
+        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
+    </div>
+</footer>            <script src="//code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script src="http://yszheda.github.io/blog/theme/js/elegant.prod.9e9d5ce754.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    <script>
+    (function () {
+        if (window.location.hash.match(/^#comment-\d+$/)) {
+            $('#comment_thread').collapse('show');
+        }
+    })();
+    window.onhashchange=function(){
+        if (window.location.hash.match(/^#comment-\d+$/))
+            window.location.reload(true);
+    }
+    $('#comment_thread').on('shown', function () {
+        var link = document.getElementById('comment-accordion-toggle');
+        var old_innerHTML = link.innerHTML;
+        $(link).fadeOut(200, function() {
+            $(this).text('Click here to hide comments').fadeIn(200);
+        });
+        $('#comment_thread').on('hidden', function () {
+            $(link).fadeOut(200, function() {
+                $(this).text(old_innerHTML).fadeIn(200);
+            });
+        })
+    })
+</script>
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+        License : MIT -->
+</html>

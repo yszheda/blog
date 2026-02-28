@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/custom.css" media="screen">
+
+        <link rel="dns-prefetch" href="//fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+
+        <meta name="author" content="Galoisplusplus" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="cocos2d-x, CS, tech, cocos, cocos2d, 游戏开发, 手游开发, mobile game, game devolopment, tech, " />
+
+<meta property="og:title" content="Customize Development Environment for cocos2d-x "/>
+<meta property="og:url" content="http://yszheda.github.io/blog/2014/08/03/20140803-customize-dev-environment-for-cocos2d-x.html" />
+<meta property="og:description" content="本渣不久前答完辩毕了业，很快就入职开始新的搬砖历程——在一个只有四名码农的团队里做cocos2d-x的前端开发——说起来我们还是公司第一 …" />
+<meta property="og:site_name" content="Galoisplusplus" />
+<meta property="og:article:author" content="Galoisplusplus" />
+<meta property="og:article:published_time" content="2014-08-03T02:13:00+08:00" />
+<meta name="twitter:title" content="Customize Development Environment for cocos2d-x ">
+<meta name="twitter:description" content="本渣不久前答完辩毕了业，很快就入职开始新的搬砖历程——在一个只有四名码农的团队里做cocos2d-x的前端开发——说起来我们还是公司第一 …">
+
+        <title>Customize Development Environment for cocos2d-x  · Galoisplusplus
+</title>
+
+
+
+        <!-- MathJax for LaTeX support -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+            tex2jax: {
+              inlineMath: [['$', '$'], ['\\(', '\\)']],
+              displayMath: [['$$', '$$'], ['\\[', '\\]']],
+              processEscapes: true,
+              processEnvironments: true
+            }
+          });
+        </script>
+        <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    </head>
+    <body>
+        <div id="content">
+            <div class="navbar navbar-static-top">
+                <div class="navbar-inner">
+                    <div class="container-fluid">
+                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </a>
+                        <a class="brand" href="http://yszheda.github.io/blog/"><span class=site-name>Galoisplusplus</span></a>
+                        <div class="nav-collapse collapse">
+                            <ul class="nav pull-right top-menu">
+                                <li >
+                                    <a href=
+                                       http://yszheda.github.io/blog
+                                    >Home</a>
+                                </li>
+                                <li ><a href="http://yszheda.github.io/blog/categories.html">Categories</a></li>
+                                <li ><a href="http://yszheda.github.io/blog/tags.html">Tags</a></li>
+                                <li ><a href="http://yszheda.github.io/blog/archives.html">Archives</a></li>
+                                <li><form class="navbar-search" action="http://yszheda.github.io/blog/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+                <div class="row-fluid">
+                    <div class="span1"></div>
+                    <div class="span10">
+<article itemscope>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+        <h1>
+            <a href="http://yszheda.github.io/blog/2014/08/03/20140803-customize-dev-environment-for-cocos2d-x.html">
+                Customize Development Environment for cocos2d-x
+            </a>
+        </h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+            
+            <p>本渣不久前答完辩毕了业，很快就入职开始新的搬砖历程——在一个只有四名码农的团队里做cocos2d-x的前端开发——说起来我们还是公司第一个做大型手游和cocos2d-x手游的团队呢！搬砖的第一步自然是配置相关环境啦，这里就来记录一下自己近来在这方面的学习和折腾吧。</p>
+<h1 id="mac-os-xios">配置Mac OS X开发及iOS打包环境</h1>
+<h2 id="xcode">安装<code>XCode</code></h2>
+<h2 id="_1">安装命令行工具</h2>
+<ul>
+<li>安装Xcode Command Line Tools：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>xcode-select --install
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>安装OS X下的包管理器<a href="http://brew.sh/">Homebrew</a>（Mac OS X已自带<code>ruby</code>）：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>/usr/bin/ruby -e &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&quot;
+</code></pre></div></td></tr></table></div>
+
+<p>之后就可以用<code>brew install</code>安装<code>python</code>、<code>git</code>等package 。</p>
+<h1 id="android">配置Android打包环境</h1>
+<h2 id="java">安装<code>Java</code></h2>
+<p>在<a href="https://java.com/download">官网</a>下载安装即可。</p>
+<h2 id="android-sdk">Android sdk</h2>
+<p>由于Google被墙了，要在<code>Android</code>官网下载需要翻墙，在以下国内站点下载也可以：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code># 中国科学院开源协会
+http://mirrors.opencas.cn
+
+# 腾讯Bugly镜像
+http://android-mirror.bugly.qq.com:8080
+</code></pre></div></td></tr></table></div>
+
+<p><code>sdk</code>下载后，再安装<code>platform-tools</code>、<code>extra-android-support</code>、<code>android-20</code>和<code>build-tools-20.0.0</code>。
+可以通过<code>Android SDK Manager</code>图形界面安装，也可以在<code>sdk</code>的<code>tools</code>目录下通过命令行安装：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="o">./</span><span class="n">android</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="n">sdk</span><span class="w"> </span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">ui</span><span class="w"> </span><span class="o">--</span><span class="n">all</span><span class="w"> </span><span class="o">--</span><span class="n">filter</span><span class="w"> </span><span class="n">platform</span><span class="o">-</span><span class="n">tools</span>
+<span class="o">./</span><span class="n">android</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="n">sdk</span><span class="w"> </span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">ui</span><span class="w"> </span><span class="o">--</span><span class="n">all</span><span class="w"> </span><span class="o">--</span><span class="n">filter</span><span class="w"> </span><span class="n">extra</span><span class="o">-</span><span class="n">android</span><span class="o">-</span><span class="n">support</span>
+<span class="o">./</span><span class="n">android</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="n">sdk</span><span class="w"> </span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">ui</span><span class="w"> </span><span class="o">--</span><span class="n">all</span><span class="w"> </span><span class="o">--</span><span class="n">filter</span><span class="w"> </span><span class="n">android</span><span class="o">-</span><span class="mi">20</span>
+<span class="o">./</span><span class="n">android</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="n">sdk</span><span class="w"> </span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">ui</span><span class="w"> </span><span class="o">--</span><span class="n">all</span><span class="w"> </span><span class="o">--</span><span class="n">filter</span><span class="w"> </span><span class="n">build</span><span class="o">-</span><span class="n">tools</span><span class="o">-</span><span class="mf">20.0</span><span class="o">.</span><span class="mi">0</span>
+</code></pre></div></td></tr></table></div>
+
+<p>如果要用代理安装可以用：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="o">./</span><span class="n">android</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="n">sdk</span><span class="w"> </span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">ui</span><span class="w"> </span><span class="o">--</span><span class="n">all</span><span class="w"> </span><span class="o">--</span><span class="n">filter</span><span class="w"> </span><span class="n">platform</span><span class="o">-</span><span class="n">tools</span><span class="w"> </span><span class="o">--</span><span class="n">proxy</span><span class="o">-</span><span class="n">host</span><span class="w"> </span><span class="n">android</span><span class="o">-</span><span class="n">mirror</span><span class="o">.</span><span class="n">bugly</span><span class="o">.</span><span class="n">qq</span><span class="o">.</span><span class="n">com</span><span class="w"> </span><span class="o">--</span><span class="n">proxy</span><span class="o">-</span><span class="n">port</span><span class="w"> </span><span class="mi">8080</span><span class="w"> </span><span class="o">-</span><span class="n">s</span>
+<span class="o">./</span><span class="n">android</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="n">sdk</span><span class="w"> </span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">ui</span><span class="w"> </span><span class="o">--</span><span class="n">all</span><span class="w"> </span><span class="o">--</span><span class="n">filter</span><span class="w"> </span><span class="n">extra</span><span class="o">-</span><span class="n">android</span><span class="o">-</span><span class="n">support</span><span class="w"> </span><span class="o">--</span><span class="n">proxy</span><span class="o">-</span><span class="n">host</span><span class="w"> </span><span class="n">android</span><span class="o">-</span><span class="n">mirror</span><span class="o">.</span><span class="n">bugly</span><span class="o">.</span><span class="n">qq</span><span class="o">.</span><span class="n">com</span><span class="w"> </span><span class="o">--</span><span class="n">proxy</span><span class="o">-</span><span class="n">port</span><span class="w"> </span><span class="mi">8080</span><span class="w"> </span><span class="o">-</span><span class="n">s</span>
+<span class="o">./</span><span class="n">android</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="n">sdk</span><span class="w"> </span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">ui</span><span class="w"> </span><span class="o">--</span><span class="n">all</span><span class="w"> </span><span class="o">--</span><span class="n">filter</span><span class="w"> </span><span class="n">android</span><span class="o">-</span><span class="mi">20</span><span class="w"> </span><span class="o">--</span><span class="n">proxy</span><span class="o">-</span><span class="n">host</span><span class="w"> </span><span class="n">android</span><span class="o">-</span><span class="n">mirror</span><span class="o">.</span><span class="n">bugly</span><span class="o">.</span><span class="n">qq</span><span class="o">.</span><span class="n">com</span><span class="w"> </span><span class="o">--</span><span class="n">proxy</span><span class="o">-</span><span class="n">port</span><span class="w"> </span><span class="mi">8080</span><span class="w"> </span><span class="o">-</span><span class="n">s</span>
+<span class="o">./</span><span class="n">android</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="n">sdk</span><span class="w"> </span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">ui</span><span class="w"> </span><span class="o">--</span><span class="n">all</span><span class="w"> </span><span class="o">--</span><span class="n">filter</span><span class="w"> </span><span class="n">build</span><span class="o">-</span><span class="n">tools</span><span class="o">-</span><span class="mf">20.0</span><span class="o">.</span><span class="mi">0</span><span class="w"> </span><span class="o">--</span><span class="n">proxy</span><span class="o">-</span><span class="n">host</span><span class="w"> </span><span class="n">android</span><span class="o">-</span><span class="n">mirror</span><span class="o">.</span><span class="n">bugly</span><span class="o">.</span><span class="n">qq</span><span class="o">.</span><span class="n">com</span><span class="w"> </span><span class="o">--</span><span class="n">proxy</span><span class="o">-</span><span class="n">port</span><span class="w"> </span><span class="mi">8080</span><span class="w"> </span><span class="o">-</span><span class="n">s</span>
+</code></pre></div></td></tr></table></div>
+
+<h3 id="adb">adb</h3>
+<p>在sdk工具中平时开发用得最多的是<code>adb</code>，这里把一些<code>adb</code>常用命令也记一下：</p>
+<ul>
+<li>启动adb服务：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb start-server
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>关闭adb服务：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb kill-server
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>列举Android设备：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb devices
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>通过usb连接Android设备：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb usb
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>安装apk包：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb install -r &lt;apk&gt;
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>卸载应用：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb uninstall &lt;app&gt;
+</code></pre></div></td></tr></table></div>
+
+<p>可以通过以下命令获取app名字：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nx">adb</span><span class="w"> </span><span class="nx">shell</span><span class="w"> </span><span class="nx">pm</span><span class="w"> </span><span class="nx">list</span><span class="w"> </span><span class="nx">packages</span>
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>清除应用数据：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb shell pm clear &lt;app&gt;
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>查看日志：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb logcat
+</code></pre></div></td></tr></table></div>
+
+<p>查看cocos2d-x游戏的日志可以用pipe给grep做过滤：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb logcat | grep cocos2d
+</code></pre></div></td></tr></table></div>
+
+<p><code>adb logcat</code>本身的过滤选项可以查看<a href="https://developer.android.com/studio/command-line/logcat.html">官方文档</a>。</p>
+<ul>
+<li>清除日志缓存：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb logcat -c
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>进入设备终端：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb shell
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>从Android设备拷贝文件到电脑：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb pull &lt;remote&gt; &lt;local&gt;
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>从电脑拷贝文件到Android设备：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb push &lt;local&gt; &lt;remote&gt;
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>查看GPU渲染数据。在Android设备的“开发者选项”中选择“GPU呈现模式分析（开启在adb shell dumpsys gfxinfo中）”，就可以用以下命令输出某app最后120帧的渲染情况：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb shell dumpsys gfxinfo &lt;app&gt;
+</code></pre></div></td></tr></table></div>
+
+<p>例如查看Google Calendar的渲染情况：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb shell dumpsys gfxinfo com.google.android.calendar
+</code></pre></div></td></tr></table></div>
+
+<p>输出：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">Profile</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">ms</span><span class="o">:</span>
+
+<span class="w">        </span><span class="n">com</span><span class="p">.</span><span class="n">google</span><span class="p">.</span><span class="n">android</span><span class="p">.</span><span class="n">calendar</span><span class="o">/</span><span class="n">com</span><span class="p">.</span><span class="n">android</span><span class="p">.</span><span class="n">calendar</span><span class="p">.</span><span class="n">AllInOneCalendarActivity</span><span class="o">/</span><span class="n">android</span><span class="p">.</span><span class="n">view</span><span class="p">.</span><span class="n">ViewRootImpl</span><span class="mi">@423</span><span class="n">c4ad0</span>
+<span class="w">        </span><span class="n">Draw</span><span class="w">    </span><span class="n">Process</span><span class="w"> </span><span class="n">Execute</span>
+<span class="w">        </span><span class="mf">15.60</span><span class="w">   </span><span class="mf">3.92</span><span class="w">    </span><span class="mf">17.66</span>
+<span class="w">        </span><span class="mf">54.51</span><span class="w">   </span><span class="mf">10.14</span><span class="w">   </span><span class="mf">23.59</span>
+<span class="w">        </span><span class="mf">1.59</span><span class="w">    </span><span class="mf">3.00</span><span class="w">    </span><span class="mf">1.57</span>
+<span class="w">        </span><span class="mf">13.04</span><span class="w">   </span><span class="mf">13.78</span><span class="w">   </span><span class="mf">1.54</span>
+</code></pre></div></td></tr></table></div>
+
+<p>Draw、Process、Execute三项加起来就是一帧渲染的总时间了，接下来可以用sdk的<code>systrace</code>工具来做进一步的性能分析，这就不是本文要讨论的话题了。</p>
+<p><code>adb shell dumpsys</code>还有其他很多选项（<code>adb shell service list</code>里列举的都能用），不过对于cocos2d-x开发来说并不常用：</p>
+<ul>
+<li>查看CPU使用情况：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb shell dumpsys cpuinfo
+</code></pre></div></td></tr></table></div>
+
+<p>当然，Android系统也是Linux，所以也可以用：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb shell cat /proc/cpuinfo
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>查看内存使用情况：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb shell dumpsys meminfo
+</code></pre></div></td></tr></table></div>
+
+<p>也可以用：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb shell cat /proc/meminfo
+</code></pre></div></td></tr></table></div>
+
+<p>还可以针对某个app查看内存占用：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb shell dumpsys meminfo &lt;app&gt;
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>查看activity：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb shell dumpsys activity
+</code></pre></div></td></tr></table></div>
+
+<p>查看window：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb shell dumpsys window
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>查看电池使用情况：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb shell dumpsys battery
+</code></pre></div></td></tr></table></div>
+
+<p>更详细的信息可以用以下命令：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb shell dumpsys batterystats
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>查看wifi使用情况：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb shell dumpsys wifi
+</code></pre></div></td></tr></table></div>
+
+<h2 id="android-ndk">Android NDK</h2>
+<p>和SDK一样，可以翻墙到<code>Android</code>官网或者在国内镜像站点下载。
+cocos2d-x对NDK r10的支持有问题，采用NDK r9d。</p>
+<p><strong>Update: 目前cocos2d-x已支持NDK r10。</strong></p>
+<h3 id="ndk-stack">ndk-stack</h3>
+<p>在NDK工具中平时开发用得最多的是<code>ndk-stack</code>，主要用来分析crash。</p>
+<p>一种是实时分析crash：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>adb logcat | ndk-stack -sym $PROJECT_PATH/obj/local/armeabi
+</code></pre></div></td></tr></table></div>
+
+<p>另一种是分析现有的crash dump：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>ndk-stack -sym $PROJECT_PATH/obj/local/armeabi -dump &lt;dump-file&gt;
+</code></pre></div></td></tr></table></div>
+
+<h2 id="ant">安装<code>ant</code></h2>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>brew install ant
+</code></pre></div></td></tr></table></div>
+
+<h1 id="cocos2d-x">cocos2d-x游戏引擎</h1>
+<p>下载<a href="https://github.com/cocos2d/cocos2d-x">cocos2d-x</a>代码，执行以下命令下载所有代码：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">git</span><span class="w"> </span><span class="n">clone</span><span class="w"> </span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">cocos2d</span><span class="o">/</span><span class="n">cocos2d</span><span class="o">-</span><span class="n">x</span><span class="o">.</span><span class="n">git</span>
+<span class="n">cd</span><span class="w"> </span><span class="n">cocos2d</span><span class="o">-</span><span class="n">x</span>
+<span class="n">python</span><span class="w"> </span><span class="n">download</span><span class="o">-</span><span class="n">deps</span><span class="o">.</span><span class="n">py</span>
+<span class="n">git</span><span class="w"> </span><span class="n">submodule</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="o">--</span><span class="n">init</span>
+</code></pre></div></td></tr></table></div>
+
+<p>再执行<code>setup.py</code>，这个脚本会在<code>~/.bash_profile</code>或<code>~/.bash_login</code>或<code>~/.profile</code>中设好<code>COCOS_CONSOLE_ROOT</code>、<code>COCOS_X_ROOT</code>、<code>COCOS_TEMPLATES_ROOT</code>、<code>NDK_ROOT</code>、<code>ANDROID_SDK_ROOT</code>、<code>ANT_ROOT</code>等环境变量。之后<code>source</code>一下被写入环境变量的文件，就可以用<code>cocos</code>命令了。</p>
+<h1 id="ide"><del>IDE?</del></h1>
+<p>本渣一开始用XCode，但XCode实在太慢太卡了，XVim也一点都不好用。作为vim粉，要毛线IDE，果断用vim做为cocos2d-x开发编辑器XD</p>
+<p>由于平时主要是写C++，所以本渣主要用了以下的vim插件：</p>
+<ul>
+<li>
+<p><a href="http://www.vim.org/scripts/script.php?script_id=31">a.vim</a>：快速在<code>.h/.hpp</code>和<code>.c/.cpp</code>之间切换</p>
+</li>
+<li>
+<p><a href="http://www.vim.org/scripts/script.php?script_id=213">c.vim</a>：针对C/C++的代码片段（code snippet）、热键等综合工具</p>
+</li>
+<li>
+<p><a href="http://www.vim.org/scripts/script.php?script_id=2540">snipmate</a>：代码片段自动补全</p>
+</li>
+<li>
+<p><a href="http://www.vim.org/scripts/script.php?script_id=3302">clang_complete</a>：使用强大的<code>clang</code>来做C/C++的代码自动补全</p>
+</li>
+<li>
+<p><a href="https://github.com/rking/ag.vim">ag.vim</a>：想必用过<a href="https://github.com/ggreer/the_silver_searcher">ag</a>的都非常喜欢它完秒<code>ack</code>和<code>grep</code>的速度，<code>ag.vim</code>就是在vim中用ag进行搜索（其实用<code>:!ag</code>也可以哈）。</p>
+</li>
+<li>
+<p><a href="http://valloric.github.io/YouCompleteMe/">YouCompleteMe</a>：YCM是本渣非常喜欢的神器！不过要在cocos2d-x开发中更好使用YCM需要配置<code>.ycm_extra_conf.py</code>文件，本渣写了<a href="https://gist.github.com/yszheda/72401e99c1235d32bcaf">一份</a>放到项目目录下，对于cocos2d-x项目基本是够用的。</p>
+</li>
+</ul>
+<p>后来本渣在Stackoverflow上看到一个话题<a href="http://stackoverflow.com/questions/34573846/cocos2d-x-c-development-tool-no-need-to-be-a-full-ide">Cocos2d-x C++ development tool (no need to be a full IDE)</a>，题主希望开发工具能做到：</p>
+<blockquote>
+<p>auto code complement, class function hint, code formatting and available to see cocos2d-x source code conveniently.</p>
+</blockquote>
+<p>这么简单的需求，vim完全能胜任啊！而且还不需要用以上所有插件，所以本渣写了个酱紫的<a href="http://stackoverflow.com/questions/34573846/cocos2d-x-c-development-tool-no-need-to-be-a-full-ide/35481145#35481145">回答</a>。</p>
+<h1 id="_2">参考资料</h1>
+<p><a href="http://qa.blog.163.com/blog/static/190147002201611833520773/">Android性能－gfxinfo、systrace、traceview</a></p>
+<p><a href="http://blog.chengyunfeng.com/?p=458">Android 性能分析案例</a></p>
+<p><a href="https://developer.android.com/ndk/guides/ndk-stack.html">ndk-stack官方文档</a></p>
+<p><a href="http://stackoverflow.com/questions/18436383/how-to-check-crash-log-using-android-ndk-in-cocos2d-x">How to check crash log using android ndk in cocos2d-x</a></p>
+<p><a href="http://blog.csdn.net/xyang81/article/details/42319789">Android NDK开发Crash错误定位</a></p>
+<p><a href="http://blog.bookbook.in/ji-zhu/-cocos2dx-li-yong-ndkbeng-kui-ri-zhi-cha-zhao-bug">[cocos2dx]利用NDK崩溃日志查找BUG</a></p>
+<p><a href="http://blog.csdn.net/oldmtn/article/details/8889654">android使用ndk-stack调试JNI部分的C/C++代码</a></p>
+<p><a href="http://yi.github.io/work/2014/06/20/%E5%9C%A8MacOS%E4%B8%8A%E8%AE%BE%E7%BD%AEquickx%E5%92%8Ccocos2dx%E7%9A%84Vim%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/">在macos上设置quickx和cocos2dx的vim开发环境</a></p>
+
+
+             
+ 
+            
+            
+            
+
+
+
+
+
+
+
+            <hr/>
+        </div>
+        <section id="article-sidebar" class="span2">
+            <h4>Published</h4>
+            <time itemprop="dateCreated" datetime="2014-08-03T02:13:00+08:00">Sun 03 August 2014</time>
+            <h4>Category</h4>
+            <a class="category-link" href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="http://yszheda.github.io/blog/tags.html#cocos-ref">cocos
+                    <span class="superscript">20</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#cocos2d-ref">cocos2d
+                    <span class="superscript">20</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#cocos2d-x-ref">cocos2d-x
+                    <span class="superscript">24</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#cs-ref">CS
+                    <span class="superscript">48</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#game-devolopment-ref">game devolopment
+                    <span class="superscript">21</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#mobile-game-ref">mobile game
+                    <span class="superscript">21</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#shou-you-kai-fa-ref">手游开发
+                    <span class="superscript">21</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#tech-ref">tech
+                    <span class="superscript">48</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#you-xi-kai-fa-ref">游戏开发
+                    <span class="superscript">21</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+<div id="sidebar-social-link">
+    <a href="https://github.com/yszheda" title="" target="_blank" rel="nofollow noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" aria-label="GitHub" role="img" viewBox="0 0 512 512"><rect width="512" height="512" rx="15%" fill="#1B1817"/><path fill="#fff" d="M335 499c14 0 12 17 12 17H165s-2-17 12-17c13 0 16-6 16-12l-1-50c-71 16-86-28-86-28-12-30-28-37-28-37-24-16 1-16 1-16 26 2 40 26 40 26 22 39 59 28 74 22 2-17 9-28 16-35-57-6-116-28-116-126 0-28 10-51 26-69-3-6-11-32 3-67 0 0 21-7 70 26 42-12 86-12 128 0 49-33 70-26 70-26 14 35 6 61 3 67 16 18 26 41 26 69 0 98-60 120-117 126 10 8 18 24 18 48l-1 70c0 6 3 12 16 12z"/></svg>
+    </a>
+    <a href="https://twitter.com/yszheda" title="" target="_blank" rel="nofollow noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" aria-label="Twitter" role="img" viewBox="0 0 512 512"><rect width="512" height="512" rx="15%" fill="#1da1f3"/><path fill="#fff" d="M437 152a72 72 0 0 1-40 12 72 72 0 0 0 32-40 72 72 0 0 1-45 17 72 72 0 0 0-122 65 200 200 0 0 1-145-74 72 72 0 0 0 22 94 72 72 0 0 1-32-7 72 72 0 0 0 56 69 72 72 0 0 1-32 1 72 72 0 0 0 67 50 200 200 0 0 1-105 29 200 200 0 0 0 309-179 200 200 0 0 0 35-37"/></svg>
+    </a>
+</div>
+            
+
+
+
+
+
+            
+
+
+
+
+
+        </section>
+</div>
+</article>
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides.
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo https://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>                    </div>
+                    <div class="span1"></div>
+                </div>
+            </div>
+        </div>
+<footer>
+
+
+
+
+    <div id="fpowered">
+        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
+        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
+    </div>
+</footer>            <script src="//code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script src="http://yszheda.github.io/blog/theme/js/elegant.prod.9e9d5ce754.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    <script>
+    (function () {
+        if (window.location.hash.match(/^#comment-\d+$/)) {
+            $('#comment_thread').collapse('show');
+        }
+    })();
+    window.onhashchange=function(){
+        if (window.location.hash.match(/^#comment-\d+$/))
+            window.location.reload(true);
+    }
+    $('#comment_thread').on('shown', function () {
+        var link = document.getElementById('comment-accordion-toggle');
+        var old_innerHTML = link.innerHTML;
+        $(link).fadeOut(200, function() {
+            $(this).text('Click here to hide comments').fadeIn(200);
+        });
+        $('#comment_thread').on('hidden', function () {
+            $(link).fadeOut(200, function() {
+                $(this).text(old_innerHTML).fadeIn(200);
+            });
+        })
+    })
+</script>
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+        License : MIT -->
+</html>

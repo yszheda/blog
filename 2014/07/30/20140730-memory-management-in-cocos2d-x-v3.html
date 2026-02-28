@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/custom.css" media="screen">
+
+        <link rel="dns-prefetch" href="//fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+
+        <meta name="author" content="Galoisplusplus" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="cocos2d-x, CS, tech, cocos, cocos2d, 内存, 内存管理, memory management, 游戏开发, 手游开发, mobile game, game devolopment, tech, " />
+
+<meta property="og:title" content="cocos2d-x V3.x内存管理分析 "/>
+<meta property="og:url" content="http://yszheda.github.io/blog/2014/07/30/20140730-memory-management-in-cocos2d-x-v3.html" />
+<meta property="og:description" content="cocos2d-x移植自Objective C的cocos2d，其内存管理其实也来自于OC。因而对于写过OC程序的朋友来讲，cocos2d-x的内存管理应该是一目了然的，但对于本渣这枚没接触过OC的C++码农来说，或许直接看cocos2d-x源代码才是最直接快捷的方式。 Node类 我们首先来 …" />
+<meta property="og:site_name" content="Galoisplusplus" />
+<meta property="og:article:author" content="Galoisplusplus" />
+<meta property="og:article:published_time" content="2014-07-30T22:13:00+08:00" />
+<meta name="twitter:title" content="cocos2d-x V3.x内存管理分析 ">
+<meta name="twitter:description" content="cocos2d-x移植自Objective C的cocos2d，其内存管理其实也来自于OC。因而对于写过OC程序的朋友来讲，cocos2d-x的内存管理应该是一目了然的，但对于本渣这枚没接触过OC的C++码农来说，或许直接看cocos2d-x源代码才是最直接快捷的方式。 Node类 我们首先来 …">
+
+        <title>cocos2d-x V3.x内存管理分析  · Galoisplusplus
+</title>
+
+
+
+        <!-- MathJax for LaTeX support -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+            tex2jax: {
+              inlineMath: [['$', '$'], ['\\(', '\\)']],
+              displayMath: [['$$', '$$'], ['\\[', '\\]']],
+              processEscapes: true,
+              processEnvironments: true
+            }
+          });
+        </script>
+        <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    </head>
+    <body>
+        <div id="content">
+            <div class="navbar navbar-static-top">
+                <div class="navbar-inner">
+                    <div class="container-fluid">
+                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </a>
+                        <a class="brand" href="http://yszheda.github.io/blog/"><span class=site-name>Galoisplusplus</span></a>
+                        <div class="nav-collapse collapse">
+                            <ul class="nav pull-right top-menu">
+                                <li >
+                                    <a href=
+                                       http://yszheda.github.io/blog
+                                    >Home</a>
+                                </li>
+                                <li ><a href="http://yszheda.github.io/blog/categories.html">Categories</a></li>
+                                <li ><a href="http://yszheda.github.io/blog/tags.html">Tags</a></li>
+                                <li ><a href="http://yszheda.github.io/blog/archives.html">Archives</a></li>
+                                <li><form class="navbar-search" action="http://yszheda.github.io/blog/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+                <div class="row-fluid">
+                    <div class="span1"></div>
+                    <div class="span10">
+<article itemscope>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+        <h1>
+            <a href="http://yszheda.github.io/blog/2014/07/30/20140730-memory-management-in-cocos2d-x-v3.html">
+                cocos2d-x V3.x内存管理分析
+            </a>
+        </h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+            
+            <p>cocos2d-x移植自Objective C的cocos2d，其内存管理其实也来自于OC。因而对于写过OC程序的朋友来讲，cocos2d-x的内存管理应该是一目了然的，但对于本渣这枚没接触过OC的C++码农来说，或许直接看cocos2d-x源代码才是最直接快捷的方式。</p>
+<h1 id="node">Node类</h1>
+<p>我们首先来看_Node_类的代码，<em>Node_是cocos2d-x中极重要的基类，许多常用的_Scene</em>、<em>Layer</em>、_MenuItem_等都继承自Node。</p>
+<!-- more -->
+
+<p>Node的创建是通过以下的接口，该函数返回一个Node的静态对象指针：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span>
+<span class="normal">9</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Allocates and initializes a node.</span>
+<span class="cm">     * @return A initialized node which is marked as &quot;autorelease&quot;.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 分配空间并初始化Node</span>
+<span class="cm">     * 返回一个被初始化过且是autorelease的Node对象</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">Node</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nf">create</span><span class="p">();</span>
+</code></pre></div></td></tr></table></div>
+
+<p>下面让我们来看这个函数的实现。该函数采用二段式创建的方式——首先用new operator在heap中开辟空间并进行简单的初始化，假如new返回一个合法地址（cocos2d-x没有采用c++的异常处理机制），则接着init函数用于实际初始化Node的成员。只有在这二者都成功后，才把创建的指针设为<code>autorelease</code>（关于<code>autorelease</code>后面会继续解释）并返回。</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">Node</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nf">Node::create</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">Node</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Node</span><span class="p">();</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ret</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ret</span><span class="o">-&gt;</span><span class="n">init</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">ret</span><span class="o">-&gt;</span><span class="n">autorelease</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">CC_SAFE_DELETE</span><span class="p">(</span><span class="n">ret</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+
+<p>对于创建失败的情况，cocos2d-x使用了下面的宏保证该指针被delete且被设为nullptr：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cp">#define CC_SAFE_DELETE(p)           do { delete (p); (p) = nullptr; } while(0)</span>
+</code></pre></div></td></tr></table></div>
+
+<p>这个二段式的create函数在cocos2d-x中非常常用，因而cocos2d-x用了以下一个叫<code>CREATE_FUNC</code>来表示这个函数以便给继承Node的子类使用：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cm">/**</span>
+<span class="cm"> * define a create function for a specific type, such as Layer</span>
+<span class="cm"> * @param \__TYPE__  class type to add create(), such as Layer</span>
+<span class="cm"> */</span>
+<span class="cp">#define CREATE_FUNC(__TYPE__) \</span>
+<span class="cp">static __TYPE__* create() \</span>
+<span class="cp">{ \</span>
+<span class="cp">    __TYPE__ *pRet = new __TYPE__(); \</span>
+<span class="cp">    if (pRet &amp;&amp; pRet-&gt;init()) \</span>
+<span class="cp">    { \</span>
+<span class="cp">        pRet-&gt;autorelease(); \</span>
+<span class="cp">        return pRet; \</span>
+<span class="cp">    } \</span>
+<span class="cp">    else \</span>
+<span class="cp">    { \</span>
+<span class="cp">        delete pRet; \</span>
+<span class="cp">        pRet = NULL; \</span>
+<span class="cp">        return NULL; \</span>
+<span class="cp">    } \</span>
+<span class="cp">}</span>
+</code></pre></div></td></tr></table></div>
+
+<p>这样，继承Node的子类（例如<code>ExampleLayer</code>）只需要在类声明(class declaration)中加入<code>CREATE_FUNC(类名)</code>（例如<code>CREATE_FUNC(ExampleLayer)</code>），再override下init函数即可。</p>
+<h1 id="ref">Ref类</h1>
+<p>在cocos2d-x中，_Node_类的父类是_Ref_类，之前我们所看到的<code>autorelease</code>方法实际上就来自于这个父类。</p>
+<p>下面我们先来看Ref类的声明，这里为了突出重点，我们忽略script binding的情况：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">  1</span>
+<span class="normal">  2</span>
+<span class="normal">  3</span>
+<span class="normal">  4</span>
+<span class="normal">  5</span>
+<span class="normal">  6</span>
+<span class="normal">  7</span>
+<span class="normal">  8</span>
+<span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CC_DLL</span><span class="w"> </span><span class="n">Ref</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Retains the ownership.</span>
+<span class="cm">     *</span>
+<span class="cm">     * This increases the Ref&#39;s reference count.</span>
+<span class="cm">     *</span>
+<span class="cm">     * @see release, autorelease</span>
+<span class="cm">     * @js NA</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 拿到所有权</span>
+<span class="cm">     * 这会增加引用计数</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">retain</span><span class="p">();</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Releases the ownership immediately.</span>
+<span class="cm">     *</span>
+<span class="cm">     * This decrements the Ref&#39;s reference count.</span>
+<span class="cm">     *</span>
+<span class="cm">     * If the reference count reaches 0 after the descrement, this Ref is</span>
+<span class="cm">     * destructed.</span>
+<span class="cm">     *</span>
+<span class="cm">     * @see retain, autorelease</span>
+<span class="cm">     * @js NA</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 立即释放所有权</span>
+<span class="cm">     * 这会减少引用计数</span>
+<span class="cm">     * 如果更新后的引用计数为0，该Ref对象会被销毁</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">release</span><span class="p">();</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Releases the ownership sometime soon automatically.</span>
+<span class="cm">     *</span>
+<span class="cm">     * This descrements the Ref&#39;s reference count at the end of current</span>
+<span class="cm">     * autorelease pool block.</span>
+<span class="cm">     *</span>
+<span class="cm">     * If the reference count reaches 0 after the descrement, this Ref is</span>
+<span class="cm">     * destructed.</span>
+<span class="cm">     *</span>
+<span class="cm">     * @returns The Ref itself.</span>
+<span class="cm">     *</span>
+<span class="cm">     * @see AutoreleasePool, retain, release</span>
+<span class="cm">     * @js NA</span>
+<span class="cm">     * @lua NA</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 自动释放所有权</span>
+<span class="cm">     * 这会减少引用计数</span>
+<span class="cm">     *</span>
+<span class="cm">     * This descrements the Ref&#39;s reference count at the end of current</span>
+<span class="cm">     * autorelease pool block.</span>
+<span class="cm">     * 如果更新后的引用计数为0，该Ref对象会被销毁</span>
+<span class="cm">     * If the reference count reaches 0 after the descrement, this Ref is</span>
+<span class="cm">     * destructed.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="n">Ref</span><span class="o">*</span><span class="w"> </span><span class="nf">autorelease</span><span class="p">();</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Returns the Ref&#39;s current reference count.</span>
+<span class="cm">     *</span>
+<span class="cm">     * @returns The Ref&#39;s reference count.</span>
+<span class="cm">     * @js NA</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 返回该Ref对象的引用计数</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">getReferenceCount</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="k">protected</span><span class="o">:</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Constructor</span>
+<span class="cm">     *</span>
+<span class="cm">     * The Ref&#39;s reference count is 1 after construction.</span>
+<span class="cm">     * @js NA</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 构造函数</span>
+<span class="cm">     * 初始引用计数为1</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="n">Ref</span><span class="p">();</span>
+
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * @js NA</span>
+<span class="cm">     * @lua NA</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="o">~</span><span class="n">Ref</span><span class="p">();</span>
+
+<span class="k">protected</span><span class="o">:</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 采用引用计数(reference counting)</span>
+<span class="cm">     * _referenceCount就是计数值</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="c1">// count of references</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_referenceCount</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">friend</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">AutoreleasePool</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Memory leak diagnostic data (only included when CC_USE_MEM_LEAK_DETECTION is defined and its value isn&#39;t zero)</span>
+<span class="w">    </span><span class="c1">// 以下函数用于开启内存泄露检测时打印出泄露信息</span>
+<span class="cp">#if CC_USE_MEM_LEAK_DETECTION</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">printLeaks</span><span class="p">();</span>
+<span class="cp">#endif</span>
+<span class="p">};</span>
+</code></pre></div></td></tr></table></div>
+
+<p>从上面的代码，我们可以初步了解到：Ref采用引用计数（reference counting）的方法来管理某个指针所指向的某个对象，初始创建时计数是1，当计数变为0时该对象被析构；<code>retain</code>方法会增加计数并拿到所有权，而与之对应的，<code>release</code>方法会减少计数；<code>autorelease</code>是把所有权交给友类（friend class）<code>AutoreleasePool</code>，让它来决定何时减少计数，这个类我们后面会继续谈到。</p>
+<p>下面我们来看Ref类的实现（definition）：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">  1</span>
+<span class="normal">  2</span>
+<span class="normal">  3</span>
+<span class="normal">  4</span>
+<span class="normal">  5</span>
+<span class="normal">  6</span>
+<span class="normal">  7</span>
+<span class="normal">  8</span>
+<span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cp">#if CC_USE_MEM_LEAK_DETECTION</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">trackRef</span><span class="p">(</span><span class="n">Ref</span><span class="o">*</span><span class="w"> </span><span class="n">ref</span><span class="p">);</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">untrackRef</span><span class="p">(</span><span class="n">Ref</span><span class="o">*</span><span class="w"> </span><span class="n">ref</span><span class="p">);</span>
+<span class="cp">#endif</span>
+
+<span class="c1">// 在初始化列表中将计数设为1</span>
+<span class="n">Ref</span><span class="o">::</span><span class="n">Ref</span><span class="p">()</span>
+<span class="o">:</span><span class="w"> </span><span class="n">_referenceCount</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="c1">// when the Ref is created, the reference count of it is 1</span>
+<span class="p">{</span>
+<span class="c1">// 假如开启内存泄露检测，则追踪该对象指针，将该对象指针放入一个列表（list）中</span>
+<span class="c1">// 后面的代码我们很快就会看到这个list</span>
+<span class="cp">#if CC_USE_MEM_LEAK_DETECTION</span>
+<span class="w">    </span><span class="n">trackRef</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+<span class="cp">#endif</span>
+<span class="p">}</span>
+
+<span class="n">Ref</span><span class="o">::~</span><span class="n">Ref</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="c1">// 假如开启内存泄露检测且引用计数非0，则在追踪列表中找到该对象指针并删除</span>
+<span class="cp">#if CC_USE_MEM_LEAK_DETECTION</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">_referenceCount</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">        </span><span class="n">untrackRef</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+<span class="cp">#endif</span>
+<span class="p">}</span>
+
+<span class="c1">// retain只是单纯将计数递增</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">Ref</span><span class="o">::</span><span class="n">retain</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// CCASSERT是cocos2d-x对C++的assert所封装的宏</span>
+<span class="w">    </span><span class="n">CCASSERT</span><span class="p">(</span><span class="n">_referenceCount</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;reference count should greater than 0&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="o">++</span><span class="n">_referenceCount</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">Ref</span><span class="o">::</span><span class="n">release</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// 首先计数递减</span>
+<span class="w">    </span><span class="n">CCASSERT</span><span class="p">(</span><span class="n">_referenceCount</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;reference count should greater than 0&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="o">--</span><span class="n">_referenceCount</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// 计数为0，应当析构对象</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">_referenceCount</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="cp">#if defined(COCOS2D_DEBUG) &amp;&amp; (COCOS2D_DEBUG &gt; 0)</span>
+<span class="w">        </span><span class="c1">// 得到一个PoolManager单例的对象</span>
+<span class="w">        </span><span class="c1">// PoolManager类后面会解释</span>
+<span class="w">        </span><span class="k">auto</span><span class="w"> </span><span class="n">poolManager</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PoolManager</span><span class="o">::</span><span class="n">getInstance</span><span class="p">();</span>
+<span class="w">        </span><span class="c1">// 后面会详细解释这段代码</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">poolManager</span><span class="o">-&gt;</span><span class="n">getCurrentPool</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">isClearing</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">poolManager</span><span class="o">-&gt;</span><span class="n">isObjectInPools</span><span class="p">(</span><span class="k">this</span><span class="p">))</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// 以下的注释很重要，很快会解释到</span>
+<span class="w">            </span><span class="c1">// Trigger an assert if the reference count is 0 but the Ref is still in autorelease pool.</span>
+<span class="w">            </span><span class="c1">// This happens when &#39;autorelease/release&#39; were not used in pairs with &#39;new/retain&#39;.</span>
+<span class="w">            </span><span class="c1">//</span>
+<span class="w">            </span><span class="c1">// Wrong usage (1):</span>
+<span class="w">            </span><span class="c1">//</span>
+<span class="w">            </span><span class="c1">// auto obj = Node::create();   // Ref = 1, but it&#39;s an autorelease Ref which means it was in the autorelease pool.</span>
+<span class="w">            </span><span class="c1">// obj-&gt;autorelease();   // Wrong: If you wish to invoke autorelease several times, you should retain `obj` first.</span>
+<span class="w">            </span><span class="c1">//</span>
+<span class="w">            </span><span class="c1">// Wrong usage (2):</span>
+<span class="w">            </span><span class="c1">//</span>
+<span class="w">            </span><span class="c1">// auto obj = Node::create();</span>
+<span class="w">            </span><span class="c1">// obj-&gt;release();   // Wrong: obj is an autorelease Ref, it will be released when clearing current pool.</span>
+<span class="w">            </span><span class="c1">//</span>
+<span class="w">            </span><span class="c1">// Correct usage (1):</span>
+<span class="w">            </span><span class="c1">//</span>
+<span class="w">            </span><span class="c1">// auto obj = Node::create();</span>
+<span class="w">            </span><span class="c1">//                     |-   new Node();     // `new` is the pair of the `autorelease` of next line</span>
+<span class="w">            </span><span class="c1">//                     |-   autorelease();  // The pair of `new Node`.</span>
+<span class="w">            </span><span class="c1">//</span>
+<span class="w">            </span><span class="c1">// obj-&gt;retain();</span>
+<span class="w">            </span><span class="c1">// obj-&gt;autorelease();  // This `autorelease` is the pair of `retain` of previous line.</span>
+<span class="w">            </span><span class="c1">//</span>
+<span class="w">            </span><span class="c1">// Correct usage (2):</span>
+<span class="w">            </span><span class="c1">//</span>
+<span class="w">            </span><span class="c1">// auto obj = Node::create();</span>
+<span class="w">            </span><span class="c1">// obj-&gt;retain();</span>
+<span class="w">            </span><span class="c1">// obj-&gt;release();   // This `release` is the pair of `retain` of previous line.</span>
+<span class="w">            </span><span class="n">CCASSERT</span><span class="p">(</span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;The reference shouldn&#39;t be 0 because it is still in autorelease pool.&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="cp">#endif</span>
+
+<span class="c1">// 假如开启内存泄露检测，则在追踪列表中找到该对象指针并删除</span>
+<span class="cp">#if CC_USE_MEM_LEAK_DETECTION</span>
+<span class="w">        </span><span class="n">untrackRef</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+<span class="cp">#endif</span>
+<span class="w">        </span><span class="c1">// 调用析构函数并释放空间</span>
+<span class="w">        </span><span class="k">delete</span><span class="w"> </span><span class="k">this</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 把该对象指针交给友类AutoreleasePool（具体来说，是PoolManager单例对象所得到的当前的AutoreleasePool）来管理</span>
+<span class="n">Ref</span><span class="o">*</span><span class="w"> </span><span class="n">Ref</span><span class="o">::</span><span class="n">autorelease</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">PoolManager</span><span class="o">::</span><span class="n">getInstance</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">getCurrentPool</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">addObject</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Ref</span><span class="o">::</span><span class="n">getReferenceCount</span><span class="p">()</span><span class="w"> </span><span class="k">const</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">_referenceCount</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cp">#if CC_USE_MEM_LEAK_DETECTION</span>
+
+<span class="c1">// 这里便是存放所追踪的对象指针的列表</span>
+<span class="k">static</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">list</span><span class="o">&lt;</span><span class="n">Ref</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">__refAllocationList</span><span class="p">;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">Ref::printLeaks</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Dump Ref object memory leaks</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">__refAllocationList</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">log</span><span class="p">(</span><span class="s">&quot;[memory] All Ref objects successfully cleaned up (no leaks detected).</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">log</span><span class="p">(</span><span class="s">&quot;[memory] WARNING: %d Ref objects still active in memory.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">__refAllocationList</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+
+<span class="w">        </span><span class="c1">// C++的range-for语法</span>
+<span class="w">        </span><span class="c1">// 打印出每个泄露内存的对象指针的类型和引用计数</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">ref</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">__refAllocationList</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">CC_ASSERT</span><span class="p">(</span><span class="n">ref</span><span class="p">);</span>
+<span class="w">            </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">typeid</span><span class="p">(</span><span class="o">*</span><span class="n">ref</span><span class="p">).</span><span class="n">name</span><span class="p">();</span>
+<span class="w">            </span><span class="n">log</span><span class="p">(</span><span class="s">&quot;[memory] LEAK: Ref object &#39;%s&#39; still active with reference count %d.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">type</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">),</span><span class="w"> </span><span class="n">ref</span><span class="o">-&gt;</span><span class="n">getReferenceCount</span><span class="p">());</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 将对象指针放入列表中</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">trackRef</span><span class="p">(</span><span class="n">Ref</span><span class="o">*</span><span class="w"> </span><span class="n">ref</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">CCASSERT</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Invalid parameter, ref should not be null!&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Create memory allocation record.</span>
+<span class="w">    </span><span class="n">__refAllocationList</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">ref</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// 在列表中找到该对象指针并删除</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">untrackRef</span><span class="p">(</span><span class="n">Ref</span><span class="o">*</span><span class="w"> </span><span class="n">ref</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">find</span><span class="p">(</span><span class="n">__refAllocationList</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">__refAllocationList</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="n">ref</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">__refAllocationList</span><span class="p">.</span><span class="n">end</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">log</span><span class="p">(</span><span class="s">&quot;[memory] CORRUPTION: Attempting to free (%s) with invalid ref tracking record.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">typeid</span><span class="p">(</span><span class="o">*</span><span class="n">ref</span><span class="p">).</span><span class="n">name</span><span class="p">());</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">__refAllocationList</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">iter</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cp">#endif </span><span class="c1">// #if CC_USE_MEM_LEAK_DETECTION</span>
+</code></pre></div></td></tr></table></div>
+
+<p>这段源代码对使用者最重要的在于release函数中的注释：</p>
+<ul>
+<li>
+<p>当Ref的计数变为0时，它一定不能在AutoreleasePool中。</p>
+</li>
+<li>
+<p>Ref的计数为0且同时在AutoreleasePool中的错误是由new/retain和autorelease/release没有对应引起的（有木有想起C++中new和delete没对应所引起的内存泄露？）：</p>
+<ul>
+<li>autorelease缺乏对应的retain。
+例如：</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Node</span><span class="o">::</span><span class="n">create</span><span class="p">();</span><span class="w">   </span><span class="c1">// 注意create函数会调用autorelease方法，因此obj已经没有该指针的所有权了</span>
+<span class="n">obj</span><span class="o">-&gt;</span><span class="n">autorelease</span><span class="p">();</span><span class="w">   </span><span class="c1">// obj没有所有权，因此无法再把所有权转交给AutoreleasePool，若要调用autorelease方法需要先调用retain拿到所有权</span>
+</code></pre></div></td></tr></table></div>
+
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>- release缺乏对应的retain。
+</code></pre></div></td></tr></table></div>
+
+<p>例如：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Node</span><span class="o">::</span><span class="n">create</span><span class="p">();</span><span class="w">   </span><span class="c1">// 注意create函数会调用autorelease方法，因此obj已经没有该指针的所有权了</span>
+<span class="n">obj</span><span class="o">-&gt;</span><span class="n">release</span><span class="p">();</span><span class="w">   </span><span class="c1">// obj没有所有权，因此无法再控制计数（所有权在AutoreleasePool），若要调用release方法需要先调用retain拿到所有权</span>
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>正确的用法是在create后调用autorelease或release方法前先用retain拿到所有权：
+例如：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span>
+<span class="normal">9</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// 前面我们分析过create函数，它会先用new operator得到对象，再调用autorelease方法</span>
+<span class="c1">// 这里new和autorelease对应</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Node</span><span class="o">::</span><span class="n">create</span><span class="p">();</span>
+<span class="w">                    </span><span class="o">|-</span><span class="w">   </span><span class="k">new</span><span class="w"> </span><span class="n">Node</span><span class="p">();</span>
+<span class="w">                    </span><span class="o">|-</span><span class="w">   </span><span class="n">autorelease</span><span class="p">();</span>
+
+<span class="c1">// 这里retain和autorelease对应，autorelease一个已经被autorelease过的对象（例如通过create函数构造的对象）必须先retain</span>
+<span class="n">obj</span><span class="o">-&gt;</span><span class="n">retain</span><span class="p">();</span>
+<span class="n">obj</span><span class="o">-&gt;</span><span class="n">autorelease</span><span class="p">();</span>
+</code></pre></div></td></tr></table></div>
+
+<p>又如：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Node</span><span class="o">::</span><span class="n">create</span><span class="p">();</span>
+<span class="c1">// 这里retain和release对应，release一个已经被autorelease过的对象（例如通过create函数构造的对象）必须先retain</span>
+<span class="n">obj</span><span class="o">-&gt;</span><span class="n">retain</span><span class="p">();</span>
+<span class="n">obj</span><span class="o">-&gt;</span><span class="n">release</span><span class="p">();</span>
+</code></pre></div></td></tr></table></div>
+
+<h1 id="autoreleasepool">AutoreleasePool类</h1>
+<p>现在我们来看Ref类的友类AutoreleasePool。
+首先来看类声明：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">  1</span>
+<span class="normal">  2</span>
+<span class="normal">  3</span>
+<span class="normal">  4</span>
+<span class="normal">  5</span>
+<span class="normal">  6</span>
+<span class="normal">  7</span>
+<span class="normal">  8</span>
+<span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CC_DLL</span><span class="w"> </span><span class="n">AutoreleasePool</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * @warn Don&#39;t create an auto release pool in heap, create it in stack.</span>
+<span class="cm">     * @js NA</span>
+<span class="cm">     * @lua NA</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 警告：不要在heap上构造AutoreleasePool对象，要在stack上构造</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="n">AutoreleasePool</span><span class="p">();</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Create an autorelease pool with specific name. This name is useful for debugging.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="n">AutoreleasePool</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">name</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * @js NA</span>
+<span class="cm">     * @lua NA</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="o">~</span><span class="n">AutoreleasePool</span><span class="p">();</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Add a given object to this pool.</span>
+<span class="cm">     *</span>
+<span class="cm">     * The same object may be added several times to the same pool; When the</span>
+<span class="cm">     * pool is destructed, the object&#39;s Ref::release() method will be called</span>
+<span class="cm">     * for each time it was added.</span>
+<span class="cm">     *</span>
+<span class="cm">     * @param object    The object to add to the pool.</span>
+<span class="cm">     * @js NA</span>
+<span class="cm">     * @lua NA</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 把指定的对象指针放到AutoreleasePool对象中</span>
+<span class="cm">     * 注意：</span>
+<span class="cm">     * 同一对象的指针可能会被多次加入到同一AutoreleasePool对象中；</span>
+<span class="cm">     * 当该AutoreleasePool对象被析构时，该对象指针被加入多少次，就得调用多少次该对象的release()函数</span>
+<span class="cm">     * 这是因为AutoreleasePool用vector而非set来存放所管理的对象指针，因此不会去重</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">addObject</span><span class="p">(</span><span class="n">Ref</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Clear the autorelease pool.</span>
+<span class="cm">     *</span>
+<span class="cm">     * Ref::release() will be called for each time the managed object is</span>
+<span class="cm">     * added to the pool.</span>
+<span class="cm">     * @js NA</span>
+<span class="cm">     * @lua NA</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 清空AutoreleasePool</span>
+<span class="cm">     * 每个被管理的对象指针被加入多少次，就会调用多少次release()函数</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">();</span>
+
+<span class="cp">#if defined(COCOS2D_DEBUG) &amp;&amp; (COCOS2D_DEBUG &gt; 0)</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Whether the pool is doing `clear` operation.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="nf">isClearing</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">_isClearing</span><span class="p">;</span><span class="w"> </span><span class="p">};</span>
+<span class="cp">#endif</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Checks whether the pool contains the specified object.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 检查AutoreleasePool对象是否管理某个对象指针</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="nf">contains</span><span class="p">(</span><span class="n">Ref</span><span class="o">*</span><span class="w"> </span><span class="n">object</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Dump the objects that are put into autorelease pool. It is used for debugging.</span>
+<span class="cm">     *</span>
+<span class="cm">     * The result will look like:</span>
+<span class="cm">     * Object pointer address     object id     reference count</span>
+<span class="cm">     *</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">dump</span><span class="p">();</span>
+
+<span class="k">private</span><span class="o">:</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * The underlying array of object managed by the pool.</span>
+<span class="cm">     *</span>
+<span class="cm">     * Although Array retains the object once when an object is added, proper</span>
+<span class="cm">     * Ref::release() is called outside the array to make sure that the pool</span>
+<span class="cm">     * does not affect the managed object&#39;s reference count. So an object can</span>
+<span class="cm">     * be destructed properly by calling Ref::release() even if the object</span>
+<span class="cm">     * is in the pool.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * AutoreleasePool对象将它所管理的对象指针放到下面的vector中</span>
+<span class="cm">     * 尽管每次有对象指针加到该vector中时，该vector实际上retain拿到了所有权，</span>
+<span class="cm">     * 但是Ref::release()会被调用来保证AutoreleasePool不会改变它所管理的对象指针</span>
+<span class="cm">     * 的引用计数。</span>
+<span class="cm">     * 所以，当某个对象指针被放到AutoreleasePool类中管理时，仍然可以通过调用</span>
+<span class="cm">     * Ref::release()函数来析构它</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Ref</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">_managedObjectArray</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">_name</span><span class="p">;</span>
+
+<span class="cp">#if defined(COCOS2D_DEBUG) &amp;&amp; (COCOS2D_DEBUG &gt; 0)</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     *  The flag for checking whether the pool is doing `clear` operation.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">_isClearing</span><span class="p">;</span>
+<span class="cp">#endif</span>
+<span class="p">};</span>
+</code></pre></div></td></tr></table></div>
+
+<p>从类声明中能解读出的最重要的信息是AutoreleasePool类用STL vector来存放它所管理的Ref所指向的对象。要搞清楚原理还需要继续看它的实现：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">AutoreleasePool</span><span class="o">::</span><span class="n">AutoreleasePool</span><span class="p">()</span>
+<span class="o">:</span><span class="w"> </span><span class="n">_name</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+<span class="cp">#if defined(COCOS2D_DEBUG) &amp;&amp; (COCOS2D_DEBUG &gt; 0)</span>
+<span class="p">,</span><span class="w"> </span><span class="n">_isClearing</span><span class="p">(</span><span class="nb">false</span><span class="p">)</span>
+<span class="cp">#endif</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">_managedObjectArray</span><span class="p">.</span><span class="n">reserve</span><span class="p">(</span><span class="mi">150</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// 每个新创建的AutoreleasePool对象都交由PoolManager单例对象统一管理</span>
+<span class="w">    </span><span class="n">PoolManager</span><span class="o">::</span><span class="n">getInstance</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">push</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">AutoreleasePool</span><span class="o">::</span><span class="n">AutoreleasePool</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">name</span><span class="p">)</span>
+<span class="o">:</span><span class="w"> </span><span class="n">_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<span class="cp">#if defined(COCOS2D_DEBUG) &amp;&amp; (COCOS2D_DEBUG &gt; 0)</span>
+<span class="p">,</span><span class="w"> </span><span class="n">_isClearing</span><span class="p">(</span><span class="nb">false</span><span class="p">)</span>
+<span class="cp">#endif</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">_managedObjectArray</span><span class="p">.</span><span class="n">reserve</span><span class="p">(</span><span class="mi">150</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// 每个新创建的AutoreleasePool对象都交由PoolManager单例对象统一管理</span>
+<span class="w">    </span><span class="n">PoolManager</span><span class="o">::</span><span class="n">getInstance</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">push</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">AutoreleasePool</span><span class="o">::~</span><span class="n">AutoreleasePool</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">CCLOGINFO</span><span class="p">(</span><span class="s">&quot;deallocing AutoreleasePool: %p&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// 清空该AutoreleasePool</span>
+<span class="w">    </span><span class="n">clear</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// 要析构的AutoreleasePool对象不再由PoolManager管理</span>
+<span class="w">    </span><span class="n">PoolManager</span><span class="o">::</span><span class="n">getInstance</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">pop</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="c1">// 只是单纯调用vector::push_back加入所管理的对象</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">AutoreleasePool</span><span class="o">::</span><span class="n">addObject</span><span class="p">(</span><span class="n">Ref</span><span class="o">*</span><span class="w"> </span><span class="n">object</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">_managedObjectArray</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">object</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// clear函数就是AutoreleasePool调用release来管理对象的引用计数的地方</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">AutoreleasePool</span><span class="o">::</span><span class="n">clear</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="cp">#if defined(COCOS2D_DEBUG) &amp;&amp; (COCOS2D_DEBUG &gt; 0)</span>
+<span class="w">    </span><span class="n">_isClearing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="cp">#endif</span>
+<span class="w">    </span><span class="c1">// 调用每个在AutoreleasePool的对象指针的release方法</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="o">&amp;</span><span class="n">obj</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">_managedObjectArray</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">release</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// 清空存放管理对象的vector</span>
+<span class="w">    </span><span class="n">_managedObjectArray</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+<span class="cp">#if defined(COCOS2D_DEBUG) &amp;&amp; (COCOS2D_DEBUG &gt; 0)</span>
+<span class="w">    </span><span class="n">_isClearing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="cp">#endif</span>
+<span class="p">}</span>
+
+<span class="c1">// 线性搜索所管理的对象指针的vector，查看所指定的Ref指针是否存在</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">AutoreleasePool</span><span class="o">::</span><span class="n">contains</span><span class="p">(</span><span class="n">Ref</span><span class="o">*</span><span class="w"> </span><span class="n">object</span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">obj</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">_managedObjectArray</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">obj</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">object</span><span class="p">)</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">AutoreleasePool</span><span class="o">::</span><span class="n">dump</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">CCLOG</span><span class="p">(</span><span class="s">&quot;autorelease pool: %s, number of managed object %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">_name</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_managedObjectArray</span><span class="p">.</span><span class="n">size</span><span class="p">()));</span>
+<span class="w">    </span><span class="n">CCLOG</span><span class="p">(</span><span class="s">&quot;%20s%20s%20s&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Object pointer&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Object id&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;reference count&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="o">&amp;</span><span class="n">obj</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">_managedObjectArray</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">CC_UNUSED_PARAM</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+<span class="w">        </span><span class="n">CCLOG</span><span class="p">(</span><span class="s">&quot;%20p%20u</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">obj</span><span class="p">,</span><span class="w"> </span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">getReferenceCount</span><span class="p">());</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+
+<h1 id="poolmanager">PoolManager类</h1>
+<p>下面我们来看PoolManager类，在cocos2d-x中，这个类是典型的单例（singleton）工厂类——及有且只有一个PoolManager对象，该PoolManger有一个存放AutoreleasePool对象指针的stack，该stack是由STL::vector实现的。需要注意的是，cocos2d-x的单例类都不是线程安全的，跟内存管理紧密相关的PoolManager类也不例外，因此在多线程中使用cocos2d-x的接口需要特别注意内存管理的问题。</p>
+<p>我们先来看类声明：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CC_DLL</span><span class="w"> </span><span class="n">PoolManager</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * @js NA</span>
+<span class="cm">     * @lua NA</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="n">CC_DEPRECATED_ATTRIBUTE</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">PoolManager</span><span class="o">*</span><span class="w"> </span><span class="n">sharedPoolManager</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">getInstance</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">PoolManager</span><span class="o">*</span><span class="w"> </span><span class="n">getInstance</span><span class="p">();</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * @js NA</span>
+<span class="cm">     * @lua NA</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="n">CC_DEPRECATED_ATTRIBUTE</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">purgePoolManager</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">destroyInstance</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">destroyInstance</span><span class="p">();</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Get current auto release pool, there is at least one auto release pool that created by engine.</span>
+<span class="cm">     * You can create your own auto release pool at demand, which will be put into auto releae pool stack.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="n">AutoreleasePool</span><span class="w"> </span><span class="o">*</span><span class="nf">getCurrentPool</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="nf">isObjectInPools</span><span class="p">(</span><span class="n">Ref</span><span class="o">*</span><span class="w"> </span><span class="n">obj</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * @js NA</span>
+<span class="cm">     * @lua NA</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="k">friend</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">AutoreleasePool</span><span class="p">;</span>
+
+<span class="k">private</span><span class="o">:</span>
+<span class="w">    </span><span class="c1">// singleton类把构造函数和析构函数设为private，避免被调用</span>
+<span class="w">    </span><span class="n">PoolManager</span><span class="p">();</span>
+<span class="w">    </span><span class="o">~</span><span class="n">PoolManager</span><span class="p">();</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">push</span><span class="p">(</span><span class="n">AutoreleasePool</span><span class="w"> </span><span class="o">*</span><span class="n">pool</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">pop</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">PoolManager</span><span class="o">*</span><span class="w"> </span><span class="n">s_singleInstance</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// 同样用vector来存放所管理AutoreleasePool对象指针的列表</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">AutoreleasePool</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">_releasePoolStack</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div></td></tr></table></div>
+
+<p>再来看类实现：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">PoolManager</span><span class="o">*</span><span class="w"> </span><span class="n">PoolManager</span><span class="o">::</span><span class="n">s_singleInstance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
+
+<span class="n">PoolManager</span><span class="o">*</span><span class="w"> </span><span class="nf">PoolManager::getInstance</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">s_singleInstance</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">s_singleInstance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">PoolManager</span><span class="p">();</span>
+<span class="w">        </span><span class="c1">// Add the first auto release pool</span>
+<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">AutoreleasePool</span><span class="p">(</span><span class="s">&quot;cocos2d autorelease pool&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">s_singleInstance</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">PoolManager::destroyInstance</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">delete</span><span class="w"> </span><span class="n">s_singleInstance</span><span class="p">;</span>
+<span class="w">    </span><span class="n">s_singleInstance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">PoolManager</span><span class="o">::</span><span class="n">PoolManager</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">_releasePoolStack</span><span class="p">.</span><span class="n">reserve</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">PoolManager</span><span class="o">::~</span><span class="n">PoolManager</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">CCLOGINFO</span><span class="p">(</span><span class="s">&quot;deallocing PoolManager: %p&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// 逐个析构所管理的AutoreleasePool对象</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">_releasePoolStack</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">AutoreleasePool</span><span class="o">*</span><span class="w"> </span><span class="n">pool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_releasePoolStack</span><span class="p">.</span><span class="n">back</span><span class="p">();</span>
+
+<span class="w">        </span><span class="k">delete</span><span class="w"> </span><span class="n">pool</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 加入AutoreleasePool对象指针时用的是stl::vector的push_back函数，</span>
+<span class="c1">// 于是调用back函数就可以得到最新被加入的AutoreleasePool对象指针</span>
+<span class="n">AutoreleasePool</span><span class="o">*</span><span class="w"> </span><span class="n">PoolManager</span><span class="o">::</span><span class="n">getCurrentPool</span><span class="p">()</span><span class="w"> </span><span class="k">const</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">_releasePoolStack</span><span class="p">.</span><span class="n">back</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="c1">// 线性搜索每个被管理的AutoreleasePool，</span>
+<span class="c1">// 每个AutoreleasePool对象再用contains函数线性搜索一遍</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">PoolManager</span><span class="o">::</span><span class="n">isObjectInPools</span><span class="p">(</span><span class="n">Ref</span><span class="o">*</span><span class="w"> </span><span class="n">obj</span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">pool</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">_releasePoolStack</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pool</span><span class="o">-&gt;</span><span class="n">contains</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">PoolManager</span><span class="o">::</span><span class="n">push</span><span class="p">(</span><span class="n">AutoreleasePool</span><span class="w"> </span><span class="o">*</span><span class="n">pool</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">_releasePoolStack</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">pool</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">PoolManager</span><span class="o">::</span><span class="n">pop</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">CC_ASSERT</span><span class="p">(</span><span class="o">!</span><span class="n">_releasePoolStack</span><span class="p">.</span><span class="n">empty</span><span class="p">());</span>
+<span class="w">    </span><span class="n">_releasePoolStack</span><span class="p">.</span><span class="n">pop_back</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+
+<h1 id="_1">最后的疑问</h1>
+<p>想必各位用惯了c++的看官在看完了以上的代码之后，最有疑问的还是神秘的<code>Ref::autorelease</code>函数。我们从AutoreleasePool的源代码看到，事实上被autorelease的对象最后还是通过release函数来减少其引用计数的，只不过release函数不是由使用者来调用，而是AutoreleasePool来调用，调用的地方在<code>AutoreleasePool::clear()</code>函数。那么AutoreleasePool如何个「auto」自动管理内存法儿？<code>AutoreleasePool::clear()</code>会在哪个地方被调用？</p>
+<p>谜底隐藏在<code>cocos/base/CCDirector.cpp</code>中：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">void</span><span class="w"> </span><span class="nt">DisplayLinkDirector</span><span class="p">::</span><span class="nd">mainLoop</span><span class="o">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="err">if</span><span class="w"> </span><span class="err">(_purgeDirectorInNextLoop)</span>
+<span class="w">    </span><span class="err">{</span>
+<span class="w">        </span><span class="err">_purgeDirectorInNextLoop</span><span class="w"> </span><span class="err">=</span><span class="w"> </span><span class="err">false</span><span class="p">;</span>
+<span class="w">        </span><span class="err">purgeDirector()</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nt">else</span><span class="w"> </span><span class="nt">if</span><span class="w"> </span><span class="o">(!</span><span class="w"> </span><span class="nt">_invalid</span><span class="o">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="err">drawScene()</span><span class="p">;</span>
+
+<span class="w">        </span><span class="err">//</span><span class="w"> </span><span class="err">release</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">objects</span>
+<span class="w">        </span><span class="n">PoolManager</span><span class="p">:</span><span class="o">:</span><span class="nf">getInstance</span><span class="p">()</span><span class="o">-&gt;</span><span class="nf">getCurrentPool</span><span class="p">()</span><span class="o">-&gt;</span><span class="nf">clear</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="err">}</span>
+</code></pre></div></td></tr></table></div>
+
+<p>这里就不纠缠Director类的实现细节了，上面的代码揭示的事实是：在图像渲染的主循环中，如果当前的图形对象是在当前帧，则调用显示函数，并调用<code>AutoreleasePool::clear()</code>减少这些对象的引用计数。mainLoop是每一帧都会自动调用的，所以下一帧时这些对象都被当前的AutoreleasePool对象release了一次。这也是AutoreleasePool「自动」的来由。</p>
+
+
+             
+ 
+            
+            
+            
+
+
+
+
+
+
+
+            <hr/>
+        </div>
+        <section id="article-sidebar" class="span2">
+            <h4>Published</h4>
+            <time itemprop="dateCreated" datetime="2014-07-30T22:13:00+08:00">Wed 30 July 2014</time>
+            <h4>Category</h4>
+            <a class="category-link" href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="http://yszheda.github.io/blog/tags.html#cocos-ref">cocos
+                    <span class="superscript">20</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#cocos2d-ref">cocos2d
+                    <span class="superscript">20</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#cocos2d-x-ref">cocos2d-x
+                    <span class="superscript">24</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#cs-ref">CS
+                    <span class="superscript">48</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#game-devolopment-ref">game devolopment
+                    <span class="superscript">21</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#memory-management-ref">memory management
+                    <span class="superscript">1</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#mobile-game-ref">mobile game
+                    <span class="superscript">21</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#nei-cun-ref">内存
+                    <span class="superscript">1</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#nei-cun-guan-li-ref">内存管理
+                    <span class="superscript">1</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#shou-you-kai-fa-ref">手游开发
+                    <span class="superscript">21</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#tech-ref">tech
+                    <span class="superscript">48</span>
+</a></li>
+                <li><a href="http://yszheda.github.io/blog/tags.html#you-xi-kai-fa-ref">游戏开发
+                    <span class="superscript">21</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+<div id="sidebar-social-link">
+    <a href="https://github.com/yszheda" title="" target="_blank" rel="nofollow noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" aria-label="GitHub" role="img" viewBox="0 0 512 512"><rect width="512" height="512" rx="15%" fill="#1B1817"/><path fill="#fff" d="M335 499c14 0 12 17 12 17H165s-2-17 12-17c13 0 16-6 16-12l-1-50c-71 16-86-28-86-28-12-30-28-37-28-37-24-16 1-16 1-16 26 2 40 26 40 26 22 39 59 28 74 22 2-17 9-28 16-35-57-6-116-28-116-126 0-28 10-51 26-69-3-6-11-32 3-67 0 0 21-7 70 26 42-12 86-12 128 0 49-33 70-26 70-26 14 35 6 61 3 67 16 18 26 41 26 69 0 98-60 120-117 126 10 8 18 24 18 48l-1 70c0 6 3 12 16 12z"/></svg>
+    </a>
+    <a href="https://twitter.com/yszheda" title="" target="_blank" rel="nofollow noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" aria-label="Twitter" role="img" viewBox="0 0 512 512"><rect width="512" height="512" rx="15%" fill="#1da1f3"/><path fill="#fff" d="M437 152a72 72 0 0 1-40 12 72 72 0 0 0 32-40 72 72 0 0 1-45 17 72 72 0 0 0-122 65 200 200 0 0 1-145-74 72 72 0 0 0 22 94 72 72 0 0 1-32-7 72 72 0 0 0 56 69 72 72 0 0 1-32 1 72 72 0 0 0 67 50 200 200 0 0 1-105 29 200 200 0 0 0 309-179 200 200 0 0 0 35-37"/></svg>
+    </a>
+</div>
+            
+
+
+
+
+
+            
+
+
+
+
+
+        </section>
+</div>
+</article>
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides.
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo https://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>                    </div>
+                    <div class="span1"></div>
+                </div>
+            </div>
+        </div>
+<footer>
+
+
+
+
+    <div id="fpowered">
+        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
+        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
+    </div>
+</footer>            <script src="//code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script src="http://yszheda.github.io/blog/theme/js/elegant.prod.9e9d5ce754.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    <script>
+    (function () {
+        if (window.location.hash.match(/^#comment-\d+$/)) {
+            $('#comment_thread').collapse('show');
+        }
+    })();
+    window.onhashchange=function(){
+        if (window.location.hash.match(/^#comment-\d+$/))
+            window.location.reload(true);
+    }
+    $('#comment_thread').on('shown', function () {
+        var link = document.getElementById('comment-accordion-toggle');
+        var old_innerHTML = link.innerHTML;
+        $(link).fadeOut(200, function() {
+            $(this).text('Click here to hide comments').fadeIn(200);
+        });
+        $('#comment_thread').on('hidden', function () {
+            $(link).fadeOut(200, function() {
+                $(this).text(old_innerHTML).fadeIn(200);
+            });
+        })
+    })
+</script>
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+        License : MIT -->
+</html>

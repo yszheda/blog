@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/custom.css" media="screen">
+
+        <link rel="dns-prefetch" href="//fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+
+        <meta name="author" content="Galoisplusplus" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content=", misc, " />
+
+<meta property="og:title" content="检测quick-cocos2d-x游戏的lua内存泄漏 "/>
+<meta property="og:url" content="http://yszheda.github.io/blog/2015/08/19/jian-ce-quick-cocos2d-xyou-xi-de-luanei-cun-xie-lou.html" />
+<meta property="og:description" content="keywords: cocos2d-x quick-cocos2d-x lua memory leak description: detect lua memory leak in quick-cocos2d-x Tags: cocos2d-x, CS, tech, cocos2d-x, cocos, cocos2d, 游戏开发, 手游开发, game, mobile game, game devolopment, 内存泄露, memory leak, quick-cocos2d-x, quickx, quick-x, lua Slug: 20150819-detect-lua-mem-leak-in-quick-x Category: tech 虽然lua有垃圾回收机制 …" />
+<meta property="og:site_name" content="Galoisplusplus" />
+<meta property="og:article:author" content="Galoisplusplus" />
+<meta property="og:article:published_time" content="2015-08-19T11:53:00+08:00" />
+<meta name="twitter:title" content="检测quick-cocos2d-x游戏的lua内存泄漏 ">
+<meta name="twitter:description" content="keywords: cocos2d-x quick-cocos2d-x lua memory leak description: detect lua memory leak in quick-cocos2d-x Tags: cocos2d-x, CS, tech, cocos2d-x, cocos, cocos2d, 游戏开发, 手游开发, game, mobile game, game devolopment, 内存泄露, memory leak, quick-cocos2d-x, quickx, quick-x, lua Slug: 20150819-detect-lua-mem-leak-in-quick-x Category: tech 虽然lua有垃圾回收机制 …">
+
+        <title>检测quick-cocos2d-x游戏的lua内存泄漏  · Galoisplusplus
+</title>
+
+
+
+        <!-- MathJax for LaTeX support -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+            tex2jax: {
+              inlineMath: [['$', '$'], ['\\(', '\\)']],
+              displayMath: [['$$', '$$'], ['\\[', '\\]']],
+              processEscapes: true,
+              processEnvironments: true
+            }
+          });
+        </script>
+        <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    </head>
+    <body>
+        <div id="content">
+            <div class="navbar navbar-static-top">
+                <div class="navbar-inner">
+                    <div class="container-fluid">
+                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </a>
+                        <a class="brand" href="http://yszheda.github.io/blog/"><span class=site-name>Galoisplusplus</span></a>
+                        <div class="nav-collapse collapse">
+                            <ul class="nav pull-right top-menu">
+                                <li >
+                                    <a href=
+                                       http://yszheda.github.io/blog
+                                    >Home</a>
+                                </li>
+                                <li ><a href="http://yszheda.github.io/blog/categories.html">Categories</a></li>
+                                <li ><a href="http://yszheda.github.io/blog/tags.html">Tags</a></li>
+                                <li ><a href="http://yszheda.github.io/blog/archives.html">Archives</a></li>
+                                <li><form class="navbar-search" action="http://yszheda.github.io/blog/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+                <div class="row-fluid">
+                    <div class="span1"></div>
+                    <div class="span10">
+<article itemscope>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+        <h1>
+            <a href="http://yszheda.github.io/blog/2015/08/19/jian-ce-quick-cocos2d-xyou-xi-de-luanei-cun-xie-lou.html">
+                检测quick-cocos2d-x游戏的lua内存泄漏
+            </a>
+        </h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+            
+            <h1 id="keywords-cocos2d-x-quick-cocos2d-x-lua-memory-leak">keywords: cocos2d-x quick-cocos2d-x lua memory leak</h1>
+<p>description: detect lua memory leak in quick-cocos2d-x
+Tags: cocos2d-x, CS, tech, cocos2d-x, cocos, cocos2d, 游戏开发, 手游开发, game, mobile game, game devolopment, 内存泄露, memory leak, quick-cocos2d-x, quickx, quick-x, lua
+Slug: 20150819-detect-lua-mem-leak-in-quick-x
+Category: tech</p>
+<p>虽然lua有垃圾回收机制，但在使用quick-cocos2d-x和lua开发游戏还是会有不恰当的实现方式所导致的lua内存泄露（例如对cocos2d-x的<code>Node</code>对象做了<code>retain</code>却没有<code>release</code>、把<code>local</code>变量定义成全局变量、没有根据instance的lifecycle去释放它所占有的资源等等）。最近看到云风大神写的lua内存泄露检查工具<a href="https://github.com/cloudwu/lua-snapshot">lua-snapshot</a>，便萌发了将它集成到我们游戏开发中，作为quantity assurance中一环。</p>
+<!-- more -->
+
+<h1 id="_1">配置</h1>
+<p><code>lua-snapshot</code>是用C实现的。我在网上看到不少人是把<code>lua-snapshot</code>编译成动态链接库、用<code>package.loadlib</code>来调用的，其实lua的<code>require</code>本身就能加载C库的。</p>
+<p>首先在<code>cocos2d-x/external/lua/</code>目录下将lua-snapshot代码clone下来：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>git clone https://github.com/cloudwu/lua-snapshot.git
+</code></pre></div></td></tr></table></div>
+
+<p>在<code>cocos2d-x/cocos/scripting/lua-bindings/manual/lua-snapshot/</code>目录中添加如下文件：</p>
+<p>[Code: lua-snapshot/lua_snapshot_extensions.h]</p>
+<p>[Code: lua-snapshot/lua_snapshot_extensions.c]</p>
+<p>[Code: lua-snapshot/lua_cocos2dx_snapshot_manual.h]</p>
+<p>[Code: lua-snapshot/lua_cocos2dx_snapshot_manual.cpp]</p>
+<p>然后找到<code>lua_module_register.h</code>文件，在<code>lua_module_register</code>函数中添加</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="w">    </span><span class="n">register_snapshot_module</span><span class="p">(</span><span class="n">L</span><span class="p">);</span>
+</code></pre></div></td></tr></table></div>
+
+<p>和头文件</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;lua-snapshot/lua_cocos2dx_snapshot_manual.h&quot;</span>
+</code></pre></div></td></tr></table></div>
+
+<p>[Code: lua-snapshot/lua_module_register.h]</p>
+<h1 id="_2">使用</h1>
+<p>由于我们游戏的界面主要是窗口，所以之前实现时便在cocos2d-x引擎的<code>Scene</code>和<code>Layer</code>中间引入了一层<code>Window</code>，并用一个全局singleton的<code>WindowManager</code>对所有<code>Window</code>对象进行管理，对窗口的创建前、创建后、销毁前、销毁后等等行为做公共处理。这样的设计给我加入内存泄露检测带来了不少便利：我只需在创建窗口实例之前记录下当时的快照snapshot1，打开窗口后根据这个窗口的功能做一些操作——通常和测试功能一起进行，也和<code>WindowManager</code>的公共逻辑无关，所以不在代码做处理——在窗口销毁前记下snapshot2，在销毁后记下snapshot3，比较这三个快照，如果一个实例不在snapshot1中而存在于snapshot2和snapshot3中，则该实例属于这个窗口操作后造成的内存泄露。</p>
+<h1 id="_3">参考资料</h1>
+<ul>
+<li>
+<p>[1]<a href="http://blog.codingnow.com/2012/12/lua_snapshot.html">一个 Lua 内存泄露检查工具</a></p>
+</li>
+<li>
+<p>[2]<a href="http://colen.iteye.com/blog/588897">游戏逻辑层在Lua中的内存泄漏与防范</a></p>
+</li>
+<li>
+<p>[3]<a href="http://shavingha.blog.163.com/blog/static/10378336200822134554488/">lua内存泄漏查证</a></p>
+</li>
+<li>
+<p>[4]<a href="http://www.codingart.info/snapshot-detect-Lua-memoryleak.html">使用snapshot检测Lua中的内存泄露</a></p>
+</li>
+</ul>
+
+
+             
+ 
+            
+            
+            
+
+
+
+
+
+
+
+            <hr/>
+        </div>
+        <section id="article-sidebar" class="span2">
+            <h4>Published</h4>
+            <time itemprop="dateCreated" datetime="2015-08-19T11:53:00+08:00">Wed 19 August 2015</time>
+            <h4>Category</h4>
+            <a class="category-link" href="http://yszheda.github.io/blog/categories.html#misc-ref">misc</a>
+<h4>Contact</h4>
+<div id="sidebar-social-link">
+    <a href="https://github.com/yszheda" title="" target="_blank" rel="nofollow noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" aria-label="GitHub" role="img" viewBox="0 0 512 512"><rect width="512" height="512" rx="15%" fill="#1B1817"/><path fill="#fff" d="M335 499c14 0 12 17 12 17H165s-2-17 12-17c13 0 16-6 16-12l-1-50c-71 16-86-28-86-28-12-30-28-37-28-37-24-16 1-16 1-16 26 2 40 26 40 26 22 39 59 28 74 22 2-17 9-28 16-35-57-6-116-28-116-126 0-28 10-51 26-69-3-6-11-32 3-67 0 0 21-7 70 26 42-12 86-12 128 0 49-33 70-26 70-26 14 35 6 61 3 67 16 18 26 41 26 69 0 98-60 120-117 126 10 8 18 24 18 48l-1 70c0 6 3 12 16 12z"/></svg>
+    </a>
+    <a href="https://twitter.com/yszheda" title="" target="_blank" rel="nofollow noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" aria-label="Twitter" role="img" viewBox="0 0 512 512"><rect width="512" height="512" rx="15%" fill="#1da1f3"/><path fill="#fff" d="M437 152a72 72 0 0 1-40 12 72 72 0 0 0 32-40 72 72 0 0 1-45 17 72 72 0 0 0-122 65 200 200 0 0 1-145-74 72 72 0 0 0 22 94 72 72 0 0 1-32-7 72 72 0 0 0 56 69 72 72 0 0 1-32 1 72 72 0 0 0 67 50 200 200 0 0 1-105 29 200 200 0 0 0 309-179 200 200 0 0 0 35-37"/></svg>
+    </a>
+</div>
+            
+
+
+
+
+
+            
+
+
+
+
+
+        </section>
+</div>
+</article>
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides.
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo https://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>                    </div>
+                    <div class="span1"></div>
+                </div>
+            </div>
+        </div>
+<footer>
+
+
+
+
+    <div id="fpowered">
+        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
+        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
+    </div>
+</footer>            <script src="//code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script src="http://yszheda.github.io/blog/theme/js/elegant.prod.9e9d5ce754.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    <script>
+    (function () {
+        if (window.location.hash.match(/^#comment-\d+$/)) {
+            $('#comment_thread').collapse('show');
+        }
+    })();
+    window.onhashchange=function(){
+        if (window.location.hash.match(/^#comment-\d+$/))
+            window.location.reload(true);
+    }
+    $('#comment_thread').on('shown', function () {
+        var link = document.getElementById('comment-accordion-toggle');
+        var old_innerHTML = link.innerHTML;
+        $(link).fadeOut(200, function() {
+            $(this).text('Click here to hide comments').fadeIn(200);
+        });
+        $('#comment_thread').on('hidden', function () {
+            $(link).fadeOut(200, function() {
+                $(this).text(old_innerHTML).fadeIn(200);
+            });
+        })
+    })
+</script>
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+        License : MIT -->
+</html>
