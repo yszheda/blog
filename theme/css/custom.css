@@ -1,0 +1,119 @@
+/* Custom CSS for Technical Blog Style */
+
+/* Better code block styling */
+.highlight {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 20px 0;
+    border: 1px solid #e9ecef;
+}
+
+.highlight pre {
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Better typography for technical content */
+article p {
+    line-height: 1.8;
+    margin-bottom: 1.2em;
+}
+
+article h2, article h3, article h4 {
+    margin-top: 2em;
+    margin-bottom: 1em;
+    font-weight: 600;
+}
+
+article h2 {
+    font-size: 1.75em;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.3em;
+}
+
+/* Improved links */
+article a {
+    color: #007bff;
+    text-decoration: none;
+    border-bottom: 1px solid #007bff;
+    transition: all 0.2s ease;
+}
+
+article a:hover {
+    color: #0056b3;
+    background-color: #e7f5ff;
+    border-bottom-color: #0056b3;
+}
+
+/* Better blockquotes */
+blockquote {
+    border-left: 4px solid #007bff;
+    background-color: #f8f9fa;
+    padding: 15px 20px;
+    margin: 20px 0;
+    font-style: italic;
+    color: #495057;
+}
+
+/* Table styling nicely */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+}
+
+table th, table td {
+    border: 1px solid #dee2e6;
+    padding: 10px;
+    text-align: left;
+}
+
+table th {
+    background-color: #e9ecef;
+    font-weight: 600;
+}
+
+table tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+/* Inline code styling */
+code {
+    background-color: #e9ecef;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.9em;
+    color: #c7254e;
+}
+
+/* Better navigation site name */
+.brand .site-name {
+    font-weight: 700;
+    font-size: 1.3em;
+}
+
+/* Recent posts styling */
+.recent-posts-article {
+    margin-bottom: 25px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.recent-posts-article a {
+    font-size: 1.2em;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.recent-posts-posted {
+    font-size: 0.9em;
+    color: #6c757d;
+}

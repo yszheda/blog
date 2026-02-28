@@ -1,0 +1,2 @@
+# MathJax Plugin for Pelican
+
