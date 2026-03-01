@@ -1,135 +1,144 @@
 <!DOCTYPE html>
 <html lang="zh">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
-        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/custom.css" media="screen">
-        <link rel="dns-prefetch" href="//fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+        <head>
+                        <meta charset="utf-8" />
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                        <meta name="generator" content="Pelican" />
+                        <title>Galoisplusplus - nginx</title>
+                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+        </head>
 
-        <meta name="author" content="Galoisplusplus" />
+        <body id="index" class="home">
+                <header id="banner" class="body">
+                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <nav><ul>
+                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                        </ul></nav>
+                </header><!-- /#banner -->
 
-        <meta property="og:type" content="article" />
-        <meta name="twitter:card" content="summary">
+                <aside id="featured" class="body">
+                    <article>
+                        <h1 class="entry-title"><a href="http://yszheda.github.io/blog/2016/07/24/20160724-my-first-openresty-journey.html">OpenResty折腾记</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2016-07-24T11:22:00+08:00">
+                Published: 日 24 7月 2016
+        </abbr>
 
-<meta property="og:title" content="Galoisplusplus"/>
-<meta name="twitter:title" content="Galoisplusplus">
-<meta property="og:url" content="http://yszheda.github.io/blog" />
-<meta property="og:site_name" content="Galoisplusplus" />
-<meta property="og:article:author" content="Galoisplusplus" />
-<meta name="keywords" content=" 2D,  777,  阿巴多,  ab,  Abbado,  acer,  acl,  act,  Adriano Banchieri,  爱的艺术,  Alessandro Stradella,  Alvin Lucier,  按钮,  安装,  Andris Nelsons,  android,  Android.mk,  Angela Hewitt,  奥赛罗,  Archlinux,  ARM,  assembly,  Attali,  awk,  Bach,  bash,  Beckett,  贝克特,  崩溃,  BFO,  笔电,  笔记本电脑,  编辑器,  编译器,  BibTeX,  bibtex2html,  并行程序,  blog,  BMFont,  博客,  伯明翰市立交响,  Branch Prediction,  breakpad,  Brecht,  Brian Massumi,  不规则按钮,  布莱希特,  Budapest Festival Orchestra,  button,  c++,  Carmen Giannattasio,  CBSO,  测试,  Cello,  CentOS,  chapterbib,  chmod,  除錯,  clang,  Classical music,  Claudio Abbado,  cocos,  cocos2d,  cocos2d-x,  cocos2d-x quick-cocos2d-x quickx cocos2d cocos game gameDev 游戏开发 游戏 手游开发 手游 手机游戏,  cocostudio,  commit,  Computer Architecture,  concert,  conductor,  crash,  cron,  cronjob,  crontab,  CS,  cuBLAS,  CUDA,  大无,  打字特效,  戴米恩·莱斯,  Damien Rice,  Daniel Harding,  Dārziņš,  data mining,  德九,  debug,  debugfs,  等待戈多,  邓树荣,  Der Ring Des Nibelungen,  调试,  Dmitry Belosselskiy,  Docker,  Domenico Cimarosa,  Domenico Sarro,  东艺,  drama,  独立摇滚,  Dvořák,  Edgard Varèse,  editor,  effect,  Elisabeth Leonskaja,  Enrico Stinchelli,  Erich Fromm,  extundelete,  Fabio Sartori,  分支预测,  FNT,  Free Software,  弗洛姆,  Galois Field,  game,  game devolopment,  钢琴,  钢琴家,  gcc,  gdb,  歌剧,  个人博客,  个人wiki,  Giaches de Wert,  git,  gitcafe,  gitcafe pages,  github,  github pages,  gl,  godot,  Goldsmith,  GPGPU,  GPU,  Graphviz,  GridView,  古典音乐,  Gustav Kuhn,  哈恩,  Handel,  Haydn,  HEVEA,  Hilary Hahn,  history,  宏基,  hook,  荒诞派,  荒诞派戏剧,  恢复,  I Grandi Directtori d'Orchestra,  Iannis Xenakis,  In an Italian Garden,  irregular,  Isolde,  Ivan Fischer,  Ivan Panteleev,  Jacques Attali,  Jardin des Voix,  计算机体系,  姜宇辉,  脚本,  交响乐团,  金柱泽,  J.S. Bach,  矩阵乘法,  Julian Rachlin,  Kavakos,  KingLear,  Kyung Wha Chung,  L’Accademia d’Amore,  laptop,  LaTeX,  Le Jardin des Voix,  Leonidas Kavakos,  Les Arts Florissants,  李尔王,  life,  linux,  listings,  刘悦笛,  llvm,  LOCAL_C_INCLUDES,  LOCAL_SRC_FILES,  LSO,  lsof,  Lua,  luac,  Lucier,  Luigi Rossolo,  Macbeth,  machine learning,  MAGMA,  麦克白,  makefile,  Margaret Campbell,  Mark Lammert,  Massumi,  matrix multiplication,  media9,  memcheck,  memory management,  mendeley,  Mike Goldsmith,  民谣,  民谣摇滚,  minted,  Mintz,  mobile game,  Mozart,  MPI,  Natalia Gutman,  内存,  内存管理,  NEON,  nginx,  尼尔森斯,  Nicholas Angelich,  ocaml,  OCAT,  octopress,  ODP,  Ontopower,  opengl,  OpenGL ES,  OpenResty,  Opera,  Orazio Vecchi,  Orchestre de Paris,  Othello,  Paavo Järvi,  padb,  parallel programming,  pathogen,  PhotoRec,  piano,  Pierre Schaeffer,  平行程式,  pkexec,  Practical Vim,  press test,  pygments,  quick,  quick-cocos2d-x,  quickx,  Rachlin,  reading,  recital,  recover,  Reed-Solomon,  Renaud Capuçon,  Richard Stallman,  RMS,  RNN,  Rossolo,  Russian Cello School,  Russian Piano School,  Samuel Beckett,  Samuel Finzi,  Schaeffer,  莎士比亚,  Shakespear,  shell,  声音艺术,  Shlomo Mintz,  手游开发,  斯卡拉,  Sibelius,  Simon Boccanegra,  Simone Piazzola,  SimpleScalar,  snapshots,  staggered tiled map,  sudo,  svn,  systemd,  TableView,  特效,  tech,  template,  test,  tex,  TexturePacker,  the Art of Loving,  体系结构,  tile,  tiled,  tiled map,  tmux,  Tristan,  typewriting,  Tyrolean Festival Erl,  UI,  UNIX,  V3-571G,  valgrind,  Varèse,  Verdi,  vi,  vim,  vimwiki,  violin,  violinist,  Vivaldi,  瓦格纳,  瓦片地图,  Wagner,  waiting for godot,  威尔第,  文件恢复,  文学,  widget,  wiki,  William Christie,  Wolfram Koch,  wrk,  Xenakis,  西贝柳斯,  西贝柳斯小协,  戏剧,  希拉里,  西蒙·波卡涅拉,  小提琴,  休伊特,  xypic,  压测,  压力测试,  音乐,  音乐会,  殷漪,  游戏崩溃,  游戏开发,  郑京和,  郑明勋,  指挥家,  字体,  自由软件,  misc,  music,  reading,  tech, " />
-        <title>Galoisplusplus - nginx tag</title>
+                <address class="vcard author">
+                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
+<p>tags: <a href="http://yszheda.github.io/blog/tag/linux.html">Linux</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/nginx.html">nginx</a> <a href="http://yszheda.github.io/blog/tag/openresty.html">OpenResty</a> <a href="http://yszheda.github.io/blog/tag/docker.html">docker</a> <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+</footer><!-- /.post-info --><p>前面几篇文章稍稍提到本渣最近接手了一个server端开发的活，这次就来碎碎念一下好了。虽然我们server端用<code>OpenResty</code>，和client端一样主要也是用<code>lua</code>开发，不过实在也不是本渣谦虚，本渣一个client端码农，肿么就被叫去写server端代码捏？<del>是因为组织上对本渣的信任。</del>是因为啊，我们server端想要实现战斗这块功能。而这块功能呢，恰好client端已经实现过。本渣嘛，又承担过不少战斗功能的开发工作。所以组织上说，既然你以前在client端挖过不少这种坑，那么server端的坑也由你来挖吧？于是本渣就<del>念了两句诗</del>接了这活。</p>
+<p>本渣从一开始接手开始，就打定主意直接在server端重用client端的战斗功能代码。一方面是因为本渣很懒，已经实现过的轮子不想再造一遍；另一方面是因为我们client端的这块代码仍在迭代中，会不时上一些新类型的战斗玩法，如果server端再重新实现一遍，以后还得把client端新的改动也搬过来，这不仅不好维护，而且又是翻倍的工作量。最好就是把client端的战斗功能代码当做server端代码的一个submodule，client端有改动的话就直接pull下更新来使用。client端的这部分代码虽然也是<code>lua</code>写的，但要重用的话有个问题：我们client端用了<code>cocos2d-x</code>和<code>quick-x</code>，但server端只是个Web API Server，最好避免引入<code>cocos2d-x</code>和<code>quick-x</code>的<code>C++</code> API、以及<code>Node</code>之类的view（嗯，MVC的view）相关对象。好在最开始做战斗的大神设计得当，把战斗功能划分为战斗计算模块和战斗表现模块——前者计算出手先后、技能释放、buff和属性值改变等等，生成战报；后者再根据前者所生成的战报，播放相应的特效动画和人物动作——等到半年后本渣接手时，为了实现独立的战报播放功能，又把这块代码重构了，去掉了两个模块之间的耦合，所以战斗计算模块基本是独立于<code>cocos2d-x</code>和<code>quick-x</code>的<code>C++</code>代码、与view完全无关的纯<code>lua</code>实现。本渣只需要再补上<code>quick-x</code>中一些如<code>math.round</code>的全局函数的定义，很快就能在server端跑通了，但是新的问题又来了：</p>
+<ol>
+<li>
+<p>有一定概率出现全局函数没有定义的错误，但是在代码里，这些全局函数在定义后并没有被修改。</p>
+</li>
+<li>
+<p>在用<code>nginx</code> start或reload的方式创建新的<code>nginx</code> worker进程后，第一次访问有很大概率会失败。</p>
+</li>
+</ol>
+<p>由于本渣是第一次接触<code>OpenResty</code>，这些问题一开始让本渣丈二和尚摸不着头脑，后来才渐渐理清了头绪。
+前一个问题与<code>OpenResty</code>的code cache有关。本渣在<code>nginx</code>配置里打开了code cache：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>lua_code_cache on
+</code></pre></div></td></tr></table></div>
 
+<p>而全局函数的使用是通过<code>nginx</code> content阶段的<code>lua</code>代码<code>require</code>加载定义这些全局函数的文件的。根据<code>OpenResty</code>官方对于code cache的说明，只有最开始运行的LuaVM才会去真正加载这些文件，执行那些定义全局函数的代码，所以这些全局函数只有在该LuaVM所在的进程里是被定义的。此后，如果请求被同一个<code>nginx</code> worker处理，则可以正常使用之前定义的全局函数；但如果请求被分到不同的worker，就会出现变量没有定义的报错。</p>
+<p>至于后一个问题，本渣观察到：在第一次访问时，<code>nginx</code> worker的CPU使用量飙升，一定概率导致server端响应时间超过设置的timeout时间，从而被client端认为是超时。
+后来本渣继续缩小问题的排查范围，最后将它定位到client端读取并处理策划表的代码上。由于策划表的数据量大，所以这部分代码运行起来比较耗时倒也不奇怪。而前面提到code cache打开时，被<code>require</code>的文件只加载一次，这些处理策划表的代码也只有第一次才被真正运行，所以看到的现象就是第一次的请求会经常失败了。</p>
+<p>前一个问题与全局函数有关，本渣看到不少<code>OpenResty</code>前辈提到<a href="https://segmentfault.com/a/1190000004297908">要避免使用全局变量</a>：</p>
+<blockquote>
+<p>一般来说，在ngx_lua的上下文中使用Lua全局变量真的不是什么好主意：</p>
+<ol>
+<li>
+<p>滥用全局变量的副作用会对并发场景产生副作用，比如当使用者把这些变量看作是本地变量的时候；</p>
+</li>
+<li>
+<p>Lua的全局变量需要向上查找一个全局环境（只是一个Lua表），代价比较高；</p>
+</li>
+<li>
+<p>一些Lua的全局变量引用只是拼写错误，这会导致出错很难排查。</p>
+</li>
+</ol>
+</blockquote>
+<p>其中一个重要原因是会对并发场景产生副作用，本渣以前入过并行程序的坑，对这一点是不能同意更多的。不过回头来看我们client端代码里的那些全局“变”量，其实都是全局常量，不仅值不会被改变，而且我们代码中只会对这些常量执行一次赋值操作（当且仅当它们被定义时），这就不存在并发的副作用问题了。对于全局变量访问开销大的问题，本渣写了个脚本，在代码文件开头对使用到的全局变量<code>local</code>化（例如<code>local XXX = require('XXX')</code>）。拼写错误引发的bug嘛，本渣之前在<a href="/2016/03/12/20160312-svn-precommit-hook.html">svn hook</a>加了检查，所以在开发过程中提交代码就能及时发现问题。逐条分析下来，倒是命名空间污染不可避免，但是我们server端和client端的代码是完全独立的，命名空间污染并不会引发什么问题。当然严格一点，还是可以把client端涉及到的全局常量全部改成<code>local</code>的，写个脚本来处理所有代码也不难。<del>但处理问题要灵活嘛，既然在具体场景里无关紧要为啥还要迷信教条多此一举？嘿嘿，本渣就是这么懒XD</del>不过本渣考虑到client端这块代码仍在持续开发新的功能，这样做会给client端码农的开发带来限制：“喂，大熊弟，乃们的代码server端也要跑的哦，以后不能用全局常量了！”“WTF！”。这种节奏就不太理想了，本渣希望server端的代码重用对client端而言是透明的，client端的大熊弟在挖坑时可以完全无视server端战斗功能的存在：“server端关我鸟事，老子该干嘛还干嘛！”所以i呢，本渣放弃了去掉全局常量的治疗，最终选择在保留client端全局常量的前提下去解决它所带来的问题。</p>
+<p>本渣最后解决前面提到的两个问题的黑科技是：把<code>require</code> client端代码的部分从<code>nginx</code>的content阶段，挪到了<code>nginx</code> lua module的init阶段：</p>
+<p><img alt="image" src="https://cloud.githubusercontent.com/assets/2137369/15272097/77d1c09e-1a37-11e6-97ef-d9767035fc3e.png"></p>
+<p>init阶段会在<code>nginx</code> master进程加载<code>nginx</code>配置时执行，之后才由master进程clone出worker进程。全局常量放在这个阶段初始化，就不会有某些worker进程没有定义全局变量的报错；处理策划表的代码放在这个阶段执行，就把CPU开销转移到加载<code>nginx</code>配置上，不会增加请求的响应时间，可谓是一石二鸟。</p>
+<p>有了一个可行的prototype，接下来本渣最关心的就是性能问题了：毕竟是第一次搞<code>OpenResty</code>，没啥经验，万一上线后server不堪重负挂了呢？不过我们做server端的老司机们都对自己开的车很自信，之前从没有写过测试代码，所以单接口压力测试还得本渣这server端小白自行琢磨啦。压测工具中，<code>Apache</code>的<code>ab</code>还是挺好上手的，输出的信息也很好分析。不过本渣也犯过傻：有一次正和小伙伴吹牛逼呢，说压测出来性能特别棒，一细看就打脸了，原来都是Non-200 response......HTTP code为啥不是200捏？原来本渣是通过写client端<code>lua</code>代码来获取POST参数的，本渣的这段代码有bug，导致POST的参数有误。后来bug改掉了，结果小伙伴一脸鄙夷：乃不是可以看server端的access log吗？干嘛非要在client端写代码获取POST参数？......好吧，开森就好......<code>ab</code>做压测有个问题，就是POST参数是固定的，但本渣想用不同的战斗来压测自己那块功能，需要让不同请求的POST参数各不相同。最后本渣找到了<a href="https://github.com/wg/wrk"><code>wrk</code></a>这个压测工具。<code>wrk</code>最吸引本渣的，是它支持<code>lua</code>编程，普大喜奔啊！本渣这个懒人又可以重用client端的<code>lua</code>代码了！XDD</p>
+<p>压测结果有了，但要知道性能热点才好对症下药做优化啊。这个时候本渣找到了春哥写的<a href="https://github.com/OpenResty/nginx-systemtap-toolkit">SystemTap脚本</a>和<a href="https://github.com/brendangregg/FlameGraph">火焰图工具</a>，这套工具简直是profile神器啊有不有！本渣之前也折腾过cocos2d-x游戏client端的profiler，万万没想到还有内核trace这种玩法！借助春哥所介绍的On-CPU和Off-CPU火焰图，本渣改进了一些问题，例如某些不被<code>luajit</code>支持的函数，会被<code>luajit</code>解释执行，在火焰图中会有<code>lj_xxx</code>的frame。这时候可以看看这些函数能否换成<code>luajit</code>支持的函数，像本渣就发现我们client端代码里有不少用<code>pairs</code>的地方，其实应该把相应的<code>lua table</code>设计成array而非hash table，采用<code>ipairs</code>来遍历。</p>
+<p>在做压测和做火焰图的时候还发生过意外，有次<code>nginx</code> worker进程占满CPU，把开发server卡死了。分析下来是因为某个testcase使client端的战斗计算一直没有达到结束条件，死循环了。这倒也不奇怪，因为我们client端的战斗按照策划大大们的需求就是支持无限回合的。那为虾米在client端不会出现战斗计算死循环导致机器卡死呢？前面提到client端有战斗计算模块和战斗表现模块，这是一个典型的producer-consumer模型：战斗计算模块是producer，生产出若干回合的战报交给战斗表现模块，然后挂起；战斗表现模块是consumer，“消费”当前尚未播放的战报，同时接收玩家的操作信息，转交给战斗计算模块进行新回合的计算。也就是说，这两者总是相继运行的。而server端不存在战斗表现模块，战斗计算模块全部算完后就返回所有回合的战报，所以server端会有卡死问题而client端木有。这个问题大家讨论下来，最后策划大大决定在server端战斗加上战斗最大回合数限制，避免死循环。现在理论上没问题了，但本渣还是不放心：万一哪天代码有个bug会触发死循环呢？一出现问题就搞个大新闻，影响到整台机器，后果很严重啊！本渣首先想到把server端拆成一般业务server和战斗server，把两者隔离开，万一战斗出现问题，其他业务仍可以正常运作；然后对战斗server的<code>nginx</code> worker进程要有资源限制，不能让它们拖垮整台机器。最后采用的大杀器也许你已经猜到了，那就是<code>Docker</code>！采用<code>Docker</code>可以很方便地用<code>namespace</code>做环境隔离、用<code>cgroups</code>做资源限制，而且<code>Docker</code> container本质上是host机的进程，不会有虚拟机的性能降级。</p>
+<p>敲定了这一解决方案，接下来的挖坑工作就顺理成章分成了两块：一个是如何把我们server端<code>Docker</code>化，另一个是业务server和战斗server如何协作。前者可以被<code>Docker</code>化的有<code>OpenResty</code>的<code>nginx</code>进程、<code>MySQL</code>和<code>redis</code>实例，好在<code>OpenResty</code>、<code>MySQL</code>和<code>redis</code>都有现成的<code>Docker</code>镜像，只需要稍做修改，就可以用到我们这套server端代码上。
+<code>Docker</code>的构建实在太方便了，本渣也趁着把server端<code>Docker</code>化的时候，简化搭建开发server的流程。中间为了解决自动化快速备份现有数据库数据作为开发server数据的问题，折腾了一阵，学到不少东西，不过像<code>MySQL</code> <code>InnoDB</code>等技术细节还是得找时间扫盲一下～
+至于后者，由于一般业务server和战斗server采用的是同一套代码（只是<code>nginx</code>配置稍有不同，本渣折腾配置时还踩过<code>nginx</code> <code>if</code>的坑，<a href="https://moonbingbing.gitbooks.io/OpenResty-best-practices/content/ngx/if_is_evil.html">“if is evil”</a>啊！），访问的是同样的<code>MySQL</code>和<code>redis</code>实例，所以只需要考虑这样一个问题：client端在连上一般业务server后，一般业务server如何把战斗相关的请求转给战斗server来处理？<a href="https://moonbingbing.gitbooks.io/OpenResty-best-practices/content/OpenResty/how_request_http.html">《Openresty最佳实践》</a>介绍了两种最常见的HTTP接口调用方法：</p>
+<ol>
+<li>
+<p><code>proxy_pass</code></p>
+</li>
+<li>
+<p><code>cosocket</code></p>
+</li>
+</ol>
+<p>这两种方式本渣都折腾过了，最后采用了<code>proxy_pass</code>的方式。因为本渣考虑到以后可能会出现战斗server集群的情况，采用<code>proxy_pass</code>可以方便在<code>nginx</code>配置的<code>upstream</code>中配置多个战斗server，做load balance，可拓展性更好。加上我们启动战斗server其实只需要创建新的<code>Docker</code>容器，这整套方案可以很容易scale上去。当然，我们游戏目前的访问量还远不需要集群去撑，考虑集群似乎有杀鸡用牛刀之嫌，不过梦想总是要有的，万一我们游戏火了呢XD</p>
+<p>嗯，最近就做了这么一点微不足道的工作，本篇也没什么干货，谢谢大家！</p>                    </article>
+                </aside><!-- /#featured -->
+                    <section id="content" class="body">
+                        <h1>Other articles</h1>
+                        <hr />
+                        <ol id="posts-list" class="hfeed">
 
+                <li><article class="hentry">
+                    <header>
+                        <h1><a href="http://yszheda.github.io/blog/2016/07/19/20160719-nginx-tips.html" rel="bookmark"
+                               title="Permalink to Nginx Tips">Nginx Tips</a></h1>
+                    </header>
 
-        <!-- MathJax for LaTeX support -->
-        <script type="text/x-mathjax-config">
-          MathJax.Hub.Config({
-            tex2jax: {
-              inlineMath: [['$', '$'], ['\\(', '\\)']],
-              displayMath: [['$$', '$$'], ['\\[', '\\]']],
-              processEscapes: true,
-              processEnvironments: true
-            }
-          });
-        </script>
-        <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-    </head>
-    <body>
-        <div id="content">
-            <div class="navbar navbar-static-top">
-                <div class="navbar-inner">
-                    <div class="container-fluid">
-                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </a>
-                        <a class="brand" href="http://yszheda.github.io/blog/"><span class=site-name>Galoisplusplus</span></a>
-                        <div class="nav-collapse collapse">
-                            <ul class="nav pull-right top-menu">
-                                <li >
-                                    <a href=
-                                       http://yszheda.github.io/blog
-                                    >Home</a>
-                                </li>
-                                <li ><a href="http://yszheda.github.io/blog/categories.html">Categories</a></li>
-                                <li ><a href="http://yszheda.github.io/blog/tags.html">Tags</a></li>
-                                <li ><a href="http://yszheda.github.io/blog/archives.html">Archives</a></li>
-                                <li><form class="navbar-search" action="http://yszheda.github.io/blog/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="container-fluid">
-                <div class="row-fluid">
-                    <div class="span1"></div>
-                    <div class="span10">
+                    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2016-07-19T11:22:00+08:00">
+                Published: 二 19 7月 2016
+        </abbr>
 
+                <address class="vcard author">
+                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
+<p>tags: <a href="http://yszheda.github.io/blog/tag/linux.html">Linux</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/nginx.html">nginx</a> </p>        
+</footer><!-- /.post-info -->                        <p>最近在做server端开发，需要熟悉nginx，本渣也就在这里记录下自己遇到的一些问题。其实都比较小白，纯粹当作自我扫盲啦XD 本文将不 …</p>
+                        <a class="readmore" href="http://yszheda.github.io/blog/2016/07/19/20160719-nginx-tips.html">read more</a>
+                    </div><!-- /.entry-content -->
+                </article></li>
+                    </ol><!-- /#posts-list -->
+                    </section><!-- /#content -->
+                <section id="extras" class="body">
+                                <div class="blogroll">
+                                        <h2>links</h2>
+                                        <ul>
+                                                        <li><a href="http://getpelican.com/">Pelican</a></li>
+                                                        <li><a href="http://python.org/">Python.org</a></li>
+                                        </ul>
+                                </div><!-- /.blogroll -->
+                                <div class="social">
+                                        <h2>social</h2>
+                                        <ul>
 
-<div class="row-fluid">
+                                                        <li><a href="https://github.com/yszheda">GitHub</a></li>
+                                                        <li><a href="https://twitter.com/yszheda">Twitter</a></li>
+                                        </ul>
+                                </div><!-- /.social -->
+                </section><!-- /#extras -->
 
-    <div class="row-fluid">
+                <footer id="contentinfo" class="body">
+                        <address id="about" class="vcard body">
+                                Proudly powered by <a rel="nofollow" href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a rel="nofollow" href="https://www.python.org/">Python</a>.
+                        </address><!-- /#about -->
 
-    </div>
+                        <p>The theme is by <a rel="nofollow" href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+                </footer><!-- /#contentinfo -->
 
-    <div class="row-fluid">
-        <div class="span8 offset2">
-            <header>
-            <h1 id="recent-posts">Recent Posts <a id="allposts" href="http://yszheda.github.io/blog/archives.html">all posts</a></h1>
-            </header>
-        <div class="recent-posts">
-            <div itemscope class="recent-posts-article">
-                <a href="http://yszheda.github.io/blog/2016/07/24/20160724-my-first-openresty-journey.html">
-                    OpenResty折腾记
-                </a>
-                <div class="recent-posts-posted">
-                    posted in
-                    <a href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
-                    <time itemprop="dateCreated" datetime="2016-07-24T11:22:00+08:00">Sun 24 July 2016</time>
-                </div>
-            </div>
-            <div itemscope class="recent-posts-article">
-                <a href="http://yszheda.github.io/blog/2016/07/19/20160719-nginx-tips.html">
-                    Nginx Tips
-                </a>
-                <div class="recent-posts-posted">
-                    posted in
-                    <a href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
-                    <time itemprop="dateCreated" datetime="2016-07-19T11:22:00+08:00">Tue 19 July 2016</time>
-                </div>
-            </div>
-        </div>
-        </div>
-    </div>
-</div>
-                    </div>
-                    <div class="span1"></div>
-                </div>
-            </div>
-        </div>
-<footer>
-
-
-
-
-    <div id="fpowered">
-        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
-        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
-    </div>
-</footer>        <script src="//code.jquery.com/jquery.min.js"></script>
-        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-        <script src="http://yszheda.github.io/blog/theme/js/elegant.prod.9e9d5ce754.js"></script>
-        <script>
-            function validateForm(query)
-            {
-                return (query.length > 0);
-            }
-        </script>
-    </body>
-    <!-- Theme: Elegant built for Pelican
-        License : MIT -->
+        </body>
 </html>

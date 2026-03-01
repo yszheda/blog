@@ -1,135 +1,515 @@
 <!DOCTYPE html>
 <html lang="zh">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
-        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/custom.css" media="screen">
-        <link rel="dns-prefetch" href="//fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+        <head>
+                        <meta charset="utf-8" />
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                        <meta name="generator" content="Pelican" />
+                        <title>Galoisplusplus - svn</title>
+                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+        </head>
 
-        <meta name="author" content="Galoisplusplus" />
+        <body id="index" class="home">
+                <header id="banner" class="body">
+                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <nav><ul>
+                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                        </ul></nav>
+                </header><!-- /#banner -->
 
-        <meta property="og:type" content="article" />
-        <meta name="twitter:card" content="summary">
+                <aside id="featured" class="body">
+                    <article>
+                        <h1 class="entry-title"><a href="http://yszheda.github.io/blog/2016/03/12/20160312-svn-precommit-hook.html">svn pre-commit hook两三事</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2016-03-12T10:26:00+08:00">
+                Published: 六 12 3月 2016
+        </abbr>
 
-<meta property="og:title" content="Galoisplusplus"/>
-<meta name="twitter:title" content="Galoisplusplus">
-<meta property="og:url" content="http://yszheda.github.io/blog" />
-<meta property="og:site_name" content="Galoisplusplus" />
-<meta property="og:article:author" content="Galoisplusplus" />
-<meta name="keywords" content=" 2D,  777,  阿巴多,  ab,  Abbado,  acer,  acl,  act,  Adriano Banchieri,  爱的艺术,  Alessandro Stradella,  Alvin Lucier,  按钮,  安装,  Andris Nelsons,  android,  Android.mk,  Angela Hewitt,  奥赛罗,  Archlinux,  ARM,  assembly,  Attali,  awk,  Bach,  bash,  Beckett,  贝克特,  崩溃,  BFO,  笔电,  笔记本电脑,  编辑器,  编译器,  BibTeX,  bibtex2html,  并行程序,  blog,  BMFont,  博客,  伯明翰市立交响,  Branch Prediction,  breakpad,  Brecht,  Brian Massumi,  不规则按钮,  布莱希特,  Budapest Festival Orchestra,  button,  c++,  Carmen Giannattasio,  CBSO,  测试,  Cello,  CentOS,  chapterbib,  chmod,  除錯,  clang,  Classical music,  Claudio Abbado,  cocos,  cocos2d,  cocos2d-x,  cocos2d-x quick-cocos2d-x quickx cocos2d cocos game gameDev 游戏开发 游戏 手游开发 手游 手机游戏,  cocostudio,  commit,  Computer Architecture,  concert,  conductor,  crash,  cron,  cronjob,  crontab,  CS,  cuBLAS,  CUDA,  大无,  打字特效,  戴米恩·莱斯,  Damien Rice,  Daniel Harding,  Dārziņš,  data mining,  德九,  debug,  debugfs,  等待戈多,  邓树荣,  Der Ring Des Nibelungen,  调试,  Dmitry Belosselskiy,  Docker,  Domenico Cimarosa,  Domenico Sarro,  东艺,  drama,  独立摇滚,  Dvořák,  Edgard Varèse,  editor,  effect,  Elisabeth Leonskaja,  Enrico Stinchelli,  Erich Fromm,  extundelete,  Fabio Sartori,  分支预测,  FNT,  Free Software,  弗洛姆,  Galois Field,  game,  game devolopment,  钢琴,  钢琴家,  gcc,  gdb,  歌剧,  个人博客,  个人wiki,  Giaches de Wert,  git,  gitcafe,  gitcafe pages,  github,  github pages,  gl,  godot,  Goldsmith,  GPGPU,  GPU,  Graphviz,  GridView,  古典音乐,  Gustav Kuhn,  哈恩,  Handel,  Haydn,  HEVEA,  Hilary Hahn,  history,  宏基,  hook,  荒诞派,  荒诞派戏剧,  恢复,  I Grandi Directtori d'Orchestra,  Iannis Xenakis,  In an Italian Garden,  irregular,  Isolde,  Ivan Fischer,  Ivan Panteleev,  Jacques Attali,  Jardin des Voix,  计算机体系,  姜宇辉,  脚本,  交响乐团,  金柱泽,  J.S. Bach,  矩阵乘法,  Julian Rachlin,  Kavakos,  KingLear,  Kyung Wha Chung,  L’Accademia d’Amore,  laptop,  LaTeX,  Le Jardin des Voix,  Leonidas Kavakos,  Les Arts Florissants,  李尔王,  life,  linux,  listings,  刘悦笛,  llvm,  LOCAL_C_INCLUDES,  LOCAL_SRC_FILES,  LSO,  lsof,  Lua,  luac,  Lucier,  Luigi Rossolo,  Macbeth,  machine learning,  MAGMA,  麦克白,  makefile,  Margaret Campbell,  Mark Lammert,  Massumi,  matrix multiplication,  media9,  memcheck,  memory management,  mendeley,  Mike Goldsmith,  民谣,  民谣摇滚,  minted,  Mintz,  mobile game,  Mozart,  MPI,  Natalia Gutman,  内存,  内存管理,  NEON,  nginx,  尼尔森斯,  Nicholas Angelich,  ocaml,  OCAT,  octopress,  ODP,  Ontopower,  opengl,  OpenGL ES,  OpenResty,  Opera,  Orazio Vecchi,  Orchestre de Paris,  Othello,  Paavo Järvi,  padb,  parallel programming,  pathogen,  PhotoRec,  piano,  Pierre Schaeffer,  平行程式,  pkexec,  Practical Vim,  press test,  pygments,  quick,  quick-cocos2d-x,  quickx,  Rachlin,  reading,  recital,  recover,  Reed-Solomon,  Renaud Capuçon,  Richard Stallman,  RMS,  RNN,  Rossolo,  Russian Cello School,  Russian Piano School,  Samuel Beckett,  Samuel Finzi,  Schaeffer,  莎士比亚,  Shakespear,  shell,  声音艺术,  Shlomo Mintz,  手游开发,  斯卡拉,  Sibelius,  Simon Boccanegra,  Simone Piazzola,  SimpleScalar,  snapshots,  staggered tiled map,  sudo,  svn,  systemd,  TableView,  特效,  tech,  template,  test,  tex,  TexturePacker,  the Art of Loving,  体系结构,  tile,  tiled,  tiled map,  tmux,  Tristan,  typewriting,  Tyrolean Festival Erl,  UI,  UNIX,  V3-571G,  valgrind,  Varèse,  Verdi,  vi,  vim,  vimwiki,  violin,  violinist,  Vivaldi,  瓦格纳,  瓦片地图,  Wagner,  waiting for godot,  威尔第,  文件恢复,  文学,  widget,  wiki,  William Christie,  Wolfram Koch,  wrk,  Xenakis,  西贝柳斯,  西贝柳斯小协,  戏剧,  希拉里,  西蒙·波卡涅拉,  小提琴,  休伊特,  xypic,  压测,  压力测试,  音乐,  音乐会,  殷漪,  游戏崩溃,  游戏开发,  郑京和,  郑明勋,  指挥家,  字体,  自由软件,  misc,  music,  reading,  tech, " />
-        <title>Galoisplusplus - svn tag</title>
+                <address class="vcard author">
+                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
+<p>tags: <a href="http://yszheda.github.io/blog/tag/linux.html">Linux</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/svn.html">svn</a> <a href="http://yszheda.github.io/blog/tag/hook.html">hook</a> <a href="http://yszheda.github.io/blog/tag/lua.html">lua</a> <a href="http://yszheda.github.io/blog/tag/commit.html">commit</a> <a href="http://yszheda.github.io/blog/tag/luac.html">luac</a> </p>        
+</footer><!-- /.post-info --><p>说起折腾svn hook这件事还是在去年年底。我厂向来木有Code Review等Quality Assurance流程，全赖老司机们各种强力输出。而当时我们项目的不少老司机要么去了其他部门要么离职了，新来的小鲜肉码农们似乎对Version Control一无所知。别的不说，单是commit不写comment，便让大家头疼不已，每次在merge时都得额外花不少时间来搞清楚commit的具体内容。虽然我自从投奔<code>git</code>阵营后基本都是用<code>git svn</code>，对<code>svn</code>生疏已久，但觉得加个<code>svn</code>提交限制应非难事，所以便额外花了点时间写了个pre-commit hook，对commit的comment中的非空白字符做计数，少于一定字数的不让提交。万万没想到，当时让SA大大部署上<code>svn</code>服务器后，就有人commit了一个“再试一下”orz...当时我的内心是崩溃的...在推上围脖上吐槽后不久，众位大神各种支招，例如巨硬的泉哥说再搞个语义分析器666...不过最受用的还是根爷所提到的用<code>cpplint</code>检查代码是否符合编码规范、是否能够编译通过。恰好那段时间小鲜肉们提交了一些带有语法错误的lua代码，偶们又木有review制度，结果不写程序的策划大大们<code>svn up</code>下来后——「什么鬼？肿么不能运行了？！好拙计啊！AAA，快来看bug啊！BBB，SOS！」——导致别人不得不停下手头的活、额外花时间排查。所以我便在pre-commit hook里用<code>luac</code>检查语法错误的代码，把这种坑队友的事扼杀在摇篮里。虽然不及<code>cpplint</code>那么强大，但也基本够用了。最近一次改这个脚本是因为前段时间有个小鲜肉做了一张4096x4096的图集，而cocos2d-x文档里写得清清楚楚，大多数手机所支持的最大纹理尺寸其实只有2048x2048...卧槽，干得漂亮啊，一上线就造成了不少crash...木有review制度好可啪，在发现这个问题之前其他人一直毫不知情...所以我还是干脆在svn hook里再加个限制吧～</p>
+<p>好了，不碎碎念了，这便是我折腾的svn hook，主要做了这么几项功能：</p>
+<ul>
+<li>
+<p>commit message非空白长度检查</p>
+</li>
+<li>
+<p>lua语法检查</p>
+</li>
+<li>
+<p>禁止添加文件名带空格的文件</p>
+</li>
+<li>
+<p>禁止被配在<code>PROHIBITED_FILES</code>的文件被修改</p>
+</li>
+<li>
+<p>确保图片尺寸小于2048x2048</p>
+</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">  1</span>
+<span class="normal">  2</span>
+<span class="normal">  3</span>
+<span class="normal">  4</span>
+<span class="normal">  5</span>
+<span class="normal">  6</span>
+<span class="normal">  7</span>
+<span class="normal">  8</span>
+<span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="ch">#!/bin/sh</span>
 
+<span class="c1"># PRE-COMMIT HOOK</span>
+<span class="c1">#</span>
+<span class="c1"># The pre-commit hook is invoked before a Subversion txn is</span>
+<span class="c1"># committed.  Subversion runs this hook by invoking a program</span>
+<span class="c1"># (script, executable, binary, etc.) named &#39;pre-commit&#39; (for which</span>
+<span class="c1"># this file is a template), with the following ordered arguments:</span>
+<span class="c1">#</span>
+<span class="c1">#   [1] REPOS-PATH   (the path to this repository)</span>
+<span class="c1">#   [2] TXN-NAME     (the name of the txn about to be committed)</span>
+<span class="c1">#</span>
+<span class="c1">#   [STDIN] LOCK-TOKENS ** the lock tokens are passed via STDIN.</span>
+<span class="c1">#</span>
+<span class="c1">#   If STDIN contains the line &quot;LOCK-TOKENS:\n&quot; (the &quot;\n&quot; denotes a</span>
+<span class="c1">#   single newline), the lines following it are the lock tokens for</span>
+<span class="c1">#   this commit.  The end of the list is marked by a line containing</span>
+<span class="c1">#   only a newline character.</span>
+<span class="c1">#</span>
+<span class="c1">#   Each lock token line consists of a URI-escaped path, followed</span>
+<span class="c1">#   by the separator character &#39;|&#39;, followed by the lock token string,</span>
+<span class="c1">#   followed by a newline.</span>
+<span class="c1">#</span>
+<span class="c1"># The default working directory for the invocation is undefined, so</span>
+<span class="c1"># the program should set one explicitly if it cares.</span>
+<span class="c1">#</span>
+<span class="c1"># If the hook program exits with success, the txn is committed; but</span>
+<span class="c1"># if it exits with failure (non-zero), the txn is aborted, no commit</span>
+<span class="c1"># takes place, and STDERR is returned to the client.   The hook</span>
+<span class="c1"># program can use the &#39;svnlook&#39; utility to help it examine the txn.</span>
+<span class="c1">#</span>
+<span class="c1"># On a Unix system, the normal procedure is to have &#39;pre-commit&#39;</span>
+<span class="c1"># invoke other programs to do the real work, though it may do the</span>
+<span class="c1"># work itself too.</span>
+<span class="c1">#</span>
+<span class="c1">#   ***  NOTE: THE HOOK PROGRAM MUST NOT MODIFY THE TXN, EXCEPT  ***</span>
+<span class="c1">#   ***  FOR REVISION PROPERTIES (like svn:log or svn:author).   ***</span>
+<span class="c1">#</span>
+<span class="c1">#   This is why we recommend using the read-only &#39;svnlook&#39; utility.</span>
+<span class="c1">#   In the future, Subversion may enforce the rule that pre-commit</span>
+<span class="c1">#   hooks should not modify the versioned data in txns, or else come</span>
+<span class="c1">#   up with a mechanism to make it safe to do so (by informing the</span>
+<span class="c1">#   committing client of the changes).  However, right now neither</span>
+<span class="c1">#   mechanism is implemented, so hook writers just have to be careful.</span>
+<span class="c1">#</span>
+<span class="c1"># Note that &#39;pre-commit&#39; must be executable by the user(s) who will</span>
+<span class="c1"># invoke it (typically the user httpd runs as), and that user must</span>
+<span class="c1"># have filesystem-level permission to access the repository.</span>
+<span class="c1">#</span>
+<span class="c1"># On a Windows system, you should name the hook program</span>
+<span class="c1"># &#39;pre-commit.bat&#39; or &#39;pre-commit.exe&#39;,</span>
+<span class="c1"># but the basic idea is the same.</span>
+<span class="c1">#</span>
+<span class="c1"># The hook program typically does not inherit the environment of</span>
+<span class="c1"># its parent process.  For example, a common problem is for the</span>
+<span class="c1"># PATH environment variable to not be set to its usual value, so</span>
+<span class="c1"># that subprograms fail to launch unless invoked via absolute path.</span>
+<span class="c1"># If you&#39;re having unexpected problems with a hook program, the</span>
+<span class="c1"># culprit may be unusual (or missing) environment variables.</span>
+<span class="c1"># </span>
+<span class="c1"># Here is an example hook script, for a Unix /bin/sh interpreter.</span>
+<span class="c1"># For more examples and pre-written hooks, see those in</span>
+<span class="c1"># the Subversion repository at</span>
+<span class="c1"># http://svn.apache.org/repos/asf/subversion/trunk/tools/hook-scripts/ and</span>
+<span class="c1"># http://svn.apache.org/repos/asf/subversion/trunk/contrib/hook-scripts/</span>
 
+<span class="nv">LOG</span><span class="o">=</span><span class="s2">&quot;/tmp/svn.log&quot;</span>
+touch<span class="w"> </span><span class="si">${</span><span class="nv">LOG</span><span class="si">}</span>
 
-        <!-- MathJax for LaTeX support -->
-        <script type="text/x-mathjax-config">
-          MathJax.Hub.Config({
-            tex2jax: {
-              inlineMath: [['$', '$'], ['\\(', '\\)']],
-              displayMath: [['$$', '$$'], ['\\[', '\\]']],
-              processEscapes: true,
-              processEnvironments: true
-            }
-          });
-        </script>
-        <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-    </head>
-    <body>
-        <div id="content">
-            <div class="navbar navbar-static-top">
-                <div class="navbar-inner">
-                    <div class="container-fluid">
-                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </a>
-                        <a class="brand" href="http://yszheda.github.io/blog/"><span class=site-name>Galoisplusplus</span></a>
-                        <div class="nav-collapse collapse">
-                            <ul class="nav pull-right top-menu">
-                                <li >
-                                    <a href=
-                                       http://yszheda.github.io/blog
-                                    >Home</a>
-                                </li>
-                                <li ><a href="http://yszheda.github.io/blog/categories.html">Categories</a></li>
-                                <li ><a href="http://yszheda.github.io/blog/tags.html">Tags</a></li>
-                                <li ><a href="http://yszheda.github.io/blog/archives.html">Archives</a></li>
-                                <li><form class="navbar-search" action="http://yszheda.github.io/blog/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="container-fluid">
-                <div class="row-fluid">
-                    <div class="span1"></div>
-                    <div class="span10">
+<span class="nv">REPOS</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span>
+<span class="nv">TXN</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$2</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;REPOS: </span><span class="nv">$REPOS</span><span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="w"> </span><span class="si">${</span><span class="nv">LOG</span><span class="si">}</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;TXN: </span><span class="nv">$TXN</span><span class="s2">&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span><span class="si">${</span><span class="nv">LOG</span><span class="si">}</span>
 
+<span class="nv">SVNLOOK</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
 
-<div class="row-fluid">
+<span class="c1"># lua compiler</span>
+<span class="nv">LUAC</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="c1"># lua file extension</span>
+<span class="nv">LUA_EXT</span><span class="o">=</span><span class="s2">&quot;lua&quot;</span>
+<span class="c1"># png file extension</span>
+<span class="nv">PNG_EXT</span><span class="o">=</span><span class="s2">&quot;png&quot;</span>
 
-    <div class="row-fluid">
+<span class="nv">MSG_MIN_CHAR_NUM</span><span class="o">=</span><span class="m">3</span>
 
-    </div>
+<span class="nv">MAX_PNG_SIZE</span><span class="o">=</span><span class="m">2048</span>
 
-    <div class="row-fluid">
-        <div class="span8 offset2">
-            <header>
-            <h1 id="recent-posts">Recent Posts <a id="allposts" href="http://yszheda.github.io/blog/archives.html">all posts</a></h1>
-            </header>
-        <div class="recent-posts">
-            <div itemscope class="recent-posts-article">
-                <a href="http://yszheda.github.io/blog/2016/03/12/20160312-svn-precommit-hook.html">
-                    svn pre-commit hook两三事
-                </a>
-                <div class="recent-posts-posted">
-                    posted in
-                    <a href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
-                    <time itemprop="dateCreated" datetime="2016-03-12T10:26:00+08:00">Sat 12 March 2016</time>
-                </div>
-            </div>
-            <div itemscope class="recent-posts-article">
-                <a href="http://yszheda.github.io/blog/2014/07/25/20140725-git-svn-tips.html">
-                    git-svn Tips
-                </a>
-                <div class="recent-posts-posted">
-                    posted in
-                    <a href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
-                    <time itemprop="dateCreated" datetime="2014-07-25T11:22:00+08:00">Fri 25 July 2014</time>
-                </div>
-            </div>
-        </div>
-        </div>
-    </div>
-</div>
-                    </div>
-                    <div class="span1"></div>
-                </div>
-            </div>
-        </div>
-<footer>
+<span class="nv">PROHIBITED_FILES</span><span class="o">=(</span>
+<span class="o">)</span>
 
+<span class="nv">TMP_DIR</span><span class="o">=</span><span class="s2">&quot;/tmp/svn&quot;</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span>-d<span class="w"> </span><span class="si">${</span><span class="nv">TMP_DIR</span><span class="si">}</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>rm<span class="w"> </span>-r<span class="w"> </span><span class="si">${</span><span class="nv">TMP_DIR</span><span class="si">}</span>
+<span class="k">fi</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="si">${</span><span class="nv">TMP_DIR</span><span class="si">}</span>
 
+<span class="k">function</span><span class="w"> </span>check_lua_syntax<span class="w"> </span><span class="o">{</span>
+<span class="nb">local</span><span class="w"> </span><span class="nv">lua_file</span><span class="o">=</span><span class="nv">$1</span>
+<span class="nb">echo</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nv">LUAC</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">lua_file</span><span class="si">}</span><span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="sb">`</span>
+<span class="o">}</span>
 
+<span class="k">function</span><span class="w"> </span>create_file<span class="w"> </span><span class="o">{</span>
+<span class="nb">local</span><span class="w"> </span><span class="nv">file_name</span><span class="o">=</span><span class="nv">$1</span>
+<span class="c1"># Create tmp file and copy content</span>
+<span class="nv">tmp_file</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TMP_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">file_name</span><span class="si">}</span><span class="s2">&quot;</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">tmp_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>touch<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">tmp_file</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="si">${</span><span class="nv">SVNLOOK</span><span class="si">}</span><span class="w"> </span>cat<span class="w"> </span>-t<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TXN</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">REPOS</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="w"> </span><span class="si">${</span><span class="nv">tmp_file</span><span class="si">}</span>
+<span class="o">}</span>
 
-    <div id="fpowered">
-        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
-        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
-    </div>
-</footer>        <script src="//code.jquery.com/jquery.min.js"></script>
-        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-        <script src="http://yszheda.github.io/blog/theme/js/elegant.prod.9e9d5ce754.js"></script>
-        <script>
-            function validateForm(query)
-            {
-                return (query.length > 0);
-            }
-        </script>
-    </body>
-    <!-- Theme: Elegant built for Pelican
-        License : MIT -->
+<span class="c1"># Make sure that the log message contains some text.</span>
+<span class="nv">commit_msg</span><span class="o">=</span><span class="sb">`</span><span class="nv">$SVNLOOK</span><span class="w"> </span>log<span class="w"> </span>-t<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TXN</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$REPOS</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s1">&#39;s/[[:space:]]//g&#39;</span><span class="sb">`</span>
+<span class="nb">echo</span><span class="w"> </span><span class="si">${</span><span class="nv">commit_msg</span><span class="si">}</span><span class="w"> </span>&gt;&gt;<span class="w"> </span><span class="si">${</span><span class="nv">LOG</span><span class="si">}</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="sb">`</span><span class="nb">echo</span><span class="w"> </span><span class="si">${</span><span class="nv">commit_msg</span><span class="si">}</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-c<span class="sb">`</span><span class="w"> </span>-lt<span class="w"> </span><span class="si">${</span><span class="nv">MSG_MIN_CHAR_NUM</span><span class="si">}</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Please write a meaningful comment when committing&quot;</span><span class="w"> </span><span class="m">1</span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span>
+
+<span class="nv">changed_info_str</span><span class="o">=</span><span class="sb">`</span><span class="si">${</span><span class="nv">SVNLOOK</span><span class="si">}</span><span class="w"> </span>changed<span class="w"> </span>-t<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TXN</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">REPOS</span><span class="si">}</span><span class="s2">&quot;</span><span class="sb">`</span>
+<span class="nv">IFS</span><span class="o">=</span><span class="s1">$&#39;\n&#39;</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>-rd<span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w"> </span>-a<span class="w"> </span>changed_infos<span class="w"> </span><span class="o">&lt;&lt;&lt;</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">changed_info_str</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="nv">lua_error_msg</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="nv">png_error_msg</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="k">for</span><span class="w"> </span>changed_info<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">changed_infos</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="c1"># Prevent commiting file that contains space in its filename</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="si">${</span><span class="nv">changed_info</span><span class="si">}</span><span class="w"> </span>&gt;&gt;<span class="w"> </span><span class="si">${</span><span class="nv">LOG</span><span class="si">}</span>
+<span class="w">    </span><span class="nv">operation</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span><span class="w"> </span><span class="si">${</span><span class="nv">changed_info</span><span class="si">}</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;{print $1}&#39;</span><span class="sb">`</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="si">${</span><span class="nv">operation</span><span class="si">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;A&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="sb">`</span><span class="nb">echo</span><span class="w"> </span><span class="si">${</span><span class="nv">changed_info</span><span class="si">}</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;{print NF}&#39;</span><span class="sb">`</span><span class="w"> </span>-gt<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Please do not commit file that contains space in its filename!&quot;</span><span class="w"> </span><span class="m">1</span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">        </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="w">    </span><span class="nv">file_name</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span><span class="w"> </span><span class="si">${</span><span class="nv">changed_info</span><span class="si">}</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;{print $2}&#39;</span><span class="sb">`</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;operation: </span><span class="si">${</span><span class="nv">operation</span><span class="si">}</span><span class="s2">, file: </span><span class="si">${</span><span class="nv">file_name</span><span class="si">}</span><span class="s2">, ext: </span><span class="si">${</span><span class="nv">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span><span class="si">${</span><span class="nv">LOG</span><span class="si">}</span>
+
+<span class="w">    </span><span class="c1"># Check prohibit-commit files</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span>prohibited_file<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="si">${</span><span class="nv">PROHIBITED_FILES</span><span class="p">[@]</span><span class="si">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="si">${</span><span class="nv">file_name</span><span class="si">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="si">${</span><span class="nv">prohibited_file</span><span class="si">}</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">            </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">file_name</span><span class="si">}</span><span class="s2"> is not allowed to be changed!&quot;</span><span class="w"> </span><span class="m">1</span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">            </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">        </span><span class="k">fi</span>
+<span class="w">    </span><span class="k">done</span>
+
+<span class="w">    </span><span class="nv">ext</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span><span class="w"> </span><span class="si">${</span><span class="nv">file_name</span><span class="si">}</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s2">&quot;.&quot;</span><span class="w"> </span><span class="s1">&#39;{print $NF}&#39;</span><span class="sb">`</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="si">${</span><span class="nv">operation</span><span class="si">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;U&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="si">${</span><span class="nv">operation</span><span class="si">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;A&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nv">tmp_file</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TMP_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">file_name</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="w">        </span><span class="c1"># Check lua syntax</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="si">${</span><span class="nv">ext</span><span class="si">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="si">${</span><span class="nv">LUA_EXT</span><span class="si">}</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">            </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Check syntax of </span><span class="si">${</span><span class="nv">tmp_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span><span class="si">${</span><span class="nv">LOG</span><span class="si">}</span>
+<span class="w">            </span>create_file<span class="w"> </span><span class="si">${</span><span class="nv">file_name</span><span class="si">}</span>
+<span class="w">            </span><span class="nv">error_msg</span><span class="o">=</span><span class="sb">`</span>check_lua_syntax<span class="w"> </span><span class="si">${</span><span class="nv">tmp_file</span><span class="si">}</span><span class="sb">`</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="sb">`</span><span class="nb">echo</span><span class="w"> </span><span class="si">${</span><span class="nv">error_msg</span><span class="si">}</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s1">&#39;s/\n//g&#39;</span><span class="sb">`</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">                </span><span class="nv">lua_error_msg</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">lua_error_msg</span><span class="si">}</span><span class="s2">\n</span><span class="si">${</span><span class="nv">error_msg</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">            </span><span class="k">fi</span>
+<span class="w">        </span><span class="k">fi</span>
+
+<span class="w">        </span><span class="c1"># Check file size</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="si">${</span><span class="nv">ext</span><span class="si">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="si">${</span><span class="nv">PNG_EXT</span><span class="si">}</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">            </span>create_file<span class="w"> </span><span class="si">${</span><span class="nv">file_name</span><span class="si">}</span>
+<span class="w">            </span><span class="nv">png_info</span><span class="o">=</span><span class="sb">`</span>file<span class="w"> </span><span class="si">${</span><span class="nv">tmp_file</span><span class="si">}</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s1">&#39;s/,//g&#39;</span><span class="sb">`</span>
+<span class="w">            </span><span class="nv">png_width</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span><span class="w"> </span><span class="si">${</span><span class="nv">png_info</span><span class="si">}</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;{print $5}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>bc<span class="sb">`</span>
+<span class="w">            </span><span class="nv">png_height</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span><span class="w"> </span><span class="si">${</span><span class="nv">png_info</span><span class="si">}</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;{print $7}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>bc<span class="sb">`</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="si">${</span><span class="nv">png_width</span><span class="si">}</span><span class="w"> </span>-gt<span class="w"> </span><span class="si">${</span><span class="nv">MAX_PNG_SIZE</span><span class="si">}</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="si">${</span><span class="nv">png_height</span><span class="si">}</span><span class="w"> </span>-gt<span class="w"> </span><span class="si">${</span><span class="nv">MAX_PNG_SIZE</span><span class="si">}</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">                </span><span class="nv">png_error_msg</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">png_error_msg</span><span class="si">}</span><span class="s2">\n</span><span class="si">${</span><span class="nv">file_name</span><span class="si">}</span><span class="s2"> is too large: </span><span class="si">${</span><span class="nv">png_width</span><span class="si">}</span><span class="s2"> x </span><span class="si">${</span><span class="nv">png_height</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">            </span><span class="k">fi</span>
+<span class="w">        </span><span class="k">fi</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="k">done</span>
+
+rm<span class="w"> </span>-r<span class="w"> </span><span class="si">${</span><span class="nv">TMP_DIR</span><span class="si">}</span>
+
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="si">${</span><span class="nv">lua_error_msg</span><span class="si">}</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="si">${</span><span class="nv">png_error_msg</span><span class="si">}</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="si">${</span><span class="nv">lua_error_msg</span><span class="si">}</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;lua error: </span><span class="si">${</span><span class="nv">lua_error_msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span><span class="si">${</span><span class="nv">LOG</span><span class="si">}</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Please fix the error in your lua program:</span><span class="si">${</span><span class="nv">lua_error_msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="m">1</span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">    </span><span class="k">fi</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="si">${</span><span class="nv">png_error_msg</span><span class="si">}</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;png error: </span><span class="si">${</span><span class="nv">png_error_msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span><span class="si">${</span><span class="nv">LOG</span><span class="si">}</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Please do not commit pictures which are larger than 2048 x 2048:</span><span class="si">${</span><span class="nv">png_error_msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="m">1</span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">    </span><span class="k">fi</span>
+
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span>
+
+<span class="c1"># Check that the author of this commit has the rights to perform</span>
+<span class="c1"># the commit on the files and directories being modified.</span>
+<span class="c1"># commit-access-control.pl &quot;$REPOS&quot; &quot;$TXN&quot; commit-access-control.cfg || exit 1</span>
+
+<span class="c1"># All checks passed, so allow the commit.</span>
+<span class="nb">exit</span><span class="w"> </span><span class="m">0</span>
+</code></pre></div></td></tr></table></div>
+
+<p>PS. 聪哥说作为一位开发去搞svn hook怕被公司的其他开发喷越权管了运维的事，我厂倒是不存在这种问题的——人少活多时间紧，啥活都得揽啊，例如我一位舍友兼同事的大神以前开发手游可是客户端、服务器、策划、切图全都一人搞定，就差自己出美术图和特效了。最近我也在像运维一样写脚本自动化处理某些项目文件，发现我们开发各种混乱啊有木有！例如路径带空格，我的一些<code>awk</code>脚本就雪崩了——我在以上的<code>hook</code>脚本里也有同样的问题，其实把列计数方式改一下，例如<code>$7</code>改成<code>${NF-4}</code>，可以避免这种问题——而且还要把带空格的路径用<code>sed</code>替换成转义后的字符串。不过这种情况还算好的，还有些人用的单词有拼写错误，要是全错了倒也罢了，脚本hold得住，问题是有的对有的错...偶只能弃疗了...</p>
+<h1 id="_1">后记</h1>
+<p>由于我们lua代码中存在不少没声明<code>local</code>而变成全局变量的bug，于是我把Openresty作者春哥的<code>lua-releng</code>工具也加进<code>hook</code>里做全局变量检查了。具体可以看<a href="https://gist.github.com/yszheda/6125a32e37834cc8ab75">这个gist</a>。</p>                    </article>
+                </aside><!-- /#featured -->
+                    <section id="content" class="body">
+                        <h1>Other articles</h1>
+                        <hr />
+                        <ol id="posts-list" class="hfeed">
+
+                <li><article class="hentry">
+                    <header>
+                        <h1><a href="http://yszheda.github.io/blog/2014/07/25/20140725-git-svn-tips.html" rel="bookmark"
+                               title="Permalink to git-svn Tips">git-svn Tips</a></h1>
+                    </header>
+
+                    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2014-07-25T11:22:00+08:00">
+                Published: 五 25 7月 2014
+        </abbr>
+
+                <address class="vcard author">
+                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
+<p>tags: <a href="http://yszheda.github.io/blog/tag/linux.html">Linux</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/git.html">git</a> <a href="http://yszheda.github.io/blog/tag/svn.html">svn</a> </p>        
+</footer><!-- /.post-info -->                        <ul>
+<li>用<code>git</code> clone远端svn仓库（repo）：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>$<span class="w"> </span>git<span class="w"> </span>svn<span class="w"> </span>clone<span class="w"> </span>http://svn.example.com/project<span class="w"> </span><span class="o">[</span>-T<span class="w"> </span>trunk<span class="o">]</span><span class="w"> </span><span class="o">[</span>-b<span class="w"> </span>branches<span class="o">]</span><span class="w"> </span><span class="o">[</span>-t<span class="w"> </span>tags<span class="o">]</span>
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>用<code>git-svn</code>从远端svn仓库拉取提交（commit）到本地：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>$<span class="w"> </span>git<span class="w"> </span>svn<span class="w"> </span>rebase
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>用<code>git-svn</code>把本地推送到远端svn仓库：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>$<span class="w"> </span>git<span class="w"> </span>svn<span class="w"> </span>dcommit
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>用<code>git-svn …</code></li></ul>
+                        <a class="readmore" href="http://yszheda.github.io/blog/2014/07/25/20140725-git-svn-tips.html">read more</a>
+                    </div><!-- /.entry-content -->
+                </article></li>
+                    </ol><!-- /#posts-list -->
+                    </section><!-- /#content -->
+                <section id="extras" class="body">
+                                <div class="blogroll">
+                                        <h2>links</h2>
+                                        <ul>
+                                                        <li><a href="http://getpelican.com/">Pelican</a></li>
+                                                        <li><a href="http://python.org/">Python.org</a></li>
+                                        </ul>
+                                </div><!-- /.blogroll -->
+                                <div class="social">
+                                        <h2>social</h2>
+                                        <ul>
+
+                                                        <li><a href="https://github.com/yszheda">GitHub</a></li>
+                                                        <li><a href="https://twitter.com/yszheda">Twitter</a></li>
+                                        </ul>
+                                </div><!-- /.social -->
+                </section><!-- /#extras -->
+
+                <footer id="contentinfo" class="body">
+                        <address id="about" class="vcard body">
+                                Proudly powered by <a rel="nofollow" href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a rel="nofollow" href="https://www.python.org/">Python</a>.
+                        </address><!-- /#about -->
+
+                        <p>The theme is by <a rel="nofollow" href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+                </footer><!-- /#contentinfo -->
+
+        </body>
 </html>

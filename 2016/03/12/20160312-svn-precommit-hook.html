@@ -1,95 +1,44 @@
 <!DOCTYPE html>
 <html lang="zh">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
-        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/custom.css" media="screen">
+        <head>
+                        <meta charset="utf-8" />
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                        <meta name="generator" content="Pelican" />
+                        <title>svn pre-commit hook两三事</title>
+                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+    <meta name="description" content="说起折腾svn hook这件事还是在去年年底。我厂向来木有Code Review等Quality Assurance流程，全赖老司机们各种强力输出。而当时我们项目的不少老司机要么去了其他部门要么 …" />
+        </head>
 
-        <link rel="dns-prefetch" href="//fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+        <body id="index" class="home">
+                <header id="banner" class="body">
+                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <nav><ul>
+                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
+                                                <li class="active"><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                        </ul></nav>
+                </header><!-- /#banner -->
+  <section id="content" class="body">
+    <article>
+      <header>
+        <h1 class="entry-title">
+          <a href="http://yszheda.github.io/blog/2016/03/12/20160312-svn-precommit-hook.html" rel="bookmark"
+             title="Permalink to svn pre-commit hook两三事">svn pre-commit hook两三事</a></h1>
+      </header>
 
-        <meta name="author" content="Galoisplusplus" />
+      <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2016-03-12T10:26:00+08:00">
+                Published: 六 12 3月 2016
+        </abbr>
 
-        <meta property="og:type" content="article" />
-        <meta name="twitter:card" content="summary">
-
-<meta name="keywords" content="Linux, CS, tech, svn, hook, lua, commit, luac, tech, " />
-
-<meta property="og:title" content="svn pre-commit hook两三事 "/>
-<meta property="og:url" content="http://yszheda.github.io/blog/2016/03/12/20160312-svn-precommit-hook.html" />
-<meta property="og:description" content="说起折腾svn hook这件事还是在去年年底。我厂向来木有Code Review等Quality Assurance流程，全赖老司机们各种强力输出。而当时我们项目的不少老司机要么去了其他部门要么 …" />
-<meta property="og:site_name" content="Galoisplusplus" />
-<meta property="og:article:author" content="Galoisplusplus" />
-<meta property="og:article:published_time" content="2016-03-12T10:26:00+08:00" />
-<meta name="twitter:title" content="svn pre-commit hook两三事 ">
-<meta name="twitter:description" content="说起折腾svn hook这件事还是在去年年底。我厂向来木有Code Review等Quality Assurance流程，全赖老司机们各种强力输出。而当时我们项目的不少老司机要么去了其他部门要么 …">
-
-        <title>svn pre-commit hook两三事  · Galoisplusplus
-</title>
-
-
-
-        <!-- MathJax for LaTeX support -->
-        <script type="text/x-mathjax-config">
-          MathJax.Hub.Config({
-            tex2jax: {
-              inlineMath: [['$', '$'], ['\\(', '\\)']],
-              displayMath: [['$$', '$$'], ['\\[', '\\]']],
-              processEscapes: true,
-              processEnvironments: true
-            }
-          });
-        </script>
-        <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-    </head>
-    <body>
-        <div id="content">
-            <div class="navbar navbar-static-top">
-                <div class="navbar-inner">
-                    <div class="container-fluid">
-                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </a>
-                        <a class="brand" href="http://yszheda.github.io/blog/"><span class=site-name>Galoisplusplus</span></a>
-                        <div class="nav-collapse collapse">
-                            <ul class="nav pull-right top-menu">
-                                <li >
-                                    <a href=
-                                       http://yszheda.github.io/blog
-                                    >Home</a>
-                                </li>
-                                <li ><a href="http://yszheda.github.io/blog/categories.html">Categories</a></li>
-                                <li ><a href="http://yszheda.github.io/blog/tags.html">Tags</a></li>
-                                <li ><a href="http://yszheda.github.io/blog/archives.html">Archives</a></li>
-                                <li><form class="navbar-search" action="http://yszheda.github.io/blog/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="container-fluid">
-                <div class="row-fluid">
-                    <div class="span1"></div>
-                    <div class="span10">
-<article itemscope>
-<div class="row-fluid">
-    <header class="page-header span10 offset2">
-        <h1>
-            <a href="http://yszheda.github.io/blog/2016/03/12/20160312-svn-precommit-hook.html">
-                svn pre-commit hook两三事
-            </a>
-        </h1>
-    </header>
-</div>
-
-<div class="row-fluid">
-        <div class="span8 offset2 article-content">
-            
-            <p>说起折腾svn hook这件事还是在去年年底。我厂向来木有Code Review等Quality Assurance流程，全赖老司机们各种强力输出。而当时我们项目的不少老司机要么去了其他部门要么离职了，新来的小鲜肉码农们似乎对Version Control一无所知。别的不说，单是commit不写comment，便让大家头疼不已，每次在merge时都得额外花不少时间来搞清楚commit的具体内容。虽然我自从投奔<code>git</code>阵营后基本都是用<code>git svn</code>，对<code>svn</code>生疏已久，但觉得加个<code>svn</code>提交限制应非难事，所以便额外花了点时间写了个pre-commit hook，对commit的comment中的非空白字符做计数，少于一定字数的不让提交。万万没想到，当时让SA大大部署上<code>svn</code>服务器后，就有人commit了一个“再试一下”orz...当时我的内心是崩溃的...在推上围脖上吐槽后不久，众位大神各种支招，例如巨硬的泉哥说再搞个语义分析器666...不过最受用的还是根爷所提到的用<code>cpplint</code>检查代码是否符合编码规范、是否能够编译通过。恰好那段时间小鲜肉们提交了一些带有语法错误的lua代码，偶们又木有review制度，结果不写程序的策划大大们<code>svn up</code>下来后——「什么鬼？肿么不能运行了？！好拙计啊！AAA，快来看bug啊！BBB，SOS！」——导致别人不得不停下手头的活、额外花时间排查。所以我便在pre-commit hook里用<code>luac</code>检查语法错误的代码，把这种坑队友的事扼杀在摇篮里。虽然不及<code>cpplint</code>那么强大，但也基本够用了。最近一次改这个脚本是因为前段时间有个小鲜肉做了一张4096x4096的图集，而cocos2d-x文档里写得清清楚楚，大多数手机所支持的最大纹理尺寸其实只有2048x2048...卧槽，干得漂亮啊，一上线就造成了不少crash...木有review制度好可啪，在发现这个问题之前其他人一直毫不知情...所以我还是干脆在svn hook里再加个限制吧～</p>
+                <address class="vcard author">
+                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
+<p>tags: <a href="http://yszheda.github.io/blog/tag/linux.html">Linux</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/svn.html">svn</a> <a href="http://yszheda.github.io/blog/tag/hook.html">hook</a> <a href="http://yszheda.github.io/blog/tag/lua.html">lua</a> <a href="http://yszheda.github.io/blog/tag/commit.html">commit</a> <a href="http://yszheda.github.io/blog/tag/luac.html">luac</a> </p>        
+</footer><!-- /.post-info -->        <p>说起折腾svn hook这件事还是在去年年底。我厂向来木有Code Review等Quality Assurance流程，全赖老司机们各种强力输出。而当时我们项目的不少老司机要么去了其他部门要么离职了，新来的小鲜肉码农们似乎对Version Control一无所知。别的不说，单是commit不写comment，便让大家头疼不已，每次在merge时都得额外花不少时间来搞清楚commit的具体内容。虽然我自从投奔<code>git</code>阵营后基本都是用<code>git svn</code>，对<code>svn</code>生疏已久，但觉得加个<code>svn</code>提交限制应非难事，所以便额外花了点时间写了个pre-commit hook，对commit的comment中的非空白字符做计数，少于一定字数的不让提交。万万没想到，当时让SA大大部署上<code>svn</code>服务器后，就有人commit了一个“再试一下”orz...当时我的内心是崩溃的...在推上围脖上吐槽后不久，众位大神各种支招，例如巨硬的泉哥说再搞个语义分析器666...不过最受用的还是根爷所提到的用<code>cpplint</code>检查代码是否符合编码规范、是否能够编译通过。恰好那段时间小鲜肉们提交了一些带有语法错误的lua代码，偶们又木有review制度，结果不写程序的策划大大们<code>svn up</code>下来后——「什么鬼？肿么不能运行了？！好拙计啊！AAA，快来看bug啊！BBB，SOS！」——导致别人不得不停下手头的活、额外花时间排查。所以我便在pre-commit hook里用<code>luac</code>检查语法错误的代码，把这种坑队友的事扼杀在摇篮里。虽然不及<code>cpplint</code>那么强大，但也基本够用了。最近一次改这个脚本是因为前段时间有个小鲜肉做了一张4096x4096的图集，而cocos2d-x文档里写得清清楚楚，大多数手机所支持的最大纹理尺寸其实只有2048x2048...卧槽，干得漂亮啊，一上线就造成了不少crash...木有review制度好可啪，在发现这个问题之前其他人一直毫不知情...所以我还是干脆在svn hook里再加个限制吧～</p>
 <p>好了，不碎碎念了，这便是我折腾的svn hook，主要做了这么几项功能：</p>
 <ul>
 <li>
@@ -494,192 +443,35 @@ rm<span class="w"> </span>-r<span class="w"> </span><span class="si">${</span><s
 <p>PS. 聪哥说作为一位开发去搞svn hook怕被公司的其他开发喷越权管了运维的事，我厂倒是不存在这种问题的——人少活多时间紧，啥活都得揽啊，例如我一位舍友兼同事的大神以前开发手游可是客户端、服务器、策划、切图全都一人搞定，就差自己出美术图和特效了。最近我也在像运维一样写脚本自动化处理某些项目文件，发现我们开发各种混乱啊有木有！例如路径带空格，我的一些<code>awk</code>脚本就雪崩了——我在以上的<code>hook</code>脚本里也有同样的问题，其实把列计数方式改一下，例如<code>$7</code>改成<code>${NF-4}</code>，可以避免这种问题——而且还要把带空格的路径用<code>sed</code>替换成转义后的字符串。不过这种情况还算好的，还有些人用的单词有拼写错误，要是全错了倒也罢了，脚本hold得住，问题是有的对有的错...偶只能弃疗了...</p>
 <h1 id="_1">后记</h1>
 <p>由于我们lua代码中存在不少没声明<code>local</code>而变成全局变量的bug，于是我把Openresty作者春哥的<code>lua-releng</code>工具也加进<code>hook</code>里做全局变量检查了。具体可以看<a href="https://gist.github.com/yszheda/6125a32e37834cc8ab75">这个gist</a>。</p>
+      </div><!-- /.entry-content -->
 
+    </article>
+  </section>
+                <section id="extras" class="body">
+                                <div class="blogroll">
+                                        <h2>links</h2>
+                                        <ul>
+                                                        <li><a href="http://getpelican.com/">Pelican</a></li>
+                                                        <li><a href="http://python.org/">Python.org</a></li>
+                                        </ul>
+                                </div><!-- /.blogroll -->
+                                <div class="social">
+                                        <h2>social</h2>
+                                        <ul>
 
-             
- 
-            
-            
-            
+                                                        <li><a href="https://github.com/yszheda">GitHub</a></li>
+                                                        <li><a href="https://twitter.com/yszheda">Twitter</a></li>
+                                        </ul>
+                                </div><!-- /.social -->
+                </section><!-- /#extras -->
 
+                <footer id="contentinfo" class="body">
+                        <address id="about" class="vcard body">
+                                Proudly powered by <a rel="nofollow" href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a rel="nofollow" href="https://www.python.org/">Python</a>.
+                        </address><!-- /#about -->
 
+                        <p>The theme is by <a rel="nofollow" href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+                </footer><!-- /#contentinfo -->
 
-
-
-
-
-            <hr/>
-        </div>
-        <section id="article-sidebar" class="span2">
-            <h4>Published</h4>
-            <time itemprop="dateCreated" datetime="2016-03-12T10:26:00+08:00">Sat 12 March 2016</time>
-            <h4>Category</h4>
-            <a class="category-link" href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
-            <h4>Tags</h4>
-            <ul class="list-of-tags tags-in-article">
-                <li><a href="http://yszheda.github.io/blog/tags.html#commit-ref">commit
-                    <span class="superscript">1</span>
-</a></li>
-                <li><a href="http://yszheda.github.io/blog/tags.html#cs-ref">CS
-                    <span class="superscript">48</span>
-</a></li>
-                <li><a href="http://yszheda.github.io/blog/tags.html#hook-ref">hook
-                    <span class="superscript">1</span>
-</a></li>
-                <li><a href="http://yszheda.github.io/blog/tags.html#linux-ref">Linux
-                    <span class="superscript">18</span>
-</a></li>
-                <li><a href="http://yszheda.github.io/blog/tags.html#lua-ref">lua
-                    <span class="superscript">3</span>
-</a></li>
-                <li><a href="http://yszheda.github.io/blog/tags.html#luac-ref">luac
-                    <span class="superscript">1</span>
-</a></li>
-                <li><a href="http://yszheda.github.io/blog/tags.html#svn-ref">svn
-                    <span class="superscript">2</span>
-</a></li>
-                <li><a href="http://yszheda.github.io/blog/tags.html#tech-ref">tech
-                    <span class="superscript">48</span>
-</a></li>
-            </ul>
-<h4>Contact</h4>
-<div id="sidebar-social-link">
-    <a href="https://github.com/yszheda" title="" target="_blank" rel="nofollow noopener noreferrer">
-        <svg xmlns="http://www.w3.org/2000/svg" aria-label="GitHub" role="img" viewBox="0 0 512 512"><rect width="512" height="512" rx="15%" fill="#1B1817"/><path fill="#fff" d="M335 499c14 0 12 17 12 17H165s-2-17 12-17c13 0 16-6 16-12l-1-50c-71 16-86-28-86-28-12-30-28-37-28-37-24-16 1-16 1-16 26 2 40 26 40 26 22 39 59 28 74 22 2-17 9-28 16-35-57-6-116-28-116-126 0-28 10-51 26-69-3-6-11-32 3-67 0 0 21-7 70 26 42-12 86-12 128 0 49-33 70-26 70-26 14 35 6 61 3 67 16 18 26 41 26 69 0 98-60 120-117 126 10 8 18 24 18 48l-1 70c0 6 3 12 16 12z"/></svg>
-    </a>
-    <a href="https://twitter.com/yszheda" title="" target="_blank" rel="nofollow noopener noreferrer">
-        <svg xmlns="http://www.w3.org/2000/svg" aria-label="Twitter" role="img" viewBox="0 0 512 512"><rect width="512" height="512" rx="15%" fill="#1da1f3"/><path fill="#fff" d="M437 152a72 72 0 0 1-40 12 72 72 0 0 0 32-40 72 72 0 0 1-45 17 72 72 0 0 0-122 65 200 200 0 0 1-145-74 72 72 0 0 0 22 94 72 72 0 0 1-32-7 72 72 0 0 0 56 69 72 72 0 0 1-32 1 72 72 0 0 0 67 50 200 200 0 0 1-105 29 200 200 0 0 0 309-179 200 200 0 0 0 35-37"/></svg>
-    </a>
-</div>
-            
-
-
-
-
-
-            
-
-
-
-
-
-        </section>
-</div>
-</article>
-<!-- Root element of PhotoSwipe. Must have class pswp. -->
-<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
-
-    <!-- Background of PhotoSwipe.
-         It's a separate element as animating opacity is faster than rgba(). -->
-    <div class="pswp__bg"></div>
-
-    <!-- Slides wrapper with overflow:hidden. -->
-    <div class="pswp__scroll-wrap">
-
-        <!-- Container that holds slides.
-            PhotoSwipe keeps only 3 of them in the DOM to save memory.
-            Don't modify these 3 pswp__item elements, data is added later on. -->
-        <div class="pswp__container">
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-        </div>
-
-        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
-        <div class="pswp__ui pswp__ui--hidden">
-
-            <div class="pswp__top-bar">
-
-                <!--  Controls are self-explanatory. Order can be changed. -->
-
-                <div class="pswp__counter"></div>
-
-                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-
-                <button class="pswp__button pswp__button--share" title="Share"></button>
-
-                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-
-                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-
-                <!-- Preloader demo https://codepen.io/dimsemenov/pen/yyBWoR -->
-                <!-- element will get class pswp__preloader--active when preloader is running -->
-                <div class="pswp__preloader">
-                    <div class="pswp__preloader__icn">
-                      <div class="pswp__preloader__cut">
-                        <div class="pswp__preloader__donut"></div>
-                      </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                <div class="pswp__share-tooltip"></div>
-            </div>
-
-            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-            </button>
-
-            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-            </button>
-
-            <div class="pswp__caption">
-                <div class="pswp__caption__center"></div>
-            </div>
-
-        </div>
-
-    </div>
-
-</div>                    </div>
-                    <div class="span1"></div>
-                </div>
-            </div>
-        </div>
-<footer>
-
-
-
-
-    <div id="fpowered">
-        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
-        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
-    </div>
-</footer>            <script src="//code.jquery.com/jquery.min.js"></script>
-        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-        <script src="http://yszheda.github.io/blog/theme/js/elegant.prod.9e9d5ce754.js"></script>
-        <script>
-            function validateForm(query)
-            {
-                return (query.length > 0);
-            }
-        </script>
-
-    <script>
-    (function () {
-        if (window.location.hash.match(/^#comment-\d+$/)) {
-            $('#comment_thread').collapse('show');
-        }
-    })();
-    window.onhashchange=function(){
-        if (window.location.hash.match(/^#comment-\d+$/))
-            window.location.reload(true);
-    }
-    $('#comment_thread').on('shown', function () {
-        var link = document.getElementById('comment-accordion-toggle');
-        var old_innerHTML = link.innerHTML;
-        $(link).fadeOut(200, function() {
-            $(this).text('Click here to hide comments').fadeIn(200);
-        });
-        $('#comment_thread').on('hidden', function () {
-            $(link).fadeOut(200, function() {
-                $(this).text(old_innerHTML).fadeIn(200);
-            });
-        })
-    })
-</script>
-
-    </body>
-    <!-- Theme: Elegant built for Pelican
-        License : MIT -->
+        </body>
 </html>

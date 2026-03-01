@@ -1,185 +1,548 @@
 <!DOCTYPE html>
 <html lang="zh">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
-        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/custom.css" media="screen">
-        <link rel="dns-prefetch" href="//fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+        <head>
+                        <meta charset="utf-8" />
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                        <meta name="generator" content="Pelican" />
+                        <title>Galoisplusplus - quick-cocos2d-x</title>
+                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+        </head>
 
-        <meta name="author" content="Galoisplusplus" />
+        <body id="index" class="home">
+                <header id="banner" class="body">
+                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <nav><ul>
+                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                        </ul></nav>
+                </header><!-- /#banner -->
 
-        <meta property="og:type" content="article" />
-        <meta name="twitter:card" content="summary">
+                <aside id="featured" class="body">
+                    <article>
+                        <h1 class="entry-title"><a href="http://yszheda.github.io/blog/2016/01/16/20160116-tips-in-cocos2d-x-game.html">quick-cocos2d-x游戏的tips功能</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2016-01-16T23:23:00+08:00">
+                Published: 六 16 1月 2016
+        </abbr>
 
-<meta property="og:title" content="Galoisplusplus"/>
-<meta name="twitter:title" content="Galoisplusplus">
-<meta property="og:url" content="http://yszheda.github.io/blog" />
-<meta property="og:site_name" content="Galoisplusplus" />
-<meta property="og:article:author" content="Galoisplusplus" />
-<meta name="keywords" content=" 2D,  777,  阿巴多,  ab,  Abbado,  acer,  acl,  act,  Adriano Banchieri,  爱的艺术,  Alessandro Stradella,  Alvin Lucier,  按钮,  安装,  Andris Nelsons,  android,  Android.mk,  Angela Hewitt,  奥赛罗,  Archlinux,  ARM,  assembly,  Attali,  awk,  Bach,  bash,  Beckett,  贝克特,  崩溃,  BFO,  笔电,  笔记本电脑,  编辑器,  编译器,  BibTeX,  bibtex2html,  并行程序,  blog,  BMFont,  博客,  伯明翰市立交响,  Branch Prediction,  breakpad,  Brecht,  Brian Massumi,  不规则按钮,  布莱希特,  Budapest Festival Orchestra,  button,  c++,  Carmen Giannattasio,  CBSO,  测试,  Cello,  CentOS,  chapterbib,  chmod,  除錯,  clang,  Classical music,  Claudio Abbado,  cocos,  cocos2d,  cocos2d-x,  cocos2d-x quick-cocos2d-x quickx cocos2d cocos game gameDev 游戏开发 游戏 手游开发 手游 手机游戏,  cocostudio,  commit,  Computer Architecture,  concert,  conductor,  crash,  cron,  cronjob,  crontab,  CS,  cuBLAS,  CUDA,  大无,  打字特效,  戴米恩·莱斯,  Damien Rice,  Daniel Harding,  Dārziņš,  data mining,  德九,  debug,  debugfs,  等待戈多,  邓树荣,  Der Ring Des Nibelungen,  调试,  Dmitry Belosselskiy,  Docker,  Domenico Cimarosa,  Domenico Sarro,  东艺,  drama,  独立摇滚,  Dvořák,  Edgard Varèse,  editor,  effect,  Elisabeth Leonskaja,  Enrico Stinchelli,  Erich Fromm,  extundelete,  Fabio Sartori,  分支预测,  FNT,  Free Software,  弗洛姆,  Galois Field,  game,  game devolopment,  钢琴,  钢琴家,  gcc,  gdb,  歌剧,  个人博客,  个人wiki,  Giaches de Wert,  git,  gitcafe,  gitcafe pages,  github,  github pages,  gl,  godot,  Goldsmith,  GPGPU,  GPU,  Graphviz,  GridView,  古典音乐,  Gustav Kuhn,  哈恩,  Handel,  Haydn,  HEVEA,  Hilary Hahn,  history,  宏基,  hook,  荒诞派,  荒诞派戏剧,  恢复,  I Grandi Directtori d'Orchestra,  Iannis Xenakis,  In an Italian Garden,  irregular,  Isolde,  Ivan Fischer,  Ivan Panteleev,  Jacques Attali,  Jardin des Voix,  计算机体系,  姜宇辉,  脚本,  交响乐团,  金柱泽,  J.S. Bach,  矩阵乘法,  Julian Rachlin,  Kavakos,  KingLear,  Kyung Wha Chung,  L’Accademia d’Amore,  laptop,  LaTeX,  Le Jardin des Voix,  Leonidas Kavakos,  Les Arts Florissants,  李尔王,  life,  linux,  listings,  刘悦笛,  llvm,  LOCAL_C_INCLUDES,  LOCAL_SRC_FILES,  LSO,  lsof,  Lua,  luac,  Lucier,  Luigi Rossolo,  Macbeth,  machine learning,  MAGMA,  麦克白,  makefile,  Margaret Campbell,  Mark Lammert,  Massumi,  matrix multiplication,  media9,  memcheck,  memory management,  mendeley,  Mike Goldsmith,  民谣,  民谣摇滚,  minted,  Mintz,  mobile game,  Mozart,  MPI,  Natalia Gutman,  内存,  内存管理,  NEON,  nginx,  尼尔森斯,  Nicholas Angelich,  ocaml,  OCAT,  octopress,  ODP,  Ontopower,  opengl,  OpenGL ES,  OpenResty,  Opera,  Orazio Vecchi,  Orchestre de Paris,  Othello,  Paavo Järvi,  padb,  parallel programming,  pathogen,  PhotoRec,  piano,  Pierre Schaeffer,  平行程式,  pkexec,  Practical Vim,  press test,  pygments,  quick,  quick-cocos2d-x,  quickx,  Rachlin,  reading,  recital,  recover,  Reed-Solomon,  Renaud Capuçon,  Richard Stallman,  RMS,  RNN,  Rossolo,  Russian Cello School,  Russian Piano School,  Samuel Beckett,  Samuel Finzi,  Schaeffer,  莎士比亚,  Shakespear,  shell,  声音艺术,  Shlomo Mintz,  手游开发,  斯卡拉,  Sibelius,  Simon Boccanegra,  Simone Piazzola,  SimpleScalar,  snapshots,  staggered tiled map,  sudo,  svn,  systemd,  TableView,  特效,  tech,  template,  test,  tex,  TexturePacker,  the Art of Loving,  体系结构,  tile,  tiled,  tiled map,  tmux,  Tristan,  typewriting,  Tyrolean Festival Erl,  UI,  UNIX,  V3-571G,  valgrind,  Varèse,  Verdi,  vi,  vim,  vimwiki,  violin,  violinist,  Vivaldi,  瓦格纳,  瓦片地图,  Wagner,  waiting for godot,  威尔第,  文件恢复,  文学,  widget,  wiki,  William Christie,  Wolfram Koch,  wrk,  Xenakis,  西贝柳斯,  西贝柳斯小协,  戏剧,  希拉里,  西蒙·波卡涅拉,  小提琴,  休伊特,  xypic,  压测,  压力测试,  音乐,  音乐会,  殷漪,  游戏崩溃,  游戏开发,  郑京和,  郑明勋,  指挥家,  字体,  自由软件,  misc,  music,  reading,  tech, " />
-        <title>Galoisplusplus - quick-cocos2d-x tag</title>
+                <address class="vcard author">
+                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
+<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/lua.html">lua</a> <a href="http://yszheda.github.io/blog/tag/quick.html">quick</a> <a href="http://yszheda.github.io/blog/tag/quickx.html">quickx</a> <a href="http://yszheda.github.io/blog/tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/game.html">game</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+</footer><!-- /.post-info --><p>这次分享一个简单的小功能，在quick-cocos2d-x游戏中实现tips效果，以此作为<a href="http://galoisplusplus.coding.me/blog/2015/05/01/quickx-tips/">之前一篇博文</a>的后续。tips的行为很简单：点击某个<code>node</code>（我们不妨称它为<code>target_node</code>）触发，当点击区域在<code>target_node</code>范围时出现<code>tips</code>，否则隐藏<code>tips</code>（有些情况需要指定有效点击范围不在某些node中，我们把这些node称为<code>exclude_nodes</code>）；当<code>target_node</code>位于屏幕左半边时，<code>tips</code>出现在<code>target_node</code>右侧；否则<code>tips</code>就出现在<code>target_node</code>左侧，<code>tips</code>和<code>target_node</code>有一个固定的水平间距（我们不妨定义为<code>DEFAULT_TIPS_DIST</code>）；<code>tips</code>和<code>target_node</code>底部对齐，但<code>tips</code>不能超过屏幕范围。</p>
+<p>不废话，先上代码：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">  1</span>
+<span class="normal">  2</span>
+<span class="normal">  3</span>
+<span class="normal">  4</span>
+<span class="normal">  5</span>
+<span class="normal">  6</span>
+<span class="normal">  7</span>
+<span class="normal">  8</span>
+<span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kr">function</span> <span class="nf">setupTips</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="kd">local</span> <span class="n">targetNode</span> <span class="o">=</span> <span class="n">params</span><span class="p">.</span><span class="n">target_node</span>
+    <span class="kd">local</span> <span class="n">tips</span> <span class="o">=</span> <span class="n">params</span><span class="p">.</span><span class="n">tips</span>
+    <span class="kd">local</span> <span class="n">excludeNodes</span> <span class="o">=</span> <span class="n">params</span><span class="p">.</span><span class="n">exclude_nodes</span> <span class="ow">or</span> <span class="p">{}</span>
 
+    <span class="kd">local</span> <span class="n">DEFAULT_TIPS_DIST</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="kd">local</span> <span class="n">TIPS_ZORDER</span> <span class="o">=</span> <span class="mi">1000</span>
 
+    <span class="kr">if</span> <span class="n">tolua</span><span class="p">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">targetNode</span><span class="p">)</span> <span class="ow">or</span> <span class="n">tolua</span><span class="p">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">tips</span><span class="p">)</span> <span class="kr">then</span>
+        <span class="kr">return</span>
+    <span class="kr">end</span>
 
-        <!-- MathJax for LaTeX support -->
-        <script type="text/x-mathjax-config">
-          MathJax.Hub.Config({
-            tex2jax: {
-              inlineMath: [['$', '$'], ['\\(', '\\)']],
-              displayMath: [['$$', '$$'], ['\\[', '\\]']],
-              processEscapes: true,
-              processEnvironments: true
-            }
-          });
-        </script>
-        <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-    </head>
-    <body>
-        <div id="content">
-            <div class="navbar navbar-static-top">
-                <div class="navbar-inner">
-                    <div class="container-fluid">
-                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </a>
-                        <a class="brand" href="http://yszheda.github.io/blog/"><span class=site-name>Galoisplusplus</span></a>
-                        <div class="nav-collapse collapse">
-                            <ul class="nav pull-right top-menu">
-                                <li >
-                                    <a href=
-                                       http://yszheda.github.io/blog
-                                    >Home</a>
-                                </li>
-                                <li ><a href="http://yszheda.github.io/blog/categories.html">Categories</a></li>
-                                <li ><a href="http://yszheda.github.io/blog/tags.html">Tags</a></li>
-                                <li ><a href="http://yszheda.github.io/blog/archives.html">Archives</a></li>
-                                <li><form class="navbar-search" action="http://yszheda.github.io/blog/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="container-fluid">
-                <div class="row-fluid">
-                    <div class="span1"></div>
-                    <div class="span10">
+    <span class="n">tips</span><span class="p">:</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+    <span class="n">targetNode</span><span class="p">:</span><span class="n">setTouchEnabled</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+    <span class="n">display</span><span class="p">.</span><span class="n">getRunningScene</span><span class="p">():</span><span class="n">addChild</span><span class="p">(</span><span class="n">tips</span><span class="p">,</span> <span class="n">TIPS_ZORDER</span><span class="p">)</span>
 
+    <span class="n">targetNode</span><span class="p">:</span><span class="n">addNodeEventListener</span><span class="p">(</span><span class="n">cc</span><span class="p">.</span><span class="n">NODE_EVENT</span><span class="p">,</span> <span class="kr">function</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="kr">if</span> <span class="n">event</span><span class="p">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;exit&quot;</span> <span class="kr">then</span>
+            <span class="kd">local</span> <span class="n">scene</span> <span class="o">=</span> <span class="n">display</span><span class="p">.</span><span class="n">getRunningScene</span><span class="p">()</span>
+            <span class="n">scene</span><span class="p">:</span><span class="n">performWithDelay</span><span class="p">(</span><span class="n">MyPackage</span><span class="p">.</span><span class="n">callbackWrapper</span><span class="p">({</span><span class="n">scene</span><span class="p">},</span> <span class="kr">function</span><span class="p">()</span>
+                <span class="kr">if</span> <span class="ow">not</span> <span class="n">tolua</span><span class="p">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">tips</span><span class="p">)</span> <span class="kr">then</span>
+                    <span class="n">tips</span><span class="p">:</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+                <span class="kr">end</span>
+            <span class="kr">end</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
 
-<div class="row-fluid">
+            <span class="kd">local</span> <span class="n">eventDispatcher</span> <span class="o">=</span> <span class="n">display</span><span class="p">.</span><span class="n">getRunningScene</span><span class="p">():</span><span class="n">getEventDispatcher</span><span class="p">()</span>
+            <span class="n">eventDispatcher</span><span class="p">:</span><span class="n">removeEventListenersForTarget</span><span class="p">(</span><span class="n">targetNode</span><span class="p">)</span>
+        <span class="kr">end</span>
+    <span class="kr">end</span><span class="p">)</span>
+    <span class="c1">------------------------------------------------------------</span>
+    <span class="kd">local</span> <span class="kr">function</span> <span class="nf">setTipsPosition</span><span class="p">()</span>
+        <span class="kd">local</span> <span class="n">leftBottomPos</span> <span class="o">=</span> <span class="n">MyPackage</span><span class="p">.</span><span class="n">getPositionOfNode</span><span class="p">(</span><span class="n">targetNode</span><span class="p">,</span> <span class="n">display</span><span class="p">.</span><span class="n">LEFT_BOTTOM</span><span class="p">)</span>
+        <span class="kd">local</span> <span class="n">targetNodePos</span> <span class="o">=</span> <span class="n">display</span><span class="p">.</span><span class="n">getRunningScene</span><span class="p">():</span><span class="n">convertToNodeSpace</span><span class="p">(</span><span class="n">targetNode</span><span class="p">:</span><span class="n">getParent</span><span class="p">():</span><span class="n">convertToWorldSpace</span><span class="p">(</span><span class="n">leftBottomPos</span><span class="p">))</span>
+        <span class="kd">local</span> <span class="n">targetNodeAnchorPoint</span> <span class="o">=</span> <span class="n">targetNode</span><span class="p">:</span><span class="n">getAnchorPoint</span><span class="p">()</span>
+        <span class="kd">local</span> <span class="n">tipsPos</span> <span class="o">=</span> <span class="n">targetNodePos</span>
+        <span class="kd">local</span> <span class="n">tipsAnchorPoint</span> <span class="o">=</span> <span class="n">cc</span><span class="p">.</span><span class="n">p</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="kd">local</span> <span class="n">director</span> <span class="o">=</span> <span class="n">cc</span><span class="p">.</span><span class="n">Director</span><span class="p">:</span><span class="n">getInstance</span><span class="p">()</span>
+        <span class="kd">local</span> <span class="n">glView</span> <span class="o">=</span> <span class="n">director</span><span class="p">:</span><span class="n">getOpenGLView</span><span class="p">()</span>
+        <span class="kd">local</span> <span class="n">frameSize</span> <span class="o">=</span> <span class="n">glView</span><span class="p">:</span><span class="n">getFrameSize</span><span class="p">()</span>
+        <span class="kd">local</span> <span class="n">viewSize</span> <span class="o">=</span> <span class="n">director</span><span class="p">:</span><span class="n">getVisibleSize</span><span class="p">()</span>
 
-    <div class="row-fluid">
+        <span class="kr">if</span> <span class="n">targetNodePos</span><span class="p">.</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="n">frameSize</span><span class="p">.</span><span class="n">width</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">/</span> <span class="n">glView</span><span class="p">:</span><span class="n">getScaleX</span><span class="p">()</span> <span class="kr">then</span>
+            <span class="c1">-- show tips on the right of the targetNode if the targetNode is on the left screen</span>
+            <span class="n">tipsPos</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">tipsPos</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">targetNode</span><span class="p">:</span><span class="n">getContentSize</span><span class="p">().</span><span class="n">width</span> <span class="o">+</span> <span class="n">DEFAULT_TIPS_DIST</span>
+        <span class="kr">else</span>
+            <span class="c1">-- show tips on the left of the targetNode otherwises</span>
+            <span class="n">tipsPos</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">tipsPos</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">DEFAULT_TIPS_DIST</span>
+            <span class="n">tipsAnchorPoint</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="kr">end</span>
 
-    </div>
+        <span class="kr">if</span> <span class="n">targetNodePos</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">tips</span><span class="p">:</span><span class="n">getContentSize</span><span class="p">().</span><span class="n">height</span> <span class="o">&gt;</span> <span class="n">viewSize</span><span class="p">.</span><span class="n">height</span> <span class="kr">then</span>
+            <span class="n">tipsPos</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">viewSize</span><span class="p">.</span><span class="n">height</span>
+            <span class="n">tipsAnchorPoint</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="kr">end</span>
+        <span class="kr">if</span> <span class="n">targetNodePos</span><span class="p">.</span><span class="n">y</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="kr">then</span>
+            <span class="n">targetNodePos</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="kr">end</span>
 
-    <div class="row-fluid">
-        <div class="span8 offset2">
-            <header>
-            <h1 id="recent-posts">Recent Posts <a id="allposts" href="http://yszheda.github.io/blog/archives.html">all posts</a></h1>
-            </header>
-        <div class="recent-posts">
-            <div itemscope class="recent-posts-article">
-                <a href="http://yszheda.github.io/blog/2016/01/16/20160116-tips-in-cocos2d-x-game.html">
-                    quick-cocos2d-x游戏的tips功能
-                </a>
-                <div class="recent-posts-posted">
-                    posted in
-                    <a href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
-                    <time itemprop="dateCreated" datetime="2016-01-16T23:23:00+08:00">Sat 16 January 2016</time>
-                </div>
-            </div>
-            <div itemscope class="recent-posts-article">
-                <a href="http://yszheda.github.io/blog/2015/12/19/20151219-spine-memory-leaks.html">
-                    记一次spine内存泄露排查
-                </a>
-                <div class="recent-posts-posted">
-                    posted in
-                    <a href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
-                    <time itemprop="dateCreated" datetime="2015-12-19T11:22:00+08:00">Sat 19 December 2015</time>
-                </div>
-            </div>
-            <div itemscope class="recent-posts-article">
-                <a href="http://yszheda.github.io/blog/2015/09/18/20150918-ui-workflow-for-cocos2d-x-project.html">
-                    cocos2d-x前端开发UI流程
-                </a>
-                <div class="recent-posts-posted">
-                    posted in
-                    <a href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
-                    <time itemprop="dateCreated" datetime="2015-09-18T23:22:00+08:00">Fri 18 September 2015</time>
-                </div>
-            </div>
-            <div itemscope class="recent-posts-article">
-                <a href="http://yszheda.github.io/blog/2015/07/20/20150720-profilers-for-cocos2d-x.html">
-                    cocos2d-x游戏的性能检测
-                </a>
-                <div class="recent-posts-posted">
-                    posted in
-                    <a href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
-                    <time itemprop="dateCreated" datetime="2015-07-20T11:22:00+08:00">Mon 20 July 2015</time>
-                </div>
-            </div>
-            <div itemscope class="recent-posts-article">
-                <a href="http://yszheda.github.io/blog/2015/07/06/20150706-patch-for-quickx-button.html">
-                    quick-cocos2d-x按钮补丁
-                </a>
-                <div class="recent-posts-posted">
-                    posted in
-                    <a href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
-                    <time itemprop="dateCreated" datetime="2015-07-06T20:20:00+08:00">Mon 06 July 2015</time>
-                </div>
-            </div>
-            <div itemscope class="recent-posts-article">
-                <a href="http://yszheda.github.io/blog/2015/02/01/20150201-label-typewriting-effect.html">
-                    cocos2d-x实现打字特效
-                </a>
-                <div class="recent-posts-posted">
-                    posted in
-                    <a href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
-                    <time itemprop="dateCreated" datetime="2015-02-01T02:36:00+08:00">Sun 01 February 2015</time>
-                </div>
-            </div>
-            <div itemscope class="recent-posts-article">
-                <a href="http://yszheda.github.io/blog/2015/01/04/20150104-quick-cocos2d-x-pitfalls.html">
-                    quick-cocos2d-x踩坑记——问题与解决方案
-                </a>
-                <div class="recent-posts-posted">
-                    posted in
-                    <a href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
-                    <time itemprop="dateCreated" datetime="2015-01-04T02:00:00+08:00">Sun 04 January 2015</time>
-                </div>
-            </div>
-        </div>
-        </div>
-    </div>
-</div>
-                    </div>
-                    <div class="span1"></div>
-                </div>
-            </div>
-        </div>
-<footer>
+        <span class="n">tips</span><span class="p">:</span><span class="n">ignoreAnchorPointForPosition</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+        <span class="n">tips</span><span class="p">:</span><span class="n">setAnchorPoint</span><span class="p">(</span><span class="n">tipsAnchorPoint</span><span class="p">)</span>
+        <span class="n">tips</span><span class="p">:</span><span class="n">setPosition</span><span class="p">(</span><span class="n">tipsPos</span><span class="p">)</span>
+    <span class="kr">end</span>
+    <span class="c1">------------------------------------------------------------</span>
+    <span class="kd">local</span> <span class="kr">function</span> <span class="nf">activeFunc</span><span class="p">()</span>
+        <span class="kd">local</span> <span class="n">scene</span> <span class="o">=</span> <span class="n">display</span><span class="p">.</span><span class="n">getRunningScene</span><span class="p">()</span>
+        <span class="c1">-- NOTE: delay util the next frame in order to get the correct WorldSpace position</span>
+        <span class="n">scene</span><span class="p">:</span><span class="n">performWithDelay</span><span class="p">(</span><span class="n">MyPackage</span><span class="p">.</span><span class="n">callbackWrapper</span><span class="p">({</span><span class="n">scene</span><span class="p">,</span> <span class="n">tips</span><span class="p">},</span> <span class="kr">function</span><span class="p">()</span>
+            <span class="n">setTipsPosition</span><span class="p">()</span>
+            <span class="n">tips</span><span class="p">:</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+        <span class="kr">end</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="kr">end</span>
 
+    <span class="kd">local</span> <span class="kr">function</span> <span class="nf">inactiveFunc</span><span class="p">()</span>
+        <span class="kr">if</span> <span class="ow">not</span> <span class="n">tolua</span><span class="p">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">tips</span><span class="p">)</span> <span class="kr">then</span>
+            <span class="n">tips</span><span class="p">:</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+        <span class="kr">end</span>
+    <span class="kr">end</span>
 
+    <span class="kd">local</span> <span class="kr">function</span> <span class="nf">isTouchInNode</span><span class="p">(</span><span class="n">touch</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+        <span class="kr">if</span> <span class="n">tolua</span><span class="p">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="ow">or</span> <span class="n">tolua</span><span class="p">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">touch</span><span class="p">)</span> <span class="kr">then</span>
+            <span class="kr">return</span> <span class="kc">false</span>
+        <span class="kr">end</span>
 
+        <span class="kd">local</span> <span class="n">localLocation</span> <span class="o">=</span> <span class="n">node</span><span class="p">:</span><span class="n">convertToNodeSpace</span><span class="p">(</span><span class="n">touch</span><span class="p">:</span><span class="n">getLocation</span><span class="p">())</span>
+        <span class="kd">local</span> <span class="n">width</span> <span class="o">=</span> <span class="n">node</span><span class="p">:</span><span class="n">getContentSize</span><span class="p">().</span><span class="n">width</span>
+        <span class="kd">local</span> <span class="n">height</span> <span class="o">=</span> <span class="n">node</span><span class="p">:</span><span class="n">getContentSize</span><span class="p">().</span><span class="n">height</span>
+        <span class="kd">local</span> <span class="n">rect</span> <span class="o">=</span> <span class="n">cc</span><span class="p">.</span><span class="n">rect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+        <span class="kr">return</span> <span class="n">getCascadeVisibility</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="ow">and</span> <span class="n">node</span><span class="p">:</span><span class="n">isRunning</span><span class="p">()</span> <span class="ow">and</span> <span class="n">cc</span><span class="p">.</span><span class="n">rectContainsPoint</span><span class="p">(</span><span class="n">rect</span><span class="p">,</span> <span class="n">localLocation</span><span class="p">)</span>
+    <span class="kr">end</span>
 
-    <div id="fpowered">
-        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
-        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
-    </div>
-</footer>        <script src="//code.jquery.com/jquery.min.js"></script>
-        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-        <script src="http://yszheda.github.io/blog/theme/js/elegant.prod.9e9d5ce754.js"></script>
-        <script>
-            function validateForm(query)
-            {
-                return (query.length > 0);
-            }
-        </script>
-    </body>
-    <!-- Theme: Elegant built for Pelican
-        License : MIT -->
+    <span class="kd">local</span> <span class="kr">function</span> <span class="nf">isActive</span><span class="p">(</span><span class="n">touch</span><span class="p">)</span>
+        <span class="kd">local</span> <span class="n">isExcluded</span> <span class="o">=</span> <span class="kc">false</span>
+        <span class="kr">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">excludeNode</span> <span class="kr">in</span> <span class="nb">ipairs</span><span class="p">(</span><span class="n">excludeNodes</span><span class="p">)</span> <span class="kr">do</span>
+            <span class="n">isExcluded</span> <span class="o">=</span> <span class="n">isExcluded</span> <span class="ow">or</span> <span class="n">isTouchInNode</span><span class="p">(</span><span class="n">touch</span><span class="p">,</span> <span class="n">excludeNode</span><span class="p">)</span>
+        <span class="kr">end</span>
+        <span class="kr">return</span> <span class="n">isTouchInNode</span><span class="p">(</span><span class="n">touch</span><span class="p">,</span> <span class="n">targetNode</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">isExcluded</span>
+    <span class="kr">end</span>
+
+    <span class="kd">local</span> <span class="kr">function</span> <span class="nf">onTouchBegan</span><span class="p">(</span><span class="n">touch</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+        <span class="kr">if</span> <span class="n">isActive</span><span class="p">(</span><span class="n">touch</span><span class="p">)</span> <span class="kr">then</span>
+            <span class="n">activeFunc</span><span class="p">()</span>
+            <span class="kr">return</span> <span class="kc">true</span>
+        <span class="kr">else</span>
+            <span class="kr">return</span> <span class="kc">false</span>
+        <span class="kr">end</span>
+    <span class="kr">end</span>
+
+    <span class="kd">local</span> <span class="kr">function</span> <span class="nf">onTouchMoved</span><span class="p">(</span><span class="n">touch</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+        <span class="kd">local</span> <span class="n">scene</span> <span class="o">=</span> <span class="n">display</span><span class="p">.</span><span class="n">getRunningScene</span><span class="p">()</span>
+        <span class="n">scene</span><span class="p">:</span><span class="n">performWithDelay</span><span class="p">(</span><span class="n">MyPackage</span><span class="p">.</span><span class="n">callbackWrapper</span><span class="p">({</span><span class="n">scene</span><span class="p">},</span> <span class="kr">function</span><span class="p">()</span>
+            <span class="kr">if</span> <span class="n">isActive</span><span class="p">(</span><span class="n">touch</span><span class="p">)</span> <span class="kr">then</span>
+                <span class="n">activeFunc</span><span class="p">()</span>
+            <span class="kr">else</span>
+                <span class="n">inactiveFunc</span><span class="p">()</span>
+            <span class="kr">end</span>
+        <span class="kr">end</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="kr">end</span>
+
+    <span class="kd">local</span> <span class="kr">function</span> <span class="nf">onTouchEnded</span><span class="p">(</span><span class="n">touch</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+        <span class="kd">local</span> <span class="n">scene</span> <span class="o">=</span> <span class="n">display</span><span class="p">.</span><span class="n">getRunningScene</span><span class="p">()</span>
+        <span class="n">scene</span><span class="p">:</span><span class="n">performWithDelay</span><span class="p">(</span><span class="n">MyPackage</span><span class="p">.</span><span class="n">callbackWrapper</span><span class="p">({</span><span class="n">scene</span><span class="p">},</span> <span class="kr">function</span><span class="p">()</span>
+            <span class="n">inactiveFunc</span><span class="p">()</span>
+        <span class="kr">end</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="kr">end</span>
+
+    <span class="kd">local</span> <span class="n">listener</span> <span class="o">=</span> <span class="n">cc</span><span class="p">.</span><span class="n">EventListenerTouchOneByOne</span><span class="p">:</span><span class="n">create</span><span class="p">()</span>
+    <span class="n">listener</span><span class="p">:</span><span class="n">registerScriptHandler</span><span class="p">(</span><span class="n">onTouchBegan</span><span class="p">,</span> <span class="n">cc</span><span class="p">.</span><span class="n">Handler</span><span class="p">.</span><span class="n">EVENT_TOUCH_BEGAN</span><span class="p">)</span>
+    <span class="n">listener</span><span class="p">:</span><span class="n">registerScriptHandler</span><span class="p">(</span><span class="n">onTouchMoved</span><span class="p">,</span> <span class="n">cc</span><span class="p">.</span><span class="n">Handler</span><span class="p">.</span><span class="n">EVENT_TOUCH_MOVED</span><span class="p">)</span>
+    <span class="n">listener</span><span class="p">:</span><span class="n">registerScriptHandler</span><span class="p">(</span><span class="n">onTouchEnded</span><span class="p">,</span> <span class="n">cc</span><span class="p">.</span><span class="n">Handler</span><span class="p">.</span><span class="n">EVENT_TOUCH_ENDED</span><span class="p">)</span>
+    <span class="n">listener</span><span class="p">:</span><span class="n">registerScriptHandler</span><span class="p">(</span><span class="n">onTouchEnded</span><span class="p">,</span> <span class="n">cc</span><span class="p">.</span><span class="n">Handler</span><span class="p">.</span><span class="n">EVENT_TOUCH_CANCELLED</span><span class="p">)</span>
+    <span class="kd">local</span> <span class="n">eventDispatcher</span> <span class="o">=</span> <span class="n">display</span><span class="p">.</span><span class="n">getRunningScene</span><span class="p">():</span><span class="n">getEventDispatcher</span><span class="p">()</span>
+    <span class="n">eventDispatcher</span><span class="p">:</span><span class="n">removeEventListenersForTarget</span><span class="p">(</span><span class="n">targetNode</span><span class="p">)</span>
+    <span class="n">eventDispatcher</span><span class="p">:</span><span class="n">addEventListenerWithSceneGraphPriority</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="n">targetNode</span><span class="p">)</span>
+<span class="kr">end</span>
+</code></pre></div></td></tr></table></div>
+
+<p>关于<code>MyPackage.getPositionOfNode</code>、<code>MyPackage.callbackWrapper</code>等helper functions请参见<a href="http://galoisplusplus.coding.me/blog/2015/05/01/quickx-tips/">之前某篇博文</a>。</p>
+<p>上面的代码基本是很简单的，除了有几点需要额外说明一下：</p>
+<ol>
+<li>几处调用到<code>performWithDelay</code>的地方。这是因为我们用<code>target_node</code>的WorldSpace坐标来确定<code>tips</code>的位置，当<code>target_node</code>位于某个可滚动的node（如<code>ScrollView</code>）中时，需要延迟到下一帧才能拿到它正确的WorldSpace坐标，所以我们用了quickx定义的<code>Node:performWithDelay</code>来做延时。之所以用这个函数而不用scheduler，是因为它在Node的生命周期中，我们不需要担心如何去安全销毁scheduler所产生的handler。事实上我们只要看一下quickx定义在NodeEx.lua中的<code>Node:performWithDelay</code>就一目了然了：</li>
+</ol>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kr">function</span> <span class="nc">Node</span><span class="p">:</span><span class="nf">performWithDelay</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span>
+    <span class="kd">local</span> <span class="n">action</span> <span class="o">=</span> <span class="n">transition</span><span class="p">.</span><span class="n">sequence</span><span class="p">({</span>
+        <span class="n">cc</span><span class="p">.</span><span class="n">DelayTime</span><span class="p">:</span><span class="n">create</span><span class="p">(</span><span class="n">delay</span><span class="p">),</span>
+        <span class="n">cc</span><span class="p">.</span><span class="n">CallFunc</span><span class="p">:</span><span class="n">create</span><span class="p">(</span><span class="n">callback</span><span class="p">),</span>
+    <span class="p">})</span>
+    <span class="n">self</span><span class="p">:</span><span class="n">runAction</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+    <span class="kr">return</span> <span class="n">action</span>
+<span class="kr">end</span>
+</code></pre></div></td></tr></table></div>
+
+<ol>
+<li>
+<p>我们指定<code>target_node</code>在收到<code>exit</code>事件时隐藏<code>tips</code>，这是因为<code>target_node</code>可能在某些<code>ClippingNode</code>（如<code>ScrollView</code>）中，当它超出区域不再显示时，<code>tips</code>也不应该被显示。</p>
+</li>
+<li>
+<p>当同一个位置有多个具有<code>tips</code>行为的<code>target_node</code>时，需要判断当前的<code>target_node</code>是否有显示，这需要回溯看父节点的<code>visibility</code>，<code>getCascadeVisibility</code>定义如下：</p>
+</li>
+</ol>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kr">function</span> <span class="nf">getCascadeVisibility</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+    <span class="kr">if</span> <span class="n">tolua</span><span class="p">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="kr">then</span>
+        <span class="kr">return</span> <span class="kc">true</span>
+    <span class="kr">end</span>
+    <span class="kd">local</span> <span class="n">visibility</span> <span class="o">=</span> <span class="n">node</span><span class="p">:</span><span class="n">isVisible</span><span class="p">()</span>
+    <span class="kr">if</span> <span class="n">visibility</span> <span class="kr">then</span>
+        <span class="kd">local</span> <span class="n">parent</span> <span class="o">=</span> <span class="n">node</span><span class="p">:</span><span class="n">getParent</span><span class="p">()</span>
+        <span class="n">visibility</span> <span class="o">=</span> <span class="n">visibility</span> <span class="ow">and</span> <span class="n">getCascadeVisibility</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+    <span class="kr">end</span>
+    <span class="kr">return</span> <span class="n">visibility</span>
+<span class="kr">end</span>
+</code></pre></div></td></tr></table></div>                    </article>
+                </aside><!-- /#featured -->
+                    <section id="content" class="body">
+                        <h1>Other articles</h1>
+                        <hr />
+                        <ol id="posts-list" class="hfeed">
+
+                <li><article class="hentry">
+                    <header>
+                        <h1><a href="http://yszheda.github.io/blog/2015/12/19/20151219-spine-memory-leaks.html" rel="bookmark"
+                               title="Permalink to 记一次spine内存泄露排查">记一次spine内存泄露排查</a></h1>
+                    </header>
+
+                    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2015-12-19T11:22:00+08:00">
+                Published: 六 19 12月 2015
+        </abbr>
+
+                <address class="vcard author">
+                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
+<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/quick.html">quick</a> <a href="http://yszheda.github.io/blog/tag/quickx.html">quickx</a> <a href="http://yszheda.github.io/blog/tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+</footer><!-- /.post-info -->                        <p>最近用<code>Instruments</code>的<code>Leaks</code>工具排查我们cocos2d-x游戏的一些内存泄露问题，大部分属于之前我们<code>C++</code>代码的bug，还有几个是<code>lua</code>代码中<code>sqlite</code>使用不当造成的内存泄露（例如 …</p>
+                        <a class="readmore" href="http://yszheda.github.io/blog/2015/12/19/20151219-spine-memory-leaks.html">read more</a>
+                    </div><!-- /.entry-content -->
+                </article></li>
+
+                <li><article class="hentry">
+                    <header>
+                        <h1><a href="http://yszheda.github.io/blog/2015/09/18/20150918-ui-workflow-for-cocos2d-x-project.html" rel="bookmark"
+                               title="Permalink to cocos2d-x前端开发UI流程">cocos2d-x前端开发UI流程</a></h1>
+                    </header>
+
+                    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2015-09-18T23:22:00+08:00">
+                Published: 五 18 9月 2015
+        </abbr>
+
+                <address class="vcard author">
+                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
+<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/quick.html">quick</a> <a href="http://yszheda.github.io/blog/tag/quickx.html">quickx</a> <a href="http://yszheda.github.io/blog/tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> <a href="http://yszheda.github.io/blog/tag/cocostudio.html">cocostudio</a> <a href="http://yszheda.github.io/blog/tag/texturepacker.html">TexturePacker</a> </p>        
+</footer><!-- /.post-info -->                        <p>手游前端开发中有一项很基础的流程，就是把美术资源拼成程序能用的UI界面。由于cocos2d-x并没有一套成熟的工具链，我们最开始是由美术大大们出效果图 …</p>
+                        <a class="readmore" href="http://yszheda.github.io/blog/2015/09/18/20150918-ui-workflow-for-cocos2d-x-project.html">read more</a>
+                    </div><!-- /.entry-content -->
+                </article></li>
+
+                <li><article class="hentry">
+                    <header>
+                        <h1><a href="http://yszheda.github.io/blog/2015/07/20/20150720-profilers-for-cocos2d-x.html" rel="bookmark"
+                               title="Permalink to cocos2d-x游戏的性能检测">cocos2d-x游戏的性能检测</a></h1>
+                    </header>
+
+                    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2015-07-20T11:22:00+08:00">
+                Published: 一 20 7月 2015
+        </abbr>
+
+                <address class="vcard author">
+                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
+<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/quick.html">quick</a> <a href="http://yszheda.github.io/blog/tag/quickx.html">quickx</a> <a href="http://yszheda.github.io/blog/tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+</footer><!-- /.post-info -->                        <p>前段时间本渣负责了一些优化我们cocos2d-x游戏性能方面的工作，在这里做一点记录。</p>
+<!-- more -->
+
+<h1 id="opengl">OpenGL指标</h1>
+<p>在debug版的cocos2d-x游戏里，通常会在左下角显示三个指标（当然，是否显示这三个指 …</p>
+                        <a class="readmore" href="http://yszheda.github.io/blog/2015/07/20/20150720-profilers-for-cocos2d-x.html">read more</a>
+                    </div><!-- /.entry-content -->
+                </article></li>
+
+                <li><article class="hentry">
+                    <header>
+                        <h1><a href="http://yszheda.github.io/blog/2015/07/06/20150706-patch-for-quickx-button.html" rel="bookmark"
+                               title="Permalink to quick-cocos2d-x按钮补丁">quick-cocos2d-x按钮补丁</a></h1>
+                    </header>
+
+                    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2015-07-06T20:20:00+08:00">
+                Published: 一 06 7月 2015
+        </abbr>
+
+                <address class="vcard author">
+                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
+<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/quick.html">quick</a> <a href="http://yszheda.github.io/blog/tag/quickx.html">quickx</a> <a href="http://yszheda.github.io/blog/tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/button.html">button</a> <a href="http://yszheda.github.io/blog/tag/widget.html">widget</a> <a href="http://yszheda.github.io/blog/tag/an-niu.html">按钮</a> <a href="http://yszheda.github.io/blog/tag/ui.html">UI</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+</footer><!-- /.post-info -->                        <p>最近在处理一个略奇怪的问题：app在某些情况下点按钮会消失后又重新出现，报bug的童鞋们把现象描述得有些扑朔迷离，因此本渣在排查问题时花了不少时间，在查了一些不相关的问题之后最后终于确 …</p>
+                        <a class="readmore" href="http://yszheda.github.io/blog/2015/07/06/20150706-patch-for-quickx-button.html">read more</a>
+                    </div><!-- /.entry-content -->
+                </article></li>
+
+                <li><article class="hentry">
+                    <header>
+                        <h1><a href="http://yszheda.github.io/blog/2015/02/01/20150201-label-typewriting-effect.html" rel="bookmark"
+                               title="Permalink to cocos2d-x实现打字特效">cocos2d-x实现打字特效</a></h1>
+                    </header>
+
+                    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2015-02-01T02:36:00+08:00">
+                Published: 日 01 2月 2015
+        </abbr>
+
+                <address class="vcard author">
+                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
+<p>tags: <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/quick.html">quick</a> <a href="http://yszheda.github.io/blog/tag/quickx.html">quickx</a> <a href="http://yszheda.github.io/blog/tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/te-xiao.html">特效</a> <a href="http://yszheda.github.io/blog/tag/da-zi-te-xiao.html">打字特效</a> <a href="http://yszheda.github.io/blog/tag/effect.html">effect</a> <a href="http://yszheda.github.io/blog/tag/typewriting.html">typewriting</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+</footer><!-- /.post-info -->                        <p>这次分享一个在cocos2d-x中实现打字特效的小功能。</p>
+<p>首先，cocos2d-x中label默认是utf8编码，quickx提供了一个<code>string.utf8len</code>接口，这里再加一个截取子字符串的函数：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19 …</span></pre></div></td></tr></table></div>
+                        <a class="readmore" href="http://yszheda.github.io/blog/2015/02/01/20150201-label-typewriting-effect.html">read more</a>
+                    </div><!-- /.entry-content -->
+                </article></li>
+
+                <li><article class="hentry">
+                    <header>
+                        <h1><a href="http://yszheda.github.io/blog/2015/01/04/20150104-quick-cocos2d-x-pitfalls.html" rel="bookmark"
+                               title="Permalink to quick-cocos2d-x踩坑记——问题与解决方案">quick-cocos2d-x踩坑记——问题与解决方案</a></h1>
+                    </header>
+
+                    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2015-01-04T02:00:00+08:00">
+                Published: 日 04 1月 2015
+        </abbr>
+
+                <address class="vcard author">
+                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
+<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/quick.html">quick</a> <a href="http://yszheda.github.io/blog/tag/quickx.html">quickx</a> <a href="http://yszheda.github.io/blog/tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+</footer><!-- /.post-info -->                        <p>本渣最近一个月来开始接触quick-cocos2d-x，用lua开发比c++要快些，但也因为quickx目前的一些坑——当然有些其实应该算是2dx引擎本身的坑——让本渣折腾了不少时间。在此做点记录 …</p>
+                        <a class="readmore" href="http://yszheda.github.io/blog/2015/01/04/20150104-quick-cocos2d-x-pitfalls.html">read more</a>
+                    </div><!-- /.entry-content -->
+                </article></li>
+                    </ol><!-- /#posts-list -->
+                    </section><!-- /#content -->
+                <section id="extras" class="body">
+                                <div class="blogroll">
+                                        <h2>links</h2>
+                                        <ul>
+                                                        <li><a href="http://getpelican.com/">Pelican</a></li>
+                                                        <li><a href="http://python.org/">Python.org</a></li>
+                                        </ul>
+                                </div><!-- /.blogroll -->
+                                <div class="social">
+                                        <h2>social</h2>
+                                        <ul>
+
+                                                        <li><a href="https://github.com/yszheda">GitHub</a></li>
+                                                        <li><a href="https://twitter.com/yszheda">Twitter</a></li>
+                                        </ul>
+                                </div><!-- /.social -->
+                </section><!-- /#extras -->
+
+                <footer id="contentinfo" class="body">
+                        <address id="about" class="vcard body">
+                                Proudly powered by <a rel="nofollow" href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a rel="nofollow" href="https://www.python.org/">Python</a>.
+                        </address><!-- /#about -->
+
+                        <p>The theme is by <a rel="nofollow" href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+                </footer><!-- /#contentinfo -->
+
+        </body>
 </html>

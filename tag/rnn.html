@@ -1,125 +1,682 @@
 <!DOCTYPE html>
 <html lang="zh">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
-        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/custom.css" media="screen">
-        <link rel="dns-prefetch" href="//fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+        <head>
+                        <meta charset="utf-8" />
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                        <meta name="generator" content="Pelican" />
+                        <title>Galoisplusplus - RNN</title>
+                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+        </head>
 
-        <meta name="author" content="Galoisplusplus" />
+        <body id="index" class="home">
+                <header id="banner" class="body">
+                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <nav><ul>
+                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                        </ul></nav>
+                </header><!-- /#banner -->
 
-        <meta property="og:type" content="article" />
-        <meta name="twitter:card" content="summary">
+                <aside id="featured" class="body">
+                    <article>
+                        <h1 class="entry-title"><a href="http://yszheda.github.io/blog/2016/08/17/20160817-have-fun-with-rnn.html">RNN(Recurrent Neural Networks)的有趣实验</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2016-08-17T10:12:00+08:00">
+                Published: 三 17 8月 2016
+        </abbr>
 
-<meta property="og:title" content="Galoisplusplus"/>
-<meta name="twitter:title" content="Galoisplusplus">
-<meta property="og:url" content="http://yszheda.github.io/blog" />
-<meta property="og:site_name" content="Galoisplusplus" />
-<meta property="og:article:author" content="Galoisplusplus" />
-<meta name="keywords" content=" 2D,  777,  阿巴多,  ab,  Abbado,  acer,  acl,  act,  Adriano Banchieri,  爱的艺术,  Alessandro Stradella,  Alvin Lucier,  按钮,  安装,  Andris Nelsons,  android,  Android.mk,  Angela Hewitt,  奥赛罗,  Archlinux,  ARM,  assembly,  Attali,  awk,  Bach,  bash,  Beckett,  贝克特,  崩溃,  BFO,  笔电,  笔记本电脑,  编辑器,  编译器,  BibTeX,  bibtex2html,  并行程序,  blog,  BMFont,  博客,  伯明翰市立交响,  Branch Prediction,  breakpad,  Brecht,  Brian Massumi,  不规则按钮,  布莱希特,  Budapest Festival Orchestra,  button,  c++,  Carmen Giannattasio,  CBSO,  测试,  Cello,  CentOS,  chapterbib,  chmod,  除錯,  clang,  Classical music,  Claudio Abbado,  cocos,  cocos2d,  cocos2d-x,  cocos2d-x quick-cocos2d-x quickx cocos2d cocos game gameDev 游戏开发 游戏 手游开发 手游 手机游戏,  cocostudio,  commit,  Computer Architecture,  concert,  conductor,  crash,  cron,  cronjob,  crontab,  CS,  cuBLAS,  CUDA,  大无,  打字特效,  戴米恩·莱斯,  Damien Rice,  Daniel Harding,  Dārziņš,  data mining,  德九,  debug,  debugfs,  等待戈多,  邓树荣,  Der Ring Des Nibelungen,  调试,  Dmitry Belosselskiy,  Docker,  Domenico Cimarosa,  Domenico Sarro,  东艺,  drama,  独立摇滚,  Dvořák,  Edgard Varèse,  editor,  effect,  Elisabeth Leonskaja,  Enrico Stinchelli,  Erich Fromm,  extundelete,  Fabio Sartori,  分支预测,  FNT,  Free Software,  弗洛姆,  Galois Field,  game,  game devolopment,  钢琴,  钢琴家,  gcc,  gdb,  歌剧,  个人博客,  个人wiki,  Giaches de Wert,  git,  gitcafe,  gitcafe pages,  github,  github pages,  gl,  godot,  Goldsmith,  GPGPU,  GPU,  Graphviz,  GridView,  古典音乐,  Gustav Kuhn,  哈恩,  Handel,  Haydn,  HEVEA,  Hilary Hahn,  history,  宏基,  hook,  荒诞派,  荒诞派戏剧,  恢复,  I Grandi Directtori d'Orchestra,  Iannis Xenakis,  In an Italian Garden,  irregular,  Isolde,  Ivan Fischer,  Ivan Panteleev,  Jacques Attali,  Jardin des Voix,  计算机体系,  姜宇辉,  脚本,  交响乐团,  金柱泽,  J.S. Bach,  矩阵乘法,  Julian Rachlin,  Kavakos,  KingLear,  Kyung Wha Chung,  L’Accademia d’Amore,  laptop,  LaTeX,  Le Jardin des Voix,  Leonidas Kavakos,  Les Arts Florissants,  李尔王,  life,  linux,  listings,  刘悦笛,  llvm,  LOCAL_C_INCLUDES,  LOCAL_SRC_FILES,  LSO,  lsof,  Lua,  luac,  Lucier,  Luigi Rossolo,  Macbeth,  machine learning,  MAGMA,  麦克白,  makefile,  Margaret Campbell,  Mark Lammert,  Massumi,  matrix multiplication,  media9,  memcheck,  memory management,  mendeley,  Mike Goldsmith,  民谣,  民谣摇滚,  minted,  Mintz,  mobile game,  Mozart,  MPI,  Natalia Gutman,  内存,  内存管理,  NEON,  nginx,  尼尔森斯,  Nicholas Angelich,  ocaml,  OCAT,  octopress,  ODP,  Ontopower,  opengl,  OpenGL ES,  OpenResty,  Opera,  Orazio Vecchi,  Orchestre de Paris,  Othello,  Paavo Järvi,  padb,  parallel programming,  pathogen,  PhotoRec,  piano,  Pierre Schaeffer,  平行程式,  pkexec,  Practical Vim,  press test,  pygments,  quick,  quick-cocos2d-x,  quickx,  Rachlin,  reading,  recital,  recover,  Reed-Solomon,  Renaud Capuçon,  Richard Stallman,  RMS,  RNN,  Rossolo,  Russian Cello School,  Russian Piano School,  Samuel Beckett,  Samuel Finzi,  Schaeffer,  莎士比亚,  Shakespear,  shell,  声音艺术,  Shlomo Mintz,  手游开发,  斯卡拉,  Sibelius,  Simon Boccanegra,  Simone Piazzola,  SimpleScalar,  snapshots,  staggered tiled map,  sudo,  svn,  systemd,  TableView,  特效,  tech,  template,  test,  tex,  TexturePacker,  the Art of Loving,  体系结构,  tile,  tiled,  tiled map,  tmux,  Tristan,  typewriting,  Tyrolean Festival Erl,  UI,  UNIX,  V3-571G,  valgrind,  Varèse,  Verdi,  vi,  vim,  vimwiki,  violin,  violinist,  Vivaldi,  瓦格纳,  瓦片地图,  Wagner,  waiting for godot,  威尔第,  文件恢复,  文学,  widget,  wiki,  William Christie,  Wolfram Koch,  wrk,  Xenakis,  西贝柳斯,  西贝柳斯小协,  戏剧,  希拉里,  西蒙·波卡涅拉,  小提琴,  休伊特,  xypic,  压测,  压力测试,  音乐,  音乐会,  殷漪,  游戏崩溃,  游戏开发,  郑京和,  郑明勋,  指挥家,  字体,  自由软件,  misc,  music,  reading,  tech, " />
-        <title>Galoisplusplus - RNN tag</title>
+                <address class="vcard author">
+                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
+<p>tags: <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/rnn.html">RNN</a> <a href="http://yszheda.github.io/blog/tag/machine-learning.html">machine learning</a> <a href="http://yszheda.github.io/blog/tag/data-mining.html">data mining</a> </p>        
+</footer><!-- /.post-info --><p>前段时间fracting兄分享了<a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">Andrej Karpathy一篇介绍RNN(Recurrent Neural Networks)的文章</a>，我看了之后觉得非常有趣，也用作者Andrej Karpathy写的<a href="https://github.com/karpathy/char-rnn">char-rnn</a>跑了一些实验玩玩。</p>
+<h1 id="_1">代码实验</h1>
+<p>作为码农，我最开始自然地想到用<code>rnn</code>来训练代码啦！</p>
+<h2 id="lua">lua源代码</h2>
+<p>我把lua-5.2.3的代码都写到一个文件里作为训练数据。<code>lua</code>的代码实在是太精炼了，竟然1M不到，只有544K！我没有更改<code>char-rnn</code>的默认参数，跑完了所有的50个<code>epoch</code>。取样时我一下就把<code>temperature</code>设为1（<code>temperature</code>是一个0到1的参数，越大随机性越高，设为1也就是机器原创性最好的条件了），结果还是比我想象中的好很多：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">  1</span>
+<span class="normal">  2</span>
+<span class="normal">  3</span>
+<span class="normal">  4</span>
+<span class="normal">  5</span>
+<span class="normal">  6</span>
+<span class="normal">  7</span>
+<span class="normal">  8</span>
+<span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">LUA_API</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="nb">char</span><span class="w"> </span><span class="o">*</span><span class="n">lua_string</span><span class="p">(</span><span class="n">lua_State</span><span class="w"> </span><span class="o">*</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">toidx</span><span class="p">);</span>
+<span class="n">LUAI_FUNC</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="w"> </span><span class="n">luaV_op</span><span class="w"> </span><span class="p">(</span><span class="n">lua_State</span><span class="w"> </span><span class="o">*</span><span class="n">L</span><span class="p">);</span>
+
+<span class="n">LUA_API</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="w">  </span><span class="p">(</span><span class="n">lua_setloge</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">lua_State</span><span class="w"> </span><span class="o">*</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">lua_Degrawiol</span><span class="p">)</span><span class="w"> </span><span class="n">set</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="s2">&quot;indininple&quot;</span><span class="p">)</span><span class="s2">&quot;;</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">luaL_int</span><span class="p">(</span><span class="k">func</span><span class="p">,</span><span class="w"> </span><span class="n">nup</span><span class="o">+</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">nup</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">winzed</span><span class="p">);</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ts</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="n">LUA_API</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="w"> </span><span class="n">lua_touserdata</span><span class="w"> </span><span class="p">(</span><span class="n">lua_State</span><span class="w"> </span><span class="o">*</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">nargp</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">lua_CFunction</span><span class="w"> </span><span class="n">fo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">h</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span><span class="w">  </span><span class="o">/*</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="err">`</span><span class="n">must</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">stack</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">  </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">cactconul</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">NA_JUMP</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="o">/*</span><span class="w"> </span><span class="n">remove</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="n">back</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">      </span><span class="n">lua_xmove</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w">  </span><span class="o">/*</span><span class="w"> </span><span class="n">remove</span><span class="w"> </span><span class="n">functions</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">empty</span><span class="w"> </span><span class="n">liblering</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="o">!</span><span class="n">ass_epp</span><span class="p">(</span><span class="n">lua_Number</span><span class="p">)(</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">))</span>
+<span class="w">        </span><span class="n">lua_pop</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">o2</span><span class="p">);</span><span class="w">  </span><span class="o">/*</span><span class="w"> </span><span class="n">remove</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">informed</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">      </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">lua_getuserval</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">idx2a</span><span class="p">(</span><span class="n">L</span><span class="p">),</span><span class="w"> </span><span class="n">nvalue</span><span class="p">(</span><span class="n">o</span><span class="p">));</span>
+<span class="w">      </span><span class="n">lua_pushvalue</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">unsupvalue</span><span class="p">);</span>
+<span class="w">          </span><span class="k">return</span><span class="w"> </span><span class="n">finuserode</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">nargs</span><span class="p">,</span><span class="w"> </span><span class="n">ns</span><span class="p">);</span>
+<span class="w">          </span><span class="n">finit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strchr</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">lewvalues</span><span class="p">));</span>
+<span class="w">        </span><span class="n">lua_pushliteral</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tobove&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">tb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uv</span><span class="o">-&gt;</span><span class="n">u</span><span class="o">.</span><span class="n">l</span><span class="o">.</span><span class="n">pastpvarsing</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w">  </span><span class="o">/*</span><span class="w"> </span><span class="n">logits</span><span class="w"> </span><span class="n">avoid</span><span class="w"> </span><span class="n">strings</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">        </span><span class="n">lua_Number</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">luaL_checkint</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">lua_isnumber</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">                            </span><span class="k">const</span><span class="w"> </span><span class="nb">char</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">expdesc</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">skiZc</span><span class="p">,</span><span class="w"> </span><span class="n">L</span><span class="o">-&gt;</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="p">);</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lua_getisteop</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">LUA_REGERMADDER</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="o">/*</span><span class="w"> </span><span class="n">no</span><span class="w"> </span><span class="n">move</span>
+<span class="p">(</span><span class="n">followed</span><span class="w"> </span><span class="n">framaling</span><span class="p">)</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">        </span><span class="n">L</span><span class="o">-&gt;</span><span class="n">oldpc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size_t</span><span class="p">,</span><span class="w"> </span><span class="n">L</span><span class="o">-&gt;</span><span class="n">stack</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">G</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">currentline</span><span class="p">;</span>
+<span class="w">      </span><span class="n">checknext</span><span class="p">(</span><span class="n">ls</span><span class="p">,</span><span class="w"> </span><span class="n">TK_EOS</span><span class="p">,</span><span class="w"> </span><span class="n">NO_JUMP</span><span class="p">);</span>
+<span class="w">    </span><span class="n">i</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">casch_k</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">NO_ORTENS</span><span class="w"> </span><span class="n">sizeof</span><span class="p">(</span><span class="nb">char</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span>
+<span class="w">    </span><span class="n">switch</span><span class="w"> </span><span class="p">(</span><span class="n">ls</span><span class="o">-&gt;</span><span class="n">cause</span><span class="p">)</span>
+<span class="w">      </span><span class="n">luai_writh</span><span class="p">(</span><span class="n">g</span><span class="p">));</span>
+<span class="w">    </span><span class="n">j</span><span class="o">-&gt;</span><span class="n">basstring</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NOPribig</span><span class="o">/</span><span class="w"> </span><span class="n">gch</span><span class="p">(</span><span class="n">o</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">marked</span><span class="p">;</span><span class="w">  </span><span class="o">/*</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">open</span><span class="w"> </span><span class="n">unsigned</span>
+<span class="n">instect</span><span class="w"> </span><span class="n">tocome</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">    </span><span class="n">lua_pushvalue</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">);</span><span class="w">  </span><span class="o">/*</span><span class="w"> </span><span class="n">put</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">nvars</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">g</span><span class="o">-&gt;</span><span class="n">gcvalue</span><span class="p">[</span><span class="n">g</span><span class="o">--</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">orr</span><span class="o">.</span><span class="n">in_PAXTABL</span><span class="p">;</span>
+<span class="n">lua_pushbouceran</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">v2</span><span class="p">);</span><span class="w">  </span><span class="o">/*</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="n">stack</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">        </span><span class="n">sav_char_</span><span class="p">(</span><span class="n">luaL_optint</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">strfrot</span><span class="p">));</span>
+<span class="w">  </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sig_meth</span><span class="w"> </span><span class="p">(</span><span class="n">level</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">prongc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">**</span><span class="n">s</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">);</span>
+<span class="w">      </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">case</span><span class="w"> </span><span class="n">GCSsweep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mode</span><span class="p">;</span><span class="w">  </span><span class="o">/*</span><span class="w"> </span><span class="n">skip</span><span class="w"> </span><span class="n">liblare</span><span class="w"> </span><span class="err">`</span><span class="n">next</span><span class="s1">&#39; */</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gnodead</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="o">/*</span><span class="w"> </span><span class="n">called</span><span class="w"> </span><span class="n">old</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">      </span><span class="n">lua_pushstring</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">);</span>
+<span class="w">      </span><span class="n">setnilvalue</span><span class="p">(</span><span class="n">o</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">l</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">l</span><span class="p">)</span>
+<span class="w">      </span><span class="n">closeL</span><span class="p">;</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">NULL</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">ttydebuffield</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">LUA_FINTFOCLEN</span><span class="p">);</span><span class="w">  </span><span class="o">/*</span><span class="w"> </span><span class="n">signed</span><span class="w"> </span><span class="n">invalid</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">capture</span><span class="w"> </span><span class="k">is</span>
+<span class="n">a</span><span class="w"> </span><span class="n">sunpting</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">    </span><span class="n">setsvalue2s</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">luaL_checkinteger</span><span class="p">)(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">LUA_TFuLLEA</span><span class="p">)</span><span class="w"> </span><span class="o">+</span>
+<span class="p">(</span><span class="n">L</span><span class="o">-&gt;</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LUA_RIDS</span><span class="p">);</span><span class="w">  </span><span class="o">/*</span><span class="w"> </span><span class="n">elual</span><span class="w"> </span><span class="n">library</span><span class="w"> </span><span class="n">operand</span><span class="w"> </span><span class="n">matched</span><span class="w"> </span><span class="p">(</span><span class="n">filencat</span><span class="p">)</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">stmp</span><span class="p">)</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rowninizers</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"> </span><span class="n">i</span><span class="o">-</span><span class="n">valid</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">    </span><span class="n">makes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">l</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">luaL_addchar</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">collectar</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lua_isnoneornil</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w">  </span><span class="o">/*</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">noting</span><span class="w"> </span><span class="n">thave</span><span class="w"> </span><span class="n">arguments</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">      </span><span class="o">/*</span><span class="w"> </span><span class="n">stat</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">L</span><span class="o">-&gt;</span><span class="n">ci</span><span class="o">-&gt;</span><span class="n">nexps</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="s1">&#39;?&#39;</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fermst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">luaS_eqstr</span><span class="p">(</span><span class="n">luaL_checknumber</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">ttisstring</span><span class="p">(</span><span class="n">g</span><span class="o">-&gt;</span><span class="n">GCasbertocaum</span><span class="p">(</span><span class="n">L</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="o">!</span><span class="n">luaD_freall</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">hvars</span><span class="p">(</span><span class="n">luaL_len</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">));</span>
+<span class="w">      </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">case</span><span class="w"> </span><span class="n">LC_LOADG2</span><span class="p">(</span><span class="n">L</span><span class="p">);</span><span class="w"> </span><span class="n">lua_pushcclosure</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">idx12x</span><span class="p">(</span><span class="n">f</span><span class="p">));</span>
+<span class="w">    </span><span class="n">setobj2s</span><span class="p">(</span><span class="n">L</span><span class="p">,</span>
+<span class="w">                 </span><span class="s2">&quot;L_callint &quot;</span><span class="w"> </span><span class="n">function</span><span class="s2">&quot;);</span>
+<span class="w">                                               </span><span class="n">singleballstatis</span><span class="p">);</span>
+<span class="w">  </span><span class="n">shrint</span><span class="w"> </span><span class="p">(</span><span class="n">lua_tointeger</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">luaT_gettmotableark</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">lua__collok</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">l2</span><span class="p">);</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="k">static</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">db_setret</span><span class="w"> </span><span class="p">(</span><span class="n">lua_State</span><span class="w"> </span><span class="o">*</span><span class="n">L</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lua_load</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">lua_tointeger</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;cnonal &quot;</span><span class="o">-</span><span class="s2">&quot;) &quot;</span><span class="w"> </span><span class="n">too</span><span class="w"> </span><span class="n">pvarial</span><span class="w"> </span><span class="n">be</span>
+<span class="o">*</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">yi</span><span class="o">-</span><span class="n">valid</span><span class="w"> </span><span class="n">function</span><span class="s2">&quot;);</span>
+<span class="w">  </span><span class="p">(</span><span class="k">func</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">LUA_TFUNCTI</span><span class="w"> </span><span class="n">NUM</span><span class="p">:</span><span class="w"> </span><span class="n">baset2</span><span class="p">(</span><span class="n">obj2gco</span><span class="p">(</span><span class="n">k</span><span class="p">));</span>
+<span class="w">  </span><span class="n">checkStaceenstarn</span><span class="p">(</span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">nvalue</span><span class="p">(</span><span class="n">o</span><span class="p">));</span>
+<span class="w">  </span><span class="n">api_incr_top</span><span class="p">(</span><span class="n">L</span><span class="p">);</span>
+<span class="w">  </span><span class="n">lua_unlock</span><span class="p">(</span><span class="n">L</span><span class="p">);</span>
+<span class="p">}</span>
+
+
+<span class="n">LUA_API</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="nb">char</span><span class="w"> </span><span class="o">*</span><span class="n">lua_pushstring</span><span class="w"> </span><span class="p">(</span><span class="n">lua_State</span><span class="w"> </span><span class="o">*</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="nb">char</span><span class="w"> </span><span class="o">*</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="nb">char</span><span class="w"> </span><span class="o">*</span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lua_tolstring</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ls</span><span class="p">);</span>
+<span class="w">  </span><span class="n">lua_unlock</span><span class="p">(</span><span class="n">L</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">LUA_OK</span><span class="p">)</span><span class="w"> </span><span class="n">dectal</span><span class="p">(</span><span class="n">SeEMASK</span><span class="p">);</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="k">static</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="w"> </span><span class="n">pushfunccall</span><span class="w"> </span><span class="p">(</span><span class="n">lua_State</span><span class="w"> </span><span class="o">*</span><span class="n">L</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">Labell</span><span class="w"> </span><span class="n">check</span><span class="p">;</span>
+<span class="w">   </span><span class="n">lua_assert</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">LUA_TTABLE</span><span class="p">);</span><span class="w">  </span><span class="o">/*</span><span class="w"> </span><span class="n">table</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">compert</span><span class="w"> </span><span class="o">*/</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+
+<p>采样结果比较像的是：</p>
+<ul>
+<li>
+<p>结构体和函数命名。有相当一部分和<code>lua</code>源代码是一样的，例如<code>LUA_API</code>、<code>LUAI_FUNC</code>、<code>lua_State</code>、<code>lua_pushvalue</code>、<code>luaL_checkint</code>等等。即使是rnn自造的，也有一些挺符合规范的，例如<code>lua_string</code>、<code>luaV_op</code>，几乎可以以假乱真。一个稍微差一点的例子是<code>luaT_gettmotableark</code>，尽管末尾造的词看不出意义，但仍然符合<code>lua</code>源代码里API的命名规则：<code>lua${一个大写字母表示API类型}_${方法名}</code>（例如<code>lua</code>源代码里，<code>table</code>类型的API叫做<code>luaT_xxx</code>，<code>string</code>类型的叫做<code>luaS_xxx</code>，<code>lua</code>虚拟机的API叫做<code>luaV_xxx</code>）。</p>
+</li>
+<li>
+<p><code>lua</code> API中经常用状态机结构体指针作为参数传递，<code>rnn</code>采样的结果中，也经常以<code>lua_State *L</code>作为函数定义的第一个参数，在调用函数时也常常以<code>L</code>作为第一个传入的参数。</p>
+</li>
+</ul>
+<p>比较不理想的是：</p>
+<ul>
+<li>
+<p>括号、双引号不成对而引起的语法错误。</p>
+</li>
+<li>
+<p>上下文的语义相关性差，例如上面那段代码最后的函数<code>pushfunccall</code>，传入参数<code>L</code>是没有被用到的，里面用到的<code>argv</code>并没有被声明。</p>
+</li>
+</ul>
+<h2 id="cocos2d-x">cocos2d-x源代码</h2>
+<p>我用<code>cocos2d-x</code>的源代码做了实验。<code>cocos2d-x</code>的代码就臃肿得多了，合起来有32M。由于数据较大，我训练时就把<code>rnn_size</code>调高，设了700，<code>num_layers</code>设了2。一开始用CPU训练，特别慢，中途我就弃疗了。后来把OpenCL配置好，用集显来训练，比原来大概快了一倍——毕竟是集显没多少核，所以无法达到10倍的加速比，要是能用以前实验室的K20X跑就好了。</p>
+<p>这个实验跑得特别慢，我中间机器还重启过，重跑了<code>train.lua</code>，目前只跑了11.32个<code>epoch</code>。所以采样结果就不太理想了，要么是一大段注释，要么各种语法错误，这应该跟<code>cocos2d-x</code>的代码风格和采用<code>C</code>、<code>C++</code>、<code>lua</code>、<code>Python</code>、<code>Objective-C</code>等多种语言也有关系。我把<code>temperature</code>设为0.5才出来下面东拼西凑得稍微像样的结果：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="o">/*</span><span class="w"> </span><span class="o">&lt;/</span><span class="n">key</span><span class="o">&gt;</span><span class="w"> </span><span class="n">TE</span><span class="s1">&#39;Casting C++ Transfer SQLite core constraints.</span>
+
+<span class="w"> </span><span class="o">*/</span>
+
+<span class="n">typedef</span><span class="w"> </span><span class="n">struct</span><span class="w"> </span><span class="n">SPender</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="o">/*!</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">code</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">content</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">content</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">control</span>
+<span class="n">object</span><span class="w"> </span><span class="n">may</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">passed</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">first</span><span class="w"> </span><span class="n">character</span><span class="o">.</span><span class="w"> </span><span class="s2">&quot;</span>
+
+<span class="w">                                              </span><span class="n">no</span><span class="w"> </span><span class="n">tileset</span><span class="w"> </span><span class="o">--</span><span class="w"> </span><span class="n">called</span>
+<span class="n">requested</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">support</span><span class="w"> </span><span class="n">android</span><span class="w"> </span><span class="n">definitions</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">allocated</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">ba</span>
+
+<span class="n">ckup</span><span class="w"> </span><span class="n">processed</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">any</span><span class="w"> </span><span class="n">this</span>
+
+<span class="w">        </span><span class="o">*</span><span class="w"> </span><span class="n">directory</span><span class="o">.</span>
+
+<span class="w">     </span><span class="o">*/</span>
+
+<span class="w">    </span><span class="n">std</span><span class="p">::</span><span class="n">string</span><span class="w"> </span><span class="n">getControllerDataBits</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
 
 
 
-        <!-- MathJax for LaTeX support -->
-        <script type="text/x-mathjax-config">
-          MathJax.Hub.Config({
-            tex2jax: {
-              inlineMath: [['$', '$'], ['\\(', '\\)']],
-              displayMath: [['$$', '$$'], ['\\[', '\\]']],
-              processEscapes: true,
-              processEnvironments: true
-            }
-          });
-        </script>
-        <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-    </head>
-    <body>
-        <div id="content">
-            <div class="navbar navbar-static-top">
-                <div class="navbar-inner">
-                    <div class="container-fluid">
-                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </a>
-                        <a class="brand" href="http://yszheda.github.io/blog/"><span class=site-name>Galoisplusplus</span></a>
-                        <div class="nav-collapse collapse">
-                            <ul class="nav pull-right top-menu">
-                                <li >
-                                    <a href=
-                                       http://yszheda.github.io/blog
-                                    >Home</a>
-                                </li>
-                                <li ><a href="http://yszheda.github.io/blog/categories.html">Categories</a></li>
-                                <li ><a href="http://yszheda.github.io/blog/tags.html">Tags</a></li>
-                                <li ><a href="http://yszheda.github.io/blog/archives.html">Archives</a></li>
-                                <li><form class="navbar-search" action="http://yszheda.github.io/blog/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="container-fluid">
-                <div class="row-fluid">
-                    <div class="span1"></div>
-                    <div class="span10">
+<span class="w">    </span><span class="o">/**</span><span class="w"> </span><span class="err">@</span><span class="n">brief</span><span class="w"> </span><span class="n">Retrieves</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">GLProgram</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">specified</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span>
+<span class="n">current</span><span class="w"> </span><span class="n">position</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">container</span><span class="o">.</span>
 
+<span class="w">     </span><span class="o">*</span><span class="w"> </span><span class="err">@</span><span class="n">param</span><span class="w"> </span><span class="n">vector</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">z</span><span class="o">-</span><span class="n">order</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="n">node</span><span class="w"> </span><span class="n">below</span><span class="o">.</span>
 
-<div class="row-fluid">
+<span class="w">     </span><span class="o">*</span><span class="w">  </span><span class="err">@</span><span class="n">param</span><span class="w"> </span><span class="n">contains</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">integer</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">key</span><span class="o">.</span>
 
-    <div class="row-fluid">
+<span class="w">     </span><span class="o">*</span><span class="w">  </span><span class="err">@</span><span class="k">return</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">integer</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">setting</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">write</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span>
+<span class="n">key</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">key</span><span class="o">.</span>
 
-    </div>
+<span class="w">     </span><span class="o">*</span><span class="w">  </span><span class="err">@</span><span class="n">param</span><span class="p">[</span><span class="ow">in</span><span class="p">]</span><span class="w">          </span><span class="n">the</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">key</span><span class="o">.</span>
 
-    <div class="row-fluid">
-        <div class="span8 offset2">
-            <header>
-            <h1 id="recent-posts">Recent Posts <a id="allposts" href="http://yszheda.github.io/blog/archives.html">all posts</a></h1>
-            </header>
-        <div class="recent-posts">
-            <div itemscope class="recent-posts-article">
-                <a href="http://yszheda.github.io/blog/2016/08/17/20160817-have-fun-with-rnn.html">
-                    RNN(Recurrent Neural Networks)的有趣实验
-                </a>
-                <div class="recent-posts-posted">
-                    posted in
-                    <a href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
-                    <time itemprop="dateCreated" datetime="2016-08-17T10:12:00+08:00">Wed 17 August 2016</time>
-                </div>
-            </div>
-        </div>
-        </div>
-    </div>
-</div>
-                    </div>
-                    <div class="span1"></div>
-                </div>
-            </div>
-        </div>
-<footer>
+<span class="w">    </span><span class="o">*/</span>
+
+<span class="w">    </span><span class="n">virtual</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="w"> </span><span class="n">visit</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="nb">char</span><span class="o">*</span><span class="w"> </span><span class="n">target</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">defaultValueCount</span><span class="p">);</span>
 
 
 
+<span class="w">    </span><span class="o">/**</span><span class="w"> </span><span class="n">create</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">function</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">automatic</span><span class="w"> </span><span class="n">code</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">loader</span><span class="w"> </span><span class="n">to</span>
+<span class="n">the</span><span class="w"> </span><span class="n">ceater</span><span class="s1">&#39;s container with a dictionary, the format of the first</span>
 
-    <div id="fpowered">
-        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
-        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
-    </div>
-</footer>        <script src="//code.jquery.com/jquery.min.js"></script>
-        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-        <script src="http://yszheda.github.io/blog/theme/js/elegant.prod.9e9d5ce754.js"></script>
-        <script>
-            function validateForm(query)
-            {
-                return (query.length > 0);
-            }
-        </script>
-    </body>
-    <!-- Theme: Elegant built for Pelican
-        License : MIT -->
+<span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">writer</span><span class="o">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">tile</span><span class="w"> </span><span class="n">did</span><span class="w"> </span><span class="n">the</span>
+
+<span class="w">        </span><span class="n">types</span><span class="w"> </span><span class="n">since</span><span class="w"> </span><span class="n">they</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">supported</span>
+
+<span class="w">    </span><span class="o">*/</span>
+
+<span class="w">    </span><span class="nb nb-Type">bool</span><span class="w"> </span><span class="n">onFloat</span><span class="p">;</span>
+
+<span class="w">    </span><span class="o">/*!</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">cropping</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">allow</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">third</span><span class="w"> </span><span class="n">particular</span><span class="w"> </span><span class="n">after</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="ow">in</span>
+<span class="n">screen</span><span class="w"> </span><span class="n">coordinates</span><span class="o">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="n">must</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">interfac</span>
+
+<span class="n">e</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">disk</span><span class="o">.</span>
+
+<span class="w">     </span><span class="o">*/</span>
+
+<span class="w">    </span><span class="nb nb-Type">void</span><span class="w"> </span><span class="n">setUniformValue</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">url</span><span class="p">);</span>
+
+<span class="w">    </span><span class="o">/**</span><span class="w"> </span><span class="err">@</span><span class="n">brief</span><span class="w"> </span><span class="n">Returns</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">tilesets</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="n">node</span><span class="s1">&#39;s container</span>
+<span class="n">window</span><span class="p">,</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">means</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">default</span><span class="w"> </span><span class="n">world</span><span class="w"> </span><span class="n">set</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">standard</span><span class="w"> </span><span class="n">orientati</span>
+
+<span class="n">on</span><span class="p">,</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">director</span><span class="w"> </span><span class="n">will</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">returned</span><span class="o">.</span>
+
+<span class="w">     </span><span class="o">*</span><span class="w">  </span><span class="err">@</span><span class="k">return</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">elements</span><span class="w"> </span><span class="n">also</span><span class="w"> </span><span class="n">returns</span><span class="w"> </span><span class="n">NULL</span><span class="o">.</span>
+
+<span class="w">     </span><span class="o">*</span><span class="w">  </span><span class="err">@</span><span class="k">return</span><span class="w"> </span><span class="n">An</span><span class="w"> </span><span class="n">autorelease</span><span class="w"> </span><span class="n">object</span><span class="w"> </span><span class="n">pointer</span><span class="p">,</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">NULL</span><span class="w"> </span><span class="n">pointer</span><span class="o">.</span>
+
+<span class="w">    </span><span class="o">*/</span>
+
+<span class="w">    </span><span class="n">inline</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="nb">char</span><span class="o">*</span><span class="w"> </span><span class="n">getTileGID</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">_restoreOriginalFrame</span><span class="p">;</span><span class="w"> </span><span class="p">};</span>
+
+<span class="w">    </span><span class="n">inline</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">_projection</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">std</span><span class="p">::</span><span class="n">string</span><span class="w"> </span><span class="n">_subStepping</span><span class="p">;</span>
+</code></pre></div></td></tr></table></div>
+
+<h1 id="_2">自然语言实验</h1>
+<h2 id="_3">英文文章</h2>
+<p>我写了个很简单的爬虫去爬一个<a href="http://www.musicweb-international.com/">英文音乐网站</a>上的乐评文章，完整地爬了1.8G，但后来我发现：这个网站的样式有改版，而我是通过<code>css</code>去筛选乐评的，导致里面有些数据有问题。这个网站上的乐评基本是碟评，我最开始也想到把碟的标题、曲目和乐评都抓出来一起训练，但后来也是因为网页样式不够统一而作罢，只抓了乐评的内容。最后用的数据大概只有两千多篇乐评文章，12M，所有的内容我都过了一遍，删掉了其中有问题的数据——因为当时不知道有问题的数据大概长啥样，只用正则表达式很简单地筛掉了完全没有出现英文字符的数据，所以这两千多条数据我竟然是很蠢地人肉看的orz...</p>
+<p>训练时把<code>rnn_size</code>设到了300，一共训练了50个<code>epoch</code>。采样时我传了一些音乐家的名字作为<code>-primetext</code>参数，不过奇怪的是，产生的文本并不是我所想的“命题作文”，里面包含我所设定的音乐家名字的很少。</p>
+<p>下面是<code>temperature</code>为0.8时产生的一些文本：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="w">                    </span><span class="nv">John</span><span class="w"> </span><span class="nv">Eliot</span><span class="w"> </span><span class="nv">Gardiners</span><span class="err">&#39; music has been recorded by Machiavey</span>
+<span class="err">                Brahms and the Telarc hand. Here, though it seems the</span>
+<span class="err">‘death’ with Ian Walton in the soloist</span>
+<span class="err">                        sounds truly resigned as Bartók in . The</span>
+<span class="err">                      assurance composer brings to the narrative evocation</span>
+<span class="err">                      climax. There’s much lovely theme for Mass</span>
+<span class="err">                    and of the Boris. All composers look forward to</span>
+<span class="err">her cycles, and the notes that sticed him much snob-is off-air points</span>
+<span class="err">out.  The detailed and the Canzonetta (Sheher</span>
+<span class="err">                    is in the collective for distribution for the</span>
+<span class="err">                      father to the and spirit of the composer’s voice from DG</span>
+<span class="err">                    many Greeks.</span>
+<span class="err">                  The last piece is rather than true to the programme</span>
+<span class="err">                    for their top recommendation. Add to Ireland’s</span>
+<span class="err">                      first performance has one of the most slight lovely small</span>
+<span class="err">                      performances of Parama Mozdianic’s music as well</span>
+<span class="err">as composer and should</span>
+<span class="err">                        write and there is little of its own</span>
+<span class="err">individual aspects. The recording of both the recording by Royal Eleno</span>
+<span class="err">Stevens, the disc</span>
+<span class="err">                      () “…Better and far criticised into the second</span>
+<span class="err">movement – most popular of a composer</span>
+<span class="err">                        to summarise what was able to depict the way</span>
+<span class="err">through it with</span>
+<span class="err">                    introspective substance to the rest of the most</span>
+<span class="err">                      enjoyable theme. It is worth a major prelude, he</span>
+<span class="err">had been a versatile, subdued violinist who points out with</span>
+<span class="err">                    the end of the Sarah and of the Roman concerto for</span>
+<span class="err">                    a performance in the late CD arrangement of the</span>
+<span class="err">soloist which make the strange</span>
+<span class="err">                    music that tells the sounds to create in the</span>
+<span class="err">                      change of rare and warm long, romantic partnership.</span>
+<span class="err">                      So too much of it all recently is perfectly</span>
+<span class="err">contradictoned, for me,</span>
+<span class="err">                      but the harmonies are in the more prominent</span>
+<span class="err">                music at the start to “Goldsmith” because</span>
+<span class="err">                    the result is not as if not merely moving in the</span>
+<span class="err">first two sessions. From there  were my repeat that one may seem like</span>
+<span class="err">a position appear to be listening to my beef?” Protestating the</span>
+<span class="err">                concert-half and the same text – making “destinal” the</span>
+<span class="err">use of the innocent</span>
+<span class="err">                performances in the pleasure of the piece,</span>
+<span class="err">                      but there was a time to convince the ‘allegro</span>
+<span class="err">                    from the shameful of the experience as the price</span>
+<span class="err">of the piece’ (the</span>
+<span class="err">                      most movement of Byrd</span>
+<span class="err">                    John Carroll) and his own sights of the first movement from</span>
+<span class="err">                      his opera too. This was the earlier half of the</span>
+<span class="err">text. So this is long realised</span>
+<span class="err">                    from one of the best deserts projects which work very well</span>
+<span class="err">                    as like yourself, I should even prevent the</span>
+<span class="err">correct paces on a prejudice and clear that can also work certainly</span>
+<span class="err">                    - a compelling performance as principal force and</span>
+<span class="err">his live performers in</span>
+<span class="err">                    the shadow of the work. This is the disc of the talking.</span>
+<span class="err">                      This was a well-used recording …. Yet for this</span>
+<span class="err">                      recording has more intense from a disc amasted</span>
+<span class="err">the Roman Bale’s choir,</span>
+<span class="err">                        a pastoral player from the following ‘Composer’ (tr.</span>
+<span class="err">                      8) the first slow piece all low delicate and</span>
+<span class="err">intense and stunning and then chosen music.</span>
+</code></pre></div></td></tr></table></div>
+
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nv">These</span><span class="w"> </span><span class="nv">are</span><span class="w"> </span><span class="nv">composers</span><span class="w"> </span><span class="nv">that</span><span class="w"> </span><span class="nv">would</span><span class="w"> </span><span class="nv">say</span><span class="w"> </span><span class="nv">that</span><span class="w"> </span><span class="nv">John</span><span class="w"> </span><span class="nv">Williams</span><span class="w"> </span><span class="nv">has</span><span class="w"> </span><span class="nv">said</span><span class="w"> </span><span class="nv">that</span>
+<span class="nv">happily</span><span class="w"> </span><span class="nv">should</span><span class="w"> </span><span class="nv">be</span><span class="w"> </span><span class="nv">struck</span><span class="w"> </span><span class="nv">by</span><span class="w"> </span><span class="nv">the</span><span class="w"> </span><span class="nv">singers</span><span class="w"> </span><span class="nv">of</span><span class="w"> </span><span class="nv">the</span><span class="w"> </span><span class="nv">score</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nv">a</span><span class="w"> </span><span class="nv">sequel</span>
+<span class="nv">evocative</span><span class="w"> </span><span class="nv">and</span><span class="w"> </span><span class="nv">character</span><span class="w"> </span><span class="nv">of</span><span class="w"> </span><span class="nv">several</span><span class="w"> </span><span class="nv">Scarlatti</span>.
+<span class="w">  </span><span class="nv">The</span><span class="w"> </span><span class="nv">score</span><span class="w"> </span><span class="nv">is</span><span class="w"> </span><span class="nv">also</span><span class="w"> </span><span class="nv">released</span><span class="w"> </span><span class="nv">and</span><span class="w"> </span><span class="nv">with</span><span class="w"> </span><span class="nv">the</span><span class="w"> </span><span class="nv">price</span><span class="w"> </span><span class="nv">of</span><span class="w"> </span><span class="nv">the</span><span class="w"> </span><span class="nv">separately</span>
+<span class="nv">sopranctic</span><span class="w"> </span><span class="nv">piece</span><span class="w"> </span><span class="nv">and</span><span class="w"> </span><span class="nv">making</span><span class="w"> </span><span class="nv">a</span><span class="w"> </span><span class="nv">case</span><span class="w"> </span><span class="nv">of</span><span class="w"> </span><span class="nv">practical</span><span class="w"> </span><span class="nv">distinction</span><span class="w"> </span><span class="nv">with</span><span class="w"> </span><span class="nv">the</span>
+<span class="err">&#39;methoy of information a tragically devout and distant and generally</span>
+<span class="err">small exploration).  Strobbe injustice that the sound is subtly but</span>
+<span class="err">distanced over flat illustrate scores by the score by Glennie twistens</span>
+<span class="err">and the preceding musicians who are uncommonly detailed with much of</span>
+<span class="err">the original MGM track. Debney writes down the score, it is, as this</span>
+<span class="err">classic opera, Supermulation player</span>
+<span class="err">  of Bernard Herrmann and the writing of the Sinfonia (Herberton Koon</span>
+<span class="err">&amp; Glyniform Graham) where he wrote some composers, and is a pleasant</span>
+<span class="err">work for very little before I think I am of completely different</span>
+<span class="err">settings of the score it is, in the background forty band of score for</span>
+<span class="err"> and , one of the most original excerpts only a revelation to warning</span>
+<span class="err">you without</span>
+<span class="err">computer use I don’t certainly is</span>
+<span class="err">be creating a small sound. Morricone’s ‘Discovery’ is all the same</span>
+<span class="err">passages featuring luxurial taste. \rAOr tradition and Victoria’s</span>
+<span class="err">sampled confusion from the cinema setting.</span>
+<span class="err">His admirable period of recognizably derivatives recalling its</span>
+<span class="err">subject. Highly recommended.</span>
+</code></pre></div></td></tr></table></div>
+
+<p>整篇还是比较前言不搭后语，但是单看句子还是比较通顺的，也用了不少音乐家的名字（Gardiner、Brahms、Scarlatti）、厂牌名（Telarc、DG）和音乐术语（Canzonetta、Sinfonia）。</p>
+<h2 id="_4">中文古诗词</h2>
+<p>我觉得中国古诗词是极好的数据集：</p>
+<ul>
+<li>
+<p>我对把文学作品当做机器学习的数据集也很感兴趣，很好奇最后会产生什么样的“作品”。</p>
+</li>
+<li>
+<p>个人认为机器对于处理structed data更为在行，而在文学中，古典诗词无疑是很有规律的。相比之下，散文、小说等现代文学总归是太散了些。</p>
+</li>
+<li>
+<p>还有其他一些规律性很强的文体，例如日本的俳句和川柳，但我朝的古诗词起码我们能看得懂——字啊！</p>
+</li>
+</ul>
+<p>接下来就是从哪里获得数据的问题了。虽然电子书网站不少，不难下载到这方面文本的txt，但这种txt有些问题我不太满意：</p>
+<ul>
+<li>
+<p>会把某些字拆开，例如把“勖”写成“冒力”。</p>
+</li>
+<li>
+<p>会插入一些注解，但我并不想把注释加到训练数据里面。</p>
+</li>
+</ul>
+<p>后来我发现<a href="http://ctext.org/">Chinese Text Project</a>上有一些资源，而且并没有上述问题，所以我也写了一个简单的<a href="https://github.com/yszheda/ctext_crawler">爬虫</a>去爬《全唐诗》。不过该网站禁止使用自动下载软件，我最开始忘了调爬虫的<code>DOWNLOAD_DELAY</code>参数，所以在爬了一些数据后就被封了...后来又用代理继续爬，总共爬了2.7M（4794首诗），每首诗按照如下格式存成了json文件：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code>   {
+      &quot;title&quot; : &quot;《寄溫飛卿箋紙》&quot;,
+      &quot;content&quot; : &quot;\n三十六鱗充使時，數番猶得裹相思。\n待將袍襖重抄了，盡寫襄陽播掿詞。&quot;,
+      &quot;author&quot; : &quot; 段成式著&quot;
+   },
+</code></pre></div></td></tr></table></div>
+
+<p>我用<code>char-rnn</code>训练了50个<code>epoch</code>，诗人<code>rnn</code>在脾气最大（<code>temperature</code>为1）时所作的大作如果集结出版，就叫它<a href="https://coding.net/u/GaloisPlusPlus/p/galoisplusplus/git/raw/source/source/downloads/code/rnn/quantangshi-sample.json">《循神网诗选》</a>（循神网=循环神经网络=Recurrent Neural Networks=RNN）吧XDD</p>
+<p>《循神网诗选》中，标题和署名是模仿得最难以分辨的，能一眼看出是机器胡诌的极少——例如有一则标题很长的诗。但是诗的内容总体就是胡言乱语了。不过还有一些有意思的句子：“萬里曙山牢”，用“萬里”“牢”形容山，很形象啊；“春風寒酒憔悴殺”，用的词“寒”“憔悴”意象很相近啊。不过由于前言不搭后语，整联写得好的比较少，《循选》读下来，似乎就“秋水燕蘭樹，春暉漫柳霧”还有对仗工整之处。不过刚刚学诗的循神网来说也是个奇迹，循神网真是骨骼精奇啊！</p>
+<p>另外要说明一下，<code>char-rnn</code>目前是以byte而非utf8的一个word来处理的，神奇的是我几乎没在采样中发现有不符合utf8编码的情况——191首诗里仅有三四首不能正确解码——看来<code>rnn</code>竟然很好地掌握了utf8编码的规律。<code>json</code>格式就更不在话下啦！</p>
+<p><code>char-rnn</code>上也有一些utf8 word的<a href="https://github.com/karpathy/char-rnn/pull/12">PR</a>，但因为兼容性问题没被接受，我也照着他们改的地方写了个patch，还有点问题，等调好了之后再跑古诗词的实验，应该会有更有趣的结果。</p>
+<h1 id="structed-data">其他structed data</h1>
+<p>此外，我想到网络数据包也是一种可以用来训练的structed data，所以也用<code>tcpdump</code>抓了一些包做实验。不过需要按照<a href="https://github.com/karpathy/char-rnn/issues/51#issuecomment-129625032">这个issue</a>所说的，稍微改下<code>char-rnn</code>的代码。目前还没跑完训练，等训练完50个<code>epoch</code>后，再来看看采样生成的数据能用<code>tcpdump</code>读取的正确率有多高。</p>
+<p>说到非文本的structed data，我还想到了图片、语音和音乐，其中我最感兴趣的还是音乐——各位应该也猜到本乐渣想对音乐下手了吧XD。但是用<code>rnn</code>来训练音乐有一些问题，这也使得它暂时还处于我的脑洞阶段：</p>
+<ul>
+<li>
+<p>最能反映音乐“原貌”的恐怕还是音频，但是音频文件有不同格式的编解码，并不符合<code>rnn</code>的character-level language model。就好比<a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">Andrej Karpathy那篇博文</a>里所举的“hello”的例子：如果“hello”这个文本被加密过，那么两个连续的“l”很可能被加密函数映射成不同的字符，诸如字母"h"后较大可能跟的是字母“e”这种规律也将失效。音频虽然对聆听者而言最能反映音乐“原貌”，但音频文件本身与音乐“原貌”还相距甚远，或许需要从中提取有用的特征作为数据集，才能体现音乐中的有规律之处。</p>
+</li>
+<li>
+<p>不能直接用音频文件，只能退而求其次了。你应该想到一种很古老的将音乐图像化的方式——乐谱——了吧？不过乐谱在我看来还主要是作曲家记谱的工具，用于还原音乐演奏会失真。例如钢琴乐谱上虽然会有踏板记号，但实际演奏时踏板应该踩多深、踩多久？此外乐谱也没有记录下演奏者手指所用的力度等细节，而这些细节往往又是庸才与大师之间的鸿沟。后来我想到一种比乐谱更为精确的方式，那就是<a href="https://en.wikipedia.org/wiki/Piano_roll">纸卷录音</a>。不过目前虽然不乏用纸卷放在自动钢琴上重放而录制的录音，但纸卷本身却很难在网上找到。</p>
+</li>
+<li>
+<p>即使有了纸卷这种能较精确还原音乐的载体，还有一个关键问题，那就是如何把这种图像转化成文本，而且这种编解码转换应该是可逆的。我发现，就算对于精确度稍逊的乐谱来说，这种要求也很难实现。Andrej Karpathy那篇博文里提到一篇采用rnn训练音乐的<a href="https://highnoongmt.wordpress.com/2015/05/22/lisls-stis-recurrent-neural-networks-for-folk-music-generation/">文章</a>，里面用了一种很简单的<a href="http://abcnotation.com/blog/2010/01/31/how-to-understand-abc-the-basics/">ABC记谱法</a>来把乐谱转成文本，再把<code>rnn</code>生成的文本转成midi。不过这种记谱法实在是太简陋了，连和弦都无法表示，更遑论多声部的旋律了。</p>
+</li>
+</ul>
+<p>说到编解码，我还想到上个月听的巴西生物艺术家<a href="http://ekac.org/">Eduardo Kac</a>的一场讲座。其中他早年的一件作品<a href="http://www.ekac.org/geninfo2.html">Genesis</a>给我的印象很深：Kac从《圣经》里摘了一句话“Let man have dominion over the fish of the sea, and over the fowl of the air, and over every living thing that moves upon the earth.”，把它转成莫尔斯码，又把莫尔斯码转换成ACTG序列。他将这段序列植入细菌中，然后邀请观众对细菌施以紫外光照，让细菌产生变异。在展览结束后，Kac把这段变异后的DNA重新转成莫尔斯码，最后再转成英语（编解码过程和结果可以看<a href="http://www.ekac.org/genseries.html">这个网页</a>的前两张图）。 Kac的这个作品给了我一些启发，我也由此开下脑洞：如果把某段DNA序列拿给rnn做训练，采样得到新的DNA序列，那么后者将合成什么样的蛋白质、表现出怎样的性状？这想法太疯狂啦，还好我不是biohacker XD</p>                    </article>
+                </aside><!-- /#featured -->
+                <section id="extras" class="body">
+                                <div class="blogroll">
+                                        <h2>links</h2>
+                                        <ul>
+                                                        <li><a href="http://getpelican.com/">Pelican</a></li>
+                                                        <li><a href="http://python.org/">Python.org</a></li>
+                                        </ul>
+                                </div><!-- /.blogroll -->
+                                <div class="social">
+                                        <h2>social</h2>
+                                        <ul>
+
+                                                        <li><a href="https://github.com/yszheda">GitHub</a></li>
+                                                        <li><a href="https://twitter.com/yszheda">Twitter</a></li>
+                                        </ul>
+                                </div><!-- /.social -->
+                </section><!-- /#extras -->
+
+                <footer id="contentinfo" class="body">
+                        <address id="about" class="vcard body">
+                                Proudly powered by <a rel="nofollow" href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a rel="nofollow" href="https://www.python.org/">Python</a>.
+                        </address><!-- /#about -->
+
+                        <p>The theme is by <a rel="nofollow" href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+                </footer><!-- /#contentinfo -->
+
+        </body>
 </html>

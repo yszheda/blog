@@ -1,125 +1,439 @@
 <!DOCTYPE html>
 <html lang="zh">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
-        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/custom.css" media="screen">
-        <link rel="dns-prefetch" href="//fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+        <head>
+                        <meta charset="utf-8" />
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                        <meta name="generator" content="Pelican" />
+                        <title>Galoisplusplus - 平行程式</title>
+                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+        </head>
 
-        <meta name="author" content="Galoisplusplus" />
+        <body id="index" class="home">
+                <header id="banner" class="body">
+                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <nav><ul>
+                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                        </ul></nav>
+                </header><!-- /#banner -->
 
-        <meta property="og:type" content="article" />
-        <meta name="twitter:card" content="summary">
+                <aside id="featured" class="body">
+                    <article>
+                        <h1 class="entry-title"><a href="http://yszheda.github.io/blog/2013/06/08/20130608-mpi-debug-tips.html">MPI Debug Tips</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2013-06-08T00:12:00+08:00">
+                Published: 六 08 6月 2013
+        </abbr>
 
-<meta property="og:title" content="Galoisplusplus"/>
-<meta name="twitter:title" content="Galoisplusplus">
-<meta property="og:url" content="http://yszheda.github.io/blog" />
-<meta property="og:site_name" content="Galoisplusplus" />
-<meta property="og:article:author" content="Galoisplusplus" />
-<meta name="keywords" content=" 2D,  777,  阿巴多,  ab,  Abbado,  acer,  acl,  act,  Adriano Banchieri,  爱的艺术,  Alessandro Stradella,  Alvin Lucier,  按钮,  安装,  Andris Nelsons,  android,  Android.mk,  Angela Hewitt,  奥赛罗,  Archlinux,  ARM,  assembly,  Attali,  awk,  Bach,  bash,  Beckett,  贝克特,  崩溃,  BFO,  笔电,  笔记本电脑,  编辑器,  编译器,  BibTeX,  bibtex2html,  并行程序,  blog,  BMFont,  博客,  伯明翰市立交响,  Branch Prediction,  breakpad,  Brecht,  Brian Massumi,  不规则按钮,  布莱希特,  Budapest Festival Orchestra,  button,  c++,  Carmen Giannattasio,  CBSO,  测试,  Cello,  CentOS,  chapterbib,  chmod,  除錯,  clang,  Classical music,  Claudio Abbado,  cocos,  cocos2d,  cocos2d-x,  cocos2d-x quick-cocos2d-x quickx cocos2d cocos game gameDev 游戏开发 游戏 手游开发 手游 手机游戏,  cocostudio,  commit,  Computer Architecture,  concert,  conductor,  crash,  cron,  cronjob,  crontab,  CS,  cuBLAS,  CUDA,  大无,  打字特效,  戴米恩·莱斯,  Damien Rice,  Daniel Harding,  Dārziņš,  data mining,  德九,  debug,  debugfs,  等待戈多,  邓树荣,  Der Ring Des Nibelungen,  调试,  Dmitry Belosselskiy,  Docker,  Domenico Cimarosa,  Domenico Sarro,  东艺,  drama,  独立摇滚,  Dvořák,  Edgard Varèse,  editor,  effect,  Elisabeth Leonskaja,  Enrico Stinchelli,  Erich Fromm,  extundelete,  Fabio Sartori,  分支预测,  FNT,  Free Software,  弗洛姆,  Galois Field,  game,  game devolopment,  钢琴,  钢琴家,  gcc,  gdb,  歌剧,  个人博客,  个人wiki,  Giaches de Wert,  git,  gitcafe,  gitcafe pages,  github,  github pages,  gl,  godot,  Goldsmith,  GPGPU,  GPU,  Graphviz,  GridView,  古典音乐,  Gustav Kuhn,  哈恩,  Handel,  Haydn,  HEVEA,  Hilary Hahn,  history,  宏基,  hook,  荒诞派,  荒诞派戏剧,  恢复,  I Grandi Directtori d'Orchestra,  Iannis Xenakis,  In an Italian Garden,  irregular,  Isolde,  Ivan Fischer,  Ivan Panteleev,  Jacques Attali,  Jardin des Voix,  计算机体系,  姜宇辉,  脚本,  交响乐团,  金柱泽,  J.S. Bach,  矩阵乘法,  Julian Rachlin,  Kavakos,  KingLear,  Kyung Wha Chung,  L’Accademia d’Amore,  laptop,  LaTeX,  Le Jardin des Voix,  Leonidas Kavakos,  Les Arts Florissants,  李尔王,  life,  linux,  listings,  刘悦笛,  llvm,  LOCAL_C_INCLUDES,  LOCAL_SRC_FILES,  LSO,  lsof,  Lua,  luac,  Lucier,  Luigi Rossolo,  Macbeth,  machine learning,  MAGMA,  麦克白,  makefile,  Margaret Campbell,  Mark Lammert,  Massumi,  matrix multiplication,  media9,  memcheck,  memory management,  mendeley,  Mike Goldsmith,  民谣,  民谣摇滚,  minted,  Mintz,  mobile game,  Mozart,  MPI,  Natalia Gutman,  内存,  内存管理,  NEON,  nginx,  尼尔森斯,  Nicholas Angelich,  ocaml,  OCAT,  octopress,  ODP,  Ontopower,  opengl,  OpenGL ES,  OpenResty,  Opera,  Orazio Vecchi,  Orchestre de Paris,  Othello,  Paavo Järvi,  padb,  parallel programming,  pathogen,  PhotoRec,  piano,  Pierre Schaeffer,  平行程式,  pkexec,  Practical Vim,  press test,  pygments,  quick,  quick-cocos2d-x,  quickx,  Rachlin,  reading,  recital,  recover,  Reed-Solomon,  Renaud Capuçon,  Richard Stallman,  RMS,  RNN,  Rossolo,  Russian Cello School,  Russian Piano School,  Samuel Beckett,  Samuel Finzi,  Schaeffer,  莎士比亚,  Shakespear,  shell,  声音艺术,  Shlomo Mintz,  手游开发,  斯卡拉,  Sibelius,  Simon Boccanegra,  Simone Piazzola,  SimpleScalar,  snapshots,  staggered tiled map,  sudo,  svn,  systemd,  TableView,  特效,  tech,  template,  test,  tex,  TexturePacker,  the Art of Loving,  体系结构,  tile,  tiled,  tiled map,  tmux,  Tristan,  typewriting,  Tyrolean Festival Erl,  UI,  UNIX,  V3-571G,  valgrind,  Varèse,  Verdi,  vi,  vim,  vimwiki,  violin,  violinist,  Vivaldi,  瓦格纳,  瓦片地图,  Wagner,  waiting for godot,  威尔第,  文件恢复,  文学,  widget,  wiki,  William Christie,  Wolfram Koch,  wrk,  Xenakis,  西贝柳斯,  西贝柳斯小协,  戏剧,  希拉里,  西蒙·波卡涅拉,  小提琴,  休伊特,  xypic,  压测,  压力测试,  音乐,  音乐会,  殷漪,  游戏崩溃,  游戏开发,  郑京和,  郑明勋,  指挥家,  字体,  自由软件,  misc,  music,  reading,  tech, " />
-        <title>Galoisplusplus - 平行程式 tag</title>
+                <address class="vcard author">
+                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
+<p>tags: <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/mpi.html">MPI</a> <a href="http://yszheda.github.io/blog/tag/debug.html">debug</a> <a href="http://yszheda.github.io/blog/tag/valgrind.html">valgrind</a> <a href="http://yszheda.github.io/blog/tag/memcheck.html">memcheck</a> <a href="http://yszheda.github.io/blog/tag/padb.html">padb</a> <a href="http://yszheda.github.io/blog/tag/gdb.html">gdb</a> <a href="http://yszheda.github.io/blog/tag/parallel-programming.html">parallel programming</a> <a href="http://yszheda.github.io/blog/tag/bing-xing-cheng-xu.html">并行程序</a> <a href="http://yszheda.github.io/blog/tag/ping-xing-cheng-shi.html">平行程式</a> <a href="http://yszheda.github.io/blog/tag/diao-shi.html">调试</a> <a href="http://yszheda.github.io/blog/tag/chu-cuo.html">除錯</a> </p>        
+</footer><!-- /.post-info --><p>debug一个并行程序（parallel program）向来是件很麻烦的事情（<code>Erlang</code>等functional programming language另当别论），
+对于像MPI这种非shared memory的inter-process model来说尤其如此。</p>
+<h2 id="_1">与调试并行程序相关的工具</h2>
+<h3 id="_2">非开源工具</h3>
+<p>目前我所了解的商业调试器（debugger）有：</p>
+<ul>
+<li><a href="http://www.roguewave.com/products/totalview.aspx">TotalView</a></li>
+<li><a href="http://www.allinea.com/products/ddt/">Allinea DDT</a></li>
+</ul>
+<p>据说parallel debug的能力很屌，
+本人没用过表示不知，
+<del>说不定只是界面做得好看而已</del>。
+不过我想大部分人应该跟本屌一样是用不起这些商业产品的，
+<del>高富帅们请无视</del>。
+以下我介绍下一些有用的open source工具：</p>
+<h3 id="_3">开源工具</h3>
+<h4 id="-valgrind-memcheck">- <a href="http://valgrind.org">Valgrind Memcheck</a></h4>
+<p>首先推荐<code>valgrind</code>的<code>memcheck</code>。
+大部分MPI标准的实现（implementation）（如<a href="http://www.open-mpi.org/">openmpi</a>、<a href="http://www.mpich.org/">mpich</a>）支持的是C、C++和Fortran语言。
+Fortran语言我不了解，但C和C++以复杂的内存管理（memory management）见长可是出了名的XD。
+有些时候所谓的MPI程序的bug，不过是一般sequential程序常见的内存错误罢了。
+这个时候用memcheck检查就可以很容易找到bug的藏身之处。
+你可能会争论说你用了RAII（Resource Allocation Is Initialization）等方式来管理内存，
+不会有那些naive的问题，
+但我还是建议你使用memcheck检查你程序的可执行文件，
+因为memcheck除了检查内存错误，
+还可以检查message passing相关的错误，
+例如：MPI_Send一块没有完全初始化的buffer、
+用来发送消息的buffer大小小于MPI_Send所指定的大小、
+用来接受消息的buffer大小小于MPI_Recv所指定的大小等等，
+<del>我想你的那些方法应该对这些不管用吧？</del>。</p>
+<p>这里假设你已经安装并配置好了memcheck，例如如果你用的是openmpi，那么执行以下命令</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>ompi_info<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>memchecker
+</code></pre></div></td></tr></table></div>
 
+<p>会得到类似</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>MCA<span class="w"> </span>memchecker:<span class="w"> </span>valgrind<span class="w"> </span><span class="o">(</span>MCA<span class="w"> </span>v2.0,<span class="w"> </span>API<span class="w"> </span>v2.0,<span class="w"> </span>Component<span class="w"> </span>v1.6.4<span class="o">)</span>
+</code></pre></div></td></tr></table></div>
 
+<p>的结果。
+否则请参照<a href="http://valgrind.org/docs/manual/mc-manual.html#mc-manual.mpiwrap">Valgrind User Manual 4.9. Debugging MPI Parallel Programs with Valgrind</a>进行配置。</p>
+<p>使用memcheck需要在compile时下<code>-g</code>参数。
+运行memcheck用下面的命令：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>mpirun [mpirun-args] valgrind [valgrind-args] &lt;application&gt; [app-args]
+</code></pre></div></td></tr></table></div>
 
-        <!-- MathJax for LaTeX support -->
-        <script type="text/x-mathjax-config">
-          MathJax.Hub.Config({
-            tex2jax: {
-              inlineMath: [['$', '$'], ['\\(', '\\)']],
-              displayMath: [['$$', '$$'], ['\\[', '\\]']],
-              processEscapes: true,
-              processEnvironments: true
-            }
-          });
-        </script>
-        <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-    </head>
-    <body>
-        <div id="content">
-            <div class="navbar navbar-static-top">
-                <div class="navbar-inner">
-                    <div class="container-fluid">
-                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </a>
-                        <a class="brand" href="http://yszheda.github.io/blog/"><span class=site-name>Galoisplusplus</span></a>
-                        <div class="nav-collapse collapse">
-                            <ul class="nav pull-right top-menu">
-                                <li >
-                                    <a href=
-                                       http://yszheda.github.io/blog
-                                    >Home</a>
-                                </li>
-                                <li ><a href="http://yszheda.github.io/blog/categories.html">Categories</a></li>
-                                <li ><a href="http://yszheda.github.io/blog/tags.html">Tags</a></li>
-                                <li ><a href="http://yszheda.github.io/blog/archives.html">Archives</a></li>
-                                <li><form class="navbar-search" action="http://yszheda.github.io/blog/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="container-fluid">
-                <div class="row-fluid">
-                    <div class="span1"></div>
-                    <div class="span10">
+<!-- more -->
 
+<h4 id="-parallel-application-debugger">- <a href="http://padb.pittman.org.uk/">Parallel Application Debugger</a></h4>
+<p>padb其实是个job monitor，它可以显示MPI message queue的状况。
+推荐padb的一大理由是它可以检查deadlock。</p>
+<h2 id="gdb">使用gdb</h2>
+<p>假设你没有parallel debugger，不用担心，我们还有gdb这种serial debugger大杀器。</p>
+<p>首先说说mpirun/mpiexec/orterun所支持的打开gdb的方式。</p>
+<p>openmpi支持：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>mpirun [mpirun-args] xterm -e gdb &lt;application&gt;
+</code></pre></div></td></tr></table></div>
 
-<div class="row-fluid">
+<p>执行这个命令会打开跟所指定的进程数目一样多的终端——一下子蹦出这么多终端，神烦~——每个终端都跑有gdb。
+我试过这个方式，它不支持application带有参数的[app-args]情况，
+而且进程跑在不同机器上也无法正常跑起来——这一点<a href="http://www.open-mpi.org/faq/?category=debugging">openmpi的FAQ</a>已经有<del>比较复杂的</del>解决方案。</p>
+<p>mpich2支持：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>mpirun -gdb &lt;application&gt;
+</code></pre></div></td></tr></table></div>
 
-    <div class="row-fluid">
+<p>但在mpich较新的版本中，该package的进程管理器（process manager）已经从MPD换为Hydra，这个<code>-gdb</code>的选项随之消失。
+详情请猛戳这个链接(http://trac.mpich.org/projects/mpich/ticket/1150)。
+像我机器上的mpich版本是3.0.3，所以这个选项也就不能用了。
+如果你想试试可以用包含MPD的旧版mpich。</p>
+<p>好，以下假设我们不用上述方式，只是像debug一般的程序一样，打开gdb，attach到相应进程，完事，detach，退出。</p>
+<!--- 使用gdb来debugMPI程序 --->
+<p>现在我们要面对的一大问题其实是怎么让MPI程序暂停下来。
+因为绝大多数MPI程序其实执行得非常快——写并行程序的一大目的不就是加速么——很多时候来不及打开gdb，MPI程序就已经执行完了。
+所以我们需要让它先缓下来等待我们打开gdb执行操作。</p>
+<p>目前比较靠谱的方法是在MPI程序里加hook，这个方法我是在UCDavis的Professor Matloff的主页上看到的(猛戳这里：http://heather.cs.ucdavis.edu/~matloff/pardebug.html)。
+不过我喜欢的方式跟Prof.Matloff所讲的稍有不同：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cp">#ifdef MPI_DEBUG</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">gdb_break</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="k">while</span><span class="p">(</span><span class="n">gdb_break</span><span class="p">)</span><span class="w"> </span><span class="p">{};</span>
+<span class="cp">#endif</span>
+</code></pre></div></td></tr></table></div>
 
-    </div>
+<p>Prof. Matloff的方法没有一个类似<code>MPI_DEBUG</code>的macro。
+我加这个macro只是耍下小聪明，让程序可以通过不同的编译方式生成debug模式和正常模式的可执行文件。
+如果要生成debug模式的可执行文件，只需在编译时加入以下参数：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>-DMPI_DEBUG
+</code></pre></div></td></tr></table></div>
 
-    <div class="row-fluid">
-        <div class="span8 offset2">
-            <header>
-            <h1 id="recent-posts">Recent Posts <a id="allposts" href="http://yszheda.github.io/blog/archives.html">all posts</a></h1>
-            </header>
-        <div class="recent-posts">
-            <div itemscope class="recent-posts-article">
-                <a href="http://yszheda.github.io/blog/2013/06/08/20130608-mpi-debug-tips.html">
-                    MPI Debug Tips
-                </a>
-                <div class="recent-posts-posted">
-                    posted in
-                    <a href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
-                    <time itemprop="dateCreated" datetime="2013-06-08T00:12:00+08:00">Sat 08 June 2013</time>
-                </div>
-            </div>
-        </div>
-        </div>
-    </div>
-</div>
-                    </div>
-                    <div class="span1"></div>
-                </div>
-            </div>
-        </div>
-<footer>
+<p>或</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>-DMPI_DEBUG=define
+</code></pre></div></td></tr></table></div>
 
+<p>如果不加以上参数就是生成正常模式的可执行文件了，不会再有debug模式的副作用（例如在这里是陷入无限循环）。
+不用这个macro的话，要生成正常模式的可执行文件还得回头改源代码，
+这样一者可能代码很长，导致很难找到这个hook的位置；
+二者如果你在「测试-发布-测试-...」的开发周期里，debug模式所加的代码经常要「加入-删掉-加入-...」很是蛋疼。</p>
+<p>（
+什么？你犯二了，在源代码中加了一句</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cp">#define MPI_DEBUG</span>
+</code></pre></div></td></tr></table></div>
 
+<p>好吧，你也可以不改动这一句，只需在编译时加入</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>-UMPI_DEBUG
+</code></pre></div></td></tr></table></div>
 
+<p>就可以生成正常模式的可执行文件。
+）</p>
+<p>这样只需照常运行，MPI程序就会在while循环的地方卡住。
+这时候打开gdb，执行</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>(gdb) shell ps aux | grep &lt;process-name&gt;
+</code></pre></div></td></tr></table></div>
 
-    <div id="fpowered">
-        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
-        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
-    </div>
-</footer>        <script src="//code.jquery.com/jquery.min.js"></script>
-        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-        <script src="http://yszheda.github.io/blog/theme/js/elegant.prod.9e9d5ce754.js"></script>
-        <script>
-            function validateForm(query)
-            {
-                return (query.length > 0);
-            }
-        </script>
-    </body>
-    <!-- Theme: Elegant built for Pelican
-        License : MIT -->
+<p>找到所有对应进程的pid，再用</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>(gdb) attach &lt;pid&gt;
+</code></pre></div></td></tr></table></div>
+
+<p>attach到其中某一个进程。</p>
+<p>Prof. Matloff用的是</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>gdb &lt;process-name&gt; &lt;pid&gt;
+</code></pre></div></td></tr></table></div>
+
+<p>这也是可以的。
+但我习惯的是开一个gdb，要跳转到别的进程就用<code>detach</code>再<code>attach</code>。</p>
+<p>让MPI程序跳出while循环：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>(gdb) set gdb_break = 0
+</code></pre></div></td></tr></table></div>
+
+<p>现在就可以随行所欲的执行设breakpoint啊、查看register啊、print变量啊等操作了。</p>
+<p>我猜你会这么吐嘈这种方法：每个process都要set一遍来跳出无限循环，神烦啊有木有！
+是的，你没有必要每个process都加，可以只针对有代表性的process加上（例如你用到master-slave的架构那么就挑个master跟slave呗~）。</p>
+<p>神马？「代表」很难选？！
+我们可以把while循环改成：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">while</span><span class="p">(</span><span class="n">gdb_break</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// set the sleep time to pause the processes</span>
+<span class="w">    </span><span class="n">sleep</span><span class="p">(</span><span class="o">&lt;</span><span class="n">time</span><span class="o">&gt;</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+
+<p>这样在<time>时间内打开gdb设好breakpoint即可，过了这段时间process就不会卡在while循环的地方。</p>
+<p>神马？这个时间很难取？取短了来不及，取长了又猴急？
+好吧你赢了......</p>
+<p>类似的做法也被PKU的Jinlong Wu (King)博士写的<a href="http://dsec.pku.edu.cn/~jinlong/gdb/gdb.html">调试并行程序</a>提及到了。
+他用的是：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code>setenv INITIAL_SLEEP_TIME 10
+mpirun [mpirun-args] -x INITIAL_SLEEP_TIME &lt;application&gt; [app-args]
+</code></pre></div></td></tr></table></div>
+
+<p>本人没有试过，不过看起来比改源代码的方法要优秀些XD。</p>
+<h2 id="_4">其他</h2>
+<p>假设你在打开gdb后会发现<code>no debugging symbols found</code>，
+这是因为你的MPI可执行程序没有用于debug的symbol。
+正常情况下，你在compile时下<code>-g</code>参数，
+生成的可执行程序（例如在linux下是ELF格式，ELF可不是「精灵」，而是Executable and Linkable Format）中会加入DWARF（DWARF是<del>对应于「精灵」的「矮人」</del>Debugging With Attributed Record Format）信息。
+如果你编译时加了<code>-g</code>参数后仍然有同样的问题，我想那应该是你运行MPI的环境有些库没装上的缘故。
+在这样的环境下，如果你不幸踩到了segmentation fault的雷区，想要debug，
+可是上面的招数失效了，坑爹啊......
+好在天无绝人之路，只要有程序运行的错误信息（有core dump更好），
+依靠一些汇编（assmebly）语言的常识还是可以帮助你debug的。</p>
+<p>这里就简单以我碰到的一个悲剧为例吧，
+BTW为了找到bug，我在编译时没有加优化参数。
+以下是运行时吐出的一堆错误信息（555好长好长的）：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code>$<span class="w"> </span>mpirun<span class="w"> </span>-np<span class="w"> </span><span class="m">2</span><span class="w"> </span>./mandelbrot_mpi_static<span class="w"> </span><span class="m">10</span><span class="w"> </span>-2<span class="w"> </span><span class="m">2</span><span class="w"> </span>-2<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="m">100</span><span class="w"> </span>disable
+<span class="o">[</span>PP01:13214<span class="o">]</span><span class="w"> </span>***<span class="w"> </span>Process<span class="w"> </span>received<span class="w"> </span>signal<span class="w"> </span>***
+<span class="o">[</span>PP01:13215<span class="o">]</span><span class="w"> </span>***<span class="w"> </span>Process<span class="w"> </span>received<span class="w"> </span>signal<span class="w"> </span>***
+<span class="o">[</span>PP01:13215<span class="o">]</span><span class="w"> </span>Signal:<span class="w"> </span>Segmentation<span class="w"> </span>fault<span class="w"> </span><span class="o">(</span><span class="m">11</span><span class="o">)</span>
+<span class="o">[</span>PP01:13215<span class="o">]</span><span class="w"> </span>Signal<span class="w"> </span>code:<span class="w"> </span>Address<span class="w"> </span>not<span class="w"> </span>mapped<span class="w"> </span><span class="o">(</span><span class="m">1</span><span class="o">)</span>
+<span class="o">[</span>PP01:13215<span class="o">]</span><span class="w"> </span>Failing<span class="w"> </span>at<span class="w"> </span>address:<span class="w"> </span>0x1123000
+<span class="o">[</span>PP01:13214<span class="o">]</span><span class="w"> </span>Signal:<span class="w"> </span>Segmentation<span class="w"> </span>fault<span class="w"> </span><span class="o">(</span><span class="m">11</span><span class="o">)</span>
+<span class="o">[</span>PP01:13214<span class="o">]</span><span class="w"> </span>Signal<span class="w"> </span>code:<span class="w"> </span>Address<span class="w"> </span>not<span class="w"> </span>mapped<span class="w"> </span><span class="o">(</span><span class="m">1</span><span class="o">)</span>
+<span class="o">[</span>PP01:13214<span class="o">]</span><span class="w"> </span>Failing<span class="w"> </span>at<span class="w"> </span>address:<span class="w"> </span>0xbf7000
+<span class="o">[</span>PP01:13214<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">0</span><span class="o">]</span><span class="w"> </span>/lib64/libpthread.so.0<span class="o">(</span>+0xf500<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f6917014500<span class="o">]</span>
+<span class="o">[</span>PP01:13215<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">0</span><span class="o">]</span><span class="w"> </span>/lib64/libpthread.so.0<span class="o">(</span>+0xf500<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f41a45d9500<span class="o">]</span>
+<span class="o">[</span>PP01:13215<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">1</span><span class="o">]</span><span class="w"> </span>/lib64/libc.so.6<span class="o">(</span>memcpy+0x15b<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f41a42c0bfb<span class="o">]</span>
+<span class="o">[</span>PP01:13215<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">2</span><span class="o">]</span><span class="w"> </span>/opt/OPENMPI-1.4.4/lib/libmpi.so.0
+<span class="o">(</span>ompi_convertor_pack+0x14a<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f41a557325a<span class="o">]</span>
+<span class="o">[</span>PP01:13215<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">3</span><span class="o">]</span><span class="w"> </span>/opt/OPENMPI-1.4.4/lib/openmpi/mca_btl_sm.so
+<span class="o">(</span>+0x1ccd<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f41a1189ccd<span class="o">]</span>
+<span class="o">[</span>PP01:13215<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">4</span><span class="o">]</span><span class="w"> </span>/opt/OPENMPI-1.4.4/lib/openmpi/mca_pml_ob1.so
+<span class="o">(</span>+0xc51b<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f41a19a651b<span class="o">]</span>
+<span class="o">[</span>PP01:13215<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">5</span><span class="o">]</span><span class="w"> </span>/opt/OPENMPI-1.4.4/lib/openmpi/mca_pml_ob1.so
+<span class="o">(</span>+0x7dd8<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f41a19a1dd8<span class="o">]</span>
+<span class="o">[</span>PP01:13215<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">6</span><span class="o">]</span><span class="w"> </span>/opt/OPENMPI-1.4.4/lib/openmpi/mca_btl_sm.so
+<span class="o">(</span>+0x4078<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f41a118c078<span class="o">]</span>
+<span class="o">[</span>PP01:13215<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">7</span><span class="o">]</span><span class="w"> </span>/opt/OPENMPI-1.4.4/lib/libopen-pal.so.0
+<span class="o">(</span>opal_progress+0x5a<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f41a509be8a<span class="o">]</span>
+<span class="o">[</span>PP01:13215<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">8</span><span class="o">]</span><span class="w"> </span>/opt/OPENMPI-1.4.4/lib/openmpi/mca_pml_ob1.so
+<span class="o">(</span>+0x552d<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f41a199f52d<span class="o">]</span>
+<span class="o">[</span>PP01:13215<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">9</span><span class="o">]</span><span class="w"> </span>/opt/OPENMPI-1.4.4/lib/openmpi/mca_coll_sync.so
+<span class="o">(</span>+0x1742<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f41a02e3742<span class="o">]</span>
+<span class="o">[</span>PP01:13215<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="m">10</span><span class="o">]</span><span class="w"> </span>/opt/OPENMPI-1.4.4/lib/libmpi.so.0
+<span class="o">(</span>MPI_Gatherv+0x116<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f41a5580906<span class="o">]</span>
+<span class="o">[</span>PP01:13215<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="m">11</span><span class="o">]</span><span class="w"> </span>./mandelbrot_mpi_static<span class="o">(</span>main+0x68c<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x401b16<span class="o">]</span>
+<span class="o">[</span>PP01:13215<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="m">12</span><span class="o">]</span><span class="w"> </span>/lib64/libc.so.6<span class="o">(</span>__libc_start_main+0xfd<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f41a4256cdd<span class="o">]</span>
+<span class="o">[</span>PP01:13215<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="m">13</span><span class="o">]</span><span class="w"> </span>./mandelbrot_mpi_static<span class="o">()</span><span class="w"> </span><span class="o">[</span>0x4010c9<span class="o">]</span>
+<span class="o">[</span>PP01:13215<span class="o">]</span><span class="w"> </span>***<span class="w"> </span>End<span class="w"> </span>of<span class="w"> </span>error<span class="w"> </span>message<span class="w"> </span>***
+<span class="o">[</span>PP01:13214<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">1</span><span class="o">]</span><span class="w"> </span>/lib64/libc.so.6<span class="o">(</span>memcpy+0x15b<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f6916cfbbfb<span class="o">]</span>
+<span class="o">[</span>PP01:13214<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">2</span><span class="o">]</span><span class="w"> </span>/opt/OPENMPI-1.4.4/lib/libmpi.so.0
+<span class="o">(</span>ompi_convertor_unpack+0xca<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f6917fae04a<span class="o">]</span>
+<span class="o">[</span>PP01:13214<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">3</span><span class="o">]</span><span class="w"> </span>/opt/OPENMPI-1.4.4/lib/openmpi/mca_pml_ob1.so
+<span class="o">(</span>+0x9621<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f69143de621<span class="o">]</span>
+<span class="o">[</span>PP01:13214<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">4</span><span class="o">]</span><span class="w"> </span>/opt/OPENMPI-1.4.4/lib/openmpi/mca_btl_sm.so
+<span class="o">(</span>+0x4078<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f6913bc7078<span class="o">]</span>
+<span class="o">[</span>PP01:13214<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">5</span><span class="o">]</span><span class="w"> </span>/opt/OPENMPI-1.4.4/lib/libopen-pal.so.0
+<span class="o">(</span>opal_progress+0x5a<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f6917ad6e8a<span class="o">]</span>
+<span class="o">[</span>PP01:13214<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">6</span><span class="o">]</span><span class="w"> </span>/opt/OPENMPI-1.4.4/lib/openmpi/mca_pml_ob1.so
+<span class="o">(</span>+0x48b5<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f69143d98b5<span class="o">]</span>
+<span class="o">[</span>PP01:13214<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">7</span><span class="o">]</span><span class="w"> </span>/opt/OPENMPI-1.4.4/lib/openmpi/mca_coll_basic.so
+<span class="o">(</span>+0x3a94<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f6913732a94<span class="o">]</span>
+<span class="o">[</span>PP01:13214<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">8</span><span class="o">]</span><span class="w"> </span>/opt/OPENMPI-1.4.4/lib/openmpi/mca_coll_sync.so
+<span class="o">(</span>+0x1742<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f6912d1e742<span class="o">]</span>
+<span class="o">[</span>PP01:13214<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">9</span><span class="o">]</span><span class="w"> </span>/opt/OPENMPI-1.4.4/lib/libmpi.so.0
+<span class="o">(</span>MPI_Gatherv+0x116<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f6917fbb906<span class="o">]</span>
+<span class="o">[</span>PP01:13214<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="m">10</span><span class="o">]</span><span class="w"> </span>./mandelbrot_mpi_static<span class="o">(</span>main+0x68c<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x401b16<span class="o">]</span>
+<span class="o">[</span>PP01:13214<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="m">11</span><span class="o">]</span><span class="w"> </span>/lib64/libc.so.6<span class="o">(</span>__libc_start_main+0xfd<span class="o">)</span><span class="w"> </span><span class="o">[</span>0x7f6916c91cdd<span class="o">]</span>
+<span class="o">[</span>PP01:13214<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="m">12</span><span class="o">]</span><span class="w"> </span>./mandelbrot_mpi_static<span class="o">()</span><span class="w"> </span><span class="o">[</span>0x4010c9<span class="o">]</span>
+<span class="o">[</span>PP01:13214<span class="o">]</span><span class="w"> </span>***<span class="w"> </span>End<span class="w"> </span>of<span class="w"> </span>error<span class="w"> </span>message<span class="w"> </span>***
+--------------------------------------------------------------------------
+mpirun<span class="w"> </span>noticed<span class="w"> </span>that<span class="w"> </span>process<span class="w"> </span>rank<span class="w"> </span><span class="m">1</span><span class="w"> </span>with<span class="w"> </span>PID<span class="w"> </span><span class="m">13215</span><span class="w"> </span>
+on<span class="w"> </span>node<span class="w"> </span>PP01<span class="w"> </span>exited<span class="w"> </span>on<span class="w"> </span>signal<span class="w"> </span><span class="m">11</span><span class="w"> </span><span class="o">(</span>Segmentation<span class="w"> </span>fault<span class="o">)</span>.
+--------------------------------------------------------------------------
+</code></pre></div></td></tr></table></div>
+
+<p>注意到这一行：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code>[PP01:13215] [10] /opt/OPENMPI-1.4.4/lib/libmpi.so.0
+(MPI_Gatherv+0x116) [0x7f41a5580906]
+</code></pre></div></td></tr></table></div>
+
+<p>通过（这跟在gdb中用disas指令是一样的）</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>objdump -D /opt/OPENMPI-1.4.4/lib/libmpi.so.0
+</code></pre></div></td></tr></table></div>
+
+<p>找到MPI_Gatherv的入口：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="mf">00000000000527</span><span class="n">f0</span><span class="w"> </span><span class="o">&lt;</span><span class="n">PMPI_Gatherv</span><span class="o">&gt;</span><span class="p">:</span>
+</code></pre></div></td></tr></table></div>
+
+<p>找到(MPI_Gatherv+0x116)的位置（地址52906）：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>   52906:       83 f8 00                cmp    $0x0,%eax
+   52909:       74 26                   je     52931 &lt;PMPI_Gatherv+0x141&gt;
+   5290b:       0f 8c 37 02 00 00       jl     52b48 &lt;PMPI_Gatherv+0x358&gt;
+</code></pre></div></td></tr></table></div>
+
+<p>地址为52931的<PMPI\_Gatherv+0x141>之后的code主要是return，%eax应该是判断是否要return的counter。
+现在寄存器%eax就成了最大的嫌疑，有理由<del> 相信 </del>猜某个对该寄存器的不正确操作导致了segmentation fault。
+<del>好吧，其实debug很多时候还得靠猜，
+记得有这么个段子：
+「师爷，写代码最重要的是什么？」
+「淡定。」
+「师爷，调试程序最重要的是什么？」
+「运气。」
+</del></p>
+<p>接下来找到了%eax被赋值的地方：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>   52ac2:       41 8b 00                mov    (%r8),%eax
+</code></pre></div></td></tr></table></div>
+
+<p>这里需要了解函数参数传递（function parameter passing）的调用约定（calling convention）机制：</p>
+<ul>
+<li>
+<p>对x64来说：int和pointer类型的参数依次放在<code>rdi</code>、<code>rsi</code>、<code>rdx</code>、<code>rcx</code>、<code>r8</code>、<code>r9</code>寄存器中，float参数放在<code>xmm</code>开头的寄存器中。</p>
+</li>
+<li>
+<p>对x86（32bit）来说：参数放在堆栈（stack）中。
+此外GNU C支持：</p>
+</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">__attribute__</span><span class="p">((</span><span class="n">regparm</span><span class="p">(</span><span class="o">&lt;</span><span class="n">number</span><span class="o">&gt;</span><span class="p">)))</span>
+</code></pre></div></td></tr></table></div>
+
+<p>其中<number>是一个0到3的整数，表示指定<number>个参数通过寄存器传递，由于寄存器传参要比堆栈传参快，因而这也被称为#fastcall#。
+如果指定</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">__attribute__</span><span class="p">((</span><span class="n">regparm</span><span class="p">(</span><span class="mi">3</span><span class="p">)))</span>
+</code></pre></div></td></tr></table></div>
+
+<p>则开头的三个参数会被依次放在<code>eax</code>、<code>edx</code>和<code>ecx</code>中。
+（关于<code>__attribute__</code>的详细介绍请猛戳<a href="http://gcc.gnu.org/onlinedocs/gcc/Function-Attributes.html">GCC的官方文档</a>）。</p>
+<ul>
+<li>如果是C++的member function，别忘了隐含的第一个参数其实是object的<code>this</code>指针（pointer）。</li>
+</ul>
+<p>回到我们的例子，
+%r8正对应MPI_Gatherv的第五個参数。
+现在终于可以从底层的汇编语言解脱出来了，让我们一睹MPI_Gatherv原型的尊容：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="n">MPI_Gatherv</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">sendbuf</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">sendcnt</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_Datatype</span><span class="w"> </span><span class="n">sendtype</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">recvbuf</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">recvcnts</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">displs</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                </span><span class="n">MPI_Datatype</span><span class="w"> </span><span class="n">recvtype</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_Comm</span><span class="w"> </span><span class="n">comm</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+
+<p>第五个参数是<code>recvcnts</code>，于是就可以针对这个「罪魁祸首」去看源程序到底出了什么问题了。
+这里我就不贴出代码了，
+bug的来源就是我当时犯二了，以为这个<code>recvcnts</code>是byte number，而实际上官方文档写得明白（这里的<code>recvcounts</code>就是<code>recvcnts</code>）：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code>recvcounts
+integer array (of length group size) containing the number of elements that are received from each process (significant only at root)
+</code></pre></div></td></tr></table></div>
+
+<p>其实是<code>the number of elements</code>啊有木有！不仔细看文档的真心伤不起！
+也因为这个错误，使我的<code>recvcnts</code>比<code>recvbuf</code>的size要大，因而发生了access在<code>recvbuf</code>范围以外的内存的情况（也就是我们从错误信息所看到的<code>Address not mapped</code>）。</p>
+<p>最后再提一点，我源代码中的<code>recvbuf</code>其实是malloc出来的内存，也就是在heap中，这种情况其实用<code>valgrind</code>应该就可以检测出来（如果<code>recvbuf</code>在stack中我可不能保证这一点）。所以，骚念们，编译完MPI程式先跑跑<code>valgrind</code>看能不能通关吧，更重要的是，写代码要仔细看API文档减少bug。</p>
+<h2 id="_5">参考资料</h2>
+<p>[1]<a href="http://www.open-mpi.org/faq/?category=debugging">Open MPI FAQ: Debugging applications in parallel</a></p>
+<p>[2]<a href="https://computing.llnl.gov/code/memcheck/">Using Valgrind's Memcheck Tool to Find Memory Errors and Leaks in MPI and Serial Applications on Linux</a></p>
+<p>[3]<a href="http://valgrind.org/docs/manual/mc-manual.html">Valgrind User Manual 4. Memcheck: a memory error detector</a></p>
+<p>[4]<a href="http://stackoverflow.com/questions/329259/how-do-i-debug-an-mpi-program">stackoverflow: How do I debug an MPI program?</a></p>
+<p>[5]<a href="http://heather.cs.ucdavis.edu/~matloff/pardebug.html">Hints for Debugging Parallel Programs</a></p>
+<p>[6]<a href="http://www.ncsa.illinois.edu/UserInfo/Resources/Hardware/CommonDoc/mpich2_gdb.html">Compiling and Running with MPICH2 and the gdb Debugger</a></p>
+<p>[7]<a href="http://dsec.pku.edu.cn/~jinlong/gdb/gdb.html">调试并行程序</a></p>                    </article>
+                </aside><!-- /#featured -->
+                <section id="extras" class="body">
+                                <div class="blogroll">
+                                        <h2>links</h2>
+                                        <ul>
+                                                        <li><a href="http://getpelican.com/">Pelican</a></li>
+                                                        <li><a href="http://python.org/">Python.org</a></li>
+                                        </ul>
+                                </div><!-- /.blogroll -->
+                                <div class="social">
+                                        <h2>social</h2>
+                                        <ul>
+
+                                                        <li><a href="https://github.com/yszheda">GitHub</a></li>
+                                                        <li><a href="https://twitter.com/yszheda">Twitter</a></li>
+                                        </ul>
+                                </div><!-- /.social -->
+                </section><!-- /#extras -->
+
+                <footer id="contentinfo" class="body">
+                        <address id="about" class="vcard body">
+                                Proudly powered by <a rel="nofollow" href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a rel="nofollow" href="https://www.python.org/">Python</a>.
+                        </address><!-- /#about -->
+
+                        <p>The theme is by <a rel="nofollow" href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+                </footer><!-- /#contentinfo -->
+
+        </body>
 </html>

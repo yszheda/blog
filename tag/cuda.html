@@ -1,155 +1,450 @@
 <!DOCTYPE html>
 <html lang="zh">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
-        <link rel="stylesheet" type="text/css" href="http://yszheda.github.io/blog/theme/css/custom.css" media="screen">
-        <link rel="dns-prefetch" href="//fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+        <head>
+                        <meta charset="utf-8" />
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                        <meta name="generator" content="Pelican" />
+                        <title>Galoisplusplus - CUDA</title>
+                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+        </head>
 
-        <meta name="author" content="Galoisplusplus" />
+        <body id="index" class="home">
+                <header id="banner" class="body">
+                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <nav><ul>
+                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
+                                                <li><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                        </ul></nav>
+                </header><!-- /#banner -->
 
-        <meta property="og:type" content="article" />
-        <meta name="twitter:card" content="summary">
+                <aside id="featured" class="body">
+                    <article>
+                        <h1 class="entry-title"><a href="http://yszheda.github.io/blog/2018/05/22/20180522-cudaErrorCudartUnloading.html">cudaErrorCudartUnloading问题排查及建议方案</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2018-05-22T22:00:00+08:00">
+                Published: 二 22 5月 2018
+        </abbr>
 
-<meta property="og:title" content="Galoisplusplus"/>
-<meta name="twitter:title" content="Galoisplusplus">
-<meta property="og:url" content="http://yszheda.github.io/blog" />
-<meta property="og:site_name" content="Galoisplusplus" />
-<meta property="og:article:author" content="Galoisplusplus" />
-<meta name="keywords" content=" 2D,  777,  阿巴多,  ab,  Abbado,  acer,  acl,  act,  Adriano Banchieri,  爱的艺术,  Alessandro Stradella,  Alvin Lucier,  按钮,  安装,  Andris Nelsons,  android,  Android.mk,  Angela Hewitt,  奥赛罗,  Archlinux,  ARM,  assembly,  Attali,  awk,  Bach,  bash,  Beckett,  贝克特,  崩溃,  BFO,  笔电,  笔记本电脑,  编辑器,  编译器,  BibTeX,  bibtex2html,  并行程序,  blog,  BMFont,  博客,  伯明翰市立交响,  Branch Prediction,  breakpad,  Brecht,  Brian Massumi,  不规则按钮,  布莱希特,  Budapest Festival Orchestra,  button,  c++,  Carmen Giannattasio,  CBSO,  测试,  Cello,  CentOS,  chapterbib,  chmod,  除錯,  clang,  Classical music,  Claudio Abbado,  cocos,  cocos2d,  cocos2d-x,  cocos2d-x quick-cocos2d-x quickx cocos2d cocos game gameDev 游戏开发 游戏 手游开发 手游 手机游戏,  cocostudio,  commit,  Computer Architecture,  concert,  conductor,  crash,  cron,  cronjob,  crontab,  CS,  cuBLAS,  CUDA,  大无,  打字特效,  戴米恩·莱斯,  Damien Rice,  Daniel Harding,  Dārziņš,  data mining,  德九,  debug,  debugfs,  等待戈多,  邓树荣,  Der Ring Des Nibelungen,  调试,  Dmitry Belosselskiy,  Docker,  Domenico Cimarosa,  Domenico Sarro,  东艺,  drama,  独立摇滚,  Dvořák,  Edgard Varèse,  editor,  effect,  Elisabeth Leonskaja,  Enrico Stinchelli,  Erich Fromm,  extundelete,  Fabio Sartori,  分支预测,  FNT,  Free Software,  弗洛姆,  Galois Field,  game,  game devolopment,  钢琴,  钢琴家,  gcc,  gdb,  歌剧,  个人博客,  个人wiki,  Giaches de Wert,  git,  gitcafe,  gitcafe pages,  github,  github pages,  gl,  godot,  Goldsmith,  GPGPU,  GPU,  Graphviz,  GridView,  古典音乐,  Gustav Kuhn,  哈恩,  Handel,  Haydn,  HEVEA,  Hilary Hahn,  history,  宏基,  hook,  荒诞派,  荒诞派戏剧,  恢复,  I Grandi Directtori d'Orchestra,  Iannis Xenakis,  In an Italian Garden,  irregular,  Isolde,  Ivan Fischer,  Ivan Panteleev,  Jacques Attali,  Jardin des Voix,  计算机体系,  姜宇辉,  脚本,  交响乐团,  金柱泽,  J.S. Bach,  矩阵乘法,  Julian Rachlin,  Kavakos,  KingLear,  Kyung Wha Chung,  L’Accademia d’Amore,  laptop,  LaTeX,  Le Jardin des Voix,  Leonidas Kavakos,  Les Arts Florissants,  李尔王,  life,  linux,  listings,  刘悦笛,  llvm,  LOCAL_C_INCLUDES,  LOCAL_SRC_FILES,  LSO,  lsof,  Lua,  luac,  Lucier,  Luigi Rossolo,  Macbeth,  machine learning,  MAGMA,  麦克白,  makefile,  Margaret Campbell,  Mark Lammert,  Massumi,  matrix multiplication,  media9,  memcheck,  memory management,  mendeley,  Mike Goldsmith,  民谣,  民谣摇滚,  minted,  Mintz,  mobile game,  Mozart,  MPI,  Natalia Gutman,  内存,  内存管理,  NEON,  nginx,  尼尔森斯,  Nicholas Angelich,  ocaml,  OCAT,  octopress,  ODP,  Ontopower,  opengl,  OpenGL ES,  OpenResty,  Opera,  Orazio Vecchi,  Orchestre de Paris,  Othello,  Paavo Järvi,  padb,  parallel programming,  pathogen,  PhotoRec,  piano,  Pierre Schaeffer,  平行程式,  pkexec,  Practical Vim,  press test,  pygments,  quick,  quick-cocos2d-x,  quickx,  Rachlin,  reading,  recital,  recover,  Reed-Solomon,  Renaud Capuçon,  Richard Stallman,  RMS,  RNN,  Rossolo,  Russian Cello School,  Russian Piano School,  Samuel Beckett,  Samuel Finzi,  Schaeffer,  莎士比亚,  Shakespear,  shell,  声音艺术,  Shlomo Mintz,  手游开发,  斯卡拉,  Sibelius,  Simon Boccanegra,  Simone Piazzola,  SimpleScalar,  snapshots,  staggered tiled map,  sudo,  svn,  systemd,  TableView,  特效,  tech,  template,  test,  tex,  TexturePacker,  the Art of Loving,  体系结构,  tile,  tiled,  tiled map,  tmux,  Tristan,  typewriting,  Tyrolean Festival Erl,  UI,  UNIX,  V3-571G,  valgrind,  Varèse,  Verdi,  vi,  vim,  vimwiki,  violin,  violinist,  Vivaldi,  瓦格纳,  瓦片地图,  Wagner,  waiting for godot,  威尔第,  文件恢复,  文学,  widget,  wiki,  William Christie,  Wolfram Koch,  wrk,  Xenakis,  西贝柳斯,  西贝柳斯小协,  戏剧,  希拉里,  西蒙·波卡涅拉,  小提琴,  休伊特,  xypic,  压测,  压力测试,  音乐,  音乐会,  殷漪,  游戏崩溃,  游戏开发,  郑京和,  郑明勋,  指挥家,  字体,  自由软件,  misc,  music,  reading,  tech, " />
-        <title>Galoisplusplus - CUDA tag</title>
+                <address class="vcard author">
+                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
+<p>tags: <a href="http://yszheda.github.io/blog/tag/cuda.html">CUDA</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/gpgpu.html">GPGPU</a> </p>        
+</footer><!-- /.post-info --><p>最近一段时间一直在负责做我厂神经网络前向框架库的优化，前几天接了一个bug report，报错信息大体是这样的：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">Program</span><span class="w"> </span><span class="n">hit</span><span class="w"> </span><span class="n">cudaErrorCudartUnloading</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="w"> </span><span class="mi">29</span><span class="p">)</span><span class="w"> </span><span class="n">due</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="s2">&quot;driver shutting down&quot;</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">CUDA</span><span class="w"> </span><span class="n">API</span><span class="w"> </span><span class="n">call</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">cudaFreeHost</span><span class="o">.</span>
+</code></pre></div></td></tr></table></div>
+
+<p>同样的库链接出来的可执行文件，有的会出现这种问题有的不会，一开始让我很自然以为是使用库的应用程序出了bug。排除了这种可能之后，这句话最后的<code>cudaFreeHost</code>又让我想当然地以为是个内存相关的问题，折腾了一阵后才发现方向又双叒叕错了。而且我发现，无论我在报错的那段代码前使用任何CUDA runtime API，都会出现这个错误。
+后来在网上查找相关信息，以下的bug report虽然没有具体解决方案，但相似的call stack让我怀疑这和我遇到的是同一个问题，而且也让我把怀疑的目光聚焦在"driver shutting down"而非<code>cudaFreeHost</code>上。</p>
+<ul>
+<li>
+<p>https://github.com/opencv/opencv/issues/7816</p>
+</li>
+<li>
+<p>https://github.com/BVLC/caffe/issues/6281</p>
+</li>
+<li>
+<p>https://stackoverflow.com/questions/40979060/cudaerrorcudartunloading-error-29-due-to-driver-shutting-down</p>
+</li>
+<li>
+<p>https://github.com/NVlabs/SASSI/issues/4</p>
+</li>
+<li>
+<p>https://blog.csdn.net/jobbofhe/article/details/79386160</p>
+</li>
+</ul>
+<h1 id="driver-shutting-down">强制阻止"driver shutting down"？</h1>
+<p>首先一个看似理所当然的思路是：我们能否在使用CUDA API时防止CUDA driver不被shutdown呢？问题在于"driver shutting down"究竟指的是什么？如果从<code>cudaErrorCudartUnloading</code>的字面意思来讲，很可能是指cuda_runtime的library被卸载了。
+由于我们用的是动态链接库，于是我尝试在报错的地方前加上<code>dlopen</code>强制加载<code>libcuda_runtime.so</code>。改完后马上发现不对，如果是动态库被卸载，理应是调用CUDA API时发现相关symbol都没有定义才对，而不应该是可以正常调用动态库的函数、然后返回error code这样的runtime error现象。
+此外，我通过<code>strace</code>发现，还有诸如<code>libcuda.so</code>、<code>libnvidia-fatbinaryloader.so</code>之类的动态库会被加载，都要试一遍并不现实。何况和CUDA相关的动态库并不少（可参考<a href="http://us.download.nvidia.com/XFree86/Linux-x86/367.35/README/installedcomponents.html">《NVIDIA Accelerated Linux Graphics Driver README and Installation Guide》中的“Chapter 5. Listing of Installed Components”</a>），不同的程序依赖的动态库也不尽相同，上述做法即使可行，也很难通用。</p>
+<p>无独有偶，在nvidia开发者论坛上也有开发者有<a href="https://devtalk.nvidia.com/default/topic/1019780/?comment=5191690">类似的想法</a>，被官方人士否定了：</p>
+<blockquote>
+<p>For instance, can I have my class maintain certain variables/handles that will force cuda run time library to stay loaded.</p>
+<p>No. It is a bad design practice to put calls to the CUDA runtime API in constructors that may run before main and destructors that may run after main.</p>
+</blockquote>
+<h1 id="cuda-runtime-api">如何使CUDA runtime API正常运作？</h1>
+<p>对于CUDA应用程序开发者而言，我们通常是通过调用CUDA runtime API来向GPU设备下达我们的指令。所以首先让我们来看，在程序中调用CUDA runtime API时，有什么角色参与了进来。我从<a href="http://www.cudahandbook.com/">Nicholas Wilt的《The CUDA Handbook》</a>中借了一张图：</p>
+<p><img alt="image" src="/images/cudaErrorCudartUnloading/CUDA-software-layers.png"></p>
+<p>我们可以看到，主要的角色有：运行在操作系统的User Mode下的CUDART(CUDA Runtime) library（对于动态库来说就是上文提到的<code>libcuda_runtime.so</code>）和CUDA driver library（对于动态库来说就是上文提到的<code>libcuda.so</code>），还有运行在Kernel Mode下的CUDA driver内核模块。众所周知，我们的CUDA应用程序是运行在操作系统的User Mode下的，无法直接操作GPU硬件，在操作系统中有权控制GPU硬件的是运行在Kernel Mode下的内核模块（OT一下，作为CUDA使用者，我们很少能感觉到这些内核模块的存在，也它们许最有存在感的时候就是我们遇上<code>Driver/library version mismatch</code>错误了XD）。在Linux下我们可以通过<code>lsmod | grep nvidia</code>来查看这些内核模块，通常有管理Unified Memory的<code>nvidia_uvm</code>、Linux内核<a href="https://dri.freedesktop.org/wiki/DRM/">Direct Rendering Manager</a>显示驱动<code>nvidia_drm</code>、还有<code>nvidia_modeset</code>。与这些内核模块沟通的是运行在User Mode下的CUDA driver library，我们所调用的CUDA runtime API会被CUDART library转换成一系列CUDA driver API，交由CUDA driver library这个连接CUDA内核模块与其他运行在User Mode下CUDA library的中介。</p>
+<p>那么，要使CUDA runtime API所表示的指令能被正常传达到GPU，就需要上述角色都能通力协作了。这就自然引发一个问题：在我们的程序运行的时候，这些角色什么时候开始/结束工作？它们什么时候被初始化？我们不妨<code>strace</code>看一下CUDA应用程序的系统调用：
+首先，<code>libcuda_runtime.so</code>、<code>libcuda.so</code>、<code>libnvidia-fatbinaryloader.so</code>等动态库被加载。当前被加载进内核的内核模块列表文件<code>/proc/modules</code>被读取，由于<code>nvidia_uvm</code>、<code>nvidia_drm</code>等模块之前已被加载，所以不需要额外<code>insmod</code>。接下来，设备参数文件<code>/proc/driver/nvidia/params</code>被读取，相关的设备——如<code>/dev/nvidia0</code>（GPU卡0）、<code>/dev/nvidia-uvm</code>（看名字自然与Unified Memory有关，可能是Pascal体系Nvidia GPU的Page Migration Engine）、<code>/dev/nvidiactl</code>等——被打开，并通过<code>ioctl</code>初始化设定。（此外，还有home目录下<code>~/.nv/ComputeCache</code>的一些文件被使用，这个目录是用来缓存PTX伪汇编JIT编译后的二进制文件fat binaries，与我们当前的问题无关，感兴趣的朋友可参考<a href="https://devblogs.nvidia.com/cuda-pro-tip-understand-fat-binaries-jit-caching/">Mark Harris的《CUDA Pro Tip: Understand Fat Binaries and JIT Caching》</a>。）要使CUDA runtime API能被正常执行，需要完成上述动态库的加载、内核模块的加载和GPU设备设置。</p>
+<p>但以上还只是从系统调用角度来探究的一个必要条件，还有一个条件写过CUDA的朋友应该不陌生，那就是CUDA context（如果你没印象了，可以回顾一下CUDA官方指南中讲<a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#initialization">初始化</a>和<a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#context">context</a>的部分）。我们都知道：所有CUDA的资源（包括分配的内存、CUDA event等等）和操作都只在CUDA context内有效；在第一次调用CUDA runtime API时，如果当前设备没有创建CUDA context，新的context会被创建出来作为当前设备的primary context。这些操作对于CUDA runtime API使用者来说是不透明的，那么又是谁做的呢？让我来引用一下<a href="https://stackoverflow.com/questions/35815597/cuda-call-fails-in-destructor">SOF上某个问题下</a>community wiki的标准答案：</p>
+<blockquote>
+<p>The CUDA front end invoked by nvcc silently adds a lot of boilerplate code and translation unit scope objects which perform CUDA context setup and teardown. That code must run before any API calls which rely on a CUDA context can be executed. If your object containing CUDA runtime API calls in its destructor invokes the API after the context is torn down, your code may fail with a runtime error.</p>
+</blockquote>
+<p>这段话提供了几个信息：一是<code>nvcc</code>插入了一些代码来完成的CUDA context的创建和销毁所需要做的准备工作，二是CUDA context销毁之后再调用CUDA runtime API就可能会出现runtime error这样的未定义行为（Undefined Behaviour，简称UB）。</p>
+<p>接下来让我们来稍微深入地探究一下。我们有若干<code>.cu</code>文件通过<code>nvcc</code>编译后产生的<code>.o</code>文件，还有这些<code>.o</code>文件链接后生成的可执行文件<code>exe</code>。我们通过<code>nm</code>等工具去查看这些<code>.o</code>文件，不难发现这些文件的代码段中都被插入了一个以<code>__sti____cudaRegisterAll_</code>为名字前缀的函数。我们在<code>gdb &lt;exe&gt;</code>中对其中函数设置断点再单步调试，可以看到类似这样的call stack：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span>
+<span class="normal">9</span></pre></div></td><td class="code"><div><pre><span></span><code>(gdb) bt
+<span class="gh">#</span>0  0x00002aaab16695c0 in __cudaRegisterFatBinary () at /usr/local/cuda/lib64/libcudart.so.8.0
+<span class="gh">#</span>1  0x00002aaaaad3eee1 in __sti____cudaRegisterAll_53_tmpxft_000017c3_00000000_19_im2col_compute_61_cpp1_ii_a0760701() ()
+    at /tmp/tmpxft_000017c3_00000000-4_im2col.compute_61.cudafe1.stub.c:98
+<span class="gh">#</span>2  0x00002aaaaaaba3a3 in _dl_init_internal () at /lib64/ld-linux-x86-64.so.2
+<span class="gh">#</span>3  0x00002aaaaaaac46a in _dl_start_user () at /lib64/ld-linux-x86-64.so.2
+<span class="gh">#</span>4  0x0000000000000001 in  ()
+<span class="gh">#</span>5  0x00007fffffffe2a8 in  ()
+<span class="gh">#</span>6  0x0000000000000000 in  ()
+</code></pre></div></td></tr></table></div>
+
+<p>再执行若干步，call stack就变成：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span></pre></div></td><td class="code"><div><pre><span></span><code>(gdb) bt
+<span class="gh">#</span>0  0x00002aaab16692b0 in __cudaRegisterFunction () at /usr/local/cuda/lib64/libcudart.so.8.0
+<span class="gh">#</span>1  0x00002aaaaad3ef3e in __sti____cudaRegisterAll_53_tmpxft_000017c3_00000000_19_im2col_compute_61_cpp1_ii_a0760701() (__T263=0x7c4b30)
+    at /tmp/tmpxft_000017c3_00000000-4_im2col.compute_61.cudafe1.stub.c:97
+<span class="gh">#</span>2  0x00002aaaaad3ef3e in __sti____cudaRegisterAll_53_tmpxft_000017c3_00000000_19_im2col_compute_61_cpp1_ii_a0760701() ()
+    at /tmp/tmpxft_000017c3_00000000-4_im2col.compute_61.cudafe1.stub.c:98
+<span class="gh">#</span>3  0x00002aaaaaaba3a3 in _dl_init_internal () at /lib64/ld-linux-x86-64.so.2
+<span class="gh">#</span>4  0x00002aaaaaaac46a in _dl_start_user () at /lib64/ld-linux-x86-64.so.2
+<span class="gh">#</span>5  0x0000000000000001 in  ()
+<span class="gh">#</span>6  0x00007fffffffe2a8 in  ()
+<span class="gh">#</span>7  0x0000000000000000 in  ()
+</code></pre></div></td></tr></table></div>
+
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code>(gdb) bt
+<span class="gh">#</span>0  0x00002aaaaae8ea20 in atexit () at XXX.so
+<span class="gh">#</span>1  0x00002aaaaaaba3a3 in _dl_init_internal () at /lib64/ld-linux-x86-64.so.2
+<span class="gh">#</span>2  0x00002aaaaaaac46a in _dl_start_user () at /lib64/ld-linux-x86-64.so.2
+<span class="gh">#</span>3  0x0000000000000001 in  ()
+<span class="gh">#</span>4  0x00007fffffffe2a8 in  ()
+<span class="gh">#</span>5  0x0000000000000000 in  ()
+</code></pre></div></td></tr></table></div>
+
+<p>那么CUDA context何时被创建完成呢？通过对<code>cuInit</code>设置断点可以发现，与官方指南的描述一致，也就是在进入<code>main</code>函数之后调用第一个CUDA runtime API的时候：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span></pre></div></td><td class="code"><div><pre><span></span><code>(gdb) bt
+<span class="gh">#</span>0  0x00002aaab1ab7440 in cuInit () at /lib64/libcuda.so.1
+<span class="gh">#</span>1  0x00002aaab167add5 in  () at /usr/local/cuda/lib64/libcudart.so.8.0
+<span class="gh">#</span>2  0x00002aaab167ae31 in  () at /usr/local/cuda/lib64/libcudart.so.8.0
+<span class="gh">#</span>3  0x00002aaabe416bb0 in pthread_once () at /lib64/libpthread.so.0
+<span class="gh">#</span>4  0x00002aaab16ad919 in  () at /usr/local/cuda/lib64/libcudart.so.8.0
+<span class="gh">#</span>5  0x00002aaab167700a in  () at /usr/local/cuda/lib64/libcudart.so.8.0
+<span class="gh">#</span>6  0x00002aaab167aceb in  () at /usr/local/cuda/lib64/libcudart.so.8.0
+<span class="gh">#</span>7  0x00002aaab16a000a in cudaGetDevice () at /usr/local/cuda/lib64/libcudart.so.8.0
+...
+<span class="gh">#</span>10 0x0000000000405d77 in main(int, char**) (argc=&lt;optimized out&gt;, argv=&lt;optimized out&gt;)
+</code></pre></div></td></tr></table></div>
+
+<p>其中，和context创建相关的若干函数就在<code>${CUDA_PATH}/include/crt/host_runtime.h</code>中声明过：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cp">#define __cudaRegisterBinary(X)                                                   \</span>
+<span class="cp">        __cudaFatCubinHandle = __cudaRegisterFatBinary((void*)&amp;__fatDeviceText); \</span>
+<span class="cp">        { void (*callback_fp)(void **) =  (void (*)(void **))(X); (*callback_fp)(__cudaFatCubinHandle); }\</span>
+<span class="cp">        atexit(__cudaUnregisterBinaryUtil)</span>
 
 
+<span class="k">extern</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="k">extern</span><span class="w"> </span><span class="kt">void</span><span class="o">**</span><span class="w"> </span><span class="n">CUDARTAPI</span><span class="w"> </span><span class="n">__cudaRegisterFatBinary</span><span class="p">(</span>
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">fatCubin</span>
+<span class="p">);</span>
 
-        <!-- MathJax for LaTeX support -->
-        <script type="text/x-mathjax-config">
-          MathJax.Hub.Config({
-            tex2jax: {
-              inlineMath: [['$', '$'], ['\\(', '\\)']],
-              displayMath: [['$$', '$$'], ['\\[', '\\]']],
-              processEscapes: true,
-              processEnvironments: true
-            }
-          });
-        </script>
-        <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-    </head>
-    <body>
-        <div id="content">
-            <div class="navbar navbar-static-top">
-                <div class="navbar-inner">
-                    <div class="container-fluid">
-                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </a>
-                        <a class="brand" href="http://yszheda.github.io/blog/"><span class=site-name>Galoisplusplus</span></a>
-                        <div class="nav-collapse collapse">
-                            <ul class="nav pull-right top-menu">
-                                <li >
-                                    <a href=
-                                       http://yszheda.github.io/blog
-                                    >Home</a>
-                                </li>
-                                <li ><a href="http://yszheda.github.io/blog/categories.html">Categories</a></li>
-                                <li ><a href="http://yszheda.github.io/blog/tags.html">Tags</a></li>
-                                <li ><a href="http://yszheda.github.io/blog/archives.html">Archives</a></li>
-                                <li><form class="navbar-search" action="http://yszheda.github.io/blog/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="container-fluid">
-                <div class="row-fluid">
-                    <div class="span1"></div>
-                    <div class="span10">
+<span class="k">extern</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">CUDARTAPI</span><span class="w"> </span><span class="nf">__cudaUnregisterFatBinary</span><span class="p">(</span>
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="n">fatCubinHandle</span>
+<span class="p">);</span>
 
+<span class="k">extern</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">CUDARTAPI</span><span class="w"> </span><span class="nf">__cudaRegisterFunction</span><span class="p">(</span>
+<span class="w">        </span><span class="kt">void</span><span class="w">   </span><span class="o">**</span><span class="n">fatCubinHandle</span><span class="p">,</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">    </span><span class="o">*</span><span class="n">hostFun</span><span class="p">,</span>
+<span class="w">        </span><span class="kt">char</span><span class="w">    </span><span class="o">*</span><span class="n">deviceFun</span><span class="p">,</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">    </span><span class="o">*</span><span class="n">deviceName</span><span class="p">,</span>
+<span class="w">        </span><span class="kt">int</span><span class="w">      </span><span class="n">thread_limit</span><span class="p">,</span>
+<span class="w">        </span><span class="n">uint3</span><span class="w">   </span><span class="o">*</span><span class="n">tid</span><span class="p">,</span>
+<span class="w">        </span><span class="n">uint3</span><span class="w">   </span><span class="o">*</span><span class="n">bid</span><span class="p">,</span>
+<span class="w">        </span><span class="n">dim3</span><span class="w">    </span><span class="o">*</span><span class="n">bDim</span><span class="p">,</span>
+<span class="w">        </span><span class="n">dim3</span><span class="w">    </span><span class="o">*</span><span class="n">gDim</span><span class="p">,</span>
+<span class="w">        </span><span class="kt">int</span><span class="w">     </span><span class="o">*</span><span class="n">wSize</span>
+<span class="p">);</span>
+<span class="p">}</span>
 
-<div class="row-fluid">
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="n">__cudaFatCubinHandle</span><span class="p">;</span>
 
-    <div class="row-fluid">
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="kr">__cdecl</span><span class="w"> </span><span class="n">__cudaUnregisterBinaryUtil</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">____nv_dummy_param_ref</span><span class="p">((</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">__cudaFatCubinHandle</span><span class="p">);</span>
+<span class="w">  </span><span class="n">__cudaUnregisterFatBinary</span><span class="p">(</span><span class="n">__cudaFatCubinHandle</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></table></div>
 
-    </div>
+<p>但这些函数都没有文档，<a href="http://people.cs.pitt.edu/~yongli/notes/gpgpu/GPGPUSIMNotes.html">Yong Li博士写的《GPGPU-SIM Code Study》</a>稍微详细一些，我就直接贴过来了：</p>
+<blockquote>
+<p>The simplest way to look at how nvcc compiles the ECS (Execution Configuration Syntax) and manages kernel code is to use nvcc’s <code>--cuda</code> switch. This generates a .cu.c file that can be compiled and linked without any support from NVIDIA proprietary tools. It can be thought of as CUDA source files in open source C. Inspection of this file verified how the ECS is managed, and showed how kernel code was managed.</p>
+<ol>
+<li>
+<p>Device code is embedded as a fat binary object in the executable’s <code>.rodata</code> section. It has variable length depending on the kernel code.</p>
+</li>
+<li>
+<p>For each kernel, a host function with the same name as the kernel is added to the source code.</p>
+</li>
+<li>
+<p>Before <code>main(..)</code> is called, a function called <code>cudaRegisterAll(..)</code> performs the following work:</p>
+</li>
+</ol>
+<p>• Calls a registration function, <code>cudaRegisterFatBinary(..)</code>, with a void pointer to the fat binary data. This is where we can access the kernel code directly.</p>
+<p>• For each kernel in the source file, a device function registration function, <code>cudaRegisterFunction(..)</code>, is called. With the list of parameters is a pointer to the function mentioned in step 2.</p>
+<ol>
+<li>As aforementioned, each ECS is replaced with the following function calls from the execution management category of the CUDA runtime API.</li>
+</ol>
+<p>• <code>cudaConfigureCall(..)</code> is called once to set up the launch configuration.</p>
+<p>• The function from the second step is called. This calls another function, in which, <code>cudaSetupArgument(..)</code> is called once for each kernel parameter. Then, <code>cudaLaunch(..)</code> launches the kernel with a pointer to the function from the second step.</p>
+<ol>
+<li>An unregister function, <code>cudaUnregisterBinaryUtil(..)</code>, is called with a handle to the fatbin data on program exit.</li>
+</ol>
+</blockquote>
+<p>其中，<code>cudaConfigureCall</code>、<code>cudaSetupArgument</code>、<code>cudaLaunch</code>在CUDA7.5以后已经“过气”（deprecated）了，由于这些并不是在进入<code>main</code>函数之前会被调用的API，我们可以不用管。我们需要关注的是，在<code>main</code>函数被调用之前，<code>nvcc</code>加入的内部初始化代码做了以下几件事情（我们可以结合上面<code>host_runtime.h</code>头文件暴露出的接口和相关call stack来确认）：</p>
+<ol>
+<li>通过<code>__cudaRegisterFatBinary</code>注册fat binary入口函数。这是CUDA context创建的准备工作之一，如果在<code>__cudaRegisterFatBinary</code>执行之前调用CUDA runtime API很可能也会出现UB。SOF上就有这样一个问题，题主在<code>static</code>对象构造函数中调用了kernel函数，结果就出现了"invalid device function"错误，SOF上的<a href="https://stackoverflow.com/questions/24869167/trouble-launching-cuda-kernels-from-static-initialization-code/24883665#24883665">CUDA大神talonmies的答案</a>就探究了<code>static</code>对象构造函数和<code>__cudaRegisterFatBinary</code>的调用顺序及其产生的问题，非常推荐一读。</li>
+<li>通过<code>__cudaRegisterFunction</code>注册每个device的kernel函数</li>
+<li>通过<code>atexit</code>注册<code>__cudaUnregisterBinaryUtil</code>的注销函数。这个函数是CUDA context销毁的清理工作之一，前面提到，CUDA context销毁之后CUDA runtime API就很可能无法再被正常使用了，换言之，如果CUDA runtime API在<code>__cudaUnregisterBinaryUtil</code>执行完后被调用就有可能是UB。而<code>__cudaUnregisterBinaryUtil</code>在什么时候被调用又是符合<a href="http://en.cppreference.com/w/cpp/utility/program/atexit"><code>atexit</code></a>规则的——在<code>main</code>函数执行完后程序<code>exit</code>的某阶段被调用（<code>main</code>函数的执行过程可以参考<a href="http://umumble.com/blogs/development/the-thorny-path-of-hello-world/">这篇文章</a>）——这也是我们理解和解决<code>cudaErrorCudartUnloading</code>问题的关键之处。</li>
+</ol>
+<p><img alt="image" src="/images/cudaErrorCudartUnloading/main-procedure.png"></p>
+<h1 id="_1">一切皆全局对象之过</h1>
+<p>吃透本码渣上述啰里啰唆的理论后，再通过代码来排查<code>cudaErrorCudartUnloading</code>问题就简单了。原来，竟和之前提过的<a href="https://stackoverflow.com/questions/35815597/cuda-call-fails-in-destructor">SOF上的问题</a>相似，我们代码中也使用了一个全局<code>static</code> singleton对象，在singleton对象的析构函数中调用CUDA runtime API来执行释放内存等操作。而我们知道，<code>static</code>对象是在<code>main</code>函数执行完后<code>exit</code>进行析构的，而之前提到<code>__cudaUnregisterBinaryUtil</code>也是在这个阶段被调用，这两者的顺序是未定义的。如果<code>__cudaUnregisterBinaryUtil</code>等清理context的操作在<code>static</code>对象析构之前就调用了，就会产生<code>cudaErrorCudartUnloading</code>报错。这种UB也解释了，为何之前我们的库链接出来的不同可执行文件，有的会出现这个问题而有的不会。</p>
+<h1 id="_2">解决方案</h1>
+<p>在github上搜<code>cudaErrorCudartUnloading</code>相关的patch，处理方式也是五花八门，这里姑且列举几种。</p>
+<h2 id="cudaerrorcudartunloading">跳过<code>cudaErrorCudartUnloading</code>检查</h2>
+<p>比如<a href="https://github.com/arrayfire/arrayfire/pull/170">arrayfire项目的这个patch</a>。可以，这很佛系（滑稽）</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="o">-</span><span class="w">    </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaFree</span><span class="p">(</span><span class="n">ptr</span><span class="p">));</span>
+<span class="o">+</span><span class="w">    </span><span class="n">cudaError_t</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaFree</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
+<span class="o">+</span><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">cudaErrorCudartUnloading</span><span class="p">)</span><span class="w"> </span><span class="c1">// see issue #167</span>
+<span class="o">+</span><span class="w">        </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">err</span><span class="p">);</span>
+</code></pre></div></td></tr></table></div>
 
-    <div class="row-fluid">
-        <div class="span8 offset2">
-            <header>
-            <h1 id="recent-posts">Recent Posts <a id="allposts" href="http://yszheda.github.io/blog/archives.html">all posts</a></h1>
-            </header>
-        <div class="recent-posts">
-            <div itemscope class="recent-posts-article">
-                <a href="http://yszheda.github.io/blog/2018/05/22/20180522-cudaErrorCudartUnloading.html">
-                    cudaErrorCudartUnloading问题排查及建议方案
-                </a>
-                <div class="recent-posts-posted">
-                    posted in
-                    <a href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
-                    <time itemprop="dateCreated" datetime="2018-05-22T22:00:00+08:00">Tue 22 May 2018</time>
-                </div>
-            </div>
-            <div itemscope class="recent-posts-article">
-                <a href="http://yszheda.github.io/blog/2014/06/23/20140623-optimizing-special-matrix-multiplication-in-cuda.html">
-                    加速CUDA中的一类特殊矩阵乘法
-                </a>
-                <div class="recent-posts-posted">
-                    posted in
-                    <a href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
-                    <time itemprop="dateCreated" datetime="2014-06-23T20:56:00+08:00">Mon 23 June 2014</time>
-                </div>
-            </div>
-            <div itemscope class="recent-posts-article">
-                <a href="http://yszheda.github.io/blog/2014/04/03/20140403-cuda-host-memory-models.html">
-                    CUDA Host Memory Models
-                </a>
-                <div class="recent-posts-posted">
-                    posted in
-                    <a href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
-                    <time itemprop="dateCreated" datetime="2014-04-03T09:11:00+08:00">Thu 03 April 2014</time>
-                </div>
-            </div>
-            <div itemscope class="recent-posts-article">
-                <a href="http://yszheda.github.io/blog/2013/11/21/20131121-upgrading-compilers-on-centos.html">
-                    Upgrading Compilers on CentOS
-                </a>
-                <div class="recent-posts-posted">
-                    posted in
-                    <a href="http://yszheda.github.io/blog/categories.html#tech-ref">tech</a>
-                    <time itemprop="dateCreated" datetime="2013-11-21T00:45:00+08:00">Thu 21 November 2013</time>
-                </div>
-            </div>
-        </div>
-        </div>
-    </div>
-</div>
-                    </div>
-                    <div class="span1"></div>
-                </div>
-            </div>
-        </div>
-<footer>
+<h2 id="cudaerrorcudartunloadingcuda-runtime-api">干脆把可能会有<code>cudaErrorCudartUnloading</code>的CUDA runtime API去掉</h2>
+<p>比如kaldi项目的<a href="https://github.com/kaldi-asr/kaldi/issues/2178">这个issue</a>和<a href="https://github.com/kaldi-asr/kaldi/pull/2185">PR</a>。论佛系，谁都不服就服你（滑稽）</p>
+<h2 id="cuda-runtime-apide-initialisationfinalizemainreturn">把CUDA runtime API放到一个独立的de-initialisation、finalize之类的接口，让用户在<code>main</code>函数<code>return</code>前调用</h2>
+<p>比如MXNet项目的<code>MXNotifyShutdown</code>（参见：<a href="https://github.com/apache/incubator-mxnet/blob/master/src/c_api/c_api.cc">c_api.cc</a>）。佛系了辣么久总算看到了一种符合本程序员审美的“优雅”方案（滑稽）</p>
+<p>恰好在SOF另一个问题中，talonmies大神（啊哈，又是talonmies大神！）在<a href="https://stackoverflow.com/questions/16979982/cuda-streams-destruction-and-cudadevicereset/16982503?noredirect=1#comment24536013_16982503">留言</a>里也表达了一样的意思，不能赞同更多啊：</p>
+<blockquote>
+<p>The obvious answer is don't put CUDA API calls in the destructor. In your class you have an explicit intialisation method not called through the constructor, so why not have an explicit de-initialisation method as well? That way scope becomes a non-issue</p>
+</blockquote>
+<p>上面的方案虽然“优雅”，但对于库维护者却有多了一层隐忧：万一加了个接口，使用者要撕逼呢？（滑稽）万一使用者根本就不鸟你，没在<code>main</code>函数<code>return</code>前调用呢？要说别人打开方式不对，人家还可以说是库的实现不够稳健把你批判一通呢。如果你也有这种隐忧，请接着看接下来的“黑科技”。</p>
+<h2 id="_3">土法黑科技（滑稽）</h2>
+<p>首先，CUDA runtime API还是不能放在全局对象析构函数中，那么应该放在什么地方才合适呢？毕竟我们不知道库使用者最后用的是哪个API啊？不过，我们却可以知道库使用者使用什么API时是在<code>main</code>函数的作用域，那个时候是可以创建有效的CUDA context、正常使用CUDA runtime API的。这又和我们析构函数中调用的CUDA runtime API有什么关系呢？你可能还记得吧，前边提到<code>nvcc</code>加入的内部初始化代码通过<code>atexit</code>注册<code>__cudaUnregisterBinaryUtil</code>的注销函数，我们自然也可以如法炮制：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// 首先调用一个“无害”的CUDA runtime API，确保在调用`atexit`之前CUDA context已被创建</span>
+<span class="c1">// 这样就确保我们通过`atexit`注册的函数在CUDA context相关的销毁函数（例如`__cudaUnregisterBinaryUtil`）之前就被执行</span>
+<span class="c1">// “无害”的CUDA runtime API？这里指不会造成影响内存占用等副作用的函数，我采用了`cudaGetDeviceCount`</span>
+<span class="c1">// 《The CUDA Handbook》中推荐使用`cudaFree(0);`来完成CUDART初始化CUDA context的过程，这也是可以的</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">gpu_num</span><span class="p">;</span>
+<span class="n">cudaError_t</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaGetDeviceCount</span><span class="p">(</span><span class="o">&amp;</span><span class="n">gpu_num</span><span class="p">);</span>
 
+<span class="n">std</span><span class="o">::</span><span class="n">atexit</span><span class="p">([](){</span>
+<span class="w">    </span><span class="c1">// 调用原来在全局对象析构函数中的CUDA runtime API</span>
+<span class="p">});</span>
+</code></pre></div></td></tr></table></div>
 
+<p>那么，应该在哪个地方插入上面的代码呢？解铃还须系铃人，我们的<code>cudaErrorCudartUnloading</code>问题出在<code>static</code> singleton对象身上，但以下singleton的惰性初始化却也给了我们提供了一个绝佳的入口：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// OT一下，和本中老年人一样上了年纪的朋友可能知道</span>
+<span class="c1">// 以前在C++中要实现线程安全的singleton有多蛋疼</span>
+<span class="c1">// 有诸如Double-Checked Locking之类略恶心的写法</span>
+<span class="c1">// 但自打用了C++11之后啊，腰不酸了,背不疼了,腿啊也不抽筋了,码代码也有劲儿了（滑稽）</span>
+<span class="c1">// 以下实现在C++11标准中是保证线程安全的</span>
+<span class="k">static</span><span class="w"> </span><span class="n">Singleton</span><span class="o">&amp;</span><span class="w"> </span><span class="nf">instance</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">     </span><span class="k">static</span><span class="w"> </span><span class="n">Singleton</span><span class="w"> </span><span class="n">s</span><span class="p">;</span>
+<span class="w">     </span><span class="k">return</span><span class="w"> </span><span class="n">s</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></table></div>
 
+<p>因为库使用者只会在<code>main</code>函数中通过这个接口使用singleton对象，所以只要在这个接口初始化CUDA context并用<code>atexit</code>注册清理函数就可以辣！当然，作为一位严谨的库作者，你也许会问：不能对库使用者抱任何幻想，万一别人在某个全局变量初始化时调用了呢？Bingo！我只能说目前我们的业务流程可以让库使用者不会想这么写来恶心自己而已...（捂脸）万一真的有这么作的使用者，这种方法就失效了，使用者会遇到和<a href="https://stackoverflow.com/questions/24869167/trouble-launching-cuda-kernels-from-static-initialization-code">前面提到的SOF某问题</a>相似的报错。毕竟，黑科技也不是万能的啊！</p>
+<h1 id="_4">后记</h1>
+<p>解决完<code>cudaErrorCudartUnloading</code>这个问题之后，又接到新的救火任务，排查一个使用加密狗API导致的程序闪退问题。加密狗和<code>cudaErrorCudartUnloading</code>两个问题看似风马牛不相及，本质竟然也是相似的：又是一样的UB现象；又是全局对象；又是在全局对象构造和析构时调用了加密狗API，和加密狗内部的初始化和销毁函数的执行顺序未定义。看来，不乱挖坑还是要有基本的常识——在使用外设设备相关的接口时，要保证在<code>main</code>函数的作用域里啊！</p>
+<h1 id="_5">参考资料</h1>
+<ul>
+<li><a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html">《CUDA官方指南》</a></li>
+<li><a href="http://www.cudahandbook.com/">Nicholas Wilt的《The CUDA Handbook》</a></li>
+<li><a href="http://us.download.nvidia.com/XFree86/Linux-x86/367.35/README/installedcomponents.html">《NVIDIA Accelerated Linux Graphics Driver README and Installation Guide》中的“Chapter 5. Listing of Installed Components”</a></li>
+<li><a href="https://devblogs.nvidia.com/cuda-pro-tip-understand-fat-binaries-jit-caching/">CUDA Pro Tip: Understand Fat Binaries and JIT Caching</a></li>
+<li><a href="http://people.cs.pitt.edu/~yongli/notes/gpgpu/GPGPUSIMNotes.html">Yong Li博士写的《GPGPU-SIM Code Study》</a></li>
+<li><a href="http://umumble.com/blogs/development/the-thorny-path-of-hello-world/">The thorny path of Hello World</a></li>
+</ul>                    </article>
+                </aside><!-- /#featured -->
+                    <section id="content" class="body">
+                        <h1>Other articles</h1>
+                        <hr />
+                        <ol id="posts-list" class="hfeed">
 
-    <div id="fpowered">
-        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
-        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
-    </div>
-</footer>        <script src="//code.jquery.com/jquery.min.js"></script>
-        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-        <script src="http://yszheda.github.io/blog/theme/js/elegant.prod.9e9d5ce754.js"></script>
-        <script>
-            function validateForm(query)
-            {
-                return (query.length > 0);
-            }
-        </script>
-    </body>
-    <!-- Theme: Elegant built for Pelican
-        License : MIT -->
+                <li><article class="hentry">
+                    <header>
+                        <h1><a href="http://yszheda.github.io/blog/2014/06/23/20140623-optimizing-special-matrix-multiplication-in-cuda.html" rel="bookmark"
+                               title="Permalink to 加速CUDA中的一类特殊矩阵乘法">加速CUDA中的一类特殊矩阵乘法</a></h1>
+                    </header>
+
+                    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2014-06-23T20:56:00+08:00">
+                Published: 一 23 6月 2014
+        </abbr>
+
+                <address class="vcard author">
+                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
+<p>tags: <a href="http://yszheda.github.io/blog/tag/cuda.html">CUDA</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/gpgpu.html">GPGPU</a> <a href="http://yszheda.github.io/blog/tag/gpu.html">GPU</a> <a href="http://yszheda.github.io/blog/tag/ju-zhen-cheng-fa.html">矩阵乘法</a> <a href="http://yszheda.github.io/blog/tag/reed-solomon.html">Reed-Solomon</a> <a href="http://yszheda.github.io/blog/tag/galois-field.html">Galois Field</a> <a href="http://yszheda.github.io/blog/tag/matrix-multiplication.html">matrix multiplication</a> <a href="http://yszheda.github.io/blog/tag/c.html">c++</a> <a href="http://yszheda.github.io/blog/tag/c.html">c</a> <a href="http://yszheda.github.io/blog/tag/template.html">template</a> <a href="http://yszheda.github.io/blog/tag/cublas.html">cuBLAS</a> <a href="http://yszheda.github.io/blog/tag/magma.html">MAGMA</a> </p>        
+</footer><!-- /.post-info -->                        <p>矩阵乘法是利用GPU加速一般运算的经典范例，在NVIDIA官方的<a href="http://docs.nvidia.com/cuda/cuda-c-programming-guide">CUDA C Programming Guide</a>和<a href="http://docs.nvidia.com/cuda/cuda-c-best-practices-guide">CUDA C Best Practices Guide</a>也都有示范代码来说明如何加速矩阵乘法。本渣这里要介绍的是如何加 …</p>
+                        <a class="readmore" href="http://yszheda.github.io/blog/2014/06/23/20140623-optimizing-special-matrix-multiplication-in-cuda.html">read more</a>
+                    </div><!-- /.entry-content -->
+                </article></li>
+
+                <li><article class="hentry">
+                    <header>
+                        <h1><a href="http://yszheda.github.io/blog/2014/04/03/20140403-cuda-host-memory-models.html" rel="bookmark"
+                               title="Permalink to CUDA Host Memory Models">CUDA Host Memory Models</a></h1>
+                    </header>
+
+                    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2014-04-03T09:11:00+08:00">
+                Published: 四 03 4月 2014
+        </abbr>
+
+                <address class="vcard author">
+                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
+<p>tags: <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/cuda.html">CUDA</a> <a href="http://yszheda.github.io/blog/tag/gpgpu.html">GPGPU</a> </p>        
+</footer><!-- /.post-info -->                        <p>之前写CUDA程序时光顾着如何加速跑在device(GPU)端的kernel function了，没太关注host(CPU)端的代码，直到上个月发现了我某个CUDA程序中的坑——host端内存模型使用不当导致在CPU和GPU之间的数据传输消耗了大量时间，这种overhead甚至占到了总时间的70%以上，成为最主要的瓶颈（bottleneck）。在填完这 …</p>
+                        <a class="readmore" href="http://yszheda.github.io/blog/2014/04/03/20140403-cuda-host-memory-models.html">read more</a>
+                    </div><!-- /.entry-content -->
+                </article></li>
+
+                <li><article class="hentry">
+                    <header>
+                        <h1><a href="http://yszheda.github.io/blog/2013/11/21/20131121-upgrading-compilers-on-centos.html" rel="bookmark"
+                               title="Permalink to Upgrading Compilers on CentOS">Upgrading Compilers on CentOS</a></h1>
+                    </header>
+
+                    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2013-11-21T00:45:00+08:00">
+                Published: 四 21 11月 2013
+        </abbr>
+
+                <address class="vcard author">
+                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
+<p>tags: <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/centos.html">CentOS</a> <a href="http://yszheda.github.io/blog/tag/clang.html">clang</a> <a href="http://yszheda.github.io/blog/tag/llvm.html">llvm</a> <a href="http://yszheda.github.io/blog/tag/gcc.html">gcc</a> <a href="http://yszheda.github.io/blog/tag/gdb.html">gdb</a> <a href="http://yszheda.github.io/blog/tag/bian-yi-qi.html">编译器</a> <a href="http://yszheda.github.io/blog/tag/tmux.html">tmux</a> <a href="http://yszheda.github.io/blog/tag/cuda.html">cuda</a> </p>        
+</footer><!-- /.post-info -->                        <p>这篇日志应该叫「六美分历险记」的，「六美分」顾名思义嘛，自然是指CentOS-6。</p>
+<p>下面扯扯为何对本屌来说是「历险」和为虾米要「历险」：
+偶对 …</p>
+                        <a class="readmore" href="http://yszheda.github.io/blog/2013/11/21/20131121-upgrading-compilers-on-centos.html">read more</a>
+                    </div><!-- /.entry-content -->
+                </article></li>
+                    </ol><!-- /#posts-list -->
+                    </section><!-- /#content -->
+                <section id="extras" class="body">
+                                <div class="blogroll">
+                                        <h2>links</h2>
+                                        <ul>
+                                                        <li><a href="http://getpelican.com/">Pelican</a></li>
+                                                        <li><a href="http://python.org/">Python.org</a></li>
+                                        </ul>
+                                </div><!-- /.blogroll -->
+                                <div class="social">
+                                        <h2>social</h2>
+                                        <ul>
+
+                                                        <li><a href="https://github.com/yszheda">GitHub</a></li>
+                                                        <li><a href="https://twitter.com/yszheda">Twitter</a></li>
+                                        </ul>
+                                </div><!-- /.social -->
+                </section><!-- /#extras -->
+
+                <footer id="contentinfo" class="body">
+                        <address id="about" class="vcard body">
+                                Proudly powered by <a rel="nofollow" href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a rel="nofollow" href="https://www.python.org/">Python</a>.
+                        </address><!-- /#about -->
+
+                        <p>The theme is by <a rel="nofollow" href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+                </footer><!-- /#contentinfo -->
+
+        </body>
 </html>
