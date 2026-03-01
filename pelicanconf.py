@@ -39,26 +39,8 @@ SOCIAL = (
 
 DEFAULT_PAGINATION = 10
 
-# Theme settings - Elegant
-THEME = "themes/elegant"
-
-# Elegant theme configuration
-DIRECT_TEMPLATES = (
-    "index",
-    "tags",
-    "categories",
-    "authors",
-    "archives",
-)
-
-PAGINATED_TEMPLATES = (
-    (
-        "index",
-        "tags",
-        "categories",
-        "authors",
-    ),
-)
+# Theme settings - Using Pelican built-in notmyidea theme (has CSS)
+THEME = "notmyidea"
 
 # Static files
 STATIC_PATHS = ["static/images", "static/downloads", "static/css", "theme/images", "theme/css"]

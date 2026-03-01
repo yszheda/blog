@@ -7,7 +7,8 @@ AUTHOR = "Galoisplusplus"
 SITENAME = "Galoisplusplus"
 
 # GitHub Pages URL - uncomment and set your actual URL
-SITEURL = "http://yszheda.github.io/blog"
+# For GitHub Pages project site
+SITEURL = "https://yszheda.github.io/blog"
 
 PATH = "content"
 
@@ -35,34 +36,14 @@ SOCIAL = (
 
 DEFAULT_PAGINATION = 10
 
-# Theme settings - Elegant
-THEME = "themes/elegant"
+# Theme settings - Using Pelican built-in notmyidea theme (has CSS)
+THEME = "notmyidea"
 
-# Elegant theme configuration
-DIRECT_TEMPLATES = (
-    "index",
-    "tags",
-    "categories",
-    "authors",
-    "archives",
-)
-
-PAGINATED_TEMPLATES = (
-    (
-        "index",
-        "tags",
-        "categories",
-        "authors",
-    ),
-)
-
-# Static files
+# Static files - only include necessary paths
 STATIC_PATHS = [
     "static/images",
     "static/downloads",
     "static/css",
-    "theme/images",
-    "theme/css",
 ]
 
 EXTRA_PATH_METADATA = {
@@ -114,4 +95,4 @@ SHOW_ARTICLE_AUTHOR = True
 SHOW_DATE_MODIFIED = True
 
 # For GitHub Pages deployment
-RELATIVE_URLS = False
+RELATIVE_URLS = True
