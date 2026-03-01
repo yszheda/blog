@@ -43,3 +43,4 @@ nul
 
 # Python
 .ropeproject/
+.omc/
