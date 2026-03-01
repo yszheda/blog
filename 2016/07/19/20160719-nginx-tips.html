@@ -5,25 +5,25 @@
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                         <meta name="generator" content="Pelican" />
                         <title>Nginx Tips</title>
-                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+                        <link rel="stylesheet" href="../../../theme/css/main.css" />
     <meta name="description" content="最近在做server端开发，需要熟悉nginx，本渣也就在这里记录下自己遇到的一些问题。其实都比较小白，纯粹当作自我扫盲啦XD 本文将不 …" />
         </head>
 
         <body id="index" class="home">
                 <header id="banner" class="body">
-                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <h1><a href="../../../">Galoisplusplus</a></h1>
                         <nav><ul>
-                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
-                                                <li class="active"><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                                                <li><a href="../../../category/misc.html">misc</a></li>
+                                                <li><a href="../../../category/music.html">music</a></li>
+                                                <li><a href="../../../category/reading.html">reading</a></li>
+                                                <li class="active"><a href="../../../category/tech.html">tech</a></li>
                         </ul></nav>
                 </header><!-- /#banner -->
   <section id="content" class="body">
     <article>
       <header>
         <h1 class="entry-title">
-          <a href="http://yszheda.github.io/blog/2016/07/19/20160719-nginx-tips.html" rel="bookmark"
+          <a href="../../../2016/07/19/20160719-nginx-tips.html" rel="bookmark"
              title="Permalink to Nginx Tips">Nginx Tips</a></h1>
       </header>
 
@@ -34,10 +34,10 @@
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../../../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/linux.html">Linux</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/nginx.html">nginx</a> </p>        
+        <p>In <a href="../../../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../../../tag/linux.html">Linux</a> <a href="../../../tag/cs.html">CS</a> <a href="../../../tag/tech.html">tech</a> <a href="../../../tag/nginx.html">nginx</a> </p>        
 </footer><!-- /.post-info -->        <p>最近在做server端开发，需要熟悉nginx，本渣也就在这里记录下自己遇到的一些问题。其实都比较小白，纯粹当作自我扫盲啦XD 本文将不定期更新。</p>
 <h1 id="nginx-emerg-bind-to-ipport-failed-98-address-already-in-use">nginx: [emerg] bind() to \&lt;ip&gt;:\&lt;port&gt; failed (98: Address already in use)</h1>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nl">nginx</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">emerg</span><span class="o">]</span><span class="w"> </span><span class="n">bind</span><span class="p">()</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="o">&lt;</span><span class="n">ip</span><span class="o">&gt;</span><span class="err">:</span><span class="o">&lt;</span><span class="n">port</span><span class="o">&gt;</span><span class="w"> </span><span class="n">failed</span><span class="w"> </span><span class="p">(</span><span class="mi">98</span><span class="err">:</span><span class="w"> </span><span class="n">Address</span><span class="w"> </span><span class="n">already</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="k">use</span><span class="p">)</span>

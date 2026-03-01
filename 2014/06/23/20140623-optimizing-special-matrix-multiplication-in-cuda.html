@@ -5,25 +5,25 @@
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                         <meta name="generator" content="Pelican" />
                         <title>加速CUDA中的一类特殊矩阵乘法</title>
-                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+                        <link rel="stylesheet" href="../../../theme/css/main.css" />
     <meta name="description" content="矩阵乘法是利用GPU加速一般运算的经典范例，在NVIDIA官方的CUDA C Programming Guide和CUDA C Best Practices Guide也都有示范代码来说明如何加速矩阵乘法。本渣这里要介绍的是如何加 …" />
         </head>
 
         <body id="index" class="home">
                 <header id="banner" class="body">
-                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <h1><a href="../../../">Galoisplusplus</a></h1>
                         <nav><ul>
-                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
-                                                <li class="active"><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                                                <li><a href="../../../category/misc.html">misc</a></li>
+                                                <li><a href="../../../category/music.html">music</a></li>
+                                                <li><a href="../../../category/reading.html">reading</a></li>
+                                                <li class="active"><a href="../../../category/tech.html">tech</a></li>
                         </ul></nav>
                 </header><!-- /#banner -->
   <section id="content" class="body">
     <article>
       <header>
         <h1 class="entry-title">
-          <a href="http://yszheda.github.io/blog/2014/06/23/20140623-optimizing-special-matrix-multiplication-in-cuda.html" rel="bookmark"
+          <a href="../../../2014/06/23/20140623-optimizing-special-matrix-multiplication-in-cuda.html" rel="bookmark"
              title="Permalink to 加速CUDA中的一类特殊矩阵乘法">加速CUDA中的一类特殊矩阵乘法</a></h1>
       </header>
 
@@ -34,10 +34,10 @@
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../../../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cuda.html">CUDA</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/gpgpu.html">GPGPU</a> <a href="http://yszheda.github.io/blog/tag/gpu.html">GPU</a> <a href="http://yszheda.github.io/blog/tag/ju-zhen-cheng-fa.html">矩阵乘法</a> <a href="http://yszheda.github.io/blog/tag/reed-solomon.html">Reed-Solomon</a> <a href="http://yszheda.github.io/blog/tag/galois-field.html">Galois Field</a> <a href="http://yszheda.github.io/blog/tag/matrix-multiplication.html">matrix multiplication</a> <a href="http://yszheda.github.io/blog/tag/c.html">c++</a> <a href="http://yszheda.github.io/blog/tag/c.html">c</a> <a href="http://yszheda.github.io/blog/tag/template.html">template</a> <a href="http://yszheda.github.io/blog/tag/cublas.html">cuBLAS</a> <a href="http://yszheda.github.io/blog/tag/magma.html">MAGMA</a> </p>        
+        <p>In <a href="../../../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../../../tag/cuda.html">CUDA</a> <a href="../../../tag/tech.html">tech</a> <a href="../../../tag/cs.html">CS</a> <a href="../../../tag/gpgpu.html">GPGPU</a> <a href="../../../tag/gpu.html">GPU</a> <a href="../../../tag/ju-zhen-cheng-fa.html">矩阵乘法</a> <a href="../../../tag/reed-solomon.html">Reed-Solomon</a> <a href="../../../tag/galois-field.html">Galois Field</a> <a href="../../../tag/matrix-multiplication.html">matrix multiplication</a> <a href="../../../tag/c.html">c++</a> <a href="../../../tag/c.html">c</a> <a href="../../../tag/template.html">template</a> <a href="../../../tag/cublas.html">cuBLAS</a> <a href="../../../tag/magma.html">MAGMA</a> </p>        
 </footer><!-- /.post-info -->        <p>矩阵乘法是利用GPU加速一般运算的经典范例，在NVIDIA官方的<a href="http://docs.nvidia.com/cuda/cuda-c-programming-guide">CUDA C Programming Guide</a>和<a href="http://docs.nvidia.com/cuda/cuda-c-best-practices-guide">CUDA C Best Practices Guide</a>也都有示范代码来说明如何加速矩阵乘法。本渣这里要介绍的是如何加速矩阵乘法的一类特殊情况——大小悬殊的两个矩阵的乘法。</p>
 <p>这里稍稍碎碎念一会，其实这个主题主要来自本渣的论文，而本渣所做的主要是用GPU来加速Reed-Solomon Codes的编解码。这种编解码的过程是矩阵乘法，照例说可以直接使用<a href="https://developer.nvidia.com/cublas">cuBLAS</a>等实现矩阵乘法的CUDA library来做。但由于Reed-Solomon Codes所用到的运算都是定义在伽罗华域（Galois Field）中的，不同于普通的实数运算，所以无法直接调用<a href="https://developer.nvidia.com/cublas">cuBLAS</a>等library。不巧，这些library所开放的API又不允许operator overloading，再加上矩阵乘法的source code也没有开源（<a href="http://icl.cs.utk.edu/magma/">MAGMA</a>倒是个<del>open source</del>公布了代码的library，但是它对矩阵乘法的实现只是调用<a href="https://developer.nvidia.com/cublas">cuBLAS</a>的函数、外加优化某些特殊情况罢了），这使得本渣需要自力更生去琢磨如何加速Reed-Solomon Codes编解码的矩阵乘法。在完成实现之后，本渣发现不少技术细节不足以登学术论文的大雅之堂，于是就想把它们记录进这篇技术文章中。
 在我们的Reed-Solomon Codes的实际应用场景中，用到的是以8-bit byte为一个数值单位的矩阵，矩阵乘法通常是一个小矩阵乘以一个扁长的大矩阵的形式：小矩阵的行数和列数一般不超过三位数，大矩阵的行数即为小矩阵的列数，而大矩阵的列数一般大于百万的数量级。

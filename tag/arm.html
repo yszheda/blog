@@ -5,33 +5,33 @@
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                         <meta name="generator" content="Pelican" />
                         <title>Galoisplusplus - ARM</title>
-                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+                        <link rel="stylesheet" href="../theme/css/main.css" />
         </head>
 
         <body id="index" class="home">
                 <header id="banner" class="body">
-                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <h1><a href="../">Galoisplusplus</a></h1>
                         <nav><ul>
-                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                                                <li><a href="../category/misc.html">misc</a></li>
+                                                <li><a href="../category/music.html">music</a></li>
+                                                <li><a href="../category/reading.html">reading</a></li>
+                                                <li><a href="../category/tech.html">tech</a></li>
                         </ul></nav>
                 </header><!-- /#banner -->
 
                 <aside id="featured" class="body">
                     <article>
-                        <h1 class="entry-title"><a href="http://yszheda.github.io/blog/2017/06/10/20170610-use-arm-neon-to-accelerate-bgr888-to-yuv444.html">ARM NEON编程初探——一个简单的BGR888转YUV444实例详解</a></h1>
+                        <h1 class="entry-title"><a href="../2017/06/10/20170610-use-arm-neon-to-accelerate-bgr888-to-yuv444.html">ARM NEON编程初探——一个简单的BGR888转YUV444实例详解</a></h1>
 <footer class="post-info">
         <abbr class="published" title="2017-06-10T13:00:00+08:00">
                 Published: 六 10 6月 2017
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/arm.html">ARM</a> <a href="http://yszheda.github.io/blog/tag/neon.html">NEON</a> <a href="http://yszheda.github.io/blog/tag/assembly.html">assembly</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/arm.html">ARM</a> <a href="../tag/neon.html">NEON</a> <a href="../tag/assembly.html">assembly</a> </p>        
 </footer><!-- /.post-info --><p>最近在学习ARM的SIMD指令集<a href="https://developer.arm.com/technologies/neon">NEON</a>，发现这方面的资料真是太少了，我便来给NEON凑凑人气，姑且以这篇入门文章来分享一些心得吧。</p>
 <p>学习一门新技术，总是有一些经典是绕不开的，对于NEON来说，这份必备的武林秘籍自然就是ARM官方的《NEON Programmer's Guide》（以下简称Guide）啦。别看这份Guide有四百多页，其实只有一百来页是正文，后面都是供查阅的手册，通读一番还是不难的。所以这里我也就不打算把Guide里的内容翻译过来敷衍了事了。在此我想借一个简单例子，展示我是如何把一个没采用NEON的普通程序改写为NEON程序、中间又是如何debug、如何调优的。当然，作为一枚ARM小白，我接触NEON指令集毕竟也才两周左右时间，错误在所难免，还请各位方家多多指正。</p>
 <!-- more -->

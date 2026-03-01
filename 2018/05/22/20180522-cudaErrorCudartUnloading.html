@@ -5,25 +5,25 @@
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                         <meta name="generator" content="Pelican" />
                         <title>cudaErrorCudartUnloading问题排查及建议方案</title>
-                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+                        <link rel="stylesheet" href="../../../theme/css/main.css" />
     <meta name="description" content="最近一段时间一直在负责做我厂神经网络前向框架库的优化，前几天接了一个bug report，报错信息大体是这样的： 1Program hit cudaErrorCudartUnloading (error …" />
         </head>
 
         <body id="index" class="home">
                 <header id="banner" class="body">
-                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <h1><a href="../../../">Galoisplusplus</a></h1>
                         <nav><ul>
-                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
-                                                <li class="active"><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                                                <li><a href="../../../category/misc.html">misc</a></li>
+                                                <li><a href="../../../category/music.html">music</a></li>
+                                                <li><a href="../../../category/reading.html">reading</a></li>
+                                                <li class="active"><a href="../../../category/tech.html">tech</a></li>
                         </ul></nav>
                 </header><!-- /#banner -->
   <section id="content" class="body">
     <article>
       <header>
         <h1 class="entry-title">
-          <a href="http://yszheda.github.io/blog/2018/05/22/20180522-cudaErrorCudartUnloading.html" rel="bookmark"
+          <a href="../../../2018/05/22/20180522-cudaErrorCudartUnloading.html" rel="bookmark"
              title="Permalink to cudaErrorCudartUnloading问题排查及建议方案">cudaErrorCudartUnloading问题排查及建议方案</a></h1>
       </header>
 
@@ -34,10 +34,10 @@
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../../../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cuda.html">CUDA</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/gpgpu.html">GPGPU</a> </p>        
+        <p>In <a href="../../../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../../../tag/cuda.html">CUDA</a> <a href="../../../tag/cs.html">CS</a> <a href="../../../tag/tech.html">tech</a> <a href="../../../tag/gpgpu.html">GPGPU</a> </p>        
 </footer><!-- /.post-info -->        <p>最近一段时间一直在负责做我厂神经网络前向框架库的优化，前几天接了一个bug report，报错信息大体是这样的：</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">Program</span><span class="w"> </span><span class="n">hit</span><span class="w"> </span><span class="n">cudaErrorCudartUnloading</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="w"> </span><span class="mi">29</span><span class="p">)</span><span class="w"> </span><span class="n">due</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="s2">&quot;driver shutting down&quot;</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">CUDA</span><span class="w"> </span><span class="n">API</span><span class="w"> </span><span class="n">call</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">cudaFreeHost</span><span class="o">.</span>
 </code></pre></div></td></tr></table></div>

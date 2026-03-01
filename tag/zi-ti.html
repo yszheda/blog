@@ -5,33 +5,33 @@
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                         <meta name="generator" content="Pelican" />
                         <title>Galoisplusplus - 字体</title>
-                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+                        <link rel="stylesheet" href="../theme/css/main.css" />
         </head>
 
         <body id="index" class="home">
                 <header id="banner" class="body">
-                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <h1><a href="../">Galoisplusplus</a></h1>
                         <nav><ul>
-                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                                                <li><a href="../category/misc.html">misc</a></li>
+                                                <li><a href="../category/music.html">music</a></li>
+                                                <li><a href="../category/reading.html">reading</a></li>
+                                                <li><a href="../category/tech.html">tech</a></li>
                         </ul></nav>
                 </header><!-- /#banner -->
 
                 <aside id="featured" class="body">
                     <article>
-                        <h1 class="entry-title"><a href="http://yszheda.github.io/blog/2014/09/02/20140902-bmfont-generator.html">BMFont字体生成脚本</a></h1>
+                        <h1 class="entry-title"><a href="../2014/09/02/20140902-bmfont-generator.html">BMFont字体生成脚本</a></h1>
 <footer class="post-info">
         <abbr class="published" title="2014-09-02T01:22:00+08:00">
                 Published: 二 02 9月 2014
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> <a href="http://yszheda.github.io/blog/tag/bmfont.html">BMFont</a> <a href="http://yszheda.github.io/blog/tag/fnt.html">FNT</a> <a href="http://yszheda.github.io/blog/tag/zi-ti.html">字体</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/cocos2d-x.html">cocos2d-x</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/cocos.html">cocos</a> <a href="../tag/cocos2d.html">cocos2d</a> <a href="../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../tag/shou-you-kai-fa.html">手游开发</a> <a href="../tag/mobile-game.html">mobile game</a> <a href="../tag/game-devolopment.html">game devolopment</a> <a href="../tag/bmfont.html">BMFont</a> <a href="../tag/fnt.html">FNT</a> <a href="../tag/zi-ti.html">字体</a> </p>        
 </footer><!-- /.post-info --><p>最近我们游戏需要用到<code>BMFont</code>字体，但又没有好的免费工具给美术大大们生成字体所需要的图集和<code>fnt</code>文件。
 好在本渣在网上找到了一份详尽的<code>fnt</code>格式<a href="http://www.angelcode.com/products/bmfont/doc/file_format.html">说明文档</a>，我们三位前端开发者都是用Mac，所以本渣就用自己熟悉的bash写了一个生成<code>BMFont</code>的脚本。
 我们只需要让美术大大们出好字体里每个字符的图片png，将图片命名成字符的名字（例如数字0的图片需要命名成“0.png”），放到某个目录下，执行脚本，指定图片目录（也就是脚本里的<code>&lt;inputPath&gt;</code>）和<code>BMFont</code>字体的名字（也就是脚本里的<code>&lt;prefix&gt;</code>）就可以了。最后这个脚本会在图片目录下创建一个叫做<code>output</code>的目录，里面就有图集<code>&lt;prefix&gt;.png</code>和配置文件<code>&lt;prefix&gt;.fnt</code>。</p>

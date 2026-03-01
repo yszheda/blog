@@ -5,25 +5,25 @@
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                         <meta name="generator" content="Pelican" />
                         <title>斜45度瓦片地图（Staggered Tiled Map）里的简单数学</title>
-                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+                        <link rel="stylesheet" href="../../../theme/css/main.css" />
     <meta name="description" content="前段时间在做游戏的地图编辑功能，我们是在一个斜45度视角的场景上，对地图上的建筑或装饰物进行添加、移动、移除等基本操作，而且位 …" />
         </head>
 
         <body id="index" class="home">
                 <header id="banner" class="body">
-                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <h1><a href="../../../">Galoisplusplus</a></h1>
                         <nav><ul>
-                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
-                                                <li class="active"><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                                                <li><a href="../../../category/misc.html">misc</a></li>
+                                                <li><a href="../../../category/music.html">music</a></li>
+                                                <li><a href="../../../category/reading.html">reading</a></li>
+                                                <li class="active"><a href="../../../category/tech.html">tech</a></li>
                         </ul></nav>
                 </header><!-- /#banner -->
   <section id="content" class="body">
     <article>
       <header>
         <h1 class="entry-title">
-          <a href="http://yszheda.github.io/blog/2016/06/03/20160603-math-in-staggered-tiled-map.html" rel="bookmark"
+          <a href="../../../2016/06/03/20160603-math-in-staggered-tiled-map.html" rel="bookmark"
              title="Permalink to 斜45度瓦片地图（Staggered Tiled Map）里的简单数学">斜45度瓦片地图（Staggered Tiled Map）里的简单数学</a></h1>
       </header>
 
@@ -34,10 +34,10 @@
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../../../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> <a href="http://yszheda.github.io/blog/tag/tile.html">tile</a> <a href="http://yszheda.github.io/blog/tag/tiled.html">tiled</a> <a href="http://yszheda.github.io/blog/tag/tiled-map.html">tiled map</a> <a href="http://yszheda.github.io/blog/tag/wa-pian-di-tu.html">瓦片地图</a> <a href="http://yszheda.github.io/blog/tag/staggered-tiled-map.html">staggered tiled map</a> </p>        
+        <p>In <a href="../../../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../../../tag/cocos2d-x.html">cocos2d-x</a> <a href="../../../tag/cs.html">CS</a> <a href="../../../tag/tech.html">tech</a> <a href="../../../tag/cocos.html">cocos</a> <a href="../../../tag/cocos2d.html">cocos2d</a> <a href="../../../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../../../tag/shou-you-kai-fa.html">手游开发</a> <a href="../../../tag/mobile-game.html">mobile game</a> <a href="../../../tag/game-devolopment.html">game devolopment</a> <a href="../../../tag/tile.html">tile</a> <a href="../../../tag/tiled.html">tiled</a> <a href="../../../tag/tiled-map.html">tiled map</a> <a href="../../../tag/wa-pian-di-tu.html">瓦片地图</a> <a href="../../../tag/staggered-tiled-map.html">staggered tiled map</a> </p>        
 </footer><!-- /.post-info -->        <p>前段时间在做游戏的地图编辑功能，我们是在一个斜45度视角的场景上，对地图上的建筑或装饰物进行添加、移动、移除等基本操作，而且位置的改变是以网格作为最小操作单位的。本渣是用Staggered Tiled Map实现的，与垂直视角的Tiled Map不同，斜45度视角处理起来相对麻烦些，这次就聊聊其中一些跟数学相关的有趣问题。</p>
 <!-- more -->
 

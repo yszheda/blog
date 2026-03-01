@@ -5,25 +5,25 @@
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                         <meta name="generator" content="Pelican" />
                         <title>quick-cocos2d-x游戏的tips功能</title>
-                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+                        <link rel="stylesheet" href="../../../theme/css/main.css" />
     <meta name="description" content="这次分享一个简单的小功能，在quick-cocos2d-x游戏中实现tips效果，以此作为之前一篇博文的后续。tips的行为很简单：点击某个node（我们不妨称它为target_node）触发，当点击区域在target_node …" />
         </head>
 
         <body id="index" class="home">
                 <header id="banner" class="body">
-                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <h1><a href="../../../">Galoisplusplus</a></h1>
                         <nav><ul>
-                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
-                                                <li class="active"><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                                                <li><a href="../../../category/misc.html">misc</a></li>
+                                                <li><a href="../../../category/music.html">music</a></li>
+                                                <li><a href="../../../category/reading.html">reading</a></li>
+                                                <li class="active"><a href="../../../category/tech.html">tech</a></li>
                         </ul></nav>
                 </header><!-- /#banner -->
   <section id="content" class="body">
     <article>
       <header>
         <h1 class="entry-title">
-          <a href="http://yszheda.github.io/blog/2016/01/16/20160116-tips-in-cocos2d-x-game.html" rel="bookmark"
+          <a href="../../../2016/01/16/20160116-tips-in-cocos2d-x-game.html" rel="bookmark"
              title="Permalink to quick-cocos2d-x游戏的tips功能">quick-cocos2d-x游戏的tips功能</a></h1>
       </header>
 
@@ -34,10 +34,10 @@
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../../../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/lua.html">lua</a> <a href="http://yszheda.github.io/blog/tag/quick.html">quick</a> <a href="http://yszheda.github.io/blog/tag/quickx.html">quickx</a> <a href="http://yszheda.github.io/blog/tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/game.html">game</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+        <p>In <a href="../../../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../../../tag/cocos2d-x.html">cocos2d-x</a> <a href="../../../tag/cs.html">CS</a> <a href="../../../tag/tech.html">tech</a> <a href="../../../tag/lua.html">lua</a> <a href="../../../tag/quick.html">quick</a> <a href="../../../tag/quickx.html">quickx</a> <a href="../../../tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="../../../tag/cocos.html">cocos</a> <a href="../../../tag/cocos2d.html">cocos2d</a> <a href="../../../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../../../tag/shou-you-kai-fa.html">手游开发</a> <a href="../../../tag/game.html">game</a> <a href="../../../tag/mobile-game.html">mobile game</a> <a href="../../../tag/game-devolopment.html">game devolopment</a> </p>        
 </footer><!-- /.post-info -->        <p>这次分享一个简单的小功能，在quick-cocos2d-x游戏中实现tips效果，以此作为<a href="http://galoisplusplus.coding.me/blog/2015/05/01/quickx-tips/">之前一篇博文</a>的后续。tips的行为很简单：点击某个<code>node</code>（我们不妨称它为<code>target_node</code>）触发，当点击区域在<code>target_node</code>范围时出现<code>tips</code>，否则隐藏<code>tips</code>（有些情况需要指定有效点击范围不在某些node中，我们把这些node称为<code>exclude_nodes</code>）；当<code>target_node</code>位于屏幕左半边时，<code>tips</code>出现在<code>target_node</code>右侧；否则<code>tips</code>就出现在<code>target_node</code>左侧，<code>tips</code>和<code>target_node</code>有一个固定的水平间距（我们不妨定义为<code>DEFAULT_TIPS_DIST</code>）；<code>tips</code>和<code>target_node</code>底部对齐，但<code>tips</code>不能超过屏幕范围。</p>
 <p>不废话，先上代码：</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">  1</span>

@@ -5,25 +5,25 @@
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                         <meta name="generator" content="Pelican" />
                         <title>quick-cocos2d-x tips</title>
-                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+                        <link rel="stylesheet" href="../../../theme/css/main.css" />
     <meta name="description" content="承接上一篇，这篇主要谈谈本渣在quickx用的一些脚本或自己折腾的一些定制，本文也将不时更新。 如无特殊说明，相关函数放在一个MyPackage的lua global table中： 1MyPackage = MyPackage or {} UI组件 滚动列 …" />
         </head>
 
         <body id="index" class="home">
                 <header id="banner" class="body">
-                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <h1><a href="../../../">Galoisplusplus</a></h1>
                         <nav><ul>
-                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
-                                                <li class="active"><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                                                <li><a href="../../../category/misc.html">misc</a></li>
+                                                <li><a href="../../../category/music.html">music</a></li>
+                                                <li><a href="../../../category/reading.html">reading</a></li>
+                                                <li class="active"><a href="../../../category/tech.html">tech</a></li>
                         </ul></nav>
                 </header><!-- /#banner -->
   <section id="content" class="body">
     <article>
       <header>
         <h1 class="entry-title">
-          <a href="http://yszheda.github.io/blog/2015/05/01/20150501-quickx-tips.html" rel="bookmark"
+          <a href="../../../2015/05/01/20150501-quickx-tips.html" rel="bookmark"
              title="Permalink to quick-cocos2d-x tips">quick-cocos2d-x tips</a></h1>
       </header>
 
@@ -34,10 +34,10 @@
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../../../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/cocos2d-x-quick-cocos2d-x-quickx-cocos2d-cocos-game-gamedev-you-xi-kai-fa-you-xi-shou-you-kai-fa-shou-you-shou-ji-you-xi.html">cocos2d-x quick-cocos2d-x quickx cocos2d cocos game gameDev 游戏开发 游戏 手游开发 手游 手机游戏</a> </p>        
+        <p>In <a href="../../../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../../../tag/cocos2d-x.html">cocos2d-x</a> <a href="../../../tag/cs.html">CS</a> <a href="../../../tag/tech.html">tech</a> <a href="../../../tag/cocos2d-x-quick-cocos2d-x-quickx-cocos2d-cocos-game-gamedev-you-xi-kai-fa-you-xi-shou-you-kai-fa-shou-you-shou-ji-you-xi.html">cocos2d-x quick-cocos2d-x quickx cocos2d cocos game gameDev 游戏开发 游戏 手游开发 手游 手机游戏</a> </p>        
 </footer><!-- /.post-info -->        <p>承接<a href="http://galoisplusplus.coding.me/blog/2015/01/04/quick-cocos2d-x-pitfalls/">上一篇</a>，这篇主要谈谈本渣在quickx用的一些脚本或自己折腾的一些定制，本文也将不时更新。</p>
 <p>如无特殊说明，相关函数放在一个<code>MyPackage</code>的lua global table中：</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">MyPackage</span> <span class="o">=</span> <span class="n">MyPackage</span> <span class="ow">or</span> <span class="p">{}</span>

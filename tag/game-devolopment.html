@@ -5,33 +5,33 @@
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                         <meta name="generator" content="Pelican" />
                         <title>Galoisplusplus - game devolopment</title>
-                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+                        <link rel="stylesheet" href="../theme/css/main.css" />
         </head>
 
         <body id="index" class="home">
                 <header id="banner" class="body">
-                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <h1><a href="../">Galoisplusplus</a></h1>
                         <nav><ul>
-                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                                                <li><a href="../category/misc.html">misc</a></li>
+                                                <li><a href="../category/music.html">music</a></li>
+                                                <li><a href="../category/reading.html">reading</a></li>
+                                                <li><a href="../category/tech.html">tech</a></li>
                         </ul></nav>
                 </header><!-- /#banner -->
 
                 <aside id="featured" class="body">
                     <article>
-                        <h1 class="entry-title"><a href="http://yszheda.github.io/blog/2016/07/28/20160728-dockerfile-for-building-quickx-apk.html">用Docker容器来生成quick-x/cocos2d-x游戏apk包</a></h1>
+                        <h1 class="entry-title"><a href="../2016/07/28/20160728-dockerfile-for-building-quickx-apk.html">用Docker容器来生成quick-x/cocos2d-x游戏apk包</a></h1>
 <footer class="post-info">
         <abbr class="published" title="2016-07-28T02:13:00+08:00">
                 Published: 四 28 7月 2016
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/docker.html">Docker</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/cocos2d-x.html">cocos2d-x</a> <a href="../tag/docker.html">Docker</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/cocos.html">cocos</a> <a href="../tag/cocos2d.html">cocos2d</a> <a href="../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../tag/shou-you-kai-fa.html">手游开发</a> <a href="../tag/mobile-game.html">mobile game</a> <a href="../tag/game-devolopment.html">game devolopment</a> </p>        
 </footer><!-- /.post-info --><p>前段时间本渣在做服务器端开发时，采用了<code>Docker</code>作为解决方案的一部分，最初的动机主要是想用<code>namespace</code>做环境隔离、用<code>cgroups</code>做资源限制，却也切身体会到<code>Docker</code>所带来的构建上的便利。故而本渣也回头去想之前cocos2d-x客户端的开发工作是否也能<code>Docker</code>化，很快就找到了一个很适合采用<code>Docker</code>的场景，那就是打apk包。从之前<a href="/2014/08/03/20140803-customize-dev-environment-for-cocos2d-x.html">搭建cocos2d-x游戏开发环境的博文</a>中不难发现，要搭建打包环境特别麻烦，不仅需要下一堆软件包，而且安装Android SDK和NDK时还会遇到GFW的问题。也正是因为这个缘故，我们团队只有最开始的三位老司机在开发机上搭好了这套环境，之后陆陆续续来的新人都没做过这项工作，所以平时打包也基本是在这几台开发机上。这简直太应该<code>Docker</code>化了！有了一套配好打包环境的<code>Docker</code> image，再也不用担心小鲜肉跑来要求打包、占用开发机了！而且还可以扔到服务器上去做，多省心啊！想想就excited，于是本渣马上就折腾起<code>Dockerfile</code>来了！</p>
 <p>首先要确定基础镜像。本渣一开始以为，配置<code>Linux</code>下的cocos2d-x打包环境需要在执行cocos2d-x代码里的<code>build/install-deps-linux.sh</code>，而这个脚本需要用到<code>Debian</code>系的包管理器，所以就选了<code>Ubuntu</code>作为基础镜像。</p>
 <p>配置apk打包环境自然少不了下载需要的软件包。<code>Ubuntu</code>的<code>apt-get install</code>会询问用户是否安装软件包，在<code>Dockerfile</code>中需要把这一交互性去掉，最好采用：</p>
@@ -177,7 +177,7 @@ ENV<span class="w"> </span>PATH<span class="w"> </span><span class="cp">${</span
 
                 <li><article class="hentry">
                     <header>
-                        <h1><a href="http://yszheda.github.io/blog/2016/07/24/20160724-my-first-openresty-journey.html" rel="bookmark"
+                        <h1><a href="../2016/07/24/20160724-my-first-openresty-journey.html" rel="bookmark"
                                title="Permalink to OpenResty折腾记">OpenResty折腾记</a></h1>
                     </header>
 
@@ -188,18 +188,18 @@ ENV<span class="w"> </span>PATH<span class="w"> </span><span class="cp">${</span
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/linux.html">Linux</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/nginx.html">nginx</a> <a href="http://yszheda.github.io/blog/tag/openresty.html">OpenResty</a> <a href="http://yszheda.github.io/blog/tag/docker.html">docker</a> <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/linux.html">Linux</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/nginx.html">nginx</a> <a href="../tag/openresty.html">OpenResty</a> <a href="../tag/docker.html">docker</a> <a href="../tag/cocos2d-x.html">cocos2d-x</a> <a href="../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../tag/shou-you-kai-fa.html">手游开发</a> <a href="../tag/mobile-game.html">mobile game</a> <a href="../tag/game-devolopment.html">game devolopment</a> </p>        
 </footer><!-- /.post-info -->                        <p>前面几篇文章稍稍提到本渣最近接手了一个server端开发的活，这次就来碎碎念一下好了。虽然我们server端用<code>OpenResty</code>，和client端一样主要也是用<code>lua</code>开发，不过实在也不是本 …</p>
-                        <a class="readmore" href="http://yszheda.github.io/blog/2016/07/24/20160724-my-first-openresty-journey.html">read more</a>
+                        <a class="readmore" href="../2016/07/24/20160724-my-first-openresty-journey.html">read more</a>
                     </div><!-- /.entry-content -->
                 </article></li>
 
                 <li><article class="hentry">
                     <header>
-                        <h1><a href="http://yszheda.github.io/blog/2016/06/13/20160613-tips-about-tiled-map-in-quick-cocos2d-x.html" rel="bookmark"
+                        <h1><a href="../2016/06/13/20160613-tips-about-tiled-map-in-quick-cocos2d-x.html" rel="bookmark"
                                title="Permalink to 瓦片地图注意事项">瓦片地图注意事项</a></h1>
                     </header>
 
@@ -210,10 +210,10 @@ ENV<span class="w"> </span>PATH<span class="w"> </span><span class="cp">${</span
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> <a href="http://yszheda.github.io/blog/tag/tile.html">tile</a> <a href="http://yszheda.github.io/blog/tag/tiled.html">tiled</a> <a href="http://yszheda.github.io/blog/tag/tiled-map.html">tiled map</a> <a href="http://yszheda.github.io/blog/tag/wa-pian-di-tu.html">瓦片地图</a> <a href="http://yszheda.github.io/blog/tag/staggered-tiled-map.html">staggered tiled map</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/cocos2d-x.html">cocos2d-x</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/cocos.html">cocos</a> <a href="../tag/cocos2d.html">cocos2d</a> <a href="../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../tag/shou-you-kai-fa.html">手游开发</a> <a href="../tag/mobile-game.html">mobile game</a> <a href="../tag/game-devolopment.html">game devolopment</a> <a href="../tag/tile.html">tile</a> <a href="../tag/tiled.html">tiled</a> <a href="../tag/tiled-map.html">tiled map</a> <a href="../tag/wa-pian-di-tu.html">瓦片地图</a> <a href="../tag/staggered-tiled-map.html">staggered tiled map</a> </p>        
 </footer><!-- /.post-info -->                        <p>承接<a href="http://galoisplusplus.coding.me/blog/2016/06/03/math-in-staggered-tiled-map/">上一篇文章</a>，再来聊聊一些coding方面的tips：</p>
 <!-- more -->
 
@@ -222,13 +222,13 @@ ENV<span class="w"> </span>PATH<span class="w"> </span><span class="cp">${</span
 <ul>
 <li>
 <p>首先，<code>TileMapAtlas</code>官方不建议使用 …</p></li></ul>
-                        <a class="readmore" href="http://yszheda.github.io/blog/2016/06/13/20160613-tips-about-tiled-map-in-quick-cocos2d-x.html">read more</a>
+                        <a class="readmore" href="../2016/06/13/20160613-tips-about-tiled-map-in-quick-cocos2d-x.html">read more</a>
                     </div><!-- /.entry-content -->
                 </article></li>
 
                 <li><article class="hentry">
                     <header>
-                        <h1><a href="http://yszheda.github.io/blog/2016/06/03/20160603-math-in-staggered-tiled-map.html" rel="bookmark"
+                        <h1><a href="../2016/06/03/20160603-math-in-staggered-tiled-map.html" rel="bookmark"
                                title="Permalink to 斜45度瓦片地图（Staggered Tiled Map）里的简单数学">斜45度瓦片地图（Staggered Tiled Map）里的简单数学</a></h1>
                     </header>
 
@@ -239,18 +239,18 @@ ENV<span class="w"> </span>PATH<span class="w"> </span><span class="cp">${</span
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> <a href="http://yszheda.github.io/blog/tag/tile.html">tile</a> <a href="http://yszheda.github.io/blog/tag/tiled.html">tiled</a> <a href="http://yszheda.github.io/blog/tag/tiled-map.html">tiled map</a> <a href="http://yszheda.github.io/blog/tag/wa-pian-di-tu.html">瓦片地图</a> <a href="http://yszheda.github.io/blog/tag/staggered-tiled-map.html">staggered tiled map</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/cocos2d-x.html">cocos2d-x</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/cocos.html">cocos</a> <a href="../tag/cocos2d.html">cocos2d</a> <a href="../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../tag/shou-you-kai-fa.html">手游开发</a> <a href="../tag/mobile-game.html">mobile game</a> <a href="../tag/game-devolopment.html">game devolopment</a> <a href="../tag/tile.html">tile</a> <a href="../tag/tiled.html">tiled</a> <a href="../tag/tiled-map.html">tiled map</a> <a href="../tag/wa-pian-di-tu.html">瓦片地图</a> <a href="../tag/staggered-tiled-map.html">staggered tiled map</a> </p>        
 </footer><!-- /.post-info -->                        <p>前段时间在做游戏的地图编辑功能，我们是在一个斜45度视角的场景上，对地图上的建筑或装饰物进行添加、移动、移除等基本操作，而且位 …</p>
-                        <a class="readmore" href="http://yszheda.github.io/blog/2016/06/03/20160603-math-in-staggered-tiled-map.html">read more</a>
+                        <a class="readmore" href="../2016/06/03/20160603-math-in-staggered-tiled-map.html">read more</a>
                     </div><!-- /.entry-content -->
                 </article></li>
 
                 <li><article class="hentry">
                     <header>
-                        <h1><a href="http://yszheda.github.io/blog/2016/03/04/20160304-label-pitfalls-in-cocos2d-x.html" rel="bookmark"
+                        <h1><a href="../2016/03/04/20160304-label-pitfalls-in-cocos2d-x.html" rel="bookmark"
                                title="Permalink to cocos2d-x文本类Label的一些坑">cocos2d-x文本类Label的一些坑</a></h1>
                     </header>
 
@@ -261,20 +261,20 @@ ENV<span class="w"> </span>PATH<span class="w"> </span><span class="cp">${</span
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/cocos2d-x.html">cocos2d-x</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/cocos.html">cocos</a> <a href="../tag/cocos2d.html">cocos2d</a> <a href="../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../tag/shou-you-kai-fa.html">手游开发</a> <a href="../tag/mobile-game.html">mobile game</a> <a href="../tag/game-devolopment.html">game devolopment</a> </p>        
 </footer><!-- /.post-info -->                        <p>cocos2d-x v3.2的Label实现bug真是不少，前段时间恰好排查了几个与之相关的问题，在此记录一下。</p>
 <h1 id="_1">文字换行</h1>
 <p>文字换行是一个困扰我们挺长时间的问题：之 …</p>
-                        <a class="readmore" href="http://yszheda.github.io/blog/2016/03/04/20160304-label-pitfalls-in-cocos2d-x.html">read more</a>
+                        <a class="readmore" href="../2016/03/04/20160304-label-pitfalls-in-cocos2d-x.html">read more</a>
                     </div><!-- /.entry-content -->
                 </article></li>
 
                 <li><article class="hentry">
                     <header>
-                        <h1><a href="http://yszheda.github.io/blog/2016/01/16/20160116-tips-in-cocos2d-x-game.html" rel="bookmark"
+                        <h1><a href="../2016/01/16/20160116-tips-in-cocos2d-x-game.html" rel="bookmark"
                                title="Permalink to quick-cocos2d-x游戏的tips功能">quick-cocos2d-x游戏的tips功能</a></h1>
                     </header>
 
@@ -285,18 +285,18 @@ ENV<span class="w"> </span>PATH<span class="w"> </span><span class="cp">${</span
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/lua.html">lua</a> <a href="http://yszheda.github.io/blog/tag/quick.html">quick</a> <a href="http://yszheda.github.io/blog/tag/quickx.html">quickx</a> <a href="http://yszheda.github.io/blog/tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/game.html">game</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/cocos2d-x.html">cocos2d-x</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/lua.html">lua</a> <a href="../tag/quick.html">quick</a> <a href="../tag/quickx.html">quickx</a> <a href="../tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="../tag/cocos.html">cocos</a> <a href="../tag/cocos2d.html">cocos2d</a> <a href="../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../tag/shou-you-kai-fa.html">手游开发</a> <a href="../tag/game.html">game</a> <a href="../tag/mobile-game.html">mobile game</a> <a href="../tag/game-devolopment.html">game devolopment</a> </p>        
 </footer><!-- /.post-info -->                        <p>这次分享一个简单的小功能，在quick-cocos2d-x游戏中实现tips效果，以此作为<a href="http://galoisplusplus.coding.me/blog/2015/05/01/quickx-tips/">之前一篇博文</a>的后续。tips的行为很简单：点击某个<code>node</code>（我们不妨称它为<code>target_node</code>）触发，当点击区域在<code>target_node …</code></p>
-                        <a class="readmore" href="http://yszheda.github.io/blog/2016/01/16/20160116-tips-in-cocos2d-x-game.html">read more</a>
+                        <a class="readmore" href="../2016/01/16/20160116-tips-in-cocos2d-x-game.html">read more</a>
                     </div><!-- /.entry-content -->
                 </article></li>
 
                 <li><article class="hentry">
                     <header>
-                        <h1><a href="http://yszheda.github.io/blog/2015/12/19/20151219-spine-memory-leaks.html" rel="bookmark"
+                        <h1><a href="../2015/12/19/20151219-spine-memory-leaks.html" rel="bookmark"
                                title="Permalink to 记一次spine内存泄露排查">记一次spine内存泄露排查</a></h1>
                     </header>
 
@@ -307,18 +307,18 @@ ENV<span class="w"> </span>PATH<span class="w"> </span><span class="cp">${</span
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/quick.html">quick</a> <a href="http://yszheda.github.io/blog/tag/quickx.html">quickx</a> <a href="http://yszheda.github.io/blog/tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/cocos2d-x.html">cocos2d-x</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/quick.html">quick</a> <a href="../tag/quickx.html">quickx</a> <a href="../tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="../tag/cocos.html">cocos</a> <a href="../tag/cocos2d.html">cocos2d</a> <a href="../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../tag/shou-you-kai-fa.html">手游开发</a> <a href="../tag/mobile-game.html">mobile game</a> <a href="../tag/game-devolopment.html">game devolopment</a> </p>        
 </footer><!-- /.post-info -->                        <p>最近用<code>Instruments</code>的<code>Leaks</code>工具排查我们cocos2d-x游戏的一些内存泄露问题，大部分属于之前我们<code>C++</code>代码的bug，还有几个是<code>lua</code>代码中<code>sqlite</code>使用不当造成的内存泄露（例如 …</p>
-                        <a class="readmore" href="http://yszheda.github.io/blog/2015/12/19/20151219-spine-memory-leaks.html">read more</a>
+                        <a class="readmore" href="../2015/12/19/20151219-spine-memory-leaks.html">read more</a>
                     </div><!-- /.entry-content -->
                 </article></li>
 
                 <li><article class="hentry">
                     <header>
-                        <h1><a href="http://yszheda.github.io/blog/2015/11/21/20151121-android-crash-in-cocos2d-x.html" rel="bookmark"
+                        <h1><a href="../2015/11/21/20151121-android-crash-in-cocos2d-x.html" rel="bookmark"
                                title="Permalink to 记一次cocos2d-x游戏android崩溃排查">记一次cocos2d-x游戏android崩溃排查</a></h1>
                     </header>
 
@@ -329,10 +329,10 @@ ENV<span class="w"> </span>PATH<span class="w"> </span><span class="cp">${</span
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/android.html">android</a> <a href="http://yszheda.github.io/blog/tag/android.html">Android</a> <a href="http://yszheda.github.io/blog/tag/breakpad.html">breakpad</a> <a href="http://yszheda.github.io/blog/tag/debug.html">debug</a> <a href="http://yszheda.github.io/blog/tag/crash.html">crash</a> <a href="http://yszheda.github.io/blog/tag/beng-kui.html">崩溃</a> <a href="http://yszheda.github.io/blog/tag/you-xi-beng-kui.html">游戏崩溃</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/game.html">game</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/cocos2d-x.html">cocos2d-x</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/android.html">android</a> <a href="../tag/android.html">Android</a> <a href="../tag/breakpad.html">breakpad</a> <a href="../tag/debug.html">debug</a> <a href="../tag/crash.html">crash</a> <a href="../tag/beng-kui.html">崩溃</a> <a href="../tag/you-xi-beng-kui.html">游戏崩溃</a> <a href="../tag/cocos.html">cocos</a> <a href="../tag/cocos2d.html">cocos2d</a> <a href="../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../tag/shou-you-kai-fa.html">手游开发</a> <a href="../tag/game.html">game</a> <a href="../tag/mobile-game.html">mobile game</a> <a href="../tag/game-devolopment.html">game devolopment</a> </p>        
 </footer><!-- /.post-info -->                        <p>最近查google breakpad回传的crash log，发现了不少<code>cocos2d::FileUtilsAndroid::getData</code>引起的崩溃。崩溃日志的关键信息如下：</p>
 <!-- more -->
 
@@ -356,13 +356,13 @@ ENV<span class="w"> </span>PATH<span class="w"> </span><span class="cp">${</span
 <span class="normal">18</span>
 <span class="normal">19</span>
 <span class="normal">20 …</span></pre></div></td></tr></table></div>
-                        <a class="readmore" href="http://yszheda.github.io/blog/2015/11/21/20151121-android-crash-in-cocos2d-x.html">read more</a>
+                        <a class="readmore" href="../2015/11/21/20151121-android-crash-in-cocos2d-x.html">read more</a>
                     </div><!-- /.entry-content -->
                 </article></li>
 
                 <li><article class="hentry">
                     <header>
-                        <h1><a href="http://yszheda.github.io/blog/2015/09/18/20150918-ui-workflow-for-cocos2d-x-project.html" rel="bookmark"
+                        <h1><a href="../2015/09/18/20150918-ui-workflow-for-cocos2d-x-project.html" rel="bookmark"
                                title="Permalink to cocos2d-x前端开发UI流程">cocos2d-x前端开发UI流程</a></h1>
                     </header>
 
@@ -373,18 +373,18 @@ ENV<span class="w"> </span>PATH<span class="w"> </span><span class="cp">${</span
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/quick.html">quick</a> <a href="http://yszheda.github.io/blog/tag/quickx.html">quickx</a> <a href="http://yszheda.github.io/blog/tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> <a href="http://yszheda.github.io/blog/tag/cocostudio.html">cocostudio</a> <a href="http://yszheda.github.io/blog/tag/texturepacker.html">TexturePacker</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/cocos2d-x.html">cocos2d-x</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/quick.html">quick</a> <a href="../tag/quickx.html">quickx</a> <a href="../tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="../tag/cocos.html">cocos</a> <a href="../tag/cocos2d.html">cocos2d</a> <a href="../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../tag/shou-you-kai-fa.html">手游开发</a> <a href="../tag/mobile-game.html">mobile game</a> <a href="../tag/game-devolopment.html">game devolopment</a> <a href="../tag/cocostudio.html">cocostudio</a> <a href="../tag/texturepacker.html">TexturePacker</a> </p>        
 </footer><!-- /.post-info -->                        <p>手游前端开发中有一项很基础的流程，就是把美术资源拼成程序能用的UI界面。由于cocos2d-x并没有一套成熟的工具链，我们最开始是由美术大大们出效果图 …</p>
-                        <a class="readmore" href="http://yszheda.github.io/blog/2015/09/18/20150918-ui-workflow-for-cocos2d-x-project.html">read more</a>
+                        <a class="readmore" href="../2015/09/18/20150918-ui-workflow-for-cocos2d-x-project.html">read more</a>
                     </div><!-- /.entry-content -->
                 </article></li>
 
                 <li><article class="hentry">
                     <header>
-                        <h1><a href="http://yszheda.github.io/blog/2015/07/20/20150720-profilers-for-cocos2d-x.html" rel="bookmark"
+                        <h1><a href="../2015/07/20/20150720-profilers-for-cocos2d-x.html" rel="bookmark"
                                title="Permalink to cocos2d-x游戏的性能检测">cocos2d-x游戏的性能检测</a></h1>
                     </header>
 
@@ -395,24 +395,24 @@ ENV<span class="w"> </span>PATH<span class="w"> </span><span class="cp">${</span
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/quick.html">quick</a> <a href="http://yszheda.github.io/blog/tag/quickx.html">quickx</a> <a href="http://yszheda.github.io/blog/tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/cocos2d-x.html">cocos2d-x</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/quick.html">quick</a> <a href="../tag/quickx.html">quickx</a> <a href="../tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="../tag/cocos.html">cocos</a> <a href="../tag/cocos2d.html">cocos2d</a> <a href="../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../tag/shou-you-kai-fa.html">手游开发</a> <a href="../tag/mobile-game.html">mobile game</a> <a href="../tag/game-devolopment.html">game devolopment</a> </p>        
 </footer><!-- /.post-info -->                        <p>前段时间本渣负责了一些优化我们cocos2d-x游戏性能方面的工作，在这里做一点记录。</p>
 <!-- more -->
 
 <h1 id="opengl">OpenGL指标</h1>
 <p>在debug版的cocos2d-x游戏里，通常会在左下角显示三个指标（当然，是否显示这三个指 …</p>
-                        <a class="readmore" href="http://yszheda.github.io/blog/2015/07/20/20150720-profilers-for-cocos2d-x.html">read more</a>
+                        <a class="readmore" href="../2015/07/20/20150720-profilers-for-cocos2d-x.html">read more</a>
                     </div><!-- /.entry-content -->
                 </article></li>
                     </ol><!-- /#posts-list -->
   <nav>
     <ul>
       <li>Page 1 / 3</li>
-        <li><a href="http://yszheda.github.io/blog/tag/game-devolopment2.html">&rang;</a></li>
-        <li><a href="http://yszheda.github.io/blog/tag/game-devolopment3.html">&Rang;</a></li>
+        <li><a href="../tag/game-devolopment2.html">&rang;</a></li>
+        <li><a href="../tag/game-devolopment3.html">&Rang;</a></li>
     </ul>
   </nav>
                     </section><!-- /#content -->

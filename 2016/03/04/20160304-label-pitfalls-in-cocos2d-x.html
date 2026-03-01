@@ -5,25 +5,25 @@
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                         <meta name="generator" content="Pelican" />
                         <title>cocos2d-x文本类Label的一些坑</title>
-                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+                        <link rel="stylesheet" href="../../../theme/css/main.css" />
     <meta name="description" content="cocos2d-x v3.2的Label实现bug真是不少，前段时间恰好排查了几个与之相关的问题，在此记录一下。 文字换行 文字换行是一个困扰我们挺长时间的问题：之 …" />
         </head>
 
         <body id="index" class="home">
                 <header id="banner" class="body">
-                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <h1><a href="../../../">Galoisplusplus</a></h1>
                         <nav><ul>
-                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
-                                                <li class="active"><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                                                <li><a href="../../../category/misc.html">misc</a></li>
+                                                <li><a href="../../../category/music.html">music</a></li>
+                                                <li><a href="../../../category/reading.html">reading</a></li>
+                                                <li class="active"><a href="../../../category/tech.html">tech</a></li>
                         </ul></nav>
                 </header><!-- /#banner -->
   <section id="content" class="body">
     <article>
       <header>
         <h1 class="entry-title">
-          <a href="http://yszheda.github.io/blog/2016/03/04/20160304-label-pitfalls-in-cocos2d-x.html" rel="bookmark"
+          <a href="../../../2016/03/04/20160304-label-pitfalls-in-cocos2d-x.html" rel="bookmark"
              title="Permalink to cocos2d-x文本类Label的一些坑">cocos2d-x文本类Label的一些坑</a></h1>
       </header>
 
@@ -34,10 +34,10 @@
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../../../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+        <p>In <a href="../../../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../../../tag/cocos2d-x.html">cocos2d-x</a> <a href="../../../tag/cs.html">CS</a> <a href="../../../tag/tech.html">tech</a> <a href="../../../tag/cocos.html">cocos</a> <a href="../../../tag/cocos2d.html">cocos2d</a> <a href="../../../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../../../tag/shou-you-kai-fa.html">手游开发</a> <a href="../../../tag/mobile-game.html">mobile game</a> <a href="../../../tag/game-devolopment.html">game devolopment</a> </p>        
 </footer><!-- /.post-info -->        <p>cocos2d-x v3.2的Label实现bug真是不少，前段时间恰好排查了几个与之相关的问题，在此记录一下。</p>
 <h1 id="_1">文字换行</h1>
 <p>文字换行是一个困扰我们挺长时间的问题：之前就常常有文字超过指定长度却没有换行的情况出现，后来加入韩文、泰文等“奇葩”文字后问题就更严重了。cocos2d-x引擎在v3.2后大改了这部分的实现，但由于涉及的改动太多，无法作为一个独立的patch单独apply过来，而且更新引擎版本对我们上线的游戏代价太大，也不可行。好在本渣不久前终于从各种游戏系统开发中抽出时间，完整地把这部分代码review了一遍，结果发现全是<code>LabelTextFormatter::multilineText</code>中几行代码惹的祸，缩小了排查范围便不难fix了：</p>

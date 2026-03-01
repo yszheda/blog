@@ -5,33 +5,33 @@
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                         <meta name="generator" content="Pelican" />
                         <title>Galoisplusplus - 按钮</title>
-                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+                        <link rel="stylesheet" href="../theme/css/main.css" />
         </head>
 
         <body id="index" class="home">
                 <header id="banner" class="body">
-                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <h1><a href="../">Galoisplusplus</a></h1>
                         <nav><ul>
-                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                                                <li><a href="../category/misc.html">misc</a></li>
+                                                <li><a href="../category/music.html">music</a></li>
+                                                <li><a href="../category/reading.html">reading</a></li>
+                                                <li><a href="../category/tech.html">tech</a></li>
                         </ul></nav>
                 </header><!-- /#banner -->
 
                 <aside id="featured" class="body">
                     <article>
-                        <h1 class="entry-title"><a href="http://yszheda.github.io/blog/2015/07/06/20150706-patch-for-quickx-button.html">quick-cocos2d-x按钮补丁</a></h1>
+                        <h1 class="entry-title"><a href="../2015/07/06/20150706-patch-for-quickx-button.html">quick-cocos2d-x按钮补丁</a></h1>
 <footer class="post-info">
         <abbr class="published" title="2015-07-06T20:20:00+08:00">
                 Published: 一 06 7月 2015
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/quick.html">quick</a> <a href="http://yszheda.github.io/blog/tag/quickx.html">quickx</a> <a href="http://yszheda.github.io/blog/tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/button.html">button</a> <a href="http://yszheda.github.io/blog/tag/widget.html">widget</a> <a href="http://yszheda.github.io/blog/tag/an-niu.html">按钮</a> <a href="http://yszheda.github.io/blog/tag/ui.html">UI</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/cocos2d-x.html">cocos2d-x</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/quick.html">quick</a> <a href="../tag/quickx.html">quickx</a> <a href="../tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="../tag/cocos.html">cocos</a> <a href="../tag/cocos2d.html">cocos2d</a> <a href="../tag/button.html">button</a> <a href="../tag/widget.html">widget</a> <a href="../tag/an-niu.html">按钮</a> <a href="../tag/ui.html">UI</a> <a href="../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../tag/shou-you-kai-fa.html">手游开发</a> <a href="../tag/mobile-game.html">mobile game</a> <a href="../tag/game-devolopment.html">game devolopment</a> </p>        
 </footer><!-- /.post-info --><p>最近在处理一个略奇怪的问题：app在某些情况下点按钮会消失后又重新出现，报bug的童鞋们把现象描述得有些扑朔迷离，因此本渣在排查问题时花了不少时间，在查了一些不相关的问题之后最后终于确定了现象和原因（详情请参见本渣另一篇<a href="http://galoisplusplus.coding.me/blog/2015/01/04/quick-cocos2d-x-pitfalls/">博文</a>）。本渣也发现了quickx的按钮类<code>UIButton</code>在实现上存在的一些问题，与其不改动其内部实现去做个workaround，还不如根除问题。于是本渣对相关类的内部逻辑重新做了些设计和实现，相关的改动可以通过<code>patch</code>命令来采用。</p>
 <!-- more -->
 
@@ -49,7 +49,7 @@
 
                 <li><article class="hentry">
                     <header>
-                        <h1><a href="http://yszheda.github.io/blog/2015/01/25/20150125-irregular-button-in-cocos2d-x-v3-2.html" rel="bookmark"
+                        <h1><a href="../2015/01/25/20150125-irregular-button-in-cocos2d-x-v3-2.html" rel="bookmark"
                                title="Permalink to cocos2d-x V3.x不规则按钮-续篇">cocos2d-x V3.x不规则按钮-续篇</a></h1>
                     </header>
 
@@ -60,18 +60,18 @@
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/button.html">button</a> <a href="http://yszheda.github.io/blog/tag/widget.html">widget</a> <a href="http://yszheda.github.io/blog/tag/irregular.html">irregular</a> <a href="http://yszheda.github.io/blog/tag/bu-gui-ze-an-niu.html">不规则按钮</a> <a href="http://yszheda.github.io/blog/tag/ui.html">UI</a> <a href="http://yszheda.github.io/blog/tag/an-niu.html">按钮</a> <a href="http://yszheda.github.io/blog/tag/opengl.html">opengl</a> <a href="http://yszheda.github.io/blog/tag/gl.html">gl</a> <a href="http://yszheda.github.io/blog/tag/opengl-es.html">OpenGL ES</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/tech.html">tech</a> <a href="../tag/cs.html">CS</a> <a href="../tag/cocos2d-x.html">cocos2d-x</a> <a href="../tag/cocos.html">cocos</a> <a href="../tag/cocos2d.html">cocos2d</a> <a href="../tag/button.html">button</a> <a href="../tag/widget.html">widget</a> <a href="../tag/irregular.html">irregular</a> <a href="../tag/bu-gui-ze-an-niu.html">不规则按钮</a> <a href="../tag/ui.html">UI</a> <a href="../tag/an-niu.html">按钮</a> <a href="../tag/opengl.html">opengl</a> <a href="../tag/gl.html">gl</a> <a href="../tag/opengl-es.html">OpenGL ES</a> <a href="../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../tag/shou-you-kai-fa.html">手游开发</a> <a href="../tag/mobile-game.html">mobile game</a> <a href="../tag/game-devolopment.html">game devolopment</a> </p>        
 </footer><!-- /.post-info -->                        <p>之前曾经在<a href="http://galoisplusplus.coding.me/blog/2014/10/31/irregular-button-in-cocos2d-x-v3/">cocos2d-x V3.x不规则按钮</a>探讨过在cocos2d-x 3.x版本实现不规则按钮的方法，后来本渣又琢磨了下仿照RenderTexture类调用OpenGL ES API来获取图片像素信息的方式。这种方式由于按钮图片的Texture已在内存中，且不需要解析图片文 …</p>
-                        <a class="readmore" href="http://yszheda.github.io/blog/2015/01/25/20150125-irregular-button-in-cocos2d-x-v3-2.html">read more</a>
+                        <a class="readmore" href="../2015/01/25/20150125-irregular-button-in-cocos2d-x-v3-2.html">read more</a>
                     </div><!-- /.entry-content -->
                 </article></li>
 
                 <li><article class="hentry">
                     <header>
-                        <h1><a href="http://yszheda.github.io/blog/2014/10/31/20141031-irregular-button-in-cocos2d-x-v3.html" rel="bookmark"
+                        <h1><a href="../2014/10/31/20141031-irregular-button-in-cocos2d-x-v3.html" rel="bookmark"
                                title="Permalink to cocos2d-x V3.x不规则按钮">cocos2d-x V3.x不规则按钮</a></h1>
                     </header>
 
@@ -82,15 +82,15 @@
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/button.html">button</a> <a href="http://yszheda.github.io/blog/tag/widget.html">widget</a> <a href="http://yszheda.github.io/blog/tag/irregular.html">irregular</a> <a href="http://yszheda.github.io/blog/tag/bu-gui-ze-an-niu.html">不规则按钮</a> <a href="http://yszheda.github.io/blog/tag/ui.html">UI</a> <a href="http://yszheda.github.io/blog/tag/an-niu.html">按钮</a> <a href="http://yszheda.github.io/blog/tag/opengl.html">opengl</a> <a href="http://yszheda.github.io/blog/tag/gl.html">gl</a> <a href="http://yszheda.github.io/blog/tag/opengl-es.html">OpenGL ES</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/cocos2d-x.html">cocos2d-x</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/cocos.html">cocos</a> <a href="../tag/cocos2d.html">cocos2d</a> <a href="../tag/button.html">button</a> <a href="../tag/widget.html">widget</a> <a href="../tag/irregular.html">irregular</a> <a href="../tag/bu-gui-ze-an-niu.html">不规则按钮</a> <a href="../tag/ui.html">UI</a> <a href="../tag/an-niu.html">按钮</a> <a href="../tag/opengl.html">opengl</a> <a href="../tag/gl.html">gl</a> <a href="../tag/opengl-es.html">OpenGL ES</a> <a href="../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../tag/shou-you-kai-fa.html">手游开发</a> <a href="../tag/mobile-game.html">mobile game</a> <a href="../tag/game-devolopment.html">game devolopment</a> </p>        
 </footer><!-- /.post-info -->                        <p>cocos2d-x的按钮默认是以长方形作为点击区域的，实际使用时这确实很蛋疼。之前有大牛研究了如何获取图片的透明度实现不规则点击区域的方法，例如：</p>
 <ul>
 <li>
 <p><a href="http://www.cnblogs.com/Androider123/p/3795050.html">cocos2d-x开发笔记：获取Sprite上某一个点的透明度，制作 …</a></p></li></ul>
-                        <a class="readmore" href="http://yszheda.github.io/blog/2014/10/31/20141031-irregular-button-in-cocos2d-x-v3.html">read more</a>
+                        <a class="readmore" href="../2014/10/31/20141031-irregular-button-in-cocos2d-x-v3.html">read more</a>
                     </div><!-- /.entry-content -->
                 </article></li>
                     </ol><!-- /#posts-list -->

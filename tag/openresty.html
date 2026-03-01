@@ -5,33 +5,33 @@
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                         <meta name="generator" content="Pelican" />
                         <title>Galoisplusplus - OpenResty</title>
-                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+                        <link rel="stylesheet" href="../theme/css/main.css" />
         </head>
 
         <body id="index" class="home">
                 <header id="banner" class="body">
-                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <h1><a href="../">Galoisplusplus</a></h1>
                         <nav><ul>
-                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                                                <li><a href="../category/misc.html">misc</a></li>
+                                                <li><a href="../category/music.html">music</a></li>
+                                                <li><a href="../category/reading.html">reading</a></li>
+                                                <li><a href="../category/tech.html">tech</a></li>
                         </ul></nav>
                 </header><!-- /#banner -->
 
                 <aside id="featured" class="body">
                     <article>
-                        <h1 class="entry-title"><a href="http://yszheda.github.io/blog/2016/07/24/20160724-my-first-openresty-journey.html">OpenResty折腾记</a></h1>
+                        <h1 class="entry-title"><a href="../2016/07/24/20160724-my-first-openresty-journey.html">OpenResty折腾记</a></h1>
 <footer class="post-info">
         <abbr class="published" title="2016-07-24T11:22:00+08:00">
                 Published: 日 24 7月 2016
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/linux.html">Linux</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/nginx.html">nginx</a> <a href="http://yszheda.github.io/blog/tag/openresty.html">OpenResty</a> <a href="http://yszheda.github.io/blog/tag/docker.html">docker</a> <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/linux.html">Linux</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/nginx.html">nginx</a> <a href="../tag/openresty.html">OpenResty</a> <a href="../tag/docker.html">docker</a> <a href="../tag/cocos2d-x.html">cocos2d-x</a> <a href="../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../tag/shou-you-kai-fa.html">手游开发</a> <a href="../tag/mobile-game.html">mobile game</a> <a href="../tag/game-devolopment.html">game devolopment</a> </p>        
 </footer><!-- /.post-info --><p>前面几篇文章稍稍提到本渣最近接手了一个server端开发的活，这次就来碎碎念一下好了。虽然我们server端用<code>OpenResty</code>，和client端一样主要也是用<code>lua</code>开发，不过实在也不是本渣谦虚，本渣一个client端码农，肿么就被叫去写server端代码捏？<del>是因为组织上对本渣的信任。</del>是因为啊，我们server端想要实现战斗这块功能。而这块功能呢，恰好client端已经实现过。本渣嘛，又承担过不少战斗功能的开发工作。所以组织上说，既然你以前在client端挖过不少这种坑，那么server端的坑也由你来挖吧？于是本渣就<del>念了两句诗</del>接了这活。</p>
 <p>本渣从一开始接手开始，就打定主意直接在server端重用client端的战斗功能代码。一方面是因为本渣很懒，已经实现过的轮子不想再造一遍；另一方面是因为我们client端的这块代码仍在迭代中，会不时上一些新类型的战斗玩法，如果server端再重新实现一遍，以后还得把client端新的改动也搬过来，这不仅不好维护，而且又是翻倍的工作量。最好就是把client端的战斗功能代码当做server端代码的一个submodule，client端有改动的话就直接pull下更新来使用。client端的这部分代码虽然也是<code>lua</code>写的，但要重用的话有个问题：我们client端用了<code>cocos2d-x</code>和<code>quick-x</code>，但server端只是个Web API Server，最好避免引入<code>cocos2d-x</code>和<code>quick-x</code>的<code>C++</code> API、以及<code>Node</code>之类的view（嗯，MVC的view）相关对象。好在最开始做战斗的大神设计得当，把战斗功能划分为战斗计算模块和战斗表现模块——前者计算出手先后、技能释放、buff和属性值改变等等，生成战报；后者再根据前者所生成的战报，播放相应的特效动画和人物动作——等到半年后本渣接手时，为了实现独立的战报播放功能，又把这块代码重构了，去掉了两个模块之间的耦合，所以战斗计算模块基本是独立于<code>cocos2d-x</code>和<code>quick-x</code>的<code>C++</code>代码、与view完全无关的纯<code>lua</code>实现。本渣只需要再补上<code>quick-x</code>中一些如<code>math.round</code>的全局函数的定义，很快就能在server端跑通了，但是新的问题又来了：</p>
 <ol>

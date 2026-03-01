@@ -5,33 +5,33 @@
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                         <meta name="generator" content="Pelican" />
                         <title>Galoisplusplus - Lua</title>
-                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+                        <link rel="stylesheet" href="../theme/css/main.css" />
         </head>
 
         <body id="index" class="home">
                 <header id="banner" class="body">
-                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <h1><a href="../">Galoisplusplus</a></h1>
                         <nav><ul>
-                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                                                <li><a href="../category/misc.html">misc</a></li>
+                                                <li><a href="../category/music.html">music</a></li>
+                                                <li><a href="../category/reading.html">reading</a></li>
+                                                <li><a href="../category/tech.html">tech</a></li>
                         </ul></nav>
                 </header><!-- /#banner -->
 
                 <aside id="featured" class="body">
                     <article>
-                        <h1 class="entry-title"><a href="http://yszheda.github.io/blog/2016/11/13/20161113-my-lua-tech-talks.html">my tech talk of \"the basics and design of Lua table\</a></h1>
+                        <h1 class="entry-title"><a href="../2016/11/13/20161113-my-lua-tech-talks.html">my tech talk of \"the basics and design of Lua table\</a></h1>
 <footer class="post-info">
         <abbr class="published" title="2016-11-13T13:00:00+08:00">
                 Published: 日 13 11月 2016
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/reading.html">reading</a> <a href="http://yszheda.github.io/blog/tag/lua.html">Lua</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/reading.html">reading</a> <a href="../tag/lua.html">Lua</a> </p>        
 </footer><!-- /.post-info --><p>前段时间厂里开始搞技术分享，这个月恰好CTO大大钦定了我，让我讲Docker。不过我自己一想，厂里大多数是码农，讲Docker这种偏运维的话题的话，大家可能平常用不到，也不感兴趣；恰好前段时间我在看Lua源代码，我厂技术部门要么是Lua码农，要么也是会C和C艹的，我不妨讲一讲Lua中最重要的类型之一table的基本用法及设计、实现的C代码，这样便能兼顾两种人群了。当然，Lua table能讲的话题特别多，我主要还是介绍基础为主，源代码部分我自己也做了一些简化。这里我分享下这次的slides，希望Lua老司机们多多指点：</p>
 <!-- more -->
 
@@ -46,7 +46,7 @@
 
                 <li><article class="hentry">
                     <header>
-                        <h1><a href="http://yszheda.github.io/blog/2016/03/12/20160312-svn-precommit-hook.html" rel="bookmark"
+                        <h1><a href="../2016/03/12/20160312-svn-precommit-hook.html" rel="bookmark"
                                title="Permalink to svn pre-commit hook两三事">svn pre-commit hook两三事</a></h1>
                     </header>
 
@@ -57,18 +57,18 @@
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/linux.html">Linux</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/svn.html">svn</a> <a href="http://yszheda.github.io/blog/tag/hook.html">hook</a> <a href="http://yszheda.github.io/blog/tag/lua.html">lua</a> <a href="http://yszheda.github.io/blog/tag/commit.html">commit</a> <a href="http://yszheda.github.io/blog/tag/luac.html">luac</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/linux.html">Linux</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/svn.html">svn</a> <a href="../tag/hook.html">hook</a> <a href="../tag/lua.html">lua</a> <a href="../tag/commit.html">commit</a> <a href="../tag/luac.html">luac</a> </p>        
 </footer><!-- /.post-info -->                        <p>说起折腾svn hook这件事还是在去年年底。我厂向来木有Code Review等Quality Assurance流程，全赖老司机们各种强力输出。而当时我们项目的不少老司机要么去了其他部门要么 …</p>
-                        <a class="readmore" href="http://yszheda.github.io/blog/2016/03/12/20160312-svn-precommit-hook.html">read more</a>
+                        <a class="readmore" href="../2016/03/12/20160312-svn-precommit-hook.html">read more</a>
                     </div><!-- /.entry-content -->
                 </article></li>
 
                 <li><article class="hentry">
                     <header>
-                        <h1><a href="http://yszheda.github.io/blog/2016/01/16/20160116-tips-in-cocos2d-x-game.html" rel="bookmark"
+                        <h1><a href="../2016/01/16/20160116-tips-in-cocos2d-x-game.html" rel="bookmark"
                                title="Permalink to quick-cocos2d-x游戏的tips功能">quick-cocos2d-x游戏的tips功能</a></h1>
                     </header>
 
@@ -79,12 +79,12 @@
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/lua.html">lua</a> <a href="http://yszheda.github.io/blog/tag/quick.html">quick</a> <a href="http://yszheda.github.io/blog/tag/quickx.html">quickx</a> <a href="http://yszheda.github.io/blog/tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/game.html">game</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/cocos2d-x.html">cocos2d-x</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/lua.html">lua</a> <a href="../tag/quick.html">quick</a> <a href="../tag/quickx.html">quickx</a> <a href="../tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="../tag/cocos.html">cocos</a> <a href="../tag/cocos2d.html">cocos2d</a> <a href="../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../tag/shou-you-kai-fa.html">手游开发</a> <a href="../tag/game.html">game</a> <a href="../tag/mobile-game.html">mobile game</a> <a href="../tag/game-devolopment.html">game devolopment</a> </p>        
 </footer><!-- /.post-info -->                        <p>这次分享一个简单的小功能，在quick-cocos2d-x游戏中实现tips效果，以此作为<a href="http://galoisplusplus.coding.me/blog/2015/05/01/quickx-tips/">之前一篇博文</a>的后续。tips的行为很简单：点击某个<code>node</code>（我们不妨称它为<code>target_node</code>）触发，当点击区域在<code>target_node …</code></p>
-                        <a class="readmore" href="http://yszheda.github.io/blog/2016/01/16/20160116-tips-in-cocos2d-x-game.html">read more</a>
+                        <a class="readmore" href="../2016/01/16/20160116-tips-in-cocos2d-x-game.html">read more</a>
                     </div><!-- /.entry-content -->
                 </article></li>
                     </ol><!-- /#posts-list -->

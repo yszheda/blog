@@ -5,33 +5,33 @@
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                         <meta name="generator" content="Pelican" />
                         <title>Galoisplusplus - cocostudio</title>
-                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+                        <link rel="stylesheet" href="../theme/css/main.css" />
         </head>
 
         <body id="index" class="home">
                 <header id="banner" class="body">
-                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <h1><a href="../">Galoisplusplus</a></h1>
                         <nav><ul>
-                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                                                <li><a href="../category/misc.html">misc</a></li>
+                                                <li><a href="../category/music.html">music</a></li>
+                                                <li><a href="../category/reading.html">reading</a></li>
+                                                <li><a href="../category/tech.html">tech</a></li>
                         </ul></nav>
                 </header><!-- /#banner -->
 
                 <aside id="featured" class="body">
                     <article>
-                        <h1 class="entry-title"><a href="http://yszheda.github.io/blog/2015/09/18/20150918-ui-workflow-for-cocos2d-x-project.html">cocos2d-x前端开发UI流程</a></h1>
+                        <h1 class="entry-title"><a href="../2015/09/18/20150918-ui-workflow-for-cocos2d-x-project.html">cocos2d-x前端开发UI流程</a></h1>
 <footer class="post-info">
         <abbr class="published" title="2015-09-18T23:22:00+08:00">
                 Published: 五 18 9月 2015
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/quick.html">quick</a> <a href="http://yszheda.github.io/blog/tag/quickx.html">quickx</a> <a href="http://yszheda.github.io/blog/tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> <a href="http://yszheda.github.io/blog/tag/cocostudio.html">cocostudio</a> <a href="http://yszheda.github.io/blog/tag/texturepacker.html">TexturePacker</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/cocos2d-x.html">cocos2d-x</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/quick.html">quick</a> <a href="../tag/quickx.html">quickx</a> <a href="../tag/quick-cocos2d-x.html">quick-cocos2d-x</a> <a href="../tag/cocos.html">cocos</a> <a href="../tag/cocos2d.html">cocos2d</a> <a href="../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../tag/shou-you-kai-fa.html">手游开发</a> <a href="../tag/mobile-game.html">mobile game</a> <a href="../tag/game-devolopment.html">game devolopment</a> <a href="../tag/cocostudio.html">cocostudio</a> <a href="../tag/texturepacker.html">TexturePacker</a> </p>        
 </footer><!-- /.post-info --><p>手游前端开发中有一项很基础的流程，就是把美术资源拼成程序能用的UI界面。由于cocos2d-x并没有一套成熟的工具链，我们最开始是由美术大大们出效果图和切图资源，然后我们码农根据效果图，在<code>C++</code>代码中写设置位置、大小等界面逻辑。这种原始的人肉写界面代码的方法需要编译、链接、运行后才能看到最终的界面效果，如果效果不满意还需要重新来一遍，无疑大大降低了开发效率——说起来都是泪啊555......在经过一个多月挣扎之后，我们后来采用了<code>cocostudio</code> v1.0这个编辑器。虽然<code>cocostudio</code>还很不成熟，要让美术大大们上手也有难度，这项工作还是我们码农来做的，但相比之前好多了：<code>cocostudio</code> v1.0可以自动生成一个界面UI的配置json文件及其所需要的多张图集，免去了许多界面代码的编写和调试，而且将多张图片合并成图集可以减少draw calls开销。可是，随着系统越做越多，这一编辑器的弊端就越发明显。除了这个工具本身的bug导致各种所见非所得、给开发带来不便以外，由它自动生成的图集也带来了严重的问题：</p>
 <p>一是我们无法指定图集里有哪些图片。这又引发了不同系统共用的图片被加到不同图集里的问题，因为我们无法把共用图片管理起来，去指定UI编辑器使用共用的资源、不要把共用图片和每个系统各自的图片放到同一张图集里。后来我们开始做多语言版本，无法管理图集里的图片资源这一问题就更为严重了。</p>
 <!--

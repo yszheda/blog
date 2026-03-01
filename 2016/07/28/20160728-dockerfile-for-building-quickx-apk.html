@@ -5,25 +5,25 @@
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                         <meta name="generator" content="Pelican" />
                         <title>用Docker容器来生成quick-x/cocos2d-x游戏apk包</title>
-                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+                        <link rel="stylesheet" href="../../../theme/css/main.css" />
     <meta name="description" content="前段时间本渣在做服务器端开发时，采用了Docker作为解决方案的一部分，最初的动机主要是想用namespace做环境隔离、用cgroups做资源 …" />
         </head>
 
         <body id="index" class="home">
                 <header id="banner" class="body">
-                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <h1><a href="../../../">Galoisplusplus</a></h1>
                         <nav><ul>
-                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
-                                                <li class="active"><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                                                <li><a href="../../../category/misc.html">misc</a></li>
+                                                <li><a href="../../../category/music.html">music</a></li>
+                                                <li><a href="../../../category/reading.html">reading</a></li>
+                                                <li class="active"><a href="../../../category/tech.html">tech</a></li>
                         </ul></nav>
                 </header><!-- /#banner -->
   <section id="content" class="body">
     <article>
       <header>
         <h1 class="entry-title">
-          <a href="http://yszheda.github.io/blog/2016/07/28/20160728-dockerfile-for-building-quickx-apk.html" rel="bookmark"
+          <a href="../../../2016/07/28/20160728-dockerfile-for-building-quickx-apk.html" rel="bookmark"
              title="Permalink to 用Docker容器来生成quick-x/cocos2d-x游戏apk包">用Docker容器来生成quick-x/cocos2d-x游戏apk包</a></h1>
       </header>
 
@@ -34,10 +34,10 @@
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../../../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/docker.html">Docker</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+        <p>In <a href="../../../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../../../tag/cocos2d-x.html">cocos2d-x</a> <a href="../../../tag/docker.html">Docker</a> <a href="../../../tag/cs.html">CS</a> <a href="../../../tag/tech.html">tech</a> <a href="../../../tag/cocos.html">cocos</a> <a href="../../../tag/cocos2d.html">cocos2d</a> <a href="../../../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../../../tag/shou-you-kai-fa.html">手游开发</a> <a href="../../../tag/mobile-game.html">mobile game</a> <a href="../../../tag/game-devolopment.html">game devolopment</a> </p>        
 </footer><!-- /.post-info -->        <p>前段时间本渣在做服务器端开发时，采用了<code>Docker</code>作为解决方案的一部分，最初的动机主要是想用<code>namespace</code>做环境隔离、用<code>cgroups</code>做资源限制，却也切身体会到<code>Docker</code>所带来的构建上的便利。故而本渣也回头去想之前cocos2d-x客户端的开发工作是否也能<code>Docker</code>化，很快就找到了一个很适合采用<code>Docker</code>的场景，那就是打apk包。从之前<a href="/2014/08/03/20140803-customize-dev-environment-for-cocos2d-x.html">搭建cocos2d-x游戏开发环境的博文</a>中不难发现，要搭建打包环境特别麻烦，不仅需要下一堆软件包，而且安装Android SDK和NDK时还会遇到GFW的问题。也正是因为这个缘故，我们团队只有最开始的三位老司机在开发机上搭好了这套环境，之后陆陆续续来的新人都没做过这项工作，所以平时打包也基本是在这几台开发机上。这简直太应该<code>Docker</code>化了！有了一套配好打包环境的<code>Docker</code> image，再也不用担心小鲜肉跑来要求打包、占用开发机了！而且还可以扔到服务器上去做，多省心啊！想想就excited，于是本渣马上就折腾起<code>Dockerfile</code>来了！</p>
 <p>首先要确定基础镜像。本渣一开始以为，配置<code>Linux</code>下的cocos2d-x打包环境需要在执行cocos2d-x代码里的<code>build/install-deps-linux.sh</code>，而这个脚本需要用到<code>Debian</code>系的包管理器，所以就选了<code>Ubuntu</code>作为基础镜像。</p>
 <p>配置apk打包环境自然少不了下载需要的软件包。<code>Ubuntu</code>的<code>apt-get install</code>会询问用户是否安装软件包，在<code>Dockerfile</code>中需要把这一交互性去掉，最好采用：</p>

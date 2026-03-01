@@ -5,25 +5,25 @@
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                         <meta name="generator" content="Pelican" />
                         <title>my tech talk of \"the basics and design of Lua table\</title>
-                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+                        <link rel="stylesheet" href="../../../theme/css/main.css" />
     <meta name="description" content="前段时间厂里开始搞技术分享，这个月恰好CTO大大钦定了我，让我讲Docker。不过我自己一想，厂里大多数是码农，讲Docker这种偏运维的话题的话，大家可能平常用不到，也 …" />
         </head>
 
         <body id="index" class="home">
                 <header id="banner" class="body">
-                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <h1><a href="../../../">Galoisplusplus</a></h1>
                         <nav><ul>
-                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
-                                                <li class="active"><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                                                <li><a href="../../../category/misc.html">misc</a></li>
+                                                <li><a href="../../../category/music.html">music</a></li>
+                                                <li><a href="../../../category/reading.html">reading</a></li>
+                                                <li class="active"><a href="../../../category/tech.html">tech</a></li>
                         </ul></nav>
                 </header><!-- /#banner -->
   <section id="content" class="body">
     <article>
       <header>
         <h1 class="entry-title">
-          <a href="http://yszheda.github.io/blog/2016/11/13/20161113-my-lua-tech-talks.html" rel="bookmark"
+          <a href="../../../2016/11/13/20161113-my-lua-tech-talks.html" rel="bookmark"
              title="Permalink to my tech talk of \"the basics and design of Lua table\">my tech talk of \"the basics and design of Lua table\</a></h1>
       </header>
 
@@ -34,10 +34,10 @@
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../../../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/reading.html">reading</a> <a href="http://yszheda.github.io/blog/tag/lua.html">Lua</a> </p>        
+        <p>In <a href="../../../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../../../tag/cs.html">CS</a> <a href="../../../tag/tech.html">tech</a> <a href="../../../tag/reading.html">reading</a> <a href="../../../tag/lua.html">Lua</a> </p>        
 </footer><!-- /.post-info -->        <p>前段时间厂里开始搞技术分享，这个月恰好CTO大大钦定了我，让我讲Docker。不过我自己一想，厂里大多数是码农，讲Docker这种偏运维的话题的话，大家可能平常用不到，也不感兴趣；恰好前段时间我在看Lua源代码，我厂技术部门要么是Lua码农，要么也是会C和C艹的，我不妨讲一讲Lua中最重要的类型之一table的基本用法及设计、实现的C代码，这样便能兼顾两种人群了。当然，Lua table能讲的话题特别多，我主要还是介绍基础为主，源代码部分我自己也做了一些简化。这里我分享下这次的slides，希望Lua老司机们多多指点：</p>
 <!-- more -->
 

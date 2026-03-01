@@ -5,33 +5,33 @@
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                         <meta name="generator" content="Pelican" />
                         <title>Galoisplusplus - svn</title>
-                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+                        <link rel="stylesheet" href="../theme/css/main.css" />
         </head>
 
         <body id="index" class="home">
                 <header id="banner" class="body">
-                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <h1><a href="../">Galoisplusplus</a></h1>
                         <nav><ul>
-                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                                                <li><a href="../category/misc.html">misc</a></li>
+                                                <li><a href="../category/music.html">music</a></li>
+                                                <li><a href="../category/reading.html">reading</a></li>
+                                                <li><a href="../category/tech.html">tech</a></li>
                         </ul></nav>
                 </header><!-- /#banner -->
 
                 <aside id="featured" class="body">
                     <article>
-                        <h1 class="entry-title"><a href="http://yszheda.github.io/blog/2016/03/12/20160312-svn-precommit-hook.html">svn pre-commit hook两三事</a></h1>
+                        <h1 class="entry-title"><a href="../2016/03/12/20160312-svn-precommit-hook.html">svn pre-commit hook两三事</a></h1>
 <footer class="post-info">
         <abbr class="published" title="2016-03-12T10:26:00+08:00">
                 Published: 六 12 3月 2016
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/linux.html">Linux</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/svn.html">svn</a> <a href="http://yszheda.github.io/blog/tag/hook.html">hook</a> <a href="http://yszheda.github.io/blog/tag/lua.html">lua</a> <a href="http://yszheda.github.io/blog/tag/commit.html">commit</a> <a href="http://yszheda.github.io/blog/tag/luac.html">luac</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/linux.html">Linux</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/svn.html">svn</a> <a href="../tag/hook.html">hook</a> <a href="../tag/lua.html">lua</a> <a href="../tag/commit.html">commit</a> <a href="../tag/luac.html">luac</a> </p>        
 </footer><!-- /.post-info --><p>说起折腾svn hook这件事还是在去年年底。我厂向来木有Code Review等Quality Assurance流程，全赖老司机们各种强力输出。而当时我们项目的不少老司机要么去了其他部门要么离职了，新来的小鲜肉码农们似乎对Version Control一无所知。别的不说，单是commit不写comment，便让大家头疼不已，每次在merge时都得额外花不少时间来搞清楚commit的具体内容。虽然我自从投奔<code>git</code>阵营后基本都是用<code>git svn</code>，对<code>svn</code>生疏已久，但觉得加个<code>svn</code>提交限制应非难事，所以便额外花了点时间写了个pre-commit hook，对commit的comment中的非空白字符做计数，少于一定字数的不让提交。万万没想到，当时让SA大大部署上<code>svn</code>服务器后，就有人commit了一个“再试一下”orz...当时我的内心是崩溃的...在推上围脖上吐槽后不久，众位大神各种支招，例如巨硬的泉哥说再搞个语义分析器666...不过最受用的还是根爷所提到的用<code>cpplint</code>检查代码是否符合编码规范、是否能够编译通过。恰好那段时间小鲜肉们提交了一些带有语法错误的lua代码，偶们又木有review制度，结果不写程序的策划大大们<code>svn up</code>下来后——「什么鬼？肿么不能运行了？！好拙计啊！AAA，快来看bug啊！BBB，SOS！」——导致别人不得不停下手头的活、额外花时间排查。所以我便在pre-commit hook里用<code>luac</code>检查语法错误的代码，把这种坑队友的事扼杀在摇篮里。虽然不及<code>cpplint</code>那么强大，但也基本够用了。最近一次改这个脚本是因为前段时间有个小鲜肉做了一张4096x4096的图集，而cocos2d-x文档里写得清清楚楚，大多数手机所支持的最大纹理尺寸其实只有2048x2048...卧槽，干得漂亮啊，一上线就造成了不少crash...木有review制度好可啪，在发现这个问题之前其他人一直毫不知情...所以我还是干脆在svn hook里再加个限制吧～</p>
 <p>好了，不碎碎念了，这便是我折腾的svn hook，主要做了这么几项功能：</p>
 <ul>
@@ -445,7 +445,7 @@ rm<span class="w"> </span>-r<span class="w"> </span><span class="si">${</span><s
 
                 <li><article class="hentry">
                     <header>
-                        <h1><a href="http://yszheda.github.io/blog/2014/07/25/20140725-git-svn-tips.html" rel="bookmark"
+                        <h1><a href="../2014/07/25/20140725-git-svn-tips.html" rel="bookmark"
                                title="Permalink to git-svn Tips">git-svn Tips</a></h1>
                     </header>
 
@@ -456,10 +456,10 @@ rm<span class="w"> </span>-r<span class="w"> </span><span class="si">${</span><s
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/linux.html">Linux</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/git.html">git</a> <a href="http://yszheda.github.io/blog/tag/svn.html">svn</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/linux.html">Linux</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/git.html">git</a> <a href="../tag/svn.html">svn</a> </p>        
 </footer><!-- /.post-info -->                        <ul>
 <li>用<code>git</code> clone远端svn仓库（repo）：</li>
 </ul>
@@ -480,7 +480,7 @@ rm<span class="w"> </span>-r<span class="w"> </span><span class="si">${</span><s
 
 <ul>
 <li>用<code>git-svn …</code></li></ul>
-                        <a class="readmore" href="http://yszheda.github.io/blog/2014/07/25/20140725-git-svn-tips.html">read more</a>
+                        <a class="readmore" href="../2014/07/25/20140725-git-svn-tips.html">read more</a>
                     </div><!-- /.entry-content -->
                 </article></li>
                     </ol><!-- /#posts-list -->

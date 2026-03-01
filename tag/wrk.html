@@ -5,33 +5,33 @@
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                         <meta name="generator" content="Pelican" />
                         <title>Galoisplusplus - wrk</title>
-                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+                        <link rel="stylesheet" href="../theme/css/main.css" />
         </head>
 
         <body id="index" class="home">
                 <header id="banner" class="body">
-                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <h1><a href="../">Galoisplusplus</a></h1>
                         <nav><ul>
-                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                                                <li><a href="../category/misc.html">misc</a></li>
+                                                <li><a href="../category/music.html">music</a></li>
+                                                <li><a href="../category/reading.html">reading</a></li>
+                                                <li><a href="../category/tech.html">tech</a></li>
                         </ul></nav>
                 </header><!-- /#banner -->
 
                 <aside id="featured" class="body">
                     <article>
-                        <h1 class="entry-title"><a href="http://yszheda.github.io/blog/2016/07/07/20160707-server-press-test-tips.html">用ab和wrk做压力测试</a></h1>
+                        <h1 class="entry-title"><a href="../2016/07/07/20160707-server-press-test-tips.html">用ab和wrk做压力测试</a></h1>
 <footer class="post-info">
         <abbr class="published" title="2016-07-07T11:22:00+08:00">
                 Published: 四 07 7月 2016
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/linux.html">Linux</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/ab.html">ab</a> <a href="http://yszheda.github.io/blog/tag/wrk.html">wrk</a> <a href="http://yszheda.github.io/blog/tag/press-test.html">press test</a> <a href="http://yszheda.github.io/blog/tag/test.html">test</a> <a href="http://yszheda.github.io/blog/tag/ya-li-ce-shi.html">压力测试</a> <a href="http://yszheda.github.io/blog/tag/ya-ce.html">压测</a> <a href="http://yszheda.github.io/blog/tag/ce-shi.html">测试</a> </p>        
+        <p>In <a href="../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../tag/linux.html">Linux</a> <a href="../tag/cs.html">CS</a> <a href="../tag/tech.html">tech</a> <a href="../tag/ab.html">ab</a> <a href="../tag/wrk.html">wrk</a> <a href="../tag/press-test.html">press test</a> <a href="../tag/test.html">test</a> <a href="../tag/ya-li-ce-shi.html">压力测试</a> <a href="../tag/ya-ce.html">压测</a> <a href="../tag/ce-shi.html">测试</a> </p>        
 </footer><!-- /.post-info --><p>之前一直在做cocos2d-x手游客户端开发，最近被组织上安排去做服务器开发了。虽然一开始接触<code>OpenResty</code>，遇到不少问题，但由于本渣重用了大量以前的代码，倒也很快就完成了一个可以正常运作的版本。只是本渣毕竟是新手，所做的功能也没有前人踩坑的经验，对自己代码的性能不放心，所以这段时间也在折腾压力测试，这次就来分享一些做压测的tips。</p>
 <p>首先，<code>Apache</code>的<code>ab</code>可以很方便地产生大量（并发）的同一请求，<code>ab</code>上手也很容易，是做简单压测的首选工具之一。</p>
 <p>使用<code>ab</code>需要注意几个选项：</p>

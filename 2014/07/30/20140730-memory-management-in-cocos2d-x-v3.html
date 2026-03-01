@@ -5,25 +5,25 @@
                         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                         <meta name="generator" content="Pelican" />
                         <title>cocos2d-x V3.x内存管理分析</title>
-                        <link rel="stylesheet" href="http://yszheda.github.io/blog/theme/css/main.css" />
+                        <link rel="stylesheet" href="../../../theme/css/main.css" />
     <meta name="description" content="cocos2d-x移植自Objective C的cocos2d，其内存管理其实也来自于OC。因而对于写过OC程序的朋友来讲，cocos2d-x的内存管理应该是一目了然的，但对于本渣这枚没接触过OC的C++码农来说，或许直接看cocos2d-x源代码才是最直接快捷的方式。 Node类 我们首先来 …" />
         </head>
 
         <body id="index" class="home">
                 <header id="banner" class="body">
-                        <h1><a href="http://yszheda.github.io/blog/">Galoisplusplus</a></h1>
+                        <h1><a href="../../../">Galoisplusplus</a></h1>
                         <nav><ul>
-                                                <li><a href="http://yszheda.github.io/blog/category/misc.html">misc</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/music.html">music</a></li>
-                                                <li><a href="http://yszheda.github.io/blog/category/reading.html">reading</a></li>
-                                                <li class="active"><a href="http://yszheda.github.io/blog/category/tech.html">tech</a></li>
+                                                <li><a href="../../../category/misc.html">misc</a></li>
+                                                <li><a href="../../../category/music.html">music</a></li>
+                                                <li><a href="../../../category/reading.html">reading</a></li>
+                                                <li class="active"><a href="../../../category/tech.html">tech</a></li>
                         </ul></nav>
                 </header><!-- /#banner -->
   <section id="content" class="body">
     <article>
       <header>
         <h1 class="entry-title">
-          <a href="http://yszheda.github.io/blog/2014/07/30/20140730-memory-management-in-cocos2d-x-v3.html" rel="bookmark"
+          <a href="../../../2014/07/30/20140730-memory-management-in-cocos2d-x-v3.html" rel="bookmark"
              title="Permalink to cocos2d-x V3.x内存管理分析">cocos2d-x V3.x内存管理分析</a></h1>
       </header>
 
@@ -34,10 +34,10 @@
         </abbr>
 
                 <address class="vcard author">
-                        By                                 <a class="url fn" href="http://yszheda.github.io/blog/author/galoisplusplus.html">Galoisplusplus</a>
+                        By                                 <a class="url fn" href="../../../author/galoisplusplus.html">Galoisplusplus</a>
                 </address>
-        <p>In <a href="http://yszheda.github.io/blog/category/tech.html">tech</a>.</p>
-<p>tags: <a href="http://yszheda.github.io/blog/tag/cocos2d-x.html">cocos2d-x</a> <a href="http://yszheda.github.io/blog/tag/cs.html">CS</a> <a href="http://yszheda.github.io/blog/tag/tech.html">tech</a> <a href="http://yszheda.github.io/blog/tag/cocos.html">cocos</a> <a href="http://yszheda.github.io/blog/tag/cocos2d.html">cocos2d</a> <a href="http://yszheda.github.io/blog/tag/nei-cun.html">内存</a> <a href="http://yszheda.github.io/blog/tag/nei-cun-guan-li.html">内存管理</a> <a href="http://yszheda.github.io/blog/tag/memory-management.html">memory management</a> <a href="http://yszheda.github.io/blog/tag/you-xi-kai-fa.html">游戏开发</a> <a href="http://yszheda.github.io/blog/tag/shou-you-kai-fa.html">手游开发</a> <a href="http://yszheda.github.io/blog/tag/mobile-game.html">mobile game</a> <a href="http://yszheda.github.io/blog/tag/game-devolopment.html">game devolopment</a> </p>        
+        <p>In <a href="../../../category/tech.html">tech</a>.</p>
+<p>tags: <a href="../../../tag/cocos2d-x.html">cocos2d-x</a> <a href="../../../tag/cs.html">CS</a> <a href="../../../tag/tech.html">tech</a> <a href="../../../tag/cocos.html">cocos</a> <a href="../../../tag/cocos2d.html">cocos2d</a> <a href="../../../tag/nei-cun.html">内存</a> <a href="../../../tag/nei-cun-guan-li.html">内存管理</a> <a href="../../../tag/memory-management.html">memory management</a> <a href="../../../tag/you-xi-kai-fa.html">游戏开发</a> <a href="../../../tag/shou-you-kai-fa.html">手游开发</a> <a href="../../../tag/mobile-game.html">mobile game</a> <a href="../../../tag/game-devolopment.html">game devolopment</a> </p>        
 </footer><!-- /.post-info -->        <p>cocos2d-x移植自Objective C的cocos2d，其内存管理其实也来自于OC。因而对于写过OC程序的朋友来讲，cocos2d-x的内存管理应该是一目了然的，但对于本渣这枚没接触过OC的C++码农来说，或许直接看cocos2d-x源代码才是最直接快捷的方式。</p>
 <h1 id="node">Node类</h1>
 <p>我们首先来看_Node_类的代码，<em>Node_是cocos2d-x中极重要的基类，许多常用的_Scene</em>、<em>Layer</em>、_MenuItem_等都继承自Node。</p>
