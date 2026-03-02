@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 AUTHOR = "Galoisplusplus"
 SITENAME = "Galoisplusplus"
+SITEDESCRIPTION = "A blog about technology, classical music, and more by Galoisplusplus"
 
 # LOCAL PREVIEW SETTINGS
 # For local development, use empty SITEURL to make links work locally
@@ -15,7 +16,7 @@ SITEURL = ""
 PATH = "content"
 
 TIMEZONE = "Asia/Shanghai"
-DEFAULT_LANG = "zh"
+DEFAULT_LANG = "en"
 
 # Feed generation
 FEED_ALL_ATOM = None
@@ -38,34 +39,14 @@ SOCIAL = (
 
 DEFAULT_PAGINATION = 10
 
-# Theme settings - Using elegant theme
-THEME = "themes/elegant"
-
-# Elegant theme configuration
-DIRECT_TEMPLATES = (
-    "index",
-    "tags",
-    "categories",
-    "authors",
-    "archives",
-)
-
-PAGINATED_TEMPLATES = (
-    (
-        "index",
-        "tags",
-        "categories",
-        "authors",
-    ),
-)
+# Theme settings - Using pelican-fh5co-marble theme
+THEME = "themes/pelican-fh5co-marble"
 
 # Static files
 STATIC_PATHS = [
     "static/images",
     "static/downloads",
     "static/css",
-    "theme/images",
-    "theme/css",
 ]
 
 EXTRA_PATH_METADATA = {
@@ -104,7 +85,7 @@ PYGMENTS_STYLE = "monokai"
 
 # Plugins
 PLUGIN_PATHS = ["pelican_plugins"]
-PLUGINS = []
+PLUGINS = ["simple_translate"]
 
 # Content processing
 READERS = {}
@@ -115,8 +96,3 @@ TYPOGRIFY = False
 # Article settings
 SHOW_ARTICLE_AUTHOR = True
 SHOW_DATE_MODIFIED = True
-
-# RELATIVE URL SETTING
-# Set to True for local development preview
-# Set to False for production (GitHub Pages)
-# This is now controlled by SITEURL being empty or set
