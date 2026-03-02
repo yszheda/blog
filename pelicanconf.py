@@ -16,7 +16,7 @@ SITEURL = ""
 PATH = "content"
 
 TIMEZONE = "Asia/Shanghai"
-DEFAULT_LANG = "zh"
+DEFAULT_LANG = "en"
 
 # Feed generation
 FEED_ALL_ATOM = None
@@ -40,7 +40,7 @@ SOCIAL = (
 DEFAULT_PAGINATION = 10
 
 # Theme settings - Using simple theme (built-in)
-THEME = "simple"
+THEME = "themes/pelican-fh5co-marble"
 
 # Static files
 STATIC_PATHS = ["static/images", "static/downloads", "static/css"]
@@ -81,7 +81,15 @@ PYGMENTS_STYLE = "monokai"
 
 # Plugins
 PLUGIN_PATHS = ["pelican_plugins"]
-PLUGINS = []
+PLUGINS = ["i18n_subsites"]
+
+# Internationalization settings for i18n_subsites plugin
+I18N_SUBSITES = {
+    'en': {
+        'SITENAME': 'Galoisplusplus',
+        'SITEDESCRIPTION': 'A blog about technology, classical music, and more by Galoisplusplus',
+    }
+}
 
 # Content processing
 READERS = {}

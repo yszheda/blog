@@ -2,18 +2,21 @@
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
 
-# Production configuration for GitHub Pages deployment
 AUTHOR = "Galoisplusplus"
 SITENAME = "Galoisplusplus"
+SITEDESCRIPTION = "A blog about technology, classical music, and more by Galoisplusplus"
 
-# GitHub Pages URL - uncomment and set your actual URL
-# For GitHub Pages project site
-SITEURL = "https://yszheda.github.io/blog"
+# LOCAL PREVIEW SETTINGS
+# For local development, use empty SITEURL to make links work locally
+SITEURL = ""
+
+# For GitHub Pages deployment, uncomment the line below:
+# SITEURL = "http://yszheda.github.io/blog"
 
 PATH = "content"
 
 TIMEZONE = "Asia/Shanghai"
-DEFAULT_LANG = "en"
+DEFAULT_LANG = "zh"
 
 # Feed generation
 FEED_ALL_ATOM = None
@@ -36,15 +39,11 @@ SOCIAL = (
 
 DEFAULT_PAGINATION = 10
 
-# Theme settings - Using Pelican built-in notmyidea theme (has CSS)
-THEME = "themes/pelican-fh5co-marble"
+# Theme settings - Using simple theme (built-in)
+THEME = "simple"
 
-# Static files - only include necessary paths
-STATIC_PATHS = [
-    "static/images",
-    "static/downloads",
-    "static/css",
-]
+# Static files
+STATIC_PATHS = ["static/images", "static/downloads", "static/css"]
 
 EXTRA_PATH_METADATA = {
     "static/css/custom.css": {"path": "static/css/custom.css"},
@@ -82,15 +81,7 @@ PYGMENTS_STYLE = "monokai"
 
 # Plugins
 PLUGIN_PATHS = ["pelican_plugins"]
-PLUGINS = ["i18n_subsites"]
-
-# Internationalization settings for i18n_subsites plugin
-I18N_SUBSITES = {
-    'en': {
-        'SITENAME': 'Galoisplusplus',
-        'SITEDESCRIPTION': 'A blog about technology, classical music, and more by Galoisplusplus',
-    }
-}
+PLUGINS = []
 
 # Content processing
 READERS = {}
@@ -101,6 +92,3 @@ TYPOGRIFY = False
 # Article settings
 SHOW_ARTICLE_AUTHOR = True
 SHOW_DATE_MODIFIED = True
-
-# For GitHub Pages deployment
-RELATIVE_URLS = True
