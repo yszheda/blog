@@ -1,0 +1,320 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" dir="" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" dir="" class="no-js"> <!--<![endif]-->
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>用Docker容器来生成quick-x/cocos2d-x游戏apk包</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="author" content="Galoisplusplus" />
+    <meta name="description" content="前段时间本渣在做服务器端开发时，采用了Docker作为解决方案的一部分，最初的动机主要是想用namespace做环境隔离、用cgroups做资源 …" />
+    <meta name="keywords" content="cocos2d-x, Docker, CS, tech, cocos, cocos2d, 游戏开发, 手游开发, mobile game, game devolopment">
+<!-- Facebook and Twitter integration -->
+<meta property="og:site_name" content="Galoisplusplus"/>
+<meta property="og:title" content="用Docker容器来生成quick-x/cocos2d-x游戏apk包"/>
+<meta property="og:description" content="前段时间本渣在做服务器端开发时，采用了Docker作为解决方案的一部分，最初的动机主要是想用namespace做环境隔离、用cgroups做资源 …"/>
+<meta property="og:url" content="../../../2016/07/28/20160728-dockerfile-for-building-quickx-apk.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2016-07-28 02:13:00+08:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="../../../author/galoisplusplus.html">
+<meta property="article:section" content="tech"/>
+    <meta property="article:tag" content="cocos2d-x"/>
+    <meta property="article:tag" content="Docker"/>
+    <meta property="article:tag" content="CS"/>
+    <meta property="article:tag" content="tech"/>
+    <meta property="article:tag" content="cocos"/>
+    <meta property="article:tag" content="cocos2d"/>
+    <meta property="article:tag" content="游戏开发"/>
+    <meta property="article:tag" content="手游开发"/>
+    <meta property="article:tag" content="mobile game"/>
+    <meta property="article:tag" content="game devolopment"/>
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="../../.././theme/css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="../../.././theme/css/icomoon.css">
+    <!-- Bootstrap  -->
+    <link rel="stylesheet" href="../../.././theme/css/bootstrap.css">
+    <!-- Flexslider  -->
+    <link rel="stylesheet" href="../../.././theme/css/flexslider.css">
+    <!-- Theme style  -->
+    <link rel="stylesheet" href="../../.././theme/css/style.css">
+    <!-- Custom style  -->
+    <link rel="stylesheet" href="../../.././theme/css/custom.css">
+    <!-- pygments code highlight -->
+    <link rel="stylesheet" href="../../.././theme/css/pygments.css">
+    <!-- tipue search -->
+    <link rel="stylesheet" href="../../.././theme/tipuesearch/css/tipuesearch.css">
+
+    <!-- Modernizr JS -->
+    <script src="../../.././theme/js/modernizr-2.6.2.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="/theme/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+    </head>
+    <body>
+    <div id="fh5co-page">
+        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+
+            <nav class="fh5co-main-menu" role="navigation">
+            </nav>
+            <div class="clearfix"></div>
+            <h1  id="fh5co-logo">
+                <a href="../../../index.html">
+                    <img src="" />
+                </a>
+            </h1>
+            <nav class="fh5co-main-menu" role="navigation">
+<ul>
+    <!-- home link -->
+    <li><a href="../../../">Home</a></li>
+
+    <!-- page links -->
+
+    <!-- categories -->
+        <li class="nav-title">Categories</li>
+            <li><a href="../../../category/misc.html">misc</a></li>
+            <li><a href="../../../category/music.html">music</a></li>
+            <li><a href="../../../category/reading.html">reading</a></li>
+            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
+
+    <!-- tags -->
+        <li><a href="../../../tags.html">Tags</a></li>
+
+    <!-- additional menu items from config -->
+
+</ul>
+            </nav>
+
+<ul id="social">
+            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
+
+            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
+
+</ul>
+        </aside>
+
+        <div id="fh5co-main">
+
+    <div class="fh5co-narrow-content article-content">
+        <h1 class="fh5co-heading-colored">用Docker容器来生成quick-x/cocos2d-x游戏apk包</h1>
+
+        <div>by
+                <span dir="ltr">
+                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
+ - <span dir="ltr">Thu 28 July 2016</span>
+        </div>
+
+            <div><span>Tags</span>
+                    <span><a href="../../../tag/cocos2d-x.html">#cocos2d-x</a> </span>
+                    <span><a href="../../../tag/docker.html">#Docker</a> </span>
+                    <span><a href="../../../tag/cs.html">#CS</a> </span>
+                    <span><a href="../../../tag/tech.html">#tech</a> </span>
+                    <span><a href="../../../tag/cocos.html">#cocos</a> </span>
+                    <span><a href="../../../tag/cocos2d.html">#cocos2d</a> </span>
+                    <span><a href="../../../tag/you-xi-kai-fa.html">#游戏开发</a> </span>
+                    <span><a href="../../../tag/shou-you-kai-fa.html">#手游开发</a> </span>
+                    <span><a href="../../../tag/mobile-game.html">#mobile game</a> </span>
+                    <span><a href="../../../tag/game-devolopment.html">#game devolopment</a> </span>
+            </div>
+        <span dir="ltr">
+        </span>
+
+        <div class="animate-box" data-animate-effect="fadeInLeft">
+            <p class="animate-box" data-animate-effect="fadeInLeft"><p>前段时间本渣在做服务器端开发时，采用了<code>Docker</code>作为解决方案的一部分，最初的动机主要是想用<code>namespace</code>做环境隔离、用<code>cgroups</code>做资源限制，却也切身体会到<code>Docker</code>所带来的构建上的便利。故而本渣也回头去想之前cocos2d-x客户端的开发工作是否也能<code>Docker</code>化，很快就找到了一个很适合采用<code>Docker</code>的场景，那就是打apk包。从之前<a href="/2014/08/03/20140803-customize-dev-environment-for-cocos2d-x.html">搭建cocos2d-x游戏开发环境的博文</a>中不难发现，要搭建打包环境特别麻烦，不仅需要下一堆软件包，而且安装Android SDK和NDK时还会遇到GFW的问题。也正是因为这个缘故，我们团队只有最开始的三位老司机在开发机上搭好了这套环境，之后陆陆续续来的新人都没做过这项工作，所以平时打包也基本是在这几台开发机上。这简直太应该<code>Docker</code>化了！有了一套配好打包环境的<code>Docker</code> image，再也不用担心小鲜肉跑来要求打包、占用开发机了！而且还可以扔到服务器上去做，多省心啊！想想就excited，于是本渣马上就折腾起<code>Dockerfile</code>来了！</p>
+<p>首先要确定基础镜像。本渣一开始以为，配置<code>Linux</code>下的cocos2d-x打包环境需要在执行cocos2d-x代码里的<code>build/install-deps-linux.sh</code>，而这个脚本需要用到<code>Debian</code>系的包管理器，所以就选了<code>Ubuntu</code>作为基础镜像。</p>
+<p>配置apk打包环境自然少不了下载需要的软件包。<code>Ubuntu</code>的<code>apt-get install</code>会询问用户是否安装软件包，在<code>Dockerfile</code>中需要把这一交互性去掉，最好采用：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">RUN</span> <span class="n">DEBIAN_FRONTEND</span><span class="o">=</span><span class="n">noninteractive</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="o">-</span><span class="n">y</span>
+</code></pre></div></td></tr></table></div>
+
+<p>有些人喜欢把<code>DEBIAN_FRONTEND</code>设成<code>ENV</code>，这样<code>ENV</code>下面的命令就不用重复打<code>DEBIAN_FRONTEND=noninteractive</code>：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">ENV</span> <span class="n">DEBIAN_FRONTEND</span> <span class="n">noninteractive</span>
+<span class="n">RUN</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="o">-</span><span class="n">y</span>
+</code></pre></div></td></tr></table></div>
+
+<p>但根据<a href="https://medium.com/@rlbaker/deploying-python-with-docker-15a472cf12a5#.5vl6ihty3">Deploying Python with Docker</a>的说法，这种做法是不推荐的，因为这会影响到容器使用，最好还是对每条需要的命令单独设置环境变量。</p>
+<p>安装的几个软件包中少不了<code>Java</code>，我用的是Oracle的而非<code>openjdk</code>，所以需要用<code>add-apt-repository</code>把Oracle的ppa加上，这又需要先安装<code>add-apt-repository</code>：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="o">#</span> <span class="err">更新软件包列表</span>
+<span class="n">RUN</span> <span class="n">DEBIAN_FRONTEND</span><span class="o">=</span><span class="n">noninteractive</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span> <span class="o">-</span><span class="n">qq</span>
+
+<span class="o">#</span> <span class="err">安装</span><span class="n">add</span><span class="o">-</span><span class="n">apt</span><span class="o">-</span><span class="n">repository</span>
+<span class="n">RUN</span> <span class="n">DEBIAN_FRONTEND</span><span class="o">=</span><span class="n">noninteractive</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="o">-</span><span class="n">y</span> <span class="n">install</span> <span class="n">python</span><span class="o">-</span><span class="n">software</span><span class="o">-</span><span class="n">properties</span> <span class="n">software</span><span class="o">-</span><span class="n">properties</span><span class="o">-</span><span class="n">common</span>
+
+<span class="o">#</span> <span class="err">安装</span><span class="n">Oracle</span> <span class="n">Java</span>
+<span class="n">RUN</span> <span class="n">echo</span> <span class="s">&quot;debconf shared/accepted-oracle-license-v1-1 select true&quot;</span> <span class="p">|</span> <span class="n">debconf</span><span class="o">-</span><span class="n">set</span><span class="o">-</span><span class="n">selections</span>
+<span class="n">RUN</span> <span class="n">echo</span> <span class="s">&quot;debconf shared/accepted-oracle-license-v1-1 seen true&quot;</span> <span class="p">|</span> <span class="n">debconf</span><span class="o">-</span><span class="n">set</span><span class="o">-</span><span class="n">selections</span>
+<span class="n">RUN</span> <span class="n">DEBIAN_FRONTEND</span><span class="o">=</span><span class="n">noninteractive</span> <span class="n">add</span><span class="o">-</span><span class="n">apt</span><span class="o">-</span><span class="n">repository</span> <span class="n">ppa</span><span class="p">:</span><span class="n">webupd8team</span><span class="o">/</span><span class="n">java</span> <span class="err">\</span>
+    <span class="o">&amp;&amp;</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span> <span class="o">-</span><span class="n">qq</span>
+<span class="n">RUN</span> <span class="n">DEBIAN_FRONTEND</span><span class="o">=</span><span class="n">noninteractive</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="o">-</span><span class="n">y</span> <span class="n">oracle</span><span class="o">-</span><span class="n">java6</span><span class="o">-</span><span class="n">installer</span>
+</code></pre></div></td></tr></table></div>
+
+<p>打包还需要<code>ant</code>、之后下载SDK等需要<code>wget</code>或<code>curl</code>，这些软件包可以写在这句<code>apt-get -y</code>后面，因为我们不希望<code>Docker</code> image有太多layer。</p>
+<p>接下来就是下载Android SDK和设置相应的环境变量了。Android SDK和NDK的google下载链接是被墙的，可以换成国内相关镜像的链接。本渣是先下好这些包，然后在我们内网nginx起了一个简单的静态页面，我们内部再通过这个页面去下载就灰常快了XD</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Install Android SDK</span>
+<span class="n">ENV</span><span class="w"> </span><span class="n">ANDROID_SDK_ROOT</span><span class="w"> </span><span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">android</span><span class="o">-</span><span class="n">sdk</span><span class="o">-</span><span class="n">linux</span>
+
+<span class="n">RUN</span><span class="w"> </span><span class="n">cd</span><span class="w"> </span><span class="o">/</span><span class="n">opt</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">wget</span><span class="w"> </span><span class="o">-</span><span class="n">q</span><span class="w"> </span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">dl</span><span class="o">.</span><span class="n">google</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">android</span><span class="o">/</span><span class="n">android</span><span class="o">-</span><span class="n">sdk_r24</span><span class="o">.</span><span class="mf">4.1</span><span class="o">-</span><span class="n">linux</span><span class="o">.</span><span class="n">tgz</span><span class="w"> </span><span class="o">-</span><span class="n">O</span><span class="w"> </span><span class="n">android</span><span class="o">-</span><span class="n">sdk</span><span class="o">.</span><span class="n">tgz</span><span class="w"> </span>\
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">tar</span><span class="w"> </span><span class="o">-</span><span class="n">zxvf</span><span class="w"> </span><span class="n">android</span><span class="o">-</span><span class="n">sdk</span><span class="o">.</span><span class="n">tgz</span><span class="w"> </span>\
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">rm</span><span class="w"> </span><span class="o">-</span><span class="n">f</span><span class="w"> </span><span class="n">android</span><span class="o">-</span><span class="n">sdk</span><span class="o">.</span><span class="n">tgz</span>
+
+<span class="n">ENV</span><span class="w"> </span><span class="n">PATH</span><span class="w"> </span><span class="o">$</span><span class="p">{</span><span class="n">PATH</span><span class="p">}:</span><span class="o">$</span><span class="p">{</span><span class="n">ANDROID_SDK_ROOT</span><span class="p">}:</span><span class="o">$</span><span class="p">{</span><span class="n">ANDROID_SDK_ROOT</span><span class="p">}</span><span class="o">/</span><span class="n">tools</span>
+
+<span class="n">RUN</span><span class="w"> </span><span class="n">echo</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">android</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="n">sdk</span><span class="w"> </span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">ui</span><span class="w"> </span><span class="o">--</span><span class="n">all</span><span class="w"> </span><span class="o">--</span><span class="n">filter</span><span class="w"> </span><span class="n">platform</span><span class="o">-</span><span class="n">tools</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">grep</span><span class="w"> </span><span class="s1">&#39;package installed&#39;</span>
+<span class="n">RUN</span><span class="w"> </span><span class="n">echo</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">android</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="n">sdk</span><span class="w"> </span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">ui</span><span class="w"> </span><span class="o">--</span><span class="n">all</span><span class="w"> </span><span class="o">--</span><span class="n">filter</span><span class="w"> </span><span class="n">extra</span><span class="o">-</span><span class="n">android</span><span class="o">-</span><span class="n">support</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">grep</span><span class="w"> </span><span class="s1">&#39;package installed&#39;</span>
+<span class="n">RUN</span><span class="w"> </span><span class="n">echo</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">android</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="n">sdk</span><span class="w"> </span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">ui</span><span class="w"> </span><span class="o">--</span><span class="n">all</span><span class="w"> </span><span class="o">--</span><span class="n">filter</span><span class="w"> </span><span class="n">android</span><span class="o">-</span><span class="mi">20</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">grep</span><span class="w"> </span><span class="s1">&#39;package installed&#39;</span>
+<span class="n">RUN</span><span class="w"> </span><span class="n">echo</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">android</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="n">sdk</span><span class="w"> </span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">ui</span><span class="w"> </span><span class="o">--</span><span class="n">all</span><span class="w"> </span><span class="o">--</span><span class="n">filter</span><span class="w"> </span><span class="n">build</span><span class="o">-</span><span class="n">tools</span><span class="o">-</span><span class="mf">20.0</span><span class="o">.</span><span class="mi">0</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">grep</span><span class="w"> </span><span class="s1">&#39;package installed&#39;</span>
+</code></pre></div></td></tr></table></div>
+
+<p>如果你需要用代理来绕过GFW，可以这么写：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># NOTE: google is blocked by GFW in China,</span>
+<span class="c1"># So I use the proxy: http://android-mirror.bugly.qq.com:8080.</span>
+<span class="c1"># You can remove `--proxy-host android-mirror.bugly.qq.com --proxy-port 8080 -s`</span>
+<span class="c1"># in the following commands if you don&#39;t have to worry about this issue.</span>
+<span class="n">RUN</span><span class="w"> </span><span class="n">echo</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">android</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="n">sdk</span><span class="w"> </span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">ui</span><span class="w"> </span><span class="o">--</span><span class="n">all</span><span class="w"> </span><span class="o">--</span><span class="n">filter</span><span class="w"> </span><span class="n">platform</span><span class="o">-</span><span class="n">tools</span><span class="w"> </span><span class="o">--</span><span class="n">proxy</span><span class="o">-</span><span class="n">host</span><span class="w"> </span><span class="n">android</span><span class="o">-</span><span class="n">mirror</span><span class="o">.</span><span class="n">bugly</span><span class="o">.</span><span class="n">qq</span><span class="o">.</span><span class="n">com</span><span class="w"> </span><span class="o">--</span><span class="n">proxy</span><span class="o">-</span><span class="n">port</span><span class="w"> </span><span class="mi">8080</span><span class="w"> </span><span class="o">-</span><span class="n">s</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">grep</span><span class="w"> </span><span class="s1">&#39;package installed&#39;</span>
+<span class="n">RUN</span><span class="w"> </span><span class="n">echo</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">android</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="n">sdk</span><span class="w"> </span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">ui</span><span class="w"> </span><span class="o">--</span><span class="n">all</span><span class="w"> </span><span class="o">--</span><span class="n">filter</span><span class="w"> </span><span class="n">extra</span><span class="o">-</span><span class="n">android</span><span class="o">-</span><span class="n">support</span><span class="w"> </span><span class="o">--</span><span class="n">proxy</span><span class="o">-</span><span class="n">host</span><span class="w"> </span><span class="n">android</span><span class="o">-</span><span class="n">mirror</span><span class="o">.</span><span class="n">bugly</span><span class="o">.</span><span class="n">qq</span><span class="o">.</span><span class="n">com</span><span class="w"> </span><span class="o">--</span><span class="n">proxy</span><span class="o">-</span><span class="n">port</span><span class="w"> </span><span class="mi">8080</span><span class="w"> </span><span class="o">-</span><span class="n">s</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">grep</span><span class="w"> </span><span class="s1">&#39;package installed&#39;</span>
+<span class="n">RUN</span><span class="w"> </span><span class="n">echo</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">android</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="n">sdk</span><span class="w"> </span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">ui</span><span class="w"> </span><span class="o">--</span><span class="n">all</span><span class="w"> </span><span class="o">--</span><span class="n">filter</span><span class="w"> </span><span class="n">android</span><span class="o">-</span><span class="mi">20</span><span class="w"> </span><span class="o">--</span><span class="n">proxy</span><span class="o">-</span><span class="n">host</span><span class="w"> </span><span class="n">android</span><span class="o">-</span><span class="n">mirror</span><span class="o">.</span><span class="n">bugly</span><span class="o">.</span><span class="n">qq</span><span class="o">.</span><span class="n">com</span><span class="w"> </span><span class="o">--</span><span class="n">proxy</span><span class="o">-</span><span class="n">port</span><span class="w"> </span><span class="mi">8080</span><span class="w"> </span><span class="o">-</span><span class="n">s</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">grep</span><span class="w"> </span><span class="s1">&#39;package installed&#39;</span>
+<span class="n">RUN</span><span class="w"> </span><span class="n">echo</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">android</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="n">sdk</span><span class="w"> </span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">ui</span><span class="w"> </span><span class="o">--</span><span class="n">all</span><span class="w"> </span><span class="o">--</span><span class="n">filter</span><span class="w"> </span><span class="n">build</span><span class="o">-</span><span class="n">tools</span><span class="o">-</span><span class="mf">20.0</span><span class="o">.</span><span class="mi">0</span><span class="w"> </span><span class="o">--</span><span class="n">proxy</span><span class="o">-</span><span class="n">host</span><span class="w"> </span><span class="n">android</span><span class="o">-</span><span class="n">mirror</span><span class="o">.</span><span class="n">bugly</span><span class="o">.</span><span class="n">qq</span><span class="o">.</span><span class="n">com</span><span class="w"> </span><span class="o">--</span><span class="n">proxy</span><span class="o">-</span><span class="n">port</span><span class="w"> </span><span class="mi">8080</span><span class="w"> </span><span class="o">-</span><span class="n">s</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">grep</span><span class="w"> </span><span class="s1">&#39;package installed&#39;</span>
+</code></pre></div></td></tr></table></div>
+
+<p>接下来就是安装Android NDK了，和SDK差不多。</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span>
+<span class="normal">9</span></pre></div></td><td class="code"><div><pre><span></span><code>#<span class="w"> </span>Install<span class="w"> </span>Android<span class="w"> </span>NDK
+ENV<span class="w"> </span>ANDROID_NDK_ROOT<span class="w"> </span>/opt/android-ndk-r10e
+ENV<span class="w"> </span>NDK_ROOT<span class="w"> </span>/opt/android-ndk-r10e
+
+RUN<span class="w"> </span>cd<span class="w"> </span>/opt<span class="w"> </span><span class="err">&amp;&amp;</span><span class="w"> </span>wget<span class="w"> </span>-q<span class="w"> </span>http://dl.google.com/android/repository/android-ndk-r10e-linux-x86_64.zip<span class="w"> </span>-O<span class="w"> </span>android-ndk.zip<span class="w"> </span>\
+<span class="w">    </span><span class="err">&amp;&amp;</span><span class="w"> </span>unzip<span class="w"> </span>-q<span class="w"> </span>android-ndk.zip<span class="w"> </span>\
+<span class="w">    </span><span class="err">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-f<span class="w"> </span>android-ndk.zip
+
+ENV<span class="w"> </span>PATH<span class="w"> </span><span class="cp">${</span><span class="n">PATH</span><span class="cp">}</span>:<span class="cp">${</span><span class="n">ANDROID_NDK_ROOT</span><span class="cp">}</span>
+</code></pre></div></td></tr></table></div>
+
+<p>最后别忘了清理安装的软件包：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>RUN apt-get clean
+</code></pre></div></td></tr></table></div>
+
+<p>到了这一步，本渣就可以先把<code>Docker</code> image构建起来，把cocos2d-x代码、quick-x代码和客户端代码作为host的三个volumn挂载到<code>Docker</code> container里了。经试验发现还需要做如下配置：</p>
+<ul>
+<li>
+<p>在<code>PATH</code>里加入<code>cocos2d-console/bin</code>的目录才能使用<code>cocos</code>命令。</p>
+</li>
+<li>
+<p><code>cocos2d-console</code>需要安装<code>python</code>。</p>
+</li>
+<li>
+<p>需要把quick-x代码所在目录配在<code>QUICK_V3_ROOT</code>环境变量中。</p>
+</li>
+<li>
+<p>quick-x用到<code>php</code>，需要安装。</p>
+</li>
+<li>
+<p>需要装上32位系统的软件包<code>lib32stdc++6</code>和<code>lib32z1</code>才能正常打包。</p>
+</li>
+</ul>
+<p>于是本渣就可以相应地在<code>Dockerfile</code>中继续添加了，虽然试验的过程有点繁琐，但可以保证生成的<code>Docker</code> image只包含需要的软件包，让image尽可能小。</p>
+<p>接下来就是如何继续优化了，例如以上需要从host挂载cocos2d-x代码和quick-x代码的volumn还是比较烦。其中我们完全没必要把整份cocos2d-x代码挂载进来，因为创建cocos2d-x项目时会把需要的源代码文件拷到项目目录里，所以我们只需要其中的<code>cocos2d-console</code>，配置好<code>cocos</code>所在的目录到环境变量<code>PATH</code>即可。最后我把<code>cocos2d-console</code>和<code>quick-x</code>的代码打包，放到之前的内网网页中，这样就有了一份只需要挂载项目代码目录就能进行apk打包的<code>Dockerfile</code>啦！</p>
+<p>还记得前面所提到的cocos2d-x代码里的<code>build/install-deps-linux.sh</code>脚本吗？其实这个脚本还是有交互，所以我也把它所实现的功能挪到了<code>Dockerfile</code>中，其实也不外乎用<code>apt-get</code>下载一些软件包和下载<code>glfw</code>编译安装罢了。既然这个脚本并非必须，那么基础镜像也就不一定非要<code>Debian</code>系的系统了，小巧的<code>Alpine</code>无疑才是更理想的基础镜像。不过，目前我们主要是内网开发用，还没有压缩<code>Docker</code> image体积的需求，本渣也就不打算重新用<code>Alpine</code>折腾一遍了XD</p>
+<p><strong>Update:</strong></p>
+<p>我把一份通用的<code>Dockerfile</code>放到了<a href="https://github.com/yszheda/quick-x-apk-docker">Github</a>上，你也可以在Docker Hub拉取对应的<code>Docker</code>镜像：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>docker pull galoisplusplus/quick-x-apk-docker
+</code></pre></div></td></tr></table></div>
+
+<p>这一<code>Docker</code>镜像对不采用quick-x的cocos2d-x游戏打包也是可以用的，只需要把<code>Dockerfile</code>中quick-x的部分去掉后进行构建即可。</p></p>
+        </div>
+    </div>
+
+<div class="fh5co-narrow-content">
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
+</div>
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <div id="disqus_thread"></div>
+</div>
+
+<script>
+var disqus_config = function () { 
+  this.language = "en";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
+<div class="fh5co-footer">
+    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
+    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
+
+</div>                
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="../../.././theme/js/jquery.min.js"></script>
+    <!-- jQuery Easing -->
+    <script src="../../.././theme/js/jquery.easing.1.3.js"></script>
+    <!-- Bootstrap -->
+    <script src="../../.././theme/js/bootstrap.min.js"></script>
+    <!-- Waypoints -->
+    <script src="../../.././theme/js/jquery.waypoints.min.js"></script>
+    <!-- Flexslider -->
+    <script src="../../.././theme/js/jquery.flexslider-min.js"></script>
+
+
+    <!-- MAIN JS -->
+    <script src="../../.././theme/js/main.js"></script>
+    </body>
+</html>

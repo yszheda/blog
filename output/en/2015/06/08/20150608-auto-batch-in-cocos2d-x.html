@@ -1,0 +1,232 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" dir="" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" dir="" class="no-js"> <!--<![endif]-->
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>cocos2d-x中的auto-batching</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="author" content="Galoisplusplus" />
+    <meta name="description" content="本渣比较懒，就直接从工作邮件挑一部分放上来哈～ 1.神马是GL calls？ GL calls也称batch，可以单纯理解成绘制次数，一般来说CPU向GPU发送batch会造成瓶颈，这个指标越 …" />
+    <meta name="keywords" content="cocos2d-x, CS, tech, cocos, cocos2d, 游戏开发, 手游开发, mobile game, game devolopment">
+<!-- Facebook and Twitter integration -->
+<meta property="og:site_name" content="Galoisplusplus"/>
+<meta property="og:title" content="cocos2d-x中的auto-batching"/>
+<meta property="og:description" content="本渣比较懒，就直接从工作邮件挑一部分放上来哈～ 1.神马是GL calls？ GL calls也称batch，可以单纯理解成绘制次数，一般来说CPU向GPU发送batch会造成瓶颈，这个指标越 …"/>
+<meta property="og:url" content="../../../2015/06/08/20150608-auto-batch-in-cocos2d-x.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2015-06-08 02:00:00+08:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="../../../author/galoisplusplus.html">
+<meta property="article:section" content="tech"/>
+    <meta property="article:tag" content="cocos2d-x"/>
+    <meta property="article:tag" content="CS"/>
+    <meta property="article:tag" content="tech"/>
+    <meta property="article:tag" content="cocos"/>
+    <meta property="article:tag" content="cocos2d"/>
+    <meta property="article:tag" content="游戏开发"/>
+    <meta property="article:tag" content="手游开发"/>
+    <meta property="article:tag" content="mobile game"/>
+    <meta property="article:tag" content="game devolopment"/>
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="../../.././theme/css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="../../.././theme/css/icomoon.css">
+    <!-- Bootstrap  -->
+    <link rel="stylesheet" href="../../.././theme/css/bootstrap.css">
+    <!-- Flexslider  -->
+    <link rel="stylesheet" href="../../.././theme/css/flexslider.css">
+    <!-- Theme style  -->
+    <link rel="stylesheet" href="../../.././theme/css/style.css">
+    <!-- Custom style  -->
+    <link rel="stylesheet" href="../../.././theme/css/custom.css">
+    <!-- pygments code highlight -->
+    <link rel="stylesheet" href="../../.././theme/css/pygments.css">
+    <!-- tipue search -->
+    <link rel="stylesheet" href="../../.././theme/tipuesearch/css/tipuesearch.css">
+
+    <!-- Modernizr JS -->
+    <script src="../../.././theme/js/modernizr-2.6.2.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="/theme/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+    </head>
+    <body>
+    <div id="fh5co-page">
+        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+
+            <nav class="fh5co-main-menu" role="navigation">
+            </nav>
+            <div class="clearfix"></div>
+            <h1  id="fh5co-logo">
+                <a href="../../../index.html">
+                    <img src="" />
+                </a>
+            </h1>
+            <nav class="fh5co-main-menu" role="navigation">
+<ul>
+    <!-- home link -->
+    <li><a href="../../../">Home</a></li>
+
+    <!-- page links -->
+
+    <!-- categories -->
+        <li class="nav-title">Categories</li>
+            <li><a href="../../../category/misc.html">misc</a></li>
+            <li><a href="../../../category/music.html">music</a></li>
+            <li><a href="../../../category/reading.html">reading</a></li>
+            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
+
+    <!-- tags -->
+        <li><a href="../../../tags.html">Tags</a></li>
+
+    <!-- additional menu items from config -->
+
+</ul>
+            </nav>
+
+<ul id="social">
+            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
+
+            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
+
+</ul>
+        </aside>
+
+        <div id="fh5co-main">
+
+    <div class="fh5co-narrow-content article-content">
+        <h1 class="fh5co-heading-colored">cocos2d-x中的auto-batching</h1>
+
+        <div>by
+                <span dir="ltr">
+                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
+ - <span dir="ltr">Mon 08 June 2015</span>
+        </div>
+
+            <div><span>Tags</span>
+                    <span><a href="../../../tag/cocos2d-x.html">#cocos2d-x</a> </span>
+                    <span><a href="../../../tag/cs.html">#CS</a> </span>
+                    <span><a href="../../../tag/tech.html">#tech</a> </span>
+                    <span><a href="../../../tag/cocos.html">#cocos</a> </span>
+                    <span><a href="../../../tag/cocos2d.html">#cocos2d</a> </span>
+                    <span><a href="../../../tag/you-xi-kai-fa.html">#游戏开发</a> </span>
+                    <span><a href="../../../tag/shou-you-kai-fa.html">#手游开发</a> </span>
+                    <span><a href="../../../tag/mobile-game.html">#mobile game</a> </span>
+                    <span><a href="../../../tag/game-devolopment.html">#game devolopment</a> </span>
+            </div>
+        <span dir="ltr">
+        </span>
+
+        <div class="animate-box" data-animate-effect="fadeInLeft">
+            <p class="animate-box" data-animate-effect="fadeInLeft"><p>本渣比较懒，就直接从工作邮件挑一部分放上来哈～</p>
+<p>1.神马是GL calls？</p>
+<p>GL calls也称batch，可以单纯理解成绘制次数，一般来说CPU向GPU发送batch会造成瓶颈，这个指标越小越好。</p>
+<p>2.如何降低GL calls？</p>
+<p>通常我们会在测试版的屏幕左下角看到一些指标，其中GL verts是需要绘制的总顶点数，一般是让每个batch的顶点数越多越好。cocosd-x引擎提供了auto batching的机制，在一定条件下，对于多个同一纹理（事实上是纹理、shader、blendFunc都需要一样）的<code>node</code>，只需要一次GL call。</p>
+<p>3.auto batching原理？</p>
+<p>引擎在绘制场景时会遍历每个<code>node</code>，调<code>node</code>的<code>draw</code>函数：以前<code>draw</code>函数会直接绘制<code>node</code>，但3.0之后的版本改为向一个叫<code>RenderQueue</code>的队列push绘制命令，并不马上渲染。在渲染时从该queue拿出命令，如果连续的命令都是纹理A，那么A只需要一个batch，但如果中间插入了一个纹理B，则无法只用一个batch。</p>
+<p>例如：<code>RenderQueue</code>中是AAAAABAAAAA，则需要三个batches。</p>
+<p>4.auto-batching/<code>RenderQueue</code>中连续的条件？</p>
+<p><code>node</code>在向<code>RenderQueue</code> push命令时会先对子节点排序（排序按照<code>localZOrder</code>，<code>localZOrder</code>一样就比较子节点添加的顺序），排完序再依次push相应子节点的绘制命令。<code>RenderQueue</code>会根据<code>globalZOrder</code>再排一次序。所以最后<code>RenderQueue</code>中顺序是先按<code>globalZOrder</code>、再按<code>localZOrder</code>、最后按子节点添加到父节点的顺序。</p>
+<p>PS. <code>node</code>默认的<code>globalZOrder</code>和<code>localZOrder</code>都为0</p>
+<p>5.现有的系统如何用auto-batching？</p>
+<ul>
+<li>
+<p>为同一纹理的UI元素都设同一个大于0的<code>globalZOrder</code>：可以保证一定只有一次batch。</p>
+</li>
+<li>
+<p>为同一纹理的UI元素都设同一个大于0的<code>localZOrder</code>：推荐使用。<code>localZOrder</code>可以直接在UI编辑器里改，但有一定限制和技巧</p>
+<ul>
+<li>
+<p>如果同一纹理的UI元素的parent都是同一个<code>node</code>，这种情况比较简单，直接在UI编辑器改即可（如果同一纹理的UI元素在编辑器中都放在一块添加，则也已经被auto batch了，不用改）。</p>
+</li>
+<li>
+<p>如果同一纹理的UI元素的parent不是同一个<code>node</code>（这种情况在各处用<code>UIListView</code>的地方很常见），不一定能被auto-batch到，要具体看在<code>RenderQueue</code>里是否连续。希望cocos2d-x引擎能继续优化auto-batching机制以方便处理这一情况。</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>6.如何判读改的东西被auto-batch？</p>
+<p>代码中给它设一个专有的大于0的<code>globalZOrder</code>，看看GL calls是否减少。不变则说明之前的改动已被auto batch。</p>
+<h1 id="_1">参考资料</h1>
+<ul>
+<li>
+<p>[1]<a href="http://www.cocos2d-x.org/wiki/Cocos2d_v30_renderer_pipeline_roadmap">COCOS2D V30 RENDERER PIPELINE ROADMAP</a></p>
+</li>
+<li>
+<p>[2]“笨木头”大神这篇讲得挺好，安利一下<a href="http://www.benmutou.com/archives/1006">Cocos2d-x Auto-batching 浅浅的”深入分析”</a></p>
+</li>
+<li>
+<p>[3]<a href="http://blog.csdn.net/kaitiren/article/details/30478695">COCOS2DX 3.0 优化提升渲染速度 Auto-batching</a></p>
+</li>
+<li>
+<p>[4]<a href="http://blog.csdn.net/fansongy/article/details/26968473">10行代码看自动Batch，10行代码看自动剔除</a></p>
+</li>
+<li>
+<p>[5]<a href="http://blog.csdn.net/cloud95/article/details/40046697">cocos2dx auto culling 和 auto batching</a></p>
+</li>
+<li>
+<p>[6]<a href="http://www.cocoachina.com/bbs/read.php?tid-200808.html">自动批处理（Auto-batching）</a></p>
+</li>
+</ul></p>
+        </div>
+    </div>
+
+<div class="fh5co-narrow-content">
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
+</div>
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <div id="disqus_thread"></div>
+</div>
+
+<script>
+var disqus_config = function () { 
+  this.language = "en";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
+<div class="fh5co-footer">
+    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
+    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
+
+</div>                
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="../../.././theme/js/jquery.min.js"></script>
+    <!-- jQuery Easing -->
+    <script src="../../.././theme/js/jquery.easing.1.3.js"></script>
+    <!-- Bootstrap -->
+    <script src="../../.././theme/js/bootstrap.min.js"></script>
+    <!-- Waypoints -->
+    <script src="../../.././theme/js/jquery.waypoints.min.js"></script>
+    <!-- Flexslider -->
+    <script src="../../.././theme/js/jquery.flexslider-min.js"></script>
+
+
+    <!-- MAIN JS -->
+    <script src="../../.././theme/js/main.js"></script>
+    </body>
+</html>

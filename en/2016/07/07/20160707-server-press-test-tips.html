@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" dir="" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" dir="" class="no-js"> <!--<![endif]-->
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>用ab和wrk做压力测试</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="author" content="Galoisplusplus" />
+    <meta name="description" content="之前一直在做cocos2d-x手游客户端开发，最近被组织上安排去做服务器开发了。虽然一开始接触OpenResty，遇到不少问题，但由于本渣重用了大量以前的 …" />
+    <meta name="keywords" content="Linux, CS, tech, ab, wrk, press test, test, 压力测试, 压测, 测试">
+<!-- Facebook and Twitter integration -->
+<meta property="og:site_name" content="Galoisplusplus"/>
+<meta property="og:title" content="用ab和wrk做压力测试"/>
+<meta property="og:description" content="之前一直在做cocos2d-x手游客户端开发，最近被组织上安排去做服务器开发了。虽然一开始接触OpenResty，遇到不少问题，但由于本渣重用了大量以前的 …"/>
+<meta property="og:url" content="../../../2016/07/07/20160707-server-press-test-tips.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2016-07-07 11:22:00+08:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="../../../author/galoisplusplus.html">
+<meta property="article:section" content="tech"/>
+    <meta property="article:tag" content="Linux"/>
+    <meta property="article:tag" content="CS"/>
+    <meta property="article:tag" content="tech"/>
+    <meta property="article:tag" content="ab"/>
+    <meta property="article:tag" content="wrk"/>
+    <meta property="article:tag" content="press test"/>
+    <meta property="article:tag" content="test"/>
+    <meta property="article:tag" content="压力测试"/>
+    <meta property="article:tag" content="压测"/>
+    <meta property="article:tag" content="测试"/>
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="../../.././theme/css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="../../.././theme/css/icomoon.css">
+    <!-- Bootstrap  -->
+    <link rel="stylesheet" href="../../.././theme/css/bootstrap.css">
+    <!-- Flexslider  -->
+    <link rel="stylesheet" href="../../.././theme/css/flexslider.css">
+    <!-- Theme style  -->
+    <link rel="stylesheet" href="../../.././theme/css/style.css">
+    <!-- Custom style  -->
+    <link rel="stylesheet" href="../../.././theme/css/custom.css">
+    <!-- pygments code highlight -->
+    <link rel="stylesheet" href="../../.././theme/css/pygments.css">
+    <!-- tipue search -->
+    <link rel="stylesheet" href="../../.././theme/tipuesearch/css/tipuesearch.css">
+
+    <!-- Modernizr JS -->
+    <script src="../../.././theme/js/modernizr-2.6.2.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="/theme/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+    </head>
+    <body>
+    <div id="fh5co-page">
+        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+
+            <nav class="fh5co-main-menu" role="navigation">
+            </nav>
+            <div class="clearfix"></div>
+            <h1  id="fh5co-logo">
+                <a href="../../../index.html">
+                    <img src="" />
+                </a>
+            </h1>
+            <nav class="fh5co-main-menu" role="navigation">
+<ul>
+    <!-- home link -->
+    <li><a href="../../../">Home</a></li>
+
+    <!-- page links -->
+
+    <!-- categories -->
+        <li class="nav-title">Categories</li>
+            <li><a href="../../../category/misc.html">misc</a></li>
+            <li><a href="../../../category/music.html">music</a></li>
+            <li><a href="../../../category/reading.html">reading</a></li>
+            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
+
+    <!-- tags -->
+        <li><a href="../../../tags.html">Tags</a></li>
+
+    <!-- additional menu items from config -->
+
+</ul>
+            </nav>
+
+<ul id="social">
+            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
+
+            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
+
+</ul>
+        </aside>
+
+        <div id="fh5co-main">
+
+    <div class="fh5co-narrow-content article-content">
+        <h1 class="fh5co-heading-colored">用ab和wrk做压力测试</h1>
+
+        <div>by
+                <span dir="ltr">
+                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
+ - <span dir="ltr">Thu 07 July 2016</span>
+        </div>
+
+            <div><span>Tags</span>
+                    <span><a href="../../../tag/linux.html">#Linux</a> </span>
+                    <span><a href="../../../tag/cs.html">#CS</a> </span>
+                    <span><a href="../../../tag/tech.html">#tech</a> </span>
+                    <span><a href="../../../tag/ab.html">#ab</a> </span>
+                    <span><a href="../../../tag/wrk.html">#wrk</a> </span>
+                    <span><a href="../../../tag/press-test.html">#press test</a> </span>
+                    <span><a href="../../../tag/test.html">#test</a> </span>
+                    <span><a href="../../../tag/ya-li-ce-shi.html">#压力测试</a> </span>
+                    <span><a href="../../../tag/ya-ce.html">#压测</a> </span>
+                    <span><a href="../../../tag/ce-shi.html">#测试</a> </span>
+            </div>
+        <span dir="ltr">
+        </span>
+
+        <div class="animate-box" data-animate-effect="fadeInLeft">
+            <p class="animate-box" data-animate-effect="fadeInLeft"><p>之前一直在做cocos2d-x手游客户端开发，最近被组织上安排去做服务器开发了。虽然一开始接触<code>OpenResty</code>，遇到不少问题，但由于本渣重用了大量以前的代码，倒也很快就完成了一个可以正常运作的版本。只是本渣毕竟是新手，所做的功能也没有前人踩坑的经验，对自己代码的性能不放心，所以这段时间也在折腾压力测试，这次就来分享一些做压测的tips。</p>
+<p>首先，<code>Apache</code>的<code>ab</code>可以很方便地产生大量（并发）的同一请求，<code>ab</code>上手也很容易，是做简单压测的首选工具之一。</p>
+<p>使用<code>ab</code>需要注意几个选项：</p>
+<ul>
+<li><code>-p</code>指定POST参数，与<code>curl</code>不同，<code>ab</code>的POST参数选项必须指定一个文件。</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code>       -p POST-file
+              File containing data to POST. Remember to also set -T.
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li><code>-T</code>和<code>-H</code>指定HTTP Header（前者是<code>Content-type</code>）:</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="w">       </span><span class="o">-</span><span class="nx">T</span><span class="w"> </span><span class="nx">content</span><span class="o">-</span><span class="k">type</span>
+<span class="w">              </span><span class="nx">Content</span><span class="o">-</span><span class="k">type</span><span class="w">  </span><span class="nx">header</span><span class="w">  </span><span class="nx">to</span><span class="w">  </span><span class="nx">use</span><span class="w">  </span><span class="k">for</span><span class="w">  </span><span class="nx">POST</span><span class="o">/</span><span class="nx">PUT</span><span class="w">  </span><span class="nx">data</span><span class="p">,</span><span class="w">  </span><span class="nx">eg</span><span class="p">.</span><span class="w">  </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span><span class="p">.</span><span class="w">  </span><span class="nx">Default</span><span class="w"> </span><span class="k">is</span>
+<span class="w">              </span><span class="nx">text</span><span class="o">/</span><span class="nx">plain</span><span class="p">.</span>
+
+<span class="w">       </span><span class="o">-</span><span class="nx">H</span><span class="w"> </span><span class="nx">custom</span><span class="o">-</span><span class="nx">header</span>
+<span class="w">              </span><span class="nx">Append</span><span class="w"> </span><span class="nx">extra</span><span class="w"> </span><span class="nx">headers</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="w"> </span><span class="nx">The</span><span class="w"> </span><span class="nx">argument</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="nx">typically</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">form</span><span class="w"> </span><span class="nx">of</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="nx">valid</span><span class="w"> </span><span class="nx">header</span><span class="w"> </span><span class="nx">line</span><span class="p">,</span><span class="w">  </span><span class="nx">con</span><span class="err">‐</span>
+<span class="w">              </span><span class="nx">taining</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="nx">colon</span><span class="o">-</span><span class="nx">separated</span><span class="w"> </span><span class="nx">field</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span><span class="nx">pair</span><span class="w"> </span><span class="p">(</span><span class="nx">i</span><span class="p">.</span><span class="nx">e</span><span class="p">.,</span><span class="w"> </span><span class="s">&quot;Accept-Encoding: zip/zop;8bit&quot;</span><span class="p">).</span>
+</code></pre></div></td></tr></table></div>
+
+<p>像本渣压测时就用到了如下参数：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>-H &#39;Accept-Encoding: gzip&#39; -T &#39;application/x-www-form-urlencoded&#39;
+</code></pre></div></td></tr></table></div>
+
+<p>之前manual提到POST必须指定<code>-T</code>参数，但如果少了前面的<code>-H</code>参数，测出来的数据会和实际情况有偏差。指定<code>ab</code>的这些参数最好是和实际的客户端的HTTP header保持一致，个人建议采用<code>tcpdump</code>或<code>Wireshark</code>等工具来抓取实际的客户端访问服务器的HTTP请求。</p>
+<ul>
+<li><code>-s</code>指定timeout时间，这个参数也最好与实际客户端的设置保持一致。</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="w">       </span><span class="o">-</span><span class="nv">s</span><span class="w"> </span><span class="nb">timeout</span>
+<span class="w">              </span><span class="nv">Maximum</span><span class="w"> </span><span class="nv">number</span><span class="w"> </span><span class="nv">of</span><span class="w"> </span><span class="nv">seconds</span><span class="w"> </span><span class="nv">to</span><span class="w"> </span><span class="k">wait</span><span class="w"> </span><span class="nv">before</span><span class="w"> </span><span class="nv">the</span><span class="w"> </span><span class="nv">socket</span><span class="w"> </span><span class="nv">times</span><span class="w"> </span><span class="nv">out</span>.<span class="w"> </span><span class="nv">Default</span><span class="w"> </span><span class="nv">is</span><span class="w"> </span><span class="mi">30</span><span class="w"> </span><span class="nv">seconds</span>.<span class="w"> </span><span class="nv">Available</span><span class="w"> </span><span class="nv">in</span><span class="w"> </span><span class="mi">2</span>.<span class="mi">4</span>.<span class="mi">4</span>
+<span class="w">              </span><span class="nv">and</span><span class="w"> </span><span class="nv">later</span>.
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>需要特别注意的是，<code>ab</code>默认不启用HTTP Keep-Alive，需要使用<code>-k</code>开启这一特性：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code>       -k     Enable  the  HTTP KeepAlive feature, i.e., perform multiple requests within one HTTP session. Default is
+              no KeepAlive.
+</code></pre></div></td></tr></table></div>
+
+<p>关于HTTP Keep-Alive，下面有两张直观的图说得很明白：</p>
+<p>不采用HTTP Keep-Alive，请求某一网页的html和css会通过不同的TCP连接去完成：</p>
+<p><img alt="image" src="https://hpbn.co/assets/diagrams/84cf0f29175e4b11a2343e73105637c5.svg"></p>
+<p>同样的场景，采用HTTP Keep-Alive，就可以在同一TCP连接中请求尽可能多的资源，从而避免建立TCP连接的overhead：</p>
+<p><img alt="image" src="https://hpbn.co/assets/diagrams/cf6057a54f005a288d832d293965ee0d.svg"></p>
+<p>以上两张图是从Ilya Grigorik的<a href="https://hpbn.co/">High Performance Browser Networking</a>引用过来的，如果你对HTTP Keep-Alive不熟悉的话，可以参考下这本书。</p>
+<p>PS. 这里为了不把HTTP Keep-Alive和TCP keepalive混淆起来，本渣就不随Grigorik写做keepalive了。</p>
+<ul>
+<li>还有另一个需要特别注意的地方，由于<code>ab</code>发起的请求都是一模一样的，所以<code>ab</code>认为服务器的返回也应该完全相同才对。如果服务器对相同请求的处理结果不同——像本渣做的功能恰好就是这种情况——需要再指定<code>-l</code>选项：</li>
+</ul>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="w">       </span><span class="o">-</span><span class="n">l</span><span class="w">     </span><span class="n">Do</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">report</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">responses</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">constant</span><span class="o">.</span><span class="w"> </span><span class="n">This</span><span class="w">  </span><span class="n">can</span><span class="w">  </span><span class="n">be</span><span class="w">  </span><span class="n">useful</span><span class="w">  </span><span class="k">for</span><span class="w">  </span><span class="n">dynamic</span>
+<span class="w">              </span><span class="n">pages</span><span class="o">.</span><span class="w"> </span><span class="n">Available</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="mf">2.4</span><span class="o">.</span><span class="mi">7</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">later</span><span class="o">.</span>
+</code></pre></div></td></tr></table></div>
+
+<p>前面提到<code>ab</code>所产生的请求都是一样的，如果我们想用不同的testcase来做压测呢？这时候<code>ab</code>就无能为力了，好在还有其他强大的压测工具，例如<a href="https://github.com/wg/wrk">wrk</a>。<code>wrk</code>支持<code>lua</code>编程，可以通过override<code>request</code>、<code>response</code>的全局函数来指定请求和响应的处理逻辑，这给本渣做压测带来不少便利，因为本渣之前不就是做客户端开发嘛，现在可以直接重用客户端的代码了XD</p>
+<p>关于<code>ab</code>和<code>wrk</code>的具体用法和细节请参考下面的链接，本渣这里就不赘述了，毕竟把别人提过的东西又重复一遍就没什么意思了<del>其实就是懒癌XD</del></p>
+<h1 id="_1">参考资料</h1>
+<ul>
+<li>
+<p>阿里云这篇文章<a href="https://yq.aliyun.com/articles/35251">使用ab和wrk对OSS进行benchmark测试</a>挺好的，推荐一看</p>
+</li>
+<li>
+<p>耗子叔的这篇博文也值得一看：<a href="http://coolshell.cn/articles/17381.html">性能测试应该怎么做？</a>。在做压测之前应当考虑清楚，设计适当的testcase。</p>
+</li>
+<li>
+<p><code>ab</code>的使用可以参考：</p>
+</li>
+<li>
+<p><a href="http://leepiao.blog.163.com/blog/static/485031302010234352282/">Apache ab 压力测试</a></p>
+</li>
+<li>
+<p><a href="http://mo2g.com/view/50/">使用Apache Benchmark做压力测试遇上的5个常见问题</a></p>
+</li>
+<li>
+<p><a href="http://www.cnblogs.com/bandbandme/p/3680542.html">linux下ab网站压力测试命令 - post请求</a></p>
+</li>
+<li>
+<p><code>wrk</code>的使用可以参考：</p>
+</li>
+<li>
+<p><a href="http://charmyin.github.io/informationtechnology/2014/08/11/multiple-file-upload-express/">WRK - A HTTP benchmarking tool</a></p>
+</li>
+<li>
+<p><a href="http://czerasz.com/2015/07/19/wrk-http-benchmarking-tool-example/">WRK the HTTP benchmarking tool - Advanced Example</a></p>
+</li>
+<li>
+<p><a href="https://blog.satikey.com/p/5768.html">wrk — 小巧轻盈的 http 性能测试工具</a></p>
+</li>
+</ul></p>
+        </div>
+    </div>
+
+<div class="fh5co-narrow-content">
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
+</div>
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <div id="disqus_thread"></div>
+</div>
+
+<script>
+var disqus_config = function () { 
+  this.language = "en";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
+<div class="fh5co-footer">
+    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
+    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
+
+</div>                
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="../../.././theme/js/jquery.min.js"></script>
+    <!-- jQuery Easing -->
+    <script src="../../.././theme/js/jquery.easing.1.3.js"></script>
+    <!-- Bootstrap -->
+    <script src="../../.././theme/js/bootstrap.min.js"></script>
+    <!-- Waypoints -->
+    <script src="../../.././theme/js/jquery.waypoints.min.js"></script>
+    <!-- Flexslider -->
+    <script src="../../.././theme/js/jquery.flexslider-min.js"></script>
+
+
+    <!-- MAIN JS -->
+    <script src="../../.././theme/js/main.js"></script>
+    </body>
+</html>
