@@ -16,7 +16,7 @@ SITEURL = ""
 PATH = "content"
 
 TIMEZONE = "Asia/Shanghai"
-DEFAULT_LANG = "en"
+DEFAULT_LANG = "zh"
 
 # Feed generation
 FEED_ALL_ATOM = None
@@ -39,7 +39,8 @@ SOCIAL = (
 
 DEFAULT_PAGINATION = 10
 
-# Theme settings - Using pelican-fh5co-marble theme
+# Theme settings - Using elegant theme
+THEME = "themes/elegant"
 THEME = "themes/pelican-fh5co-marble"
 
 # Static files
