@@ -15,7 +15,6 @@ SITEURL = ""
 PATH = "content"
 
 TIMEZONE = "Asia/Shanghai"
-
 DEFAULT_LANG = "zh"
 
 # Feed generation
@@ -39,17 +38,40 @@ SOCIAL = (
 
 DEFAULT_PAGINATION = 10
 
-# Theme settings - Using Pelican built-in notmyidea theme (has CSS)
-THEME = "notmyidea"
+# Theme settings - Using elegant theme
+THEME = "themes/elegant"
+
+# Elegant theme configuration
+DIRECT_TEMPLATES = (
+    "index",
+    "tags",
+    "categories",
+    "authors",
+    "archives",
+)
+
+PAGINATED_TEMPLATES = (
+    (
+        "index",
+        "tags",
+        "categories",
+        "authors",
+    ),
+)
 
 # Static files
-STATIC_PATHS = ["static/images", "static/downloads", "static/css", "theme/images", "theme/css"]
+STATIC_PATHS = [
+    "static/images",
+    "static/downloads",
+    "static/css",
+    "theme/images",
+    "theme/css",
+]
 
 EXTRA_PATH_METADATA = {
     "static/css/custom.css": {"path": "static/css/custom.css"},
     "static/css/monokai.css": {"path": "static/css/monokai.css"},
 }
-
 
 # URL configuration matching Octopress structure
 ARTICLE_URL = "{date:%Y}/{date:%m}/{date:%d}/{slug}.html"
