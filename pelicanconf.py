@@ -39,16 +39,11 @@ SOCIAL = (
 
 DEFAULT_PAGINATION = 10
 
-# Theme settings - Using elegant theme
-THEME = "themes/elegant"
-THEME = "themes/pelican-fh5co-marble"
+# Theme settings - Using simple theme (built-in)
+THEME = "simple"
 
 # Static files
-STATIC_PATHS = [
-    "static/images",
-    "static/downloads",
-    "static/css",
-]
+STATIC_PATHS = ["static/images", "static/downloads", "static/css"]
 
 EXTRA_PATH_METADATA = {
     "static/css/custom.css": {"path": "static/css/custom.css"},
@@ -86,7 +81,7 @@ PYGMENTS_STYLE = "monokai"
 
 # Plugins
 PLUGIN_PATHS = ["pelican_plugins"]
-PLUGINS = ["simple_translate"]
+PLUGINS = []
 
 # Content processing
 READERS = {}
