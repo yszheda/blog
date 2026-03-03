@@ -1,0 +1,3 @@
+[submodule "themes/pelican-fh5co-marble"]
+	path = themes/pelican-fh5co-marble
+	url = git@github.com:yszheda/pelican-fh5co-marble.git

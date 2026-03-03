@@ -38,6 +38,12 @@ nul
 *.tar.gz
 *.zip
 
+# Node.js
+package-lock.json
+node_modules/
+*.tar.gz
+*.zip
+
 # Pelican cache
 .cache/
 

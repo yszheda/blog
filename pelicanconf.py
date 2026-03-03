@@ -8,10 +8,10 @@ SITEDESCRIPTION = "A blog about technology, classical music, and more by Galoisp
 
 # LOCAL PREVIEW SETTINGS
 # For local development, use empty SITEURL to make links work locally
-SITEURL = ""
+# For GitHub Pages deployment
+SITEURL = "https://yszheda.github.io/blog"
 
-# For GitHub Pages deployment, uncomment the line below:
-# SITEURL = "http://yszheda.github.io/blog"
+
 
 PATH = "content"
 
@@ -82,7 +82,7 @@ PYGMENTS_STYLE = "monokai"
 
 # Plugins
 PLUGIN_PATHS = ["pelican_plugins"]
-PLUGINS = ["i18n_subsites"]
+PLUGINS = ["i18n_subsites", "simple_translate"]
 
 # Internationalization settings for i18n_subsites plugin
 I18N_SUBSITES = {
@@ -98,6 +98,6 @@ READERS = {}
 # Optional: Enable typographic enhancements
 TYPOGRIFY = False
 
-# Article settings
-SHOW_ARTICLE_AUTHOR = True
-SHOW_DATE_MODIFIED = True
+
+# Logo for theme (optional)
+LOGO = "static/images/trebleclef.png"

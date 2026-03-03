@@ -82,7 +82,7 @@ PYGMENTS_STYLE = "monokai"
 
 # Plugins
 PLUGIN_PATHS = ["pelican_plugins"]
-PLUGINS = ["i18n_subsites"]
+PLUGINS = ["i18n_subsites", "simple_translate"]
 
 # Internationalization settings for i18n_subsites plugin
 I18N_SUBSITES = {
@@ -98,9 +98,12 @@ READERS = {}
 # Optional: Enable typographic enhancements
 TYPOGRIFY = False
 
-# Article settings
-SHOW_ARTICLE_AUTHOR = True
-SHOW_DATE_MODIFIED = True
+
+# Logo for theme (optional)
+LOGO = "static/images/trebleclef.png"
+
+# For GitHub Pages deployment
+RELATIVE_URLS = True
 
 # For GitHub Pages deployment
 RELATIVE_URLS = True
