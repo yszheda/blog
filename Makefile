@@ -11,6 +11,8 @@ clean:
 
 publish:
 	pelican content -s publishconf.py -o output
+	cp -r static/* output/
+	pelican content -s publishconf.py -o output
 
 preview:
 	make clean && make html && make serve
@@ -28,6 +30,8 @@ clean:
 	rm -rf output
 
 publish:
+	pelican content -s publishconf.py -o output
+	cp -r static/* output/
 	pelican content -s publishconf.py -o output
 
 preview:

@@ -44,6 +44,7 @@ THEME = "themes/pelican-fh5co-marble"
 
 # Static files
 STATIC_PATHS = ["static/images", "static/downloads", "static/css"]
+print("STATIC_PATHS:", STATIC_PATHS)
 
 EXTRA_PATH_METADATA = {
     "static/css/custom.css": {"path": "static/css/custom.css"},

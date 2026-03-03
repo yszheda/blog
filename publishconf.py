@@ -13,7 +13,7 @@ SITEURL = "https://yszheda.github.io/blog"
 PATH = "content"
 
 TIMEZONE = "Asia/Shanghai"
-DEFAULT_LANG = "en"
+DEFAULT_LANG = "zh"
 
 # Feed generation
 FEED_ALL_ATOM = None
