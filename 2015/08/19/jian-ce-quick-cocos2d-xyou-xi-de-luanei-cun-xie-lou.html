@@ -1,0 +1,217 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="zh" dir="" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="zh" dir="" class="no-js"> <!--<![endif]-->
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>检测quick-cocos2d-x游戏的lua内存泄漏</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="author" content="Galoisplusplus" />
+    <meta name="description" content="keywords: cocos2d-x quick-cocos2d-x lua memory leak description: detect lua memory leak in quick-cocos2d-x Tags: cocos2d-x, CS, tech, cocos2d-x, cocos, cocos2d, 游戏开发, 手游开发, game, mobile game, game devolopment, 内存泄露, memory leak, quick-cocos2d-x, quickx, quick-x, lua Slug: 20150819-detect-lua-mem-leak-in-quick-x Category: tech 虽然lua有垃圾回收机制 …" />
+    <meta name="keywords" content="">
+<!-- Facebook and Twitter integration -->
+<meta property="og:site_name" content="Galoisplusplus"/>
+<meta property="og:title" content="检测quick-cocos2d-x游戏的lua内存泄漏"/>
+<meta property="og:description" content="keywords: cocos2d-x quick-cocos2d-x lua memory leak description: detect lua memory leak in quick-cocos2d-x Tags: cocos2d-x, CS, tech, cocos2d-x, cocos, cocos2d, 游戏开发, 手游开发, game, mobile game, game devolopment, 内存泄露, memory leak, quick-cocos2d-x, quickx, quick-x, lua Slug: 20150819-detect-lua-mem-leak-in-quick-x Category: tech 虽然lua有垃圾回收机制 …"/>
+<meta property="og:url" content="../../../2015/08/19/jian-ce-quick-cocos2d-xyou-xi-de-luanei-cun-xie-lou.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2015-08-19 11:53:00+08:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="../../../author/galoisplusplus.html">
+<meta property="article:section" content="misc"/>
+    <meta property="og:image" content="static/images/trebleclef.png">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="../../../theme/css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="../../../theme/css/icomoon.css">
+    <!-- Bootstrap  -->
+    <link rel="stylesheet" href="../../../theme/css/bootstrap.css">
+    <!-- Flexslider  -->
+    <link rel="stylesheet" href="../../../theme/css/flexslider.css">
+    <!-- Theme style  -->
+    <link rel="stylesheet" href="../../../theme/css/style.css">
+    <!-- Custom style  -->
+    <link rel="stylesheet" href="../../../theme/css/custom.css">
+    <!-- pygments code highlight -->
+    <link rel="stylesheet" href="../../../theme/css/pygments.css">
+    <!-- tipue search -->
+    <link rel="stylesheet" href="../../../theme/tipuesearch/css/tipuesearch.css">
+
+    <!-- Modernizr JS -->
+    <script src="../../../theme/js/modernizr-2.6.2.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="/theme/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+    </head>
+    <body>
+    <div id="fh5co-page">
+        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+
+            <nav class="fh5co-main-menu" role="navigation">
+    <ul class="language-navigation">
+        <li>
+                <a class="lang-active" href="https://yszheda.github.io/blog/">zh</a>
+                <a href="https://yszheda.github.io/blog/en/">en</a>
+        </li>
+    </ul>
+            </nav>
+            <div class="clearfix"></div>
+            <h1  id="fh5co-logo">
+                <a href="../../../index.html">
+                    <img src="static/images/trebleclef.png" />
+                </a>
+            </h1>
+                <a href="../../../index.html">
+                    <img src="static/images/trebleclef.png" />
+                </a>
+            </h1>
+            <nav class="fh5co-main-menu" role="navigation">
+<ul>
+    <!-- home link -->
+    <li><a href="../../../">Home</a></li>
+
+    <!-- page links -->
+
+    <!-- categories -->
+        <li class="nav-title">Categories</li>
+            <li class="fh5co-active"><a href="../../../category/misc.html">misc</a></li>
+            <li><a href="../../../category/music.html">music</a></li>
+            <li><a href="../../../category/reading.html">reading</a></li>
+            <li><a href="../../../category/tech.html">tech</a></li>
+
+    <!-- tags -->
+        <li><a href="../../../tags.html">Tags</a></li>
+
+    <!-- additional menu items from config -->
+
+</ul>
+            </nav>
+
+<ul id="social">
+            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
+
+            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
+
+</ul>
+        </aside>
+
+        <div id="fh5co-main">
+
+    <div class="fh5co-narrow-content article-content">
+        <h1 class="fh5co-heading-colored">检测quick-cocos2d-x游戏的lua内存泄漏</h1>
+
+        <div>by
+                <span dir="ltr">
+                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
+ - <span dir="ltr">三 19 8月 2015</span>
+        </div>
+
+        <span dir="ltr">
+        </span>
+
+        <div class="animate-box" data-animate-effect="fadeInLeft">
+            <p class="animate-box" data-animate-effect="fadeInLeft"><h1 id="keywords-cocos2d-x-quick-cocos2d-x-lua-memory-leak">keywords: cocos2d-x quick-cocos2d-x lua memory leak</h1>
+<p>description: detect lua memory leak in quick-cocos2d-x
+Tags: cocos2d-x, CS, tech, cocos2d-x, cocos, cocos2d, 游戏开发, 手游开发, game, mobile game, game devolopment, 内存泄露, memory leak, quick-cocos2d-x, quickx, quick-x, lua
+Slug: 20150819-detect-lua-mem-leak-in-quick-x
+Category: tech</p>
+<p>虽然lua有垃圾回收机制，但在使用quick-cocos2d-x和lua开发游戏还是会有不恰当的实现方式所导致的lua内存泄露（例如对cocos2d-x的<code>Node</code>对象做了<code>retain</code>却没有<code>release</code>、把<code>local</code>变量定义成全局变量、没有根据instance的lifecycle去释放它所占有的资源等等）。最近看到云风大神写的lua内存泄露检查工具<a href="https://github.com/cloudwu/lua-snapshot">lua-snapshot</a>，便萌发了将它集成到我们游戏开发中，作为quantity assurance中一环。</p>
+<!-- more -->
+
+<h1 id="_1">配置</h1>
+<p><code>lua-snapshot</code>是用C实现的。我在网上看到不少人是把<code>lua-snapshot</code>编译成动态链接库、用<code>package.loadlib</code>来调用的，其实lua的<code>require</code>本身就能加载C库的。</p>
+<p>首先在<code>cocos2d-x/external/lua/</code>目录下将lua-snapshot代码clone下来：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>git clone https://github.com/cloudwu/lua-snapshot.git
+</code></pre></div></td></tr></table></div>
+
+<p>在<code>cocos2d-x/cocos/scripting/lua-bindings/manual/lua-snapshot/</code>目录中添加如下文件：</p>
+<p>[Code: lua-snapshot/lua_snapshot_extensions.h]</p>
+<p>[Code: lua-snapshot/lua_snapshot_extensions.c]</p>
+<p>[Code: lua-snapshot/lua_cocos2dx_snapshot_manual.h]</p>
+<p>[Code: lua-snapshot/lua_cocos2dx_snapshot_manual.cpp]</p>
+<p>然后找到<code>lua_module_register.h</code>文件，在<code>lua_module_register</code>函数中添加</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="w">    </span><span class="n">register_snapshot_module</span><span class="p">(</span><span class="n">L</span><span class="p">);</span>
+</code></pre></div></td></tr></table></div>
+
+<p>和头文件</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;lua-snapshot/lua_cocos2dx_snapshot_manual.h&quot;</span>
+</code></pre></div></td></tr></table></div>
+
+<p>[Code: lua-snapshot/lua_module_register.h]</p>
+<h1 id="_2">使用</h1>
+<p>由于我们游戏的界面主要是窗口，所以之前实现时便在cocos2d-x引擎的<code>Scene</code>和<code>Layer</code>中间引入了一层<code>Window</code>，并用一个全局singleton的<code>WindowManager</code>对所有<code>Window</code>对象进行管理，对窗口的创建前、创建后、销毁前、销毁后等等行为做公共处理。这样的设计给我加入内存泄露检测带来了不少便利：我只需在创建窗口实例之前记录下当时的快照snapshot1，打开窗口后根据这个窗口的功能做一些操作——通常和测试功能一起进行，也和<code>WindowManager</code>的公共逻辑无关，所以不在代码做处理——在窗口销毁前记下snapshot2，在销毁后记下snapshot3，比较这三个快照，如果一个实例不在snapshot1中而存在于snapshot2和snapshot3中，则该实例属于这个窗口操作后造成的内存泄露。</p>
+<h1 id="_3">参考资料</h1>
+<ul>
+<li>
+<p>[1]<a href="http://blog.codingnow.com/2012/12/lua_snapshot.html">一个 Lua 内存泄露检查工具</a></p>
+</li>
+<li>
+<p>[2]<a href="http://colen.iteye.com/blog/588897">游戏逻辑层在Lua中的内存泄漏与防范</a></p>
+</li>
+<li>
+<p>[3]<a href="http://shavingha.blog.163.com/blog/static/10378336200822134554488/">lua内存泄漏查证</a></p>
+</li>
+<li>
+<p>[4]<a href="http://www.codingart.info/snapshot-detect-Lua-memoryleak.html">使用snapshot检测Lua中的内存泄露</a></p>
+</li>
+</ul></p>
+        </div>
+    </div>
+
+<div class="fh5co-narrow-content">
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
+</div>
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <div id="disqus_thread"></div>
+</div>
+
+<script>
+var disqus_config = function () { 
+  this.language = "zh";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
+<div class="fh5co-footer">
+    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
+    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
+
+</div>                
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="../../../theme/js/jquery.min.js"></script>
+    <!-- jQuery Easing -->
+    <script src="../../../theme/js/jquery.easing.1.3.js"></script>
+    <!-- Bootstrap -->
+    <script src="../../../theme/js/bootstrap.min.js"></script>
+    <!-- Waypoints -->
+    <script src="../../../theme/js/jquery.waypoints.min.js"></script>
+    <!-- Flexslider -->
+    <script src="../../../theme/js/jquery.flexslider-min.js"></script>
+
+
+    <!-- MAIN JS -->
+    <script src="../../../theme/js/main.js"></script>
+    </body>
+</html>

@@ -1,0 +1,288 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="zh" dir="" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="zh" dir="" class="no-js"> <!--<![endif]-->
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>斜45度瓦片地图（Staggered Tiled Map）里的简单数学</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="author" content="Galoisplusplus" />
+    <meta name="description" content="前段时间在做游戏的地图编辑功能，我们是在一个斜45度视角的场景上，对地图上的建筑或装饰物进行添加、移动、移除等基本操作，而且位 …" />
+    <meta name="keywords" content="cocos2d-x, CS, tech, cocos, cocos2d, 游戏开发, 手游开发, mobile game, game devolopment, tile, tiled, tiled map, 瓦片地图, staggered tiled map">
+<!-- Facebook and Twitter integration -->
+<meta property="og:site_name" content="Galoisplusplus"/>
+<meta property="og:title" content="斜45度瓦片地图（Staggered Tiled Map）里的简单数学"/>
+<meta property="og:description" content="前段时间在做游戏的地图编辑功能，我们是在一个斜45度视角的场景上，对地图上的建筑或装饰物进行添加、移动、移除等基本操作，而且位 …"/>
+<meta property="og:url" content="../../../2016/06/03/20160603-math-in-staggered-tiled-map.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2016-06-03 11:22:00+08:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="../../../author/galoisplusplus.html">
+<meta property="article:section" content="tech"/>
+    <meta property="article:tag" content="cocos2d-x"/>
+    <meta property="article:tag" content="CS"/>
+    <meta property="article:tag" content="tech"/>
+    <meta property="article:tag" content="cocos"/>
+    <meta property="article:tag" content="cocos2d"/>
+    <meta property="article:tag" content="游戏开发"/>
+    <meta property="article:tag" content="手游开发"/>
+    <meta property="article:tag" content="mobile game"/>
+    <meta property="article:tag" content="game devolopment"/>
+    <meta property="article:tag" content="tile"/>
+    <meta property="article:tag" content="tiled"/>
+    <meta property="article:tag" content="tiled map"/>
+    <meta property="article:tag" content="瓦片地图"/>
+    <meta property="article:tag" content="staggered tiled map"/>
+    <meta property="og:image" content="static/images/trebleclef.png">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="../../../theme/css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="../../../theme/css/icomoon.css">
+    <!-- Bootstrap  -->
+    <link rel="stylesheet" href="../../../theme/css/bootstrap.css">
+    <!-- Flexslider  -->
+    <link rel="stylesheet" href="../../../theme/css/flexslider.css">
+    <!-- Theme style  -->
+    <link rel="stylesheet" href="../../../theme/css/style.css">
+    <!-- Custom style  -->
+    <link rel="stylesheet" href="../../../theme/css/custom.css">
+    <!-- pygments code highlight -->
+    <link rel="stylesheet" href="../../../theme/css/pygments.css">
+    <!-- tipue search -->
+    <link rel="stylesheet" href="../../../theme/tipuesearch/css/tipuesearch.css">
+
+    <!-- Modernizr JS -->
+    <script src="../../../theme/js/modernizr-2.6.2.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="/theme/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+    </head>
+    <body>
+    <div id="fh5co-page">
+        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+
+            <nav class="fh5co-main-menu" role="navigation">
+    <ul class="language-navigation">
+        <li>
+                <a class="lang-active" href="https://yszheda.github.io/blog/">zh</a>
+                <a href="https://yszheda.github.io/blog/en/">en</a>
+        </li>
+    </ul>
+            </nav>
+            <div class="clearfix"></div>
+            <h1  id="fh5co-logo">
+                <a href="../../../index.html">
+                    <img src="static/images/trebleclef.png" />
+                </a>
+            </h1>
+                <a href="../../../index.html">
+                    <img src="static/images/trebleclef.png" />
+                </a>
+            </h1>
+            <nav class="fh5co-main-menu" role="navigation">
+<ul>
+    <!-- home link -->
+    <li><a href="../../../">Home</a></li>
+
+    <!-- page links -->
+
+    <!-- categories -->
+        <li class="nav-title">Categories</li>
+            <li><a href="../../../category/misc.html">misc</a></li>
+            <li><a href="../../../category/music.html">music</a></li>
+            <li><a href="../../../category/reading.html">reading</a></li>
+            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
+
+    <!-- tags -->
+        <li><a href="../../../tags.html">Tags</a></li>
+
+    <!-- additional menu items from config -->
+
+</ul>
+            </nav>
+
+<ul id="social">
+            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
+
+            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
+
+</ul>
+        </aside>
+
+        <div id="fh5co-main">
+
+    <div class="fh5co-narrow-content article-content">
+        <h1 class="fh5co-heading-colored">斜45度瓦片地图（Staggered Tiled Map）里的简单数学</h1>
+
+        <div>by
+                <span dir="ltr">
+                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
+ - <span dir="ltr">五 03 6月 2016</span>
+        </div>
+
+            <div><span>Tags</span>
+                    <span><a href="../../../tag/cocos2d-x.html">#cocos2d-x</a> </span>
+                    <span><a href="../../../tag/cs.html">#CS</a> </span>
+                    <span><a href="../../../tag/tech.html">#tech</a> </span>
+                    <span><a href="../../../tag/cocos.html">#cocos</a> </span>
+                    <span><a href="../../../tag/cocos2d.html">#cocos2d</a> </span>
+                    <span><a href="../../../tag/you-xi-kai-fa.html">#游戏开发</a> </span>
+                    <span><a href="../../../tag/shou-you-kai-fa.html">#手游开发</a> </span>
+                    <span><a href="../../../tag/mobile-game.html">#mobile game</a> </span>
+                    <span><a href="../../../tag/game-devolopment.html">#game devolopment</a> </span>
+                    <span><a href="../../../tag/tile.html">#tile</a> </span>
+                    <span><a href="../../../tag/tiled.html">#tiled</a> </span>
+                    <span><a href="../../../tag/tiled-map.html">#tiled map</a> </span>
+                    <span><a href="../../../tag/wa-pian-di-tu.html">#瓦片地图</a> </span>
+                    <span><a href="../../../tag/staggered-tiled-map.html">#staggered tiled map</a> </span>
+            </div>
+        <span dir="ltr">
+        </span>
+
+        <div class="animate-box" data-animate-effect="fadeInLeft">
+            <p class="animate-box" data-animate-effect="fadeInLeft"><p>前段时间在做游戏的地图编辑功能，我们是在一个斜45度视角的场景上，对地图上的建筑或装饰物进行添加、移动、移除等基本操作，而且位置的改变是以网格作为最小操作单位的。本渣是用Staggered Tiled Map实现的，与垂直视角的Tiled Map不同，斜45度视角处理起来相对麻烦些，这次就聊聊其中一些跟数学相关的有趣问题。</p>
+<!-- more -->
+
+<h1 id="staggered-tiled-map">何为Staggered Tiled Map?</h1>
+<p>不解释，有图有真相XD</p>
+<p><img alt="Orthogonal Tiled Map" src="/images/tiled-map/orthogonal.png"></p>
+<p><img alt="Isometric Tiled Map" src="/images/tiled-map/isometric.png"></p>
+<p><img alt="Hexagonal Tiled Map" src="/images/tiled-map/hexagonal(staggered).png"></p>
+<p><img alt="Staggered Tiled Map" src="/images/tiled-map/staggered.png"></p>
+<h1 id="_1">判断区域相交</h1>
+<p>地图编辑的一个基础功能便是判断当前被编辑的建筑或装饰物的位置的合法性。这种合法性检查主要有两方面：一是不能放置在地图上被禁止编辑的区域（例如地图上的河流、山坡），这可以通过在Tiled Map上在相应区域做上标记，判断建筑所在的区域是否有该标记就可以了；二是不能与其他建筑或装饰物重叠，这便是这里主要要讨论的问题了。</p>
+<p>在实际做位置判断时，我们并非按照每个建筑或装饰物的图片实际轮廓，而是把它们都对应到Tiled Map上一块以网格线为边的区域上——在斜45度视角下，这样的区域就是一个平行四边形。因此，建筑或装饰物是否重叠的问题便转化为在Tiled Map上的两个平行四边形是否相交的问题。再做进一步简化，我们发现这其实只需要判断任一平行四边形的四个顶点的瓦片（tile）是否落在另一个平行四边形内部就可以了。</p>
+<p>看到这里，你也许已经发现：这不就是中学里简单的代数问题吗？判断点是否在平行四边形内，只需要知道平行四边形四条边所在直线的方程和点的坐标，便迎刃而解。没错，Tiled Map里每一块瓦片区域有自己的坐标，我们只需要把一块瓦片的坐标当做点的坐标，直线方程和点的坐标就有了。但斜45度角Staggered Tiled Map的有趣之处在于，即便把瓦片当做点，得到的并不是一个常见的平面直角坐标系。</p>
+<p>下面我们还是通过图片来看看Staggered Tiled Map的坐标：</p>
+<p><img alt="image" src="/images/tiled-map/odd-height-original-coord.png"></p>
+<p>为了方便起见，我们把向下作为y轴正方向，我们可以发现上面的坐标(x, y)有着如下规律：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code>-- columnNum表示列数
+-- columnNum = 1, 2, 3, ...
+x = (columnNum - 1) % 2
+
+
+-- rowNum表示行数
+-- rowNum = 1, 2, 3, ...
+y = rowNum - 1
+</code></pre></div></td></tr></table></div>
+
+<p>看上去好像不复杂，但要列出直线方程呢？比如以下两种可作为平行四边形瓦片区域的边的直线：</p>
+<p><img alt="image" src="/images/tiled-map/row_line.png"></p>
+<p><img alt="image" src="/images/tiled-map/column_line.png"></p>
+<p>一时半会懵逼了吧？使问题复杂的正是这些公式需要判断奇偶性，能不能把奇偶性判断拿掉呢？当然可以，做坐标转换就可以了，让我们先看一张直观的坐标转换结果图：</p>
+<p><img alt="image" src="/images/tiled-map/odd-height-new-coord.png"></p>
+<p>这相当于做了如下的坐标转换：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>f[(x, y)] = (x <span class="gs">* 2, y) if y mod 2 = 0</span>
+
+<span class="gs">f[(x, y)] = (x *</span> 2 + 1, y) if y mod 2 = 1
+</code></pre></div></td></tr></table></div>
+
+<p>合并成一条公式也就是：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>f[(x, y)] = (x * 2 + y mod 2, y)
+</code></pre></div></td></tr></table></div>
+
+<p>现在是不是简单得多了？上面两条直线方程（因为这样的直线斜率是确定的，只需要知道直线上一点的坐标就可以确定直线方程）分别是：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code>-- linear equation of the row line containing the point of tileCoord
+local function rowEquation(tileCoord)
+    return tileCoord.x * 2 + tileCoord.y % 2 + tileCoord.y
+end
+</code></pre></div></td></tr></table></div>
+
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code>-- linear equation of the column line containing the point of tileCoord
+local function columnEquation(tileCoord)
+    return tileCoord.x * 2 + tileCoord.y % 2 - tileCoord.y
+end
+</code></pre></div></td></tr></table></div>
+
+<p>这个时候你应该已经发现，我们可以用之前简单的代数问题解法来解决这一问题了：已知点的坐标<code>tileCoord</code>和一个区域<code>region</code>四个顶点的坐标（分别为<code>region.top</code>、<code>region.bottom</code>、<code>region.left</code>、<code>region.right</code>，事实上只需要知道其中两个点就可以了），判断点是否在区域内，只需要做不等式判断即可：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">local</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="n">containsTile</span><span class="p">(</span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="n">tileCoord</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">rowEquation</span><span class="p">(</span><span class="n">tileCoord</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">rowEquation</span><span class="p">(</span><span class="n">region</span><span class="p">.</span><span class="n">top</span><span class="p">))</span>
+<span class="w">    </span><span class="k">and</span><span class="w"> </span><span class="p">(</span><span class="n">rowEquation</span><span class="p">(</span><span class="n">tileCoord</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">rowEquation</span><span class="p">(</span><span class="n">region</span><span class="p">.</span><span class="n">bottom</span><span class="p">))</span>
+<span class="w">    </span><span class="k">and</span><span class="w"> </span><span class="p">(</span><span class="n">columnEquation</span><span class="p">(</span><span class="n">tileCoord</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">columnEquation</span><span class="p">(</span><span class="n">region</span><span class="p">.</span><span class="n">top</span><span class="p">))</span>
+<span class="w">    </span><span class="k">and</span><span class="w"> </span><span class="p">(</span><span class="n">columnEquation</span><span class="p">(</span><span class="n">tileCoord</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">columnEquation</span><span class="p">(</span><span class="n">region</span><span class="p">.</span><span class="n">bottom</span><span class="p">))</span>
+</code></pre></div></td></tr></table></div>
+
+<p>你也许会问，为什么不直接定义一套方便计算的坐标系统？为何要用Staggered Tiled Map原有的坐标系统去做变换呢？这是因为前面所提到的做标记的非法编辑区域是采用原有的坐标系统的，采用同一套坐标系统加简单的坐标转换处理比起采用两套坐标系统，在实现上和维护上的成本更低。</p>
+<h1 id="_2">遮挡关系</h1>
+<p>地图编辑的另一个基础需求是要处理好建筑及装饰物之间的遮挡关系。这个问题可以转化为建筑或装饰物的显示层级的排序。但是问题又来了，如何比较任意两个建筑或装饰物的显示先后顺序呢？特别是它们还有可能隔得很远，并没有显示上的重叠区域？</p>
+<p>这个问题其实没有固定答案，本渣也只是根据我们系统的实际情况定了一套排序规则。在本渣的规则中，建筑或装饰物的显示层级只与它们对应的平行四边形区域有关。本渣用每一个的平行四边形左侧和右侧瓦片的坐标点得到一条直线，并把平行四边形对角线交点作为基准点。当比较两个建筑或装饰物的显示先后时，先判断二者平行四边形的宽度（两条相邻边的tile数量），短的求基准点，长的求直线。如果点在直线下方，则点所对应的建筑或装饰物在前方；反之则在后方。</p>
+<p>当然，本渣这套规则实际能显示正确还有赖于美术大大们提供的建筑或装饰物图片资源的情况哈，如果建筑或装饰物的轮廓宽度超过它们的平行四边形区域，还是可能会出现显示奇怪的地方的。</p></p>
+        </div>
+    </div>
+
+<div class="fh5co-narrow-content">
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
+</div>
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <div id="disqus_thread"></div>
+</div>
+
+<script>
+var disqus_config = function () { 
+  this.language = "zh";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
+<div class="fh5co-footer">
+    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
+    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
+
+</div>                
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="../../../theme/js/jquery.min.js"></script>
+    <!-- jQuery Easing -->
+    <script src="../../../theme/js/jquery.easing.1.3.js"></script>
+    <!-- Bootstrap -->
+    <script src="../../../theme/js/bootstrap.min.js"></script>
+    <!-- Waypoints -->
+    <script src="../../../theme/js/jquery.waypoints.min.js"></script>
+    <!-- Flexslider -->
+    <script src="../../../theme/js/jquery.flexslider-min.js"></script>
+
+
+    <!-- MAIN JS -->
+    <script src="../../../theme/js/main.js"></script>
+    </body>
+</html>

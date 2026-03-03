@@ -1,0 +1,472 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" dir="" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" dir="" class="no-js"> <!--<![endif]-->
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>记一次cocos2d-x游戏android崩溃排查</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="author" content="Galoisplusplus" />
+    <meta name="description" content="最近查google breakpad回传的crash log，发现了不少cocos2d::FileUtilsAndroid::getData引起的崩溃。崩溃日志的关键信息如下： 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 …" />
+    <meta name="keywords" content="cocos2d-x, CS, tech, android, Android, breakpad, debug, crash, 崩溃, 游戏崩溃, cocos, cocos2d, 游戏开发, 手游开发, game, mobile game, game devolopment">
+<!-- Facebook and Twitter integration -->
+<meta property="og:site_name" content="Galoisplusplus"/>
+<meta property="og:title" content="记一次cocos2d-x游戏android崩溃排查"/>
+<meta property="og:description" content="最近查google breakpad回传的crash log，发现了不少cocos2d::FileUtilsAndroid::getData引起的崩溃。崩溃日志的关键信息如下： 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 …"/>
+<meta property="og:url" content="../../../2015/11/21/20151121-android-crash-in-cocos2d-x.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2015-11-21 22:53:00+08:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="../../../author/galoisplusplus.html">
+<meta property="article:section" content="tech"/>
+    <meta property="article:tag" content="cocos2d-x"/>
+    <meta property="article:tag" content="CS"/>
+    <meta property="article:tag" content="tech"/>
+    <meta property="article:tag" content="android"/>
+    <meta property="article:tag" content="Android"/>
+    <meta property="article:tag" content="breakpad"/>
+    <meta property="article:tag" content="debug"/>
+    <meta property="article:tag" content="crash"/>
+    <meta property="article:tag" content="崩溃"/>
+    <meta property="article:tag" content="游戏崩溃"/>
+    <meta property="article:tag" content="cocos"/>
+    <meta property="article:tag" content="cocos2d"/>
+    <meta property="article:tag" content="游戏开发"/>
+    <meta property="article:tag" content="手游开发"/>
+    <meta property="article:tag" content="game"/>
+    <meta property="article:tag" content="mobile game"/>
+    <meta property="article:tag" content="game devolopment"/>
+    <meta property="og:image" content="static/images/trebleclef.png">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="../../../../theme/css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="../../../../theme/css/icomoon.css">
+    <!-- Bootstrap  -->
+    <link rel="stylesheet" href="../../../../theme/css/bootstrap.css">
+    <!-- Flexslider  -->
+    <link rel="stylesheet" href="../../../../theme/css/flexslider.css">
+    <!-- Theme style  -->
+    <link rel="stylesheet" href="../../../../theme/css/style.css">
+    <!-- Custom style  -->
+    <link rel="stylesheet" href="../../../../theme/css/custom.css">
+    <!-- pygments code highlight -->
+    <link rel="stylesheet" href="../../../../theme/css/pygments.css">
+    <!-- tipue search -->
+    <link rel="stylesheet" href="../../../../theme/tipuesearch/css/tipuesearch.css">
+
+    <!-- Modernizr JS -->
+    <script src="../../../../theme/js/modernizr-2.6.2.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="/theme/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+    </head>
+    <body>
+    <div id="fh5co-page">
+        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+
+            <nav class="fh5co-main-menu" role="navigation">
+    <ul class="language-navigation">
+        <li>
+                <a href="https://yszheda.github.io/blog/">zh</a>
+                <a class="lang-active" href="https://yszheda.github.io/blog/en/">en</a>
+        </li>
+    </ul>
+            </nav>
+            <div class="clearfix"></div>
+            <h1  id="fh5co-logo">
+                <a href="../../../index.html">
+                    <img src="static/images/trebleclef.png" />
+                </a>
+            </h1>
+                <a href="../../../index.html">
+                    <img src="static/images/trebleclef.png" />
+                </a>
+            </h1>
+            <nav class="fh5co-main-menu" role="navigation">
+<ul>
+    <!-- home link -->
+    <li><a href="../../../">Home</a></li>
+
+    <!-- page links -->
+
+    <!-- categories -->
+        <li class="nav-title">Categories</li>
+            <li><a href="../../../category/misc.html">misc</a></li>
+            <li><a href="../../../category/music.html">music</a></li>
+            <li><a href="../../../category/reading.html">reading</a></li>
+            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
+
+    <!-- tags -->
+        <li><a href="../../../tags.html">Tags</a></li>
+
+    <!-- additional menu items from config -->
+
+</ul>
+            </nav>
+
+<ul id="social">
+            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
+
+            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
+
+</ul>
+        </aside>
+
+        <div id="fh5co-main">
+
+    <div class="fh5co-narrow-content article-content">
+        <h1 class="fh5co-heading-colored">记一次cocos2d-x游戏android崩溃排查</h1>
+
+        <div>by
+                <span dir="ltr">
+                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
+ - <span dir="ltr">六 21 11月 2015</span>
+        </div>
+
+            <div><span>Tags</span>
+                    <span><a href="../../../tag/cocos2d-x.html">#cocos2d-x</a> </span>
+                    <span><a href="../../../tag/cs.html">#CS</a> </span>
+                    <span><a href="../../../tag/tech.html">#tech</a> </span>
+                    <span><a href="../../../tag/android.html">#android</a> </span>
+                    <span><a href="../../../tag/android.html">#Android</a> </span>
+                    <span><a href="../../../tag/breakpad.html">#breakpad</a> </span>
+                    <span><a href="../../../tag/debug.html">#debug</a> </span>
+                    <span><a href="../../../tag/crash.html">#crash</a> </span>
+                    <span><a href="../../../tag/beng-kui.html">#崩溃</a> </span>
+                    <span><a href="../../../tag/you-xi-beng-kui.html">#游戏崩溃</a> </span>
+                    <span><a href="../../../tag/cocos.html">#cocos</a> </span>
+                    <span><a href="../../../tag/cocos2d.html">#cocos2d</a> </span>
+                    <span><a href="../../../tag/you-xi-kai-fa.html">#游戏开发</a> </span>
+                    <span><a href="../../../tag/shou-you-kai-fa.html">#手游开发</a> </span>
+                    <span><a href="../../../tag/game.html">#game</a> </span>
+                    <span><a href="../../../tag/mobile-game.html">#mobile game</a> </span>
+                    <span><a href="../../../tag/game-devolopment.html">#game devolopment</a> </span>
+            </div>
+        <span dir="ltr">
+        </span>
+
+        <div class="animate-box" data-animate-effect="fadeInLeft">
+            <p class="animate-box" data-animate-effect="fadeInLeft"><p>最近查google breakpad回传的crash log，发现了不少<code>cocos2d::FileUtilsAndroid::getData</code>引起的崩溃。崩溃日志的关键信息如下：</p>
+<!-- more -->
+
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span></pre></div></td><td class="code"><div><pre><span></span><code>Operating system: Android
+                  0.0.0 Linux 3.4.0-3215177 #1 SMP PREEMPT Thu Nov 6 17:48:34 KST 2014 armv7l
+CPU: arm
+     ARMv7 Qualcomm Krait features: swp,half,thumb,fastmult,vfpv2,edsp,neon,vfpv3,tls,vfpv4,idiva,idivt
+     4 CPUs
+
+Crash reason:  SIGSEGV
+Crash address: 0x0
+
+Thread 11 (crashed)
+ 0  libc.so + 0x22284
+     r0 = 0x00000000    r1 = 0x7a634048    r2 = 0x00001000    r3 = 0x5a007304
+     r4 = 0x40090d9c    r5 = 0x01632924    r6 = 0x01632924    r7 = 0x40091334
+     r8 = 0x01632924    r9 = 0x00001000   r10 = 0x7a634280   r12 = 0x00000035
+     fp = 0x00001000    sp = 0x78a78390    lr = 0x00000280    pc = 0x4005b284
+    Found by: given as instruction pointer in context
+ 1  libc.so + 0x25aaf
+     sp = 0x78a783a0    pc = 0x4005eab1
+    Found by: stack scanning
+ 2  libcocos2dlua.so!cocos2d::FileUtilsAndroid::getData [CCFileUtils-android.cpp : 273 + 0xb]
+     sp = 0x78a783c8    pc = 0x77fe2415
+    Found by: stack scanning
+ 3  libcocos2dlua.so!cocos2d::FileUtilsAndroid::getDataFromFile [CCFileUtils-android.cpp : 307 + 0x5]
+     r4 = 0x78a78450    r5 = 0x7d307558    r6 = 0x78a78450    r7 = 0x7e851e54
+     sp = 0x78a78438    pc = 0x77fe2523
+    Found by: call frame info
+ 4  libcocos2dlua.so!cocos2d::FontFreeType::createFontObject [CCFontFreeType.cpp : 127 + 0x7]
+     r4 = 0x78a785a4    r5 = 0x7d307558    r6 = 0x78a78450    r7 = 0x7e851e54
+     sp = 0x78a78440    pc = 0x782c6565
+    Found by: call frame info
+ 5  libcocos2dlua.so!cocos2d::FontFreeType::create [CCFontFreeType.cpp : 58 + 0x9]
+     r4 = 0x7d307558    r5 = 0x00000000    r6 = 0x00000000    r7 = 0x00000000
+     sp = 0x78a78470    pc = 0x782c665b
+    Found by: call frame info
+ 6  libcocos2dlua.so!cocos2d::FontAtlasCache::getFontAtlasTTF [CCFontAtlasCache.cpp : 90 + 0x13]
+     r0 = 0x78a785a4    r1 = 0x00000014    r2 = 0x00000000    r4 = 0x7877905c
+     r5 = 0x78a784b4    r6 = 0x78a785a4    r7 = 0x78a784b4    sp = 0x78a78490
+     pc = 0x782c22bd
+    Found by: call frame info
+ 7  libcocos2dlua.so!cocos2d::Label::setTTFConfig [CCLabel.cpp : 438 + 0x3]
+     r4 = 0x82d231a8    r5 = 0x7ceddca0    r6 = 0x78a785a4    r7 = 0x00000000
+     sp = 0x78a78578    pc = 0x78249423
+    Found by: call frame info
+ 8  libcocos2dlua.so!cocos2d::ui::Text::setFontName [UIText.cpp : 162 + 0x9]
+     r3 = 0x78249415    r4 = 0x78a785a4    r5 = 0x7ceddca0    r6 = 0x82d234c0
+     r7 = 0x00000398    sp = 0x78a78590    pc = 0x78203b41
+    Found by: call frame info
+ 9  libcocos2dlua.so!cocostudio::TextReader::setPropsFromJsonDictionary [TextReader.cpp : 119 + 0x7]
+     r4 = 0x7a0b1ec8    r5 = 0x7ceddca0    r6 = 0x78a78614    r7 = 0x78a78620
+     sp = 0x78a785e0    pc = 0x781b42f1
+    Found by: call frame info
+</code></pre></div></td></tr></table></div>
+
+<p>很明显，这是由访问非法内存地址0x0所引起的segmentation fault，下面再来看call stack中所提示的<code>CCFileUtils-android.cpp</code>中第273行：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="w">        </span><span class="k">do</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// read rrom other path than user set it</span>
+<span class="w">            </span><span class="c1">//CCLOG(&quot;GETTING FILE ABSOLUTE DATA: %s&quot;, filename);</span>
+<span class="w">            </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">forString</span><span class="p">)</span>
+<span class="w">                </span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;rt&quot;</span><span class="p">;</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="w">                </span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;rb&quot;</span><span class="p">;</span>
+
+<span class="w">            </span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">fullPath</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="n">mode</span><span class="p">);</span>
+<span class="w">            </span><span class="n">CC_BREAK_IF</span><span class="p">(</span><span class="o">!</span><span class="n">fp</span><span class="p">);</span>
+
+<span class="w">            </span><span class="kt">long</span><span class="w"> </span><span class="n">fileSize</span><span class="p">;</span>
+<span class="w">            </span><span class="n">fseek</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">SEEK_END</span><span class="p">);</span>
+<span class="w">            </span><span class="n">fileSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ftell</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+<span class="w">            </span><span class="n">fseek</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">SEEK_SET</span><span class="p">);</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">forString</span><span class="p">)</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="n">fileSize</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="w">                </span><span class="n">data</span><span class="p">[</span><span class="n">fileSize</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;\0&#39;</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="n">fileSize</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="n">fileSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fread</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="p">),</span><span class="w"> </span><span class="n">fileSize</span><span class="p">,</span><span class="n">fp</span><span class="p">);</span>
+<span class="w">            </span><span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+
+<span class="w">            </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fileSize</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</code></pre></div></td></tr></table></div>
+
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="w">    </span><span class="n">do</span>
+<span class="w">    </span><span class="err">{</span>
+<span class="w">        </span><span class="o">//</span><span class="w"> </span><span class="k">read</span><span class="w"> </span><span class="n">rrom</span><span class="w"> </span><span class="n">other</span><span class="w"> </span><span class="k">path</span><span class="w"> </span><span class="k">than</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">it</span>
+<span class="w">        </span><span class="o">//</span><span class="n">CCLOG</span><span class="p">(</span><span class="ss">&quot;GETTING FILE ABSOLUTE DATA: %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">);</span>
+<span class="w">        </span><span class="n">const</span><span class="w"> </span><span class="nc">char</span><span class="o">*</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">forString</span><span class="p">)</span>
+<span class="w">            </span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">&quot;rt&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="w">            </span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">&quot;rb&quot;</span><span class="p">;</span>
+
+<span class="w">        </span><span class="k">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">fullPath</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="n">mode</span><span class="p">);</span>
+<span class="w">        </span><span class="n">CC_BREAK_IF</span><span class="p">(</span><span class="err">!</span><span class="n">fp</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">long</span><span class="w"> </span><span class="n">fileSize</span><span class="p">;</span>
+<span class="w">        </span><span class="n">fseek</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">SEEK_END</span><span class="p">);</span>
+<span class="w">        </span><span class="n">fileSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ftell</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+<span class="w">        </span><span class="n">fseek</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">SEEK_SET</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">forString</span><span class="p">)</span>
+<span class="w">        </span><span class="err">{</span>
+<span class="w">            </span><span class="k">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">unsigned</span><span class="w"> </span><span class="nc">char</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="n">fileSize</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="w">            </span><span class="k">data</span><span class="o">[</span><span class="n">fileSize</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;\0&#39;</span><span class="p">;</span>
+<span class="w">        </span><span class="err">}</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="w">        </span><span class="err">{</span>
+<span class="w">            </span><span class="k">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">unsigned</span><span class="w"> </span><span class="nc">char</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="n">fileSize</span><span class="p">);</span>
+<span class="w">        </span><span class="err">}</span>
+<span class="w">        </span><span class="n">fileSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fread</span><span class="p">(</span><span class="k">data</span><span class="p">,</span><span class="n">sizeof</span><span class="p">(</span><span class="n">unsigned</span><span class="w"> </span><span class="nc">char</span><span class="p">),</span><span class="w"> </span><span class="n">fileSize</span><span class="p">,</span><span class="n">fp</span><span class="p">);</span>
+<span class="w">        </span><span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fileSize</span><span class="p">;</span>
+<span class="w">    </span><span class="err">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</code></pre></div></td></tr></table></div>
+
+<p>第273行是调用<code>fread</code>函数，由于<code>fp</code>已经通过<code>CC_BREAK_IF(!fp);</code>做了检查，那么很可能便是<code>malloc</code>的buffer为<code>NULL</code>所致。</p>
+<p>为了进一步验证，我们再来看call stack顶层：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div><pre><span></span><code> 0  libc.so + 0x22284
+     r0 = 0x00000000    r1 = 0x7a634048    r2 = 0x00001000    r3 = 0x5a007304
+     r4 = 0x40090d9c    r5 = 0x01632924    r6 = 0x01632924    r7 = 0x40091334
+     r8 = 0x01632924    r9 = 0x00001000   r10 = 0x7a634280   r12 = 0x00000035
+     fp = 0x00001000    sp = 0x78a78390    lr = 0x00000280    pc = 0x4005b284
+    Found by: given as instruction pointer in context
+</code></pre></div></td></tr></table></div>
+
+<p>基本可以确定是访问r0（0x0）了，那么r0的庐山真面目究竟如何呢？既然crash log说崩溃的机型所用的cpu是arm架构，那么我们便可以查阅arm的文档<a href="http://infocenter.arm.com/help/topic/com.arm.doc.ihi0042e/IHI0042E_aapcs.pdf">AAPCS（Procedure Call Standard for the ARM Architecture）</a>。其中Parameter Passing这一节便提到：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">The</span><span class="w"> </span><span class="n">base</span><span class="w"> </span><span class="n">standard</span><span class="w"> </span><span class="n">provides</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">passing</span><span class="w"> </span><span class="n">arguments</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">core</span><span class="w"> </span><span class="n">registers</span><span class="w"> </span><span class="p">(</span><span class="n">r0</span><span class="o">-</span><span class="n">r3</span><span class="p">)</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">stack</span><span class="p">.</span><span class="w"> </span><span class="n">For</span><span class="w"> </span><span class="n">subroutines</span><span class="w"> </span><span class="n">that</span>
+<span class="n">take</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">small</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">parameters</span><span class="p">,</span><span class="w"> </span><span class="n">only</span><span class="w"> </span><span class="n">registers</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">used</span><span class="p">,</span><span class="w"> </span><span class="n">greatly</span><span class="w"> </span><span class="n">reducing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">overhead</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">call</span><span class="p">.</span>
+</code></pre></div></td></tr></table></div>
+
+<p>r0刚好对应了第一个参数，这在我们的例子中就是<code>fread</code>的<code>data</code>。当然，在arm中，r0不仅可以是参数寄存器（argument register），还可能是结果寄存器（result register）和临时寄存器（scratch register）。但是，在这个<code>fread</code>所引起的崩溃中，基本可以排除result register的情况，因为<code>fread</code>的结果不是需要被访问的内存地址；scratch register倒还是有可能的，如果能找到设备系统的libc.so来<code>objdump</code>看下相关的汇编代码可以更确定些。</p>
+<p>基本确认原因后，改起来便很容易了。目前我已向cocos2d-x提交了一个patch<a href="https://github.com/cocos2d/cocos2d-x/pull/14458">PR 14458</a>。</p>
+<h1 id="_1">参考资料</h1>
+<p>[1]<a href="http://infocenter.arm.com/help/topic/com.arm.doc.ihi0042e/IHI0042E_aapcs.pdf">AAPCS</a></p>
+<p>[2]<a href="http://stackoverflow.com/questions/261419/arm-to-c-calling-convention-registers-to-save">ARM to C calling convention, registers to save</a></p>
+<p>检查<code>malloc</code>的返回值是否为<code>NULL</code>的必要性不必我多说，可以参考以下的SOF链接：</p>
+<p>[3]<a href="http://stackoverflow.com/questions/9101597/under-what-circumstances-can-malloc-return-null">Under what circumstances can malloc return NULL?</a></p>
+<p>[4]<a href="http://stackoverflow.com/questions/2248995/is-there-a-need-to-check-for-null-after-allocating-memory-when-kernel-uses-over">Is there a need to check for NULL after allocating memory, when kernel uses overcommit memory</a></p>
+<p>关于fread函数：</p>
+<p>[5]<a href="http://www.cplusplus.com/reference/cstdio/fread/">fread reference</a></p></p>
+        </div>
+    </div>
+
+<div class="fh5co-narrow-content">
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
+</div>
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <div id="disqus_thread"></div>
+</div>
+
+<script>
+var disqus_config = function () { 
+  this.language = "en";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
+<div class="fh5co-footer">
+    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
+    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
+
+</div>                
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="../../../../theme/js/jquery.min.js"></script>
+    <!-- jQuery Easing -->
+    <script src="../../../../theme/js/jquery.easing.1.3.js"></script>
+    <!-- Bootstrap -->
+    <script src="../../../../theme/js/bootstrap.min.js"></script>
+    <!-- Waypoints -->
+    <script src="../../../../theme/js/jquery.waypoints.min.js"></script>
+    <!-- Flexslider -->
+    <script src="../../../../theme/js/jquery.flexslider-min.js"></script>
+
+
+    <!-- MAIN JS -->
+    <script src="../../../../theme/js/main.js"></script>
+    </body>
+</html>

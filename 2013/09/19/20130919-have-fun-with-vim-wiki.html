@@ -1,0 +1,397 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="zh" dir="" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="zh" dir="" class="no-js"> <!--<![endif]-->
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>have fun with vim wiki</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="author" content="Galoisplusplus" />
+    <meta name="description" content="写blog确实是一种消化和深入理解知识的方式，但往往要整理一个完整的主题相当的耗时间。 平时我也想记一记一些有用然而散乱的tips，慢慢积累起来。 作为一位Vim忠实粉 …" />
+    <meta name="keywords" content="tech, CS, vimwiki, github pages, systemd, cron, crontab, github, wiki, 个人wiki, pathogen, cronjob, Archlinux, linux">
+<!-- Facebook and Twitter integration -->
+<meta property="og:site_name" content="Galoisplusplus"/>
+<meta property="og:title" content="have fun with vim wiki"/>
+<meta property="og:description" content="写blog确实是一种消化和深入理解知识的方式，但往往要整理一个完整的主题相当的耗时间。 平时我也想记一记一些有用然而散乱的tips，慢慢积累起来。 作为一位Vim忠实粉 …"/>
+<meta property="og:url" content="../../../2013/09/19/20130919-have-fun-with-vim-wiki.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2013-09-19 15:31:00+08:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="../../../author/galoisplusplus.html">
+<meta property="article:section" content="tech"/>
+    <meta property="article:tag" content="tech"/>
+    <meta property="article:tag" content="CS"/>
+    <meta property="article:tag" content="vimwiki"/>
+    <meta property="article:tag" content="github pages"/>
+    <meta property="article:tag" content="systemd"/>
+    <meta property="article:tag" content="cron"/>
+    <meta property="article:tag" content="crontab"/>
+    <meta property="article:tag" content="github"/>
+    <meta property="article:tag" content="wiki"/>
+    <meta property="article:tag" content="个人wiki"/>
+    <meta property="article:tag" content="pathogen"/>
+    <meta property="article:tag" content="cronjob"/>
+    <meta property="article:tag" content="Archlinux"/>
+    <meta property="article:tag" content="linux"/>
+    <meta property="og:image" content="static/images/trebleclef.png">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="../../../theme/css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="../../../theme/css/icomoon.css">
+    <!-- Bootstrap  -->
+    <link rel="stylesheet" href="../../../theme/css/bootstrap.css">
+    <!-- Flexslider  -->
+    <link rel="stylesheet" href="../../../theme/css/flexslider.css">
+    <!-- Theme style  -->
+    <link rel="stylesheet" href="../../../theme/css/style.css">
+    <!-- Custom style  -->
+    <link rel="stylesheet" href="../../../theme/css/custom.css">
+    <!-- pygments code highlight -->
+    <link rel="stylesheet" href="../../../theme/css/pygments.css">
+    <!-- tipue search -->
+    <link rel="stylesheet" href="../../../theme/tipuesearch/css/tipuesearch.css">
+
+    <!-- Modernizr JS -->
+    <script src="../../../theme/js/modernizr-2.6.2.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="/theme/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+    </head>
+    <body>
+    <div id="fh5co-page">
+        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+
+            <nav class="fh5co-main-menu" role="navigation">
+    <ul class="language-navigation">
+        <li>
+                <a class="lang-active" href="https://yszheda.github.io/blog/">zh</a>
+                <a href="https://yszheda.github.io/blog/en/">en</a>
+        </li>
+    </ul>
+            </nav>
+            <div class="clearfix"></div>
+            <h1  id="fh5co-logo">
+                <a href="../../../index.html">
+                    <img src="static/images/trebleclef.png" />
+                </a>
+            </h1>
+                <a href="../../../index.html">
+                    <img src="static/images/trebleclef.png" />
+                </a>
+            </h1>
+            <nav class="fh5co-main-menu" role="navigation">
+<ul>
+    <!-- home link -->
+    <li><a href="../../../">Home</a></li>
+
+    <!-- page links -->
+
+    <!-- categories -->
+        <li class="nav-title">Categories</li>
+            <li><a href="../../../category/misc.html">misc</a></li>
+            <li><a href="../../../category/music.html">music</a></li>
+            <li><a href="../../../category/reading.html">reading</a></li>
+            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
+
+    <!-- tags -->
+        <li><a href="../../../tags.html">Tags</a></li>
+
+    <!-- additional menu items from config -->
+
+</ul>
+            </nav>
+
+<ul id="social">
+            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
+
+            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
+
+</ul>
+        </aside>
+
+        <div id="fh5co-main">
+
+    <div class="fh5co-narrow-content article-content">
+        <h1 class="fh5co-heading-colored">have fun with vim wiki</h1>
+
+        <div>by
+                <span dir="ltr">
+                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
+ - <span dir="ltr">四 19 9月 2013</span>
+        </div>
+
+            <div><span>Tags</span>
+                    <span><a href="../../../tag/tech.html">#tech</a> </span>
+                    <span><a href="../../../tag/cs.html">#CS</a> </span>
+                    <span><a href="../../../tag/vimwiki.html">#vimwiki</a> </span>
+                    <span><a href="../../../tag/github-pages.html">#github pages</a> </span>
+                    <span><a href="../../../tag/systemd.html">#systemd</a> </span>
+                    <span><a href="../../../tag/cron.html">#cron</a> </span>
+                    <span><a href="../../../tag/crontab.html">#crontab</a> </span>
+                    <span><a href="../../../tag/github.html">#github</a> </span>
+                    <span><a href="../../../tag/wiki.html">#wiki</a> </span>
+                    <span><a href="../../../tag/ge-ren-wiki.html">#个人wiki</a> </span>
+                    <span><a href="../../../tag/pathogen.html">#pathogen</a> </span>
+                    <span><a href="../../../tag/cronjob.html">#cronjob</a> </span>
+                    <span><a href="../../../tag/archlinux.html">#Archlinux</a> </span>
+                    <span><a href="../../../tag/linux.html">#linux</a> </span>
+            </div>
+        <span dir="ltr">
+        </span>
+
+        <div class="animate-box" data-animate-effect="fadeInLeft">
+            <p class="animate-box" data-animate-effect="fadeInLeft"><p>写blog确实是一种消化和深入理解知识的方式，但往往要整理一个完整的主题相当的耗时间。
+平时我也想记一记一些有用然而散乱的tips，慢慢积累起来。
+作为一位Vim忠实粉，我理所当然找到了大名鼎鼎的Vim插件<a href="http://www.vim.org/scripts/script.php?script_id=2226">Vimwiki</a>，
+并开始借此搭建我的个人wiki。</p>
+<p>用<a href="https://github.com/tpope/vim-pathogen">pathogen</a>这个管理Vim插件的插件把Vimwiki安装上后，需要在.vimrc中加入一些设置，其中最重要的是指定你所写的wiki源文件的路径和要发布的html文件的路径：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>let g:vimwiki_list = [{&#39;path&#39;: &#39;~/my_site/&#39;, &#39;path_html&#39;: &#39;~/public_html/&#39;}]
+</code></pre></div></td></tr></table></div>
+
+<p>接下来就可以在你所指定的'path'下创建.wiki文件，编辑完后是用以下Vim命令</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>:Vimwiki2HTML
+</code></pre></div></td></tr></table></div>
+
+<p>Vimwiki插件就会自动将该.wiki文件转化为同名的html页面（例如topic.wiki生成的是topic.html）并把html放到你所指定的'path_html'下。
+如果要转化所有条目可以用以下的Vim命令：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>:VimwikiAll2HTML
+</code></pre></div></td></tr></table></div>
+
+<!-- more -->
+
+<p>有了html页面，自然想发布到某网站上。我选择了提供pages服务的业界良心Github，创建一个名为wiki的新repo(https://github.com/yszheda/wiki)，把'path_html'上的html文件托管到上面，并通过gh-pages分支发布我的Project pages(http://yszheda.github.io/wiki/)。
+页面的样式我偷懒直接使用了Github官方提供的Architect主题，为了让该主题应用到所有Vimwiki生成的html页面上，需要修改Vimwiki插件目录下的<code>autoload/vimwiki/default.tpl</code>模板文件：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">&gt;</span>
+
+<span class="cm">&lt;!--</span>
+<span class="cm">&lt;link rel=&quot;Stylesheet&quot; type=&quot;text/css&quot; href=&quot;%root_path%%css%&quot;&gt;</span>
+<span class="cm">--&gt;</span>
+<span class="p">&lt;</span><span class="nt">link</span> <span class="na">href</span><span class="o">=</span><span class="s">&#39;https://fonts.googleapis.com/css?family=Architects+Daughter&#39;</span> <span class="na">rel</span><span class="o">=</span><span class="s">&#39;stylesheet&#39;</span> <span class="na">type</span><span class="o">=</span><span class="s">&#39;text/css&#39;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">link</span> <span class="na">rel</span><span class="o">=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text/css&quot;</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;stylesheets/stylesheet.css&quot;</span> <span class="na">media</span><span class="o">=</span><span class="s">&quot;screen&quot;</span> <span class="p">/&gt;</span>
+<span class="p">&lt;</span><span class="nt">link</span> <span class="na">rel</span><span class="o">=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text/css&quot;</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;stylesheets/pygment_trac.css&quot;</span> <span class="na">media</span><span class="o">=</span><span class="s">&quot;screen&quot;</span> <span class="p">/&gt;</span>
+<span class="p">&lt;</span><span class="nt">link</span> <span class="na">rel</span><span class="o">=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text/css&quot;</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;stylesheets/print.css&quot;</span> <span class="na">media</span><span class="o">=</span><span class="s">&quot;print&quot;</span> <span class="p">/&gt;</span>
+
+<span class="cm">&lt;!--[if lt IE 9]&gt;</span>
+<span class="cm">&lt;script src=&quot;//html5shiv.googlecode.com/svn/trunk/html5.js&quot;&gt;&lt;/script&gt;</span>
+<span class="cm">&lt;![endif]--&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>%title%<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">meta</span> <span class="na">http-equiv</span><span class="o">=</span><span class="s">&quot;Content-Type&quot;</span> <span class="na">content</span><span class="o">=</span><span class="s">&quot;text/html; charset=%encoding%&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">header</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;inner&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Wiki<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span>by yszheda<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;https://github.com/yszheda/wiki&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;button&quot;</span><span class="p">&gt;&lt;</span><span class="nt">small</span><span class="p">&gt;</span>View project on<span class="p">&lt;/</span><span class="nt">small</span><span class="p">&gt;</span>GitHub<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">header</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;content-wrapper&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;inner clearfix&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">section</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;main-content&quot;</span><span class="p">&gt;</span>
+%content%
+<span class="p">&lt;/</span><span class="nt">section</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">aside</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;sidebar&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Wiki maintained by <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;https://github.com/yszheda&quot;</span><span class="p">&gt;</span>yszheda<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>This page was generated by <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;pages.github.com&quot;</span><span class="p">&gt;</span>GitHub Pages<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span> using the Architect theme by <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;https://twitter.com/jasonlong&quot;</span><span class="p">&gt;</span>Jason Long<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">aside</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div></td></tr></table></div>
+
+<p>接下来要折腾的就是自动发布Vimwiki生成的html页面了。
+我写了一个简单的auto-deploy.sh脚本：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="nv">path_html</span><span class="o">=</span><span class="w">      </span><span class="c1"># set your vimwiki html path</span>
+<span class="nb">cd</span><span class="w"> </span><span class="nv">$path_html</span>
+git<span class="w"> </span>checkout<span class="w"> </span>gh-pages
+git<span class="w"> </span>add<span class="w"> </span>*.html
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="s2">&quot;syn at `date`&quot;</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>gh-pages
+</code></pre></div></td></tr></table></div>
+
+<p>再把它设置为定时作业，可以用经典的<code>crontab</code>，例如<code>crontab -e</code>后加入：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">*</span> 20 <span class="gs">* *</span> * /&lt;path&gt;/auto-deploy.sh
+</code></pre></div></td></tr></table></div>
+
+<p>设置每日晚上八点自动发布。</p>
+<p>不过作为一名Arch user，很早之间就<del>当小白鼠</del>从sysvinit迁移到了systemd，自然要试试这个高大上的<code>systemd</code>。
+systemd也支持定时作业，以我的例子来讲，我希望每日定时发布，可以从创建一般的daily event开始。</p>
+<p>编辑<code>/etc/systemd/system/timer-daily.timer</code>文件：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">[Unit]</span>
+<span class="na">Description</span><span class="o">=</span><span class="s">Daily Timer</span>
+
+<span class="k">[Timer]</span>
+<span class="na">OnBootSec</span><span class="o">=</span><span class="s">10min</span>
+<span class="na">OnUnitActiveSec</span><span class="o">=</span><span class="s">1d</span>
+<span class="na">Unit</span><span class="o">=</span><span class="s">timer-daily.target</span>
+
+<span class="k">[Install]</span>
+<span class="na">WantedBy</span><span class="o">=</span><span class="s">basic.target</span>
+</code></pre></div></td></tr></table></div>
+
+<p>编辑<code>/etc/systemd/system/timer-daily.target</code>文件：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">[Unit]</span>
+<span class="na">Description</span><span class="o">=</span><span class="s">Daily Timer Target</span>
+<span class="na">StopWhenUnneeded</span><span class="o">=</span><span class="s">yes</span>
+</code></pre></div></td></tr></table></div>
+
+<p>创建以下目录，作为接下来要被执行的具体的定时作业的服务设置文件的路径：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>mkdir /etc/systemd/system/timer-daily.target.wants
+</code></pre></div></td></tr></table></div>
+
+<p>在该目录下添加具体要被执行的定时作业的服务设置文件<code>/etc/systemd/system/timer-daily.target.wants/syn-vimwiki.service</code>：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">[Unit]</span>
+<span class="na">Description</span><span class="o">=</span><span class="s">syn vimwiki</span>
+
+<span class="k">[Service]</span>
+<span class="na">Nice</span><span class="o">=</span><span class="s">19</span>
+<span class="na">IOSchedulingClass</span><span class="o">=</span><span class="s">2</span>
+<span class="na">IOSchedulingPriority</span><span class="o">=</span><span class="s">7</span>
+<span class="na">ExecStart</span><span class="o">=</span><span class="w"> </span><span class="s">/&lt;path&gt;/auto-deploy.sh</span>
+</code></pre></div></td></tr></table></div>
+
+<p>最后执行</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>systemctl enable timer-daily.timer &amp;&amp; systemctl start timer-daily.timer
+</code></pre></div></td></tr></table></div>
+
+<p>即可。</p>
+<p>设置按小时或按星期定时发布也是可以的,
+万能的<a href="https://wiki.archlinux.org/index.php/Systemd/cron_functionality">Arch wiki</a>上都有详细的说明。</p>
+<p>关于systemd再多啰嗦几句，迁移到systemd后自然还是可以用原来的<code>cron</code>服务的，如果某一天你打了鸡血，突然变激进了，想把cron撤掉换成纯systemd（Arch发行版就经常干这种事XD），在执行</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>systemctl stop cronie &amp;&amp; systemctl disable cronie
+</code></pre></div></td></tr></table></div>
+
+<p>之前，别忘了加入<code>logrotate</code>、<code>man-db-update</code>、<code>mlocate-update</code>、<code>verify-shadow</code>这些服务的配置文件。
+至于具体的内容，万能的<a href="https://wiki.archlinux.org/index.php/Systemd/cron_functionality">Arch wiki</a>也早为不折腾不死的你准备好了XD</p></p>
+        </div>
+    </div>
+
+<div class="fh5co-narrow-content">
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
+</div>
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <div id="disqus_thread"></div>
+</div>
+
+<script>
+var disqus_config = function () { 
+  this.language = "zh";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
+<div class="fh5co-footer">
+    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
+    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
+
+</div>                
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="../../../theme/js/jquery.min.js"></script>
+    <!-- jQuery Easing -->
+    <script src="../../../theme/js/jquery.easing.1.3.js"></script>
+    <!-- Bootstrap -->
+    <script src="../../../theme/js/bootstrap.min.js"></script>
+    <!-- Waypoints -->
+    <script src="../../../theme/js/jquery.waypoints.min.js"></script>
+    <!-- Flexslider -->
+    <script src="../../../theme/js/jquery.flexslider-min.js"></script>
+
+
+    <!-- MAIN JS -->
+    <script src="../../../theme/js/main.js"></script>
+    </body>
+</html>

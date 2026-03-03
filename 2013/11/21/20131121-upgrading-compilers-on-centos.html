@@ -1,0 +1,312 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="zh" dir="" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="zh" dir="" class="no-js"> <!--<![endif]-->
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Upgrading Compilers on CentOS</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="author" content="Galoisplusplus" />
+    <meta name="description" content="这篇日志应该叫「六美分历险记」的，「六美分」顾名思义嘛，自然是指CentOS-6。 下面扯扯为何对本屌来说是「历险」和为虾米要「历险」： 偶对 …" />
+    <meta name="keywords" content="tech, CS, CentOS, clang, llvm, gcc, gdb, 编译器, tmux, cuda">
+<!-- Facebook and Twitter integration -->
+<meta property="og:site_name" content="Galoisplusplus"/>
+<meta property="og:title" content="Upgrading Compilers on CentOS"/>
+<meta property="og:description" content="这篇日志应该叫「六美分历险记」的，「六美分」顾名思义嘛，自然是指CentOS-6。 下面扯扯为何对本屌来说是「历险」和为虾米要「历险」： 偶对 …"/>
+<meta property="og:url" content="../../../2013/11/21/20131121-upgrading-compilers-on-centos.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2013-11-21 00:45:00+08:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="../../../author/galoisplusplus.html">
+<meta property="article:section" content="tech"/>
+    <meta property="article:tag" content="tech"/>
+    <meta property="article:tag" content="CS"/>
+    <meta property="article:tag" content="CentOS"/>
+    <meta property="article:tag" content="clang"/>
+    <meta property="article:tag" content="llvm"/>
+    <meta property="article:tag" content="gcc"/>
+    <meta property="article:tag" content="gdb"/>
+    <meta property="article:tag" content="编译器"/>
+    <meta property="article:tag" content="tmux"/>
+    <meta property="article:tag" content="cuda"/>
+    <meta property="og:image" content="static/images/trebleclef.png">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="../../../theme/css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="../../../theme/css/icomoon.css">
+    <!-- Bootstrap  -->
+    <link rel="stylesheet" href="../../../theme/css/bootstrap.css">
+    <!-- Flexslider  -->
+    <link rel="stylesheet" href="../../../theme/css/flexslider.css">
+    <!-- Theme style  -->
+    <link rel="stylesheet" href="../../../theme/css/style.css">
+    <!-- Custom style  -->
+    <link rel="stylesheet" href="../../../theme/css/custom.css">
+    <!-- pygments code highlight -->
+    <link rel="stylesheet" href="../../../theme/css/pygments.css">
+    <!-- tipue search -->
+    <link rel="stylesheet" href="../../../theme/tipuesearch/css/tipuesearch.css">
+
+    <!-- Modernizr JS -->
+    <script src="../../../theme/js/modernizr-2.6.2.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="/theme/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+    </head>
+    <body>
+    <div id="fh5co-page">
+        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+
+            <nav class="fh5co-main-menu" role="navigation">
+    <ul class="language-navigation">
+        <li>
+                <a class="lang-active" href="https://yszheda.github.io/blog/">zh</a>
+                <a href="https://yszheda.github.io/blog/en/">en</a>
+        </li>
+    </ul>
+            </nav>
+            <div class="clearfix"></div>
+            <h1  id="fh5co-logo">
+                <a href="../../../index.html">
+                    <img src="static/images/trebleclef.png" />
+                </a>
+            </h1>
+                <a href="../../../index.html">
+                    <img src="static/images/trebleclef.png" />
+                </a>
+            </h1>
+            <nav class="fh5co-main-menu" role="navigation">
+<ul>
+    <!-- home link -->
+    <li><a href="../../../">Home</a></li>
+
+    <!-- page links -->
+
+    <!-- categories -->
+        <li class="nav-title">Categories</li>
+            <li><a href="../../../category/misc.html">misc</a></li>
+            <li><a href="../../../category/music.html">music</a></li>
+            <li><a href="../../../category/reading.html">reading</a></li>
+            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
+
+    <!-- tags -->
+        <li><a href="../../../tags.html">Tags</a></li>
+
+    <!-- additional menu items from config -->
+
+</ul>
+            </nav>
+
+<ul id="social">
+            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
+
+            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
+
+</ul>
+        </aside>
+
+        <div id="fh5co-main">
+
+    <div class="fh5co-narrow-content article-content">
+        <h1 class="fh5co-heading-colored">Upgrading Compilers on CentOS</h1>
+
+        <div>by
+                <span dir="ltr">
+                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
+ - <span dir="ltr">四 21 11月 2013</span>
+        </div>
+
+            <div><span>Tags</span>
+                    <span><a href="../../../tag/tech.html">#tech</a> </span>
+                    <span><a href="../../../tag/cs.html">#CS</a> </span>
+                    <span><a href="../../../tag/centos.html">#CentOS</a> </span>
+                    <span><a href="../../../tag/clang.html">#clang</a> </span>
+                    <span><a href="../../../tag/llvm.html">#llvm</a> </span>
+                    <span><a href="../../../tag/gcc.html">#gcc</a> </span>
+                    <span><a href="../../../tag/gdb.html">#gdb</a> </span>
+                    <span><a href="../../../tag/bian-yi-qi.html">#编译器</a> </span>
+                    <span><a href="../../../tag/tmux.html">#tmux</a> </span>
+                    <span><a href="../../../tag/cuda.html">#cuda</a> </span>
+            </div>
+        <span dir="ltr">
+        </span>
+
+        <div class="animate-box" data-animate-effect="fadeInLeft">
+            <p class="animate-box" data-animate-effect="fadeInLeft"><p>这篇日志应该叫「六美分历险记」的，「六美分」顾名思义嘛，自然是指CentOS-6。</p>
+<p>下面扯扯为何对本屌来说是「历险」和为虾米要「历险」：
+偶对red hat系的向来无爱。当偶还是linux小白时，就曾在虚拟机里折腾过高大上的fedora，没用过多久就遇到了kernel panic啊有木有！差点把小白吓退散了有木有！
+后来很长一段时间都是随大众用Ubuntu，接触了Debian系的_dpkg_就果断和_rpm_阵营分道扬镳啊，直到又重新折腾起「中立邪恶」的Arch，现在玩的是非主流的吃豆人(pacman)——<del>还是能把系统滚死的吃豆人哦，刺激吧XD</del>。
+在Arch的蛊惑下，偶走向了「追新」的sb之路，不隔三差五来一次upgrade享受之后「咦，居然没挂」的快感简直就像少了什么——<del>何弃疗</del>。
+阔素捏，实验室的机器偏偏全是六美分，服务器嘛，要稳定才是王道，这偶也素明事理滴（想起前几天看到<a href="http://www.zhihu.com/question/21421588">知乎某问题</a>，Arch党表示躺中啊XD）。
+但是......本屌一看gcc还是4.4.7就不爽啊，package要老至少也要对c++11支持好点吧......
+于是一不做二不休，发挥在Arch下折腾的本事，手动更新gcc，顺带把clang也装上。</p>
+<!-- more -->
+
+<h2 id="tmux">tmux</h2>
+<p>在折腾gcc和clang之前，偶先把好用的_tmux_装上。
+结果<code>yum install tmux</code>后六美分就抱怨装不上了，
+于是偶直接源代码安装省事。
+执行tmux又跑不起来，说是找不到<code>libevent</code>的动态链接库。
+「这坑爹的」偶暗暗咒骂了句，继续源代码安装libevent-2.0.21-stable。
+我执行</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>echo $LD_LIBRARY_PATH
+</code></pre></div></td></tr></table></div>
+
+<p>查看了下这个系统路径，在执行libevent的<code>configure</code>时加上<code>--prefix=/lib</code>参数把它安装到<code>$LD_LIBRARY_PATH</code>中的<code>/lib</code>。<code>tmux</code>就搞定了。</p>
+<h2 id="llvm">llvm</h2>
+<p>接下来先说说装llvm和clang。照着<a href="http://llvm.org/docs/GettingStarted.html">官方文档</a>做还是挺顺的，没有出现什么问题。</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># 我把llvm源代码放到~/llvm下</span>
+<span class="o">$</span><span class="w"> </span><span class="n">cd</span>
+<span class="o">$</span><span class="w"> </span><span class="n">mkdir</span><span class="w"> </span><span class="n">llvm</span>
+<span class="o">$</span><span class="w"> </span><span class="n">cd</span><span class="w"> </span><span class="n">llvm</span>
+<span class="c1"># checkout源代码（co是checkout的简写），这是编译器后端部分。</span>
+<span class="o">$</span><span class="w"> </span><span class="n">svn</span><span class="w"> </span><span class="n">co</span><span class="w"> </span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">llvm</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">svn</span><span class="o">/</span><span class="n">llvm</span><span class="o">-</span><span class="n">project</span><span class="o">/</span><span class="n">llvm</span><span class="o">/</span><span class="n">trunk</span><span class="w"> </span><span class="n">llvm</span>
+<span class="c1"># 再把clang的源代码checkout出来，clang是编译器前端。</span>
+<span class="o">$</span><span class="w"> </span><span class="n">cd</span><span class="w"> </span><span class="n">llvm</span><span class="o">/</span><span class="n">tools</span>
+<span class="o">$</span><span class="w"> </span><span class="n">svn</span><span class="w"> </span><span class="n">co</span><span class="w"> </span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">llvm</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">svn</span><span class="o">/</span><span class="n">llvm</span><span class="o">-</span><span class="n">project</span><span class="o">/</span><span class="n">cfe</span><span class="o">/</span><span class="n">trunk</span><span class="w"> </span><span class="n">clang</span>
+<span class="c1"># runtime compiler其实可以不装，我没有安装。</span>
+<span class="c1"># $ cd ../llvm/projects</span>
+<span class="c1"># $ svn co http://llvm.org/svn/llvm-project/compiler-rt/trunk compiler-rt</span>
+<span class="c1"># test suite是可选的，我也没有装。</span>
+<span class="c1"># $ svn co http://llvm.org/svn/llvm-project/test-suite/trunk test-suite</span>
+<span class="c1"># 把可执行文件放到一个新建的build目录以免「污染」源代码目录</span>
+<span class="o">$</span><span class="w"> </span><span class="n">cd</span><span class="w"> </span><span class="o">~/</span><span class="n">llvm</span>
+<span class="o">$</span><span class="w"> </span><span class="n">mkdir</span><span class="w"> </span><span class="n">build</span>
+<span class="o">$</span><span class="w"> </span><span class="n">cd</span><span class="w"> </span><span class="n">build</span>
+<span class="c1"># 我把llvm和clang装到/usr/local下</span>
+<span class="o">$</span><span class="w"> </span><span class="o">../</span><span class="n">llvm</span><span class="o">/</span><span class="n">configure</span><span class="w"> </span><span class="o">--</span><span class="n">prefix</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span>
+<span class="c1"># CPU有16-core就是爽啊！</span>
+<span class="o">$</span><span class="w"> </span><span class="n">make</span><span class="w"> </span><span class="o">-</span><span class="n">j16</span>
+<span class="o">$</span><span class="w"> </span><span class="n">make</span><span class="w"> </span><span class="n">install</span>
+</code></pre></div></td></tr></table></div>
+
+<h2 id="gcc">gcc</h2>
+<p>gcc的安装就没有那么顺了。我装的是4.8.1，一开始执行<code>./configure</code>就碰到没有GMP、MPFR和MPC这三个库的抱怨。
+好在<a href="http://gcc.gnu.org/install/prerequisites.html">官网的Installing GCC: Prequisites</a>提供了这些库的下载地址，我就去下载源代码编译安装了（用<code>tmux</code>同时开几个窗口跑真心爽啊XD）。
+好吧，这在<a href="http://gcc.gnu.org/wiki/InstallingGCC">官方文档</a>中是不推荐的，但偶总觉得比装六美分的rpm要靠谱呢。
+其实在<code>./configure</code>时指定好<code>--prefix=/lib</code>参数，动态链接库就可以被系统找到了（只要在<code>$LD_LIBRARY_PATH</code>的都可以）。
+倒不用像官方文档中吐嘈的需要在执行gcc的<code>configure</code>时设置</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>--with-gmp=/some/silly/path/gmp --with-mpfr=/some/silly/path/mpfr --with-mpc=/some/silly/path/mpc
+</code></pre></div></td></tr></table></div>
+
+<p>并修改<code>LD_LIBRARY_PATH</code>。</p>
+<p>接下来就是执行<code>make</code>了，我遇到了一个错误：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">error</span><span class="o">:</span><span class="w"> </span><span class="n">gnu</span><span class="o">/</span><span class="n">stubs</span><span class="o">-</span><span class="mi">32</span><span class="o">.</span><span class="na">h</span><span class="o">:</span><span class="n">No</span><span class="w"> </span><span class="n">such</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">directory</span>
+</code></pre></div></td></tr></table></div>
+
+<p>求助万能的StackOverflow，果然找到了<a href="http://stackoverflow.com/questions/7412548/gnu-stubs-32-h-no-such-file-or-directory">答案</a>。把<code>glibc-devel</code>和<code>libstdc++-devel</code>这两个软件包装上就行，这次我用的是<code>yum install</code>。</p>
+<p>PS. 我后来查history发现还执行了</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>sudo yum install glibc-static
+</code></pre></div></td></tr></table></div>
+
+<p>不太清楚不装这软件包会不会给gcc的安装带来困扰——折腾党们可以自行尝试XD</p>
+<h2 id="_1">后续</h2>
+<p>用cuda-gdb调试我的程序时host端的函数出现「symbol not found」的问题（我编译时已经加了<code>-g</code>与<code>-G</code>参数），运行了以下命令：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>debuginfo-install glibc libgcc libstdc++ zlib
+</code></pre></div></td></tr></table></div>
+
+<p>六美分又出现了很多类似的抱怨：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nx">Could</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="nx">find</span><span class="w"> </span><span class="nx">debuginfo</span><span class="w"> </span><span class="nx">pkg</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nx">dependency</span><span class="w"> </span><span class="kn">package</span><span class="w"> </span>
+</code></pre></div></td></tr></table></div>
+
+<p>把<code>/etc/yum.repos.d/CentOS-Debuginfo.repo</code>中的<code>enabled=0</code>改为<code>enabled=1</code>，再执行一遍<code>debuginfo-install</code>就可以了。</p>
+<p>可是原本的问题依旧存在，于是怀疑是gdb和4.8.1的gcc合不来。
+查了下六美分上的gdb版本，是7.2-50.el6，而最新的已经有7.6.1了。
+果断继续源代码更新gdb！</p>
+<p>奇怪的是，gdb更新完了，<code>cuda-gdb -v</code>还是显示的7.2：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div><pre><span></span><code>NVIDIA (R) CUDA Debugger
+5.5 release
+Portions Copyright (C) 2007-2013 NVIDIA Corporation
+GNU gdb (GDB) 7.2
+Copyright (C) 2010 Free Software Foundation, Inc.
+（以下省略文字若干）
+</code></pre></div></td></tr></table></div>
+
+<p>我怀疑是<code>cuda-gdb</code>没绑定到最新版的host端gdb，请教了下实验室的SA大大，她直接帮我重装了CUDA5.5的Toolkit，结果还是不行。查了一下Toolkit的官方文档，5.5还不支持gcc4.8.1，杯具，之前的折腾变成挖坑了......好在我把新版的都装到/usr/local/下，/usr/bin/里面的还是六美分原本的老掉牙版本，没有被覆盖......</p></p>
+        </div>
+    </div>
+
+<div class="fh5co-narrow-content">
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
+</div>
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <div id="disqus_thread"></div>
+</div>
+
+<script>
+var disqus_config = function () { 
+  this.language = "zh";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
+<div class="fh5co-footer">
+    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
+    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
+
+</div>                
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="../../../theme/js/jquery.min.js"></script>
+    <!-- jQuery Easing -->
+    <script src="../../../theme/js/jquery.easing.1.3.js"></script>
+    <!-- Bootstrap -->
+    <script src="../../../theme/js/bootstrap.min.js"></script>
+    <!-- Waypoints -->
+    <script src="../../../theme/js/jquery.waypoints.min.js"></script>
+    <!-- Flexslider -->
+    <script src="../../../theme/js/jquery.flexslider-min.js"></script>
+
+
+    <!-- MAIN JS -->
+    <script src="../../../theme/js/main.js"></script>
+    </body>
+</html>

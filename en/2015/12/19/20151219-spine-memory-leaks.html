@@ -1,0 +1,1143 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" dir="" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" dir="" class="no-js"> <!--<![endif]-->
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>记一次spine内存泄露排查</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="author" content="Galoisplusplus" />
+    <meta name="description" content="最近用Instruments的Leaks工具排查我们cocos2d-x游戏的一些内存泄露问题，大部分属于之前我们C++代码的bug，还有几个是lua代码中sqlite使用不当造成的内存泄露（例如 …" />
+    <meta name="keywords" content="cocos2d-x, CS, tech, quick, quickx, quick-cocos2d-x, cocos, cocos2d, 游戏开发, 手游开发, mobile game, game devolopment">
+<!-- Facebook and Twitter integration -->
+<meta property="og:site_name" content="Galoisplusplus"/>
+<meta property="og:title" content="记一次spine内存泄露排查"/>
+<meta property="og:description" content="最近用Instruments的Leaks工具排查我们cocos2d-x游戏的一些内存泄露问题，大部分属于之前我们C++代码的bug，还有几个是lua代码中sqlite使用不当造成的内存泄露（例如 …"/>
+<meta property="og:url" content="../../../2015/12/19/20151219-spine-memory-leaks.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2015-12-19 11:22:00+08:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="../../../author/galoisplusplus.html">
+<meta property="article:section" content="tech"/>
+    <meta property="article:tag" content="cocos2d-x"/>
+    <meta property="article:tag" content="CS"/>
+    <meta property="article:tag" content="tech"/>
+    <meta property="article:tag" content="quick"/>
+    <meta property="article:tag" content="quickx"/>
+    <meta property="article:tag" content="quick-cocos2d-x"/>
+    <meta property="article:tag" content="cocos"/>
+    <meta property="article:tag" content="cocos2d"/>
+    <meta property="article:tag" content="游戏开发"/>
+    <meta property="article:tag" content="手游开发"/>
+    <meta property="article:tag" content="mobile game"/>
+    <meta property="article:tag" content="game devolopment"/>
+    <meta property="og:image" content="static/images/trebleclef.png">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="../../../../theme/css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="../../../../theme/css/icomoon.css">
+    <!-- Bootstrap  -->
+    <link rel="stylesheet" href="../../../../theme/css/bootstrap.css">
+    <!-- Flexslider  -->
+    <link rel="stylesheet" href="../../../../theme/css/flexslider.css">
+    <!-- Theme style  -->
+    <link rel="stylesheet" href="../../../../theme/css/style.css">
+    <!-- Custom style  -->
+    <link rel="stylesheet" href="../../../../theme/css/custom.css">
+    <!-- pygments code highlight -->
+    <link rel="stylesheet" href="../../../../theme/css/pygments.css">
+    <!-- tipue search -->
+    <link rel="stylesheet" href="../../../../theme/tipuesearch/css/tipuesearch.css">
+
+    <!-- Modernizr JS -->
+    <script src="../../../../theme/js/modernizr-2.6.2.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="/theme/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+    </head>
+    <body>
+    <div id="fh5co-page">
+        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+
+            <nav class="fh5co-main-menu" role="navigation">
+    <ul class="language-navigation">
+        <li>
+                <a href="https://yszheda.github.io/blog/">zh</a>
+                <a class="lang-active" href="https://yszheda.github.io/blog/en/">en</a>
+        </li>
+    </ul>
+            </nav>
+            <div class="clearfix"></div>
+            <h1  id="fh5co-logo">
+                <a href="../../../index.html">
+                    <img src="static/images/trebleclef.png" />
+                </a>
+            </h1>
+                <a href="../../../index.html">
+                    <img src="static/images/trebleclef.png" />
+                </a>
+            </h1>
+            <nav class="fh5co-main-menu" role="navigation">
+<ul>
+    <!-- home link -->
+    <li><a href="../../../">Home</a></li>
+
+    <!-- page links -->
+
+    <!-- categories -->
+        <li class="nav-title">Categories</li>
+            <li><a href="../../../category/misc.html">misc</a></li>
+            <li><a href="../../../category/music.html">music</a></li>
+            <li><a href="../../../category/reading.html">reading</a></li>
+            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
+
+    <!-- tags -->
+        <li><a href="../../../tags.html">Tags</a></li>
+
+    <!-- additional menu items from config -->
+
+</ul>
+            </nav>
+
+<ul id="social">
+            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
+
+            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
+
+</ul>
+        </aside>
+
+        <div id="fh5co-main">
+
+    <div class="fh5co-narrow-content article-content">
+        <h1 class="fh5co-heading-colored">记一次spine内存泄露排查</h1>
+
+        <div>by
+                <span dir="ltr">
+                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
+ - <span dir="ltr">六 19 12月 2015</span>
+        </div>
+
+            <div><span>Tags</span>
+                    <span><a href="../../../tag/cocos2d-x.html">#cocos2d-x</a> </span>
+                    <span><a href="../../../tag/cs.html">#CS</a> </span>
+                    <span><a href="../../../tag/tech.html">#tech</a> </span>
+                    <span><a href="../../../tag/quick.html">#quick</a> </span>
+                    <span><a href="../../../tag/quickx.html">#quickx</a> </span>
+                    <span><a href="../../../tag/quick-cocos2d-x.html">#quick-cocos2d-x</a> </span>
+                    <span><a href="../../../tag/cocos.html">#cocos</a> </span>
+                    <span><a href="../../../tag/cocos2d.html">#cocos2d</a> </span>
+                    <span><a href="../../../tag/you-xi-kai-fa.html">#游戏开发</a> </span>
+                    <span><a href="../../../tag/shou-you-kai-fa.html">#手游开发</a> </span>
+                    <span><a href="../../../tag/mobile-game.html">#mobile game</a> </span>
+                    <span><a href="../../../tag/game-devolopment.html">#game devolopment</a> </span>
+            </div>
+        <span dir="ltr">
+        </span>
+
+        <div class="animate-box" data-animate-effect="fadeInLeft">
+            <p class="animate-box" data-animate-effect="fadeInLeft"><p>最近用<code>Instruments</code>的<code>Leaks</code>工具排查我们cocos2d-x游戏的一些内存泄露问题，大部分属于之前我们<code>C++</code>代码的bug，还有几个是<code>lua</code>代码中<code>sqlite</code>使用不当造成的内存泄露（例如数据库连接没有<code>close</code>，<code>prepare</code>的<code>stmt</code>没有<code>finalize</code>），总的来说这些都不难改。而且由于我们主要用的是<code>lua</code>，<code>lua</code>有垃圾回收，所以<code>Leaks</code>显示的内存泄露问题也不多。倒是spine的内存泄露问题相对棘手，花了我较长时间。</p>
+<p><code>Leaks</code>工具定位内存泄露到<code>spine</code>的<code>extension.c</code>中的<code>_malloc</code>函数：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span>
+<span class="normal">9</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">static</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">mallocFunc</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="p">;</span>
+<span class="k">static</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">debugMallocFunc</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="nb">char</span><span class="o">*</span><span class="w"> </span><span class="n">file</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">line</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NULL</span><span class="p">;</span>
+
+<span class="nb nb-Type">void</span><span class="o">*</span><span class="w"> </span><span class="n">_malloc</span><span class="w"> </span><span class="p">(</span><span class="n">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="nb">char</span><span class="o">*</span><span class="w"> </span><span class="n">file</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">line</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">debugMallocFunc</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">debugMallocFunc</span><span class="p">(</span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">file</span><span class="p">,</span><span class="w"> </span><span class="n">line</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">mallocFunc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+
+<p>很显然，这是由分配的内存没有得到释放所引起的内存泄露。
+接下来再找<code>spine</code>代码中分配内存和释放内存的地方，大部分都放在了不同结构体的<code>init</code>和<code>dispose</code>函数中，于是就重点关注这两个函数。可以发现在一些<code>dispose</code>函数中，部分指针并没有被<code>free</code>掉，那么是否可以把<code>free</code>加上呢？答案是不行，因为<code>spine</code>中这些指针其实只是浅拷贝，还有别的地方用到这些指针所指的内存地址，如果加上<code>free</code>会额外造成double free内存错误。</p>
+<p>再继续考察spine分配内存和释放内存的代码，本渣发现，spine代码中用<code>C</code>结构体实现了vitrual table，从而模拟<code>C++</code>的多态，释放内存的函数类似<code>C++</code>的析构函数，也被模拟为虚函数。这块代码就成了本渣的重点怀疑对象，review下来还真发现有问题：spine调用“子类”的“析构函数”时，竟然是先调用“父类”的“析构函数”，然后在做自己的清理操作！而之所以先调用“父类”的“析构函数”不会有内存错误，是因为“父类”的“析构函数”并没有完全释放它所占用的内存，也就是说“父类”的对象在“析构”会泄露内存！</p>
+<p>不废话，上代码。</p>
+<p>下面是涉及到的宏定义：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="o">/*</span><span class="w"> </span><span class="n">All</span><span class="w"> </span><span class="n">allocation</span><span class="w"> </span><span class="n">uses</span><span class="w"> </span><span class="n">these</span><span class="o">.</span><span class="w"> </span><span class="o">*/</span>
+<span class="c1">#define MALLOC(TYPE,COUNT) ((TYPE*)_malloc(sizeof(TYPE) * (COUNT), __FILE__, __LINE__))</span>
+<span class="c1">#define CALLOC(TYPE,COUNT) ((TYPE*)_calloc(COUNT, sizeof(TYPE), __FILE__, __LINE__))</span>
+<span class="c1">#define NEW(TYPE) CALLOC(TYPE,1)</span>
+
+<span class="o">/*</span><span class="w"> </span><span class="n">Gets</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">direct</span><span class="w"> </span><span class="n">super</span><span class="w"> </span><span class="k">class</span><span class="o">.</span><span class="w"> </span><span class="n">Type</span><span class="w"> </span><span class="n">safe</span><span class="o">.</span><span class="w"> </span><span class="o">*/</span>
+<span class="c1">#define SUPER(VALUE) (&amp;VALUE-&gt;super)</span>
+
+<span class="o">/*</span><span class="w"> </span><span class="n">Cast</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">super</span><span class="w"> </span><span class="k">class</span><span class="o">.</span><span class="w"> </span><span class="n">Not</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="n">safe</span><span class="p">,</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">care</span><span class="o">.</span><span class="w"> </span><span class="n">Prefer</span><span class="w"> </span><span class="n">SUPER</span><span class="p">()</span><span class="w"> </span><span class="n">where</span><span class="w"> </span><span class="n">possible</span><span class="o">.</span><span class="w"> </span><span class="o">*/</span>
+<span class="c1">#define SUPER_CAST(TYPE,VALUE) ((TYPE*)VALUE)</span>
+
+<span class="o">/*</span><span class="w"> </span><span class="n">Cast</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">sub</span><span class="w"> </span><span class="k">class</span><span class="o">.</span><span class="w"> </span><span class="n">Not</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="n">safe</span><span class="p">,</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">care</span><span class="o">.</span><span class="w"> </span><span class="o">*/</span>
+<span class="c1">#define SUB_CAST(TYPE,VALUE) ((TYPE*)VALUE)</span>
+
+<span class="o">/*</span><span class="w"> </span><span class="n">Casts</span><span class="w"> </span><span class="n">away</span><span class="w"> </span><span class="k">const</span><span class="o">.</span><span class="w"> </span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">used</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">lvalue</span><span class="o">.</span><span class="w"> </span><span class="n">Not</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="n">safe</span><span class="p">,</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">care</span><span class="o">.</span><span class="w"> </span><span class="o">*/</span>
+<span class="c1">#define CONST_CAST(TYPE,VALUE) (*(TYPE*)&amp;VALUE)</span>
+
+<span class="o">/*</span><span class="w"> </span><span class="n">Gets</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">vtable</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">specified</span><span class="w"> </span><span class="n">type</span><span class="o">.</span><span class="w"> </span><span class="n">Not</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="n">safe</span><span class="p">,</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">care</span><span class="o">.</span><span class="w"> </span><span class="o">*/</span>
+<span class="c1">#define VTABLE(TYPE,VALUE) ((_##TYPE##Vtable*)((TYPE*)VALUE)-&gt;vtable)</span>
+</code></pre></div></td></tr></table></div>
+
+<p>下面是<code>spTimeline</code>结构体，相当于基类：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">typedef</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">SP_TIMELINE_SCALE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SP_TIMELINE_ROTATE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SP_TIMELINE_TRANSLATE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SP_TIMELINE_COLOR</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SP_TIMELINE_ATTACHMENT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SP_TIMELINE_EVENT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SP_TIMELINE_DRAWORDER</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SP_TIMELINE_FFD</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SP_TIMELINE_IKCONSTRAINT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SP_TIMELINE_FLIPX</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SP_TIMELINE_FLIPY</span>
+<span class="p">}</span><span class="w"> </span><span class="n">spTimelineType</span><span class="p">;</span>
+
+<span class="n">struct</span><span class="w"> </span><span class="n">spTimeline</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">spTimelineType</span><span class="w"> </span><span class="n">type</span><span class="p">;</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">vtable</span><span class="p">;</span>
+
+<span class="c1">#ifdef __cplusplus</span>
+<span class="w">    </span><span class="n">spTimeline</span><span class="p">()</span><span class="w"> </span><span class="p">:</span>
+<span class="w">        </span><span class="n">type</span><span class="p">(</span><span class="n">SP_TIMELINE_SCALE</span><span class="p">),</span>
+<span class="w">        </span><span class="n">vtable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="c1">#endif</span>
+<span class="p">};</span>
+
+<span class="nb nb-Type">void</span><span class="w"> </span><span class="n">spTimeline_dispose</span><span class="w"> </span><span class="p">(</span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="p">);</span>
+<span class="nb nb-Type">void</span><span class="w"> </span><span class="n">spTimeline_apply</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">struct</span><span class="w"> </span><span class="n">spSkeleton</span><span class="o">*</span><span class="w"> </span><span class="n">skeleton</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">lastTime</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">spEvent</span><span class="o">**</span><span class="w"> </span><span class="n">firedEvents</span><span class="p">,</span>
+<span class="w">        </span><span class="nb nb-Type">int</span><span class="o">*</span><span class="w"> </span><span class="n">eventsCount</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">alpha</span><span class="p">);</span>
+</code></pre></div></td></tr></table></div>
+
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">typedef</span><span class="w"> </span><span class="n">struct</span><span class="w"> </span><span class="n">_spTimelineVtable</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nb nb-Type">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">apply</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">spSkeleton</span><span class="o">*</span><span class="w"> </span><span class="n">skeleton</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">lastTime</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">spEvent</span><span class="o">**</span><span class="w"> </span><span class="n">firedEvents</span><span class="p">,</span>
+<span class="w">            </span><span class="nb nb-Type">int</span><span class="o">*</span><span class="w"> </span><span class="n">eventsCount</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">alpha</span><span class="p">);</span>
+<span class="w">    </span><span class="nb nb-Type">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">dispose</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="p">);</span>
+<span class="p">}</span><span class="w"> </span><span class="n">_spTimelineVtable</span><span class="p">;</span>
+
+<span class="nb nb-Type">void</span><span class="w"> </span><span class="n">_spTimeline_init</span><span class="w"> </span><span class="p">(</span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">spTimelineType</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="o">/**/</span>
+<span class="nb nb-Type">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">dispose</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="p">),</span><span class="w"> </span><span class="o">/**/</span>
+<span class="w">        </span><span class="nb nb-Type">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">apply</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">spSkeleton</span><span class="o">*</span><span class="w"> </span><span class="n">skeleton</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">lastTime</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">spEvent</span><span class="o">**</span><span class="w"> </span><span class="n">firedEvents</span><span class="p">,</span>
+<span class="w">                </span><span class="nb nb-Type">int</span><span class="o">*</span><span class="w"> </span><span class="n">eventsCount</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">alpha</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">CONST_CAST</span><span class="p">(</span><span class="n">spTimelineType</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">type</span><span class="p">;</span>
+<span class="w">    </span><span class="n">CONST_CAST</span><span class="p">(</span><span class="n">_spTimelineVtable</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">-&gt;</span><span class="n">vtable</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NEW</span><span class="p">(</span><span class="n">_spTimelineVtable</span><span class="p">);</span>
+<span class="w">    </span><span class="n">VTABLE</span><span class="p">(</span><span class="n">spTimeline</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">dispose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dispose</span><span class="p">;</span>
+<span class="w">    </span><span class="n">VTABLE</span><span class="p">(</span><span class="n">spTimeline</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">apply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">apply</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nb nb-Type">void</span><span class="w"> </span><span class="n">_spTimeline_deinit</span><span class="w"> </span><span class="p">(</span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">FREE</span><span class="p">(</span><span class="bp">self</span><span class="o">-&gt;</span><span class="n">vtable</span><span class="p">);</span>
+<span class="p">}</span>
+
+
+<span class="nb nb-Type">void</span><span class="w"> </span><span class="n">spTimeline_dispose</span><span class="w"> </span><span class="p">(</span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">VTABLE</span><span class="p">(</span><span class="n">spTimeline</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">dispose</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span>
+<span class="p">}</span>
+
+
+<span class="nb nb-Type">void</span><span class="w"> </span><span class="n">spTimeline_apply</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">spSkeleton</span><span class="o">*</span><span class="w"> </span><span class="n">skeleton</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">lastTime</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">spEvent</span><span class="o">**</span><span class="w"> </span><span class="n">firedEvents</span><span class="p">,</span>
+<span class="w">        </span><span class="nb nb-Type">int</span><span class="o">*</span><span class="w"> </span><span class="n">eventsCount</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">alpha</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">VTABLE</span><span class="p">(</span><span class="n">spTimeline</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">skeleton</span><span class="p">,</span><span class="w"> </span><span class="n">lastTime</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">firedEvents</span><span class="p">,</span><span class="w"> </span><span class="n">eventsCount</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+
+<p><code>spTimeline</code>结构体的子类<code>spCurveTimeline</code>：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">spCurveTimeline</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">spTimeline</span><span class="w"> </span><span class="n">super</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">curves</span><span class="p">;</span><span class="w"> </span><span class="cm">/* type, x, y, ... */</span>
+
+<span class="cp">#ifdef __cplusplus</span>
+<span class="w">    </span><span class="n">spCurveTimeline</span><span class="p">()</span><span class="w"> </span><span class="o">:</span>
+<span class="w">        </span><span class="n">super</span><span class="p">(),</span>
+<span class="w">        </span><span class="n">curves</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="cp">#endif</span>
+<span class="p">}</span><span class="w"> </span><span class="n">spCurveTimeline</span><span class="p">;</span>
+</code></pre></div></td></tr></table></div>
+
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nb nb-Type">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">dispose</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="p">),</span><span class="w"> </span><span class="o">/**/</span>
+<span class="w">                </span><span class="nb nb-Type">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">apply</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">spSkeleton</span><span class="o">*</span><span class="w"> </span><span class="n">skeleton</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">lastTime</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">spEvent</span><span class="o">**</span><span class="w"> </span><span class="n">firedEvents</span><span class="p">,</span>
+<span class="w">                                </span><span class="nb nb-Type">int</span><span class="o">*</span><span class="w"> </span><span class="n">eventsCount</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">alpha</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">_spTimeline_init</span><span class="p">(</span><span class="n">SUPER</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">dispose</span><span class="p">,</span><span class="w"> </span><span class="n">apply</span><span class="p">);</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">-&gt;</span><span class="n">curves</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CALLOC</span><span class="p">(</span><span class="nb nb-Type">float</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">framesCount</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">BEZIER_SIZE</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nb nb-Type">void</span><span class="w"> </span><span class="n">_spCurveTimeline_deinit</span><span class="w"> </span><span class="p">(</span><span class="n">spCurveTimeline</span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">_spTimeline_deinit</span><span class="p">(</span><span class="n">SUPER</span><span class="p">(</span><span class="bp">self</span><span class="p">));</span>
+<span class="w">        </span><span class="n">FREE</span><span class="p">(</span><span class="bp">self</span><span class="o">-&gt;</span><span class="n">curves</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+
+<p><code>spCurveTimeline</code>结构体的子类<code>spBaseTimeline</code>：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">typedef</span><span class="w"> </span><span class="n">struct</span><span class="w"> </span><span class="n">spBaseTimeline</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">spCurveTimeline</span><span class="w"> </span><span class="n">super</span><span class="p">;</span>
+<span class="w">        </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">framesCount</span><span class="p">;</span>
+<span class="w">        </span><span class="nb nb-Type">float</span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">frames</span><span class="p">;</span><span class="w"> </span><span class="o">/*</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">angle</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">rotate</span><span class="o">.</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">translate</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">scale</span><span class="o">.</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">        </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">boneIndex</span><span class="p">;</span>
+
+<span class="c1">#ifdef __cplusplus</span>
+<span class="w">        </span><span class="n">spBaseTimeline</span><span class="p">()</span><span class="w"> </span><span class="p">:</span>
+<span class="w">                </span><span class="n">super</span><span class="p">(),</span>
+<span class="w">                </span><span class="n">framesCount</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+<span class="w">                </span><span class="n">frames</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+<span class="w">                </span><span class="n">boneIndex</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="c1">#endif</span>
+<span class="p">}</span><span class="w"> </span><span class="n">spBaseTimeline</span><span class="p">;</span>
+</code></pre></div></td></tr></table></div>
+
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nb nb-Type">void</span><span class="w"> </span><span class="n">_spBaseTimeline_dispose</span><span class="w"> </span><span class="p">(</span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">timeline</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">struct</span><span class="w"> </span><span class="n">spBaseTimeline</span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SUB_CAST</span><span class="p">(</span><span class="n">struct</span><span class="w"> </span><span class="n">spBaseTimeline</span><span class="p">,</span><span class="w"> </span><span class="n">timeline</span><span class="p">);</span>
+<span class="w">        </span><span class="n">_spCurveTimeline_deinit</span><span class="p">(</span><span class="n">SUPER</span><span class="p">(</span><span class="bp">self</span><span class="p">));</span>
+<span class="w">        </span><span class="n">FREE</span><span class="p">(</span><span class="bp">self</span><span class="o">-&gt;</span><span class="n">frames</span><span class="p">);</span>
+<span class="w">        </span><span class="n">FREE</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="o">/*</span><span class="w"> </span><span class="n">Many</span><span class="w"> </span><span class="n">timelines</span><span class="w"> </span><span class="n">have</span><span class="w"> </span><span class="n">structure</span><span class="w"> </span><span class="n">identical</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">struct</span><span class="w"> </span><span class="n">spBaseTimeline</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">extend</span><span class="w"> </span><span class="n">spCurveTimeline</span><span class="o">.</span><span class="w"> </span><span class="o">**/</span>
+<span class="n">struct</span><span class="w"> </span><span class="n">spBaseTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">_spBaseTimeline_create</span><span class="w"> </span><span class="p">(</span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">framesCount</span><span class="p">,</span><span class="w"> </span><span class="n">spTimelineType</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">frameSize</span><span class="p">,</span><span class="w"> </span><span class="o">/**/</span>
+<span class="w">                </span><span class="nb nb-Type">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">apply</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">spSkeleton</span><span class="o">*</span><span class="w"> </span><span class="n">skeleton</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">lastTime</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">spEvent</span><span class="o">**</span><span class="w"> </span><span class="n">firedEvents</span><span class="p">,</span>
+<span class="w">                                </span><span class="nb nb-Type">int</span><span class="o">*</span><span class="w"> </span><span class="n">eventsCount</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">alpha</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">struct</span><span class="w"> </span><span class="n">spBaseTimeline</span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NEW</span><span class="p">(</span><span class="n">struct</span><span class="w"> </span><span class="n">spBaseTimeline</span><span class="p">);</span>
+<span class="w">        </span><span class="n">_spCurveTimeline_init</span><span class="p">(</span><span class="n">SUPER</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">framesCount</span><span class="p">,</span><span class="w"> </span><span class="n">_spBaseTimeline_dispose</span><span class="p">,</span><span class="w"> </span><span class="n">apply</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">CONST_CAST</span><span class="p">(</span><span class="nb nb-Type">int</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">-&gt;</span><span class="n">framesCount</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">framesCount</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">frameSize</span><span class="p">;</span>
+<span class="w">        </span><span class="n">CONST_CAST</span><span class="p">(</span><span class="nb nb-Type">float</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">-&gt;</span><span class="n">frames</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CALLOC</span><span class="p">(</span><span class="nb nb-Type">float</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">-&gt;</span><span class="n">framesCount</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+
+<p><code>spTimeline</code>结构体的子类<code>spAttachmentTimeline</code>：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">typedef</span><span class="w"> </span><span class="n">struct</span><span class="w"> </span><span class="n">spAttachmentTimeline</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">spTimeline</span><span class="w"> </span><span class="n">super</span><span class="p">;</span>
+<span class="w">        </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">framesCount</span><span class="p">;</span>
+<span class="w">        </span><span class="nb nb-Type">float</span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">frames</span><span class="p">;</span><span class="w"> </span><span class="o">/*</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">        </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">slotIndex</span><span class="p">;</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="nb">char</span><span class="o">**</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">attachmentNames</span><span class="p">;</span>
+
+<span class="c1">#ifdef __cplusplus</span>
+<span class="w">        </span><span class="n">spAttachmentTimeline</span><span class="p">()</span><span class="w"> </span><span class="p">:</span>
+<span class="w">                </span><span class="n">super</span><span class="p">(),</span>
+<span class="w">                </span><span class="n">framesCount</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+<span class="w">                </span><span class="n">frames</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+<span class="w">                </span><span class="n">slotIndex</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+<span class="w">                </span><span class="n">attachmentNames</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="c1">#endif</span>
+<span class="p">}</span><span class="w"> </span><span class="n">spAttachmentTimeline</span><span class="p">;</span>
+
+<span class="n">spAttachmentTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">spAttachmentTimeline_create</span><span class="w"> </span><span class="p">(</span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">framesCount</span><span class="p">);</span>
+</code></pre></div></td></tr></table></div>
+
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">void</span><span class="w"> </span><span class="n">_spAttachmentTimeline_dispose</span><span class="w"> </span><span class="p">(</span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">timeline</span><span class="p">)</span><span class="w"> </span><span class="err">{</span>
+<span class="w">        </span><span class="n">spAttachmentTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">self</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SUB_CAST</span><span class="p">(</span><span class="n">spAttachmentTimeline</span><span class="p">,</span><span class="w"> </span><span class="n">timeline</span><span class="p">);</span>
+<span class="w">        </span><span class="nc">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">_spTimeline_deinit</span><span class="p">(</span><span class="n">timeline</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">framesCount</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">attachmentNames</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">);</span>
+<span class="w">        </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">attachmentNames</span><span class="p">);</span>
+<span class="w">        </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">frames</span><span class="p">);</span>
+<span class="w">        </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="p">);</span>
+<span class="err">}</span>
+
+<span class="n">spAttachmentTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">spAttachmentTimeline_create</span><span class="w"> </span><span class="p">(</span><span class="nc">int</span><span class="w"> </span><span class="n">framesCount</span><span class="p">)</span><span class="w"> </span><span class="err">{</span>
+<span class="w">        </span><span class="n">spAttachmentTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">self</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">NEW</span><span class="p">(</span><span class="n">spAttachmentTimeline</span><span class="p">);</span>
+<span class="w">        </span><span class="n">_spTimeline_init</span><span class="p">(</span><span class="n">SUPER</span><span class="p">(</span><span class="n">self</span><span class="p">),</span><span class="w"> </span><span class="n">SP_TIMELINE_ATTACHMENT</span><span class="p">,</span><span class="w"> </span><span class="n">_spAttachmentTimeline_dispose</span><span class="p">,</span><span class="w"> </span><span class="n">_spAttachmentTimeline_apply</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">CONST_CAST</span><span class="p">(</span><span class="nc">int</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">framesCount</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">framesCount</span><span class="p">;</span>
+<span class="w">        </span><span class="n">CONST_CAST</span><span class="p">(</span><span class="nc">float</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">frames</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CALLOC</span><span class="p">(</span><span class="nc">float</span><span class="p">,</span><span class="w"> </span><span class="n">framesCount</span><span class="p">);</span>
+<span class="w">        </span><span class="n">CONST_CAST</span><span class="p">(</span><span class="nc">char</span><span class="o">**</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">attachmentNames</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CALLOC</span><span class="p">(</span><span class="nc">char</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">framesCount</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">;</span>
+<span class="err">}</span>
+</code></pre></div></td></tr></table></div>
+
+<p><code>spTimeline</code>结构体的子类<code>spEventTimeline</code>：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">typedef</span><span class="w"> </span><span class="n">struct</span><span class="w"> </span><span class="n">spEventTimeline</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">spTimeline</span><span class="w"> </span><span class="n">super</span><span class="p">;</span>
+<span class="w">        </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">framesCount</span><span class="p">;</span>
+<span class="w">        </span><span class="nb nb-Type">float</span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">frames</span><span class="p">;</span><span class="w"> </span><span class="o">/*</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">        </span><span class="n">spEvent</span><span class="o">**</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">events</span><span class="p">;</span>
+
+<span class="c1">#ifdef __cplusplus</span>
+<span class="w">        </span><span class="n">spEventTimeline</span><span class="p">()</span><span class="w"> </span><span class="p">:</span>
+<span class="w">                </span><span class="n">super</span><span class="p">(),</span>
+<span class="w">                </span><span class="n">framesCount</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+<span class="w">                </span><span class="n">frames</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+<span class="w">                </span><span class="n">events</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="c1">#endif</span>
+<span class="p">}</span><span class="w"> </span><span class="n">spEventTimeline</span><span class="p">;</span>
+
+<span class="n">spEventTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">spEventTimeline_create</span><span class="w"> </span><span class="p">(</span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">framesCount</span><span class="p">);</span>
+</code></pre></div></td></tr></table></div>
+
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">void</span><span class="w"> </span><span class="n">_spEventTimeline_dispose</span><span class="w"> </span><span class="p">(</span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">timeline</span><span class="p">)</span><span class="w"> </span><span class="err">{</span>
+<span class="w">        </span><span class="n">spEventTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">self</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SUB_CAST</span><span class="p">(</span><span class="n">spEventTimeline</span><span class="p">,</span><span class="w"> </span><span class="n">timeline</span><span class="p">);</span>
+<span class="w">        </span><span class="nc">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">_spTimeline_deinit</span><span class="p">(</span><span class="n">timeline</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">framesCount</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                </span><span class="n">spEvent_dispose</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">events</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">);</span>
+<span class="w">        </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">events</span><span class="p">);</span>
+<span class="w">        </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">frames</span><span class="p">);</span>
+<span class="w">        </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="p">);</span>
+<span class="err">}</span>
+
+<span class="n">spEventTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">spEventTimeline_create</span><span class="w"> </span><span class="p">(</span><span class="nc">int</span><span class="w"> </span><span class="n">framesCount</span><span class="p">)</span><span class="w"> </span><span class="err">{</span>
+<span class="w">        </span><span class="n">spEventTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">self</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">NEW</span><span class="p">(</span><span class="n">spEventTimeline</span><span class="p">);</span>
+<span class="w">        </span><span class="n">_spTimeline_init</span><span class="p">(</span><span class="n">SUPER</span><span class="p">(</span><span class="n">self</span><span class="p">),</span><span class="w"> </span><span class="n">SP_TIMELINE_EVENT</span><span class="p">,</span><span class="w"> </span><span class="n">_spEventTimeline_dispose</span><span class="p">,</span><span class="w"> </span><span class="n">_spEventTimeline_apply</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">CONST_CAST</span><span class="p">(</span><span class="nc">int</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">framesCount</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">framesCount</span><span class="p">;</span>
+<span class="w">        </span><span class="n">CONST_CAST</span><span class="p">(</span><span class="nc">float</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">frames</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CALLOC</span><span class="p">(</span><span class="nc">float</span><span class="p">,</span><span class="w"> </span><span class="n">framesCount</span><span class="p">);</span>
+<span class="w">        </span><span class="n">CONST_CAST</span><span class="p">(</span><span class="n">spEvent</span><span class="o">**</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">events</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CALLOC</span><span class="p">(</span><span class="n">spEvent</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">framesCount</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">;</span>
+<span class="err">}</span>
+</code></pre></div></td></tr></table></div>
+
+<p><code>spTimeline</code>结构体的子类<code>spDrawOrderTimeline</code>：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">typedef</span><span class="w"> </span><span class="n">struct</span><span class="w"> </span><span class="n">spDrawOrderTimeline</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">spTimeline</span><span class="w"> </span><span class="n">super</span><span class="p">;</span>
+<span class="w">        </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">framesCount</span><span class="p">;</span>
+<span class="w">        </span><span class="nb nb-Type">float</span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">frames</span><span class="p">;</span><span class="w"> </span><span class="o">/*</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="o">**</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">drawOrders</span><span class="p">;</span>
+<span class="w">        </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">slotsCount</span><span class="p">;</span>
+
+<span class="c1">#ifdef __cplusplus</span>
+<span class="w">        </span><span class="n">spDrawOrderTimeline</span><span class="p">()</span><span class="w"> </span><span class="p">:</span>
+<span class="w">                </span><span class="n">super</span><span class="p">(),</span>
+<span class="w">                </span><span class="n">framesCount</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+<span class="w">                </span><span class="n">frames</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+<span class="w">                </span><span class="n">drawOrders</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+<span class="w">                </span><span class="n">slotsCount</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="c1">#endif</span>
+<span class="p">}</span><span class="w"> </span><span class="n">spDrawOrderTimeline</span><span class="p">;</span>
+
+<span class="n">spDrawOrderTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">spDrawOrderTimeline_create</span><span class="w"> </span><span class="p">(</span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">framesCount</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">slotsCount</span><span class="p">);</span>
+</code></pre></div></td></tr></table></div>
+
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">void</span><span class="w"> </span><span class="n">_spDrawOrderTimeline_dispose</span><span class="w"> </span><span class="p">(</span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">timeline</span><span class="p">)</span><span class="w"> </span><span class="err">{</span>
+<span class="w">        </span><span class="n">spDrawOrderTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">self</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SUB_CAST</span><span class="p">(</span><span class="n">spDrawOrderTimeline</span><span class="p">,</span><span class="w"> </span><span class="n">timeline</span><span class="p">);</span>
+<span class="w">        </span><span class="nc">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">_spTimeline_deinit</span><span class="p">(</span><span class="n">timeline</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">framesCount</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">drawOrders</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">);</span>
+<span class="w">        </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">drawOrders</span><span class="p">);</span>
+<span class="w">        </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">frames</span><span class="p">);</span>
+<span class="w">        </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="p">);</span>
+<span class="err">}</span>
+
+<span class="n">spDrawOrderTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">spDrawOrderTimeline_create</span><span class="w"> </span><span class="p">(</span><span class="nc">int</span><span class="w"> </span><span class="n">framesCount</span><span class="p">,</span><span class="w"> </span><span class="nc">int</span><span class="w"> </span><span class="n">slotsCount</span><span class="p">)</span><span class="w"> </span><span class="err">{</span>
+<span class="w">        </span><span class="n">spDrawOrderTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">self</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">NEW</span><span class="p">(</span><span class="n">spDrawOrderTimeline</span><span class="p">);</span>
+<span class="w">        </span><span class="n">_spTimeline_init</span><span class="p">(</span><span class="n">SUPER</span><span class="p">(</span><span class="n">self</span><span class="p">),</span><span class="w"> </span><span class="n">SP_TIMELINE_DRAWORDER</span><span class="p">,</span><span class="w"> </span><span class="n">_spDrawOrderTimeline_dispose</span><span class="p">,</span><span class="w"> </span><span class="n">_spDrawOrderTimeline_apply</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">CONST_CAST</span><span class="p">(</span><span class="nc">int</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">framesCount</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">framesCount</span><span class="p">;</span>
+<span class="w">        </span><span class="n">CONST_CAST</span><span class="p">(</span><span class="nc">float</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">frames</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CALLOC</span><span class="p">(</span><span class="nc">float</span><span class="p">,</span><span class="w"> </span><span class="n">framesCount</span><span class="p">);</span>
+<span class="w">        </span><span class="n">CONST_CAST</span><span class="p">(</span><span class="nc">int</span><span class="o">**</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">drawOrders</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CALLOC</span><span class="p">(</span><span class="nc">int</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">framesCount</span><span class="p">);</span>
+<span class="w">        </span><span class="n">CONST_CAST</span><span class="p">(</span><span class="nc">int</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">slotsCount</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">slotsCount</span><span class="p">;</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">;</span>
+<span class="err">}</span>
+</code></pre></div></td></tr></table></div>
+
+<p><code>spCurveTimeline</code>结构体的子类<code>spFFDTimeline</code>：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">typedef</span><span class="w"> </span><span class="n">struct</span><span class="w"> </span><span class="n">spFFDTimeline</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">spCurveTimeline</span><span class="w"> </span><span class="n">super</span><span class="p">;</span>
+<span class="w">        </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">framesCount</span><span class="p">;</span>
+<span class="w">        </span><span class="nb nb-Type">float</span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">frames</span><span class="p">;</span><span class="w"> </span><span class="o">/*</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="w"> </span><span class="o">*/</span>
+<span class="w">        </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">frameVerticesCount</span><span class="p">;</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="o">**</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">frameVertices</span><span class="p">;</span>
+<span class="w">        </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">slotIndex</span><span class="p">;</span>
+<span class="w">        </span><span class="n">spAttachment</span><span class="o">*</span><span class="w"> </span><span class="n">attachment</span><span class="p">;</span>
+
+<span class="c1">#ifdef __cplusplus</span>
+<span class="w">        </span><span class="n">spFFDTimeline</span><span class="p">()</span><span class="w"> </span><span class="p">:</span>
+<span class="w">                </span><span class="n">super</span><span class="p">(),</span>
+<span class="w">                </span><span class="n">framesCount</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+<span class="w">                </span><span class="n">frames</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+<span class="w">                </span><span class="n">frameVerticesCount</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+<span class="w">                </span><span class="n">frameVertices</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+<span class="w">                </span><span class="n">slotIndex</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="c1">#endif</span>
+<span class="p">}</span><span class="w"> </span><span class="n">spFFDTimeline</span><span class="p">;</span>
+
+<span class="n">spFFDTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">spFFDTimeline_create</span><span class="w"> </span><span class="p">(</span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">framesCount</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="n">frameVerticesCount</span><span class="p">);</span>
+</code></pre></div></td></tr></table></div>
+
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">void</span><span class="w"> </span><span class="n">_spFFDTimeline_dispose</span><span class="w"> </span><span class="p">(</span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">timeline</span><span class="p">)</span><span class="w"> </span><span class="err">{</span>
+<span class="w">        </span><span class="n">spFFDTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">self</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SUB_CAST</span><span class="p">(</span><span class="n">spFFDTimeline</span><span class="p">,</span><span class="w"> </span><span class="n">timeline</span><span class="p">);</span>
+<span class="w">        </span><span class="nc">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">_spCurveTimeline_deinit</span><span class="p">(</span><span class="n">SUPER</span><span class="p">(</span><span class="n">self</span><span class="p">));</span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">framesCount</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">frameVertices</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">);</span>
+<span class="w">        </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">frameVertices</span><span class="p">);</span>
+<span class="w">        </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">frames</span><span class="p">);</span>
+<span class="w">        </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="p">);</span>
+<span class="err">}</span>
+
+<span class="n">spFFDTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">spFFDTimeline_create</span><span class="w"> </span><span class="p">(</span><span class="nc">int</span><span class="w"> </span><span class="n">framesCount</span><span class="p">,</span><span class="w"> </span><span class="nc">int</span><span class="w"> </span><span class="n">frameVerticesCount</span><span class="p">)</span><span class="w"> </span><span class="err">{</span>
+<span class="w">        </span><span class="n">spFFDTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">self</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">NEW</span><span class="p">(</span><span class="n">spFFDTimeline</span><span class="p">);</span>
+<span class="w">        </span><span class="n">_spCurveTimeline_init</span><span class="p">(</span><span class="n">SUPER</span><span class="p">(</span><span class="n">self</span><span class="p">),</span><span class="w"> </span><span class="n">SP_TIMELINE_FFD</span><span class="p">,</span><span class="w"> </span><span class="n">framesCount</span><span class="p">,</span><span class="w"> </span><span class="n">_spFFDTimeline_dispose</span><span class="p">,</span><span class="w"> </span><span class="n">_spFFDTimeline_apply</span><span class="p">);</span>
+<span class="w">        </span><span class="n">CONST_CAST</span><span class="p">(</span><span class="nc">int</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">framesCount</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">framesCount</span><span class="p">;</span>
+<span class="w">        </span><span class="n">CONST_CAST</span><span class="p">(</span><span class="nc">float</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">frames</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CALLOC</span><span class="p">(</span><span class="nc">float</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">framesCount</span><span class="p">);</span>
+<span class="w">        </span><span class="n">CONST_CAST</span><span class="p">(</span><span class="nc">float</span><span class="o">**</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">frameVertices</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CALLOC</span><span class="p">(</span><span class="nc">float</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">framesCount</span><span class="p">);</span>
+<span class="w">        </span><span class="n">CONST_CAST</span><span class="p">(</span><span class="nc">int</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">frameVerticesCount</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frameVerticesCount</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">;</span>
+<span class="err">}</span>
+</code></pre></div></td></tr></table></div>
+
+<p>如果按照正确的<code>C++</code>析构函数写法，应该这么改：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">void</span><span class="w"> </span><span class="n">_spTimeline_deinit</span><span class="w"> </span><span class="p">(</span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">self</span><span class="p">)</span><span class="w"> </span><span class="err">{</span>
+<span class="w">    </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">vtable</span><span class="p">);</span>
+<span class="w">    </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="p">);</span>
+<span class="err">}</span>
+
+
+
+<span class="n">void</span><span class="w"> </span><span class="n">_spCurveTimeline_deinit</span><span class="w"> </span><span class="p">(</span><span class="n">spCurveTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">self</span><span class="p">)</span><span class="w"> </span><span class="err">{</span>
+<span class="w">    </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">curves</span><span class="p">);</span>
+<span class="w">    </span><span class="n">_spTimeline_deinit</span><span class="p">(</span><span class="n">SUPER</span><span class="p">(</span><span class="n">self</span><span class="p">));</span>
+<span class="err">}</span>
+
+
+
+<span class="n">void</span><span class="w"> </span><span class="n">_spBaseTimeline_dispose</span><span class="w"> </span><span class="p">(</span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">timeline</span><span class="p">)</span><span class="w"> </span><span class="err">{</span>
+<span class="w">    </span><span class="n">struct</span><span class="w"> </span><span class="n">spBaseTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">self</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SUB_CAST</span><span class="p">(</span><span class="n">struct</span><span class="w"> </span><span class="n">spBaseTimeline</span><span class="p">,</span><span class="w"> </span><span class="n">timeline</span><span class="p">);</span>
+<span class="w">    </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">frames</span><span class="p">);</span>
+<span class="w">    </span><span class="n">_spCurveTimeline_deinit</span><span class="p">(</span><span class="n">SUPER</span><span class="p">(</span><span class="n">self</span><span class="p">));</span>
+<span class="err">}</span>
+
+
+<span class="n">void</span><span class="w"> </span><span class="n">_spFFDTimeline_dispose</span><span class="w"> </span><span class="p">(</span><span class="n">spTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">timeline</span><span class="p">)</span><span class="w"> </span><span class="err">{</span>
+<span class="w">    </span><span class="n">spFFDTimeline</span><span class="o">*</span><span class="w"> </span><span class="n">self</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SUB_CAST</span><span class="p">(</span><span class="n">spFFDTimeline</span><span class="p">,</span><span class="w"> </span><span class="n">timeline</span><span class="p">);</span>
+<span class="w">    </span><span class="nc">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">self</span><span class="o">-&gt;</span><span class="n">framesCount</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span>
+<span class="w">        </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">frameVertices</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">);</span>
+<span class="w">    </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">frameVertices</span><span class="p">);</span>
+<span class="w">    </span><span class="k">FREE</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">frames</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">_spCurveTimeline_deinit</span><span class="p">(</span><span class="n">SUPER</span><span class="p">(</span><span class="n">self</span><span class="p">));</span>
+<span class="err">}</span>
+</code></pre></div></td></tr></table></div>
+
+<p>正当本渣以为解决了问题的一部分时，<code>Leaks</code>查出来的内存泄露并没有减少。本渣再次trace了下代码，这才发现spine这套析构函数多态机制之所以没问题，是因为根本不会有基类对象！坑爹啊！！</p>
+<p>本渣的下一个思路是把spine用到的结构体或类大小整理出来，和<code>Leaks</code>查出来的内存大小相比对，从而找到可疑的结构体，再相应去看它的实现代码。
+不过查出的泄露内存大小并不固定，这给本渣排查带来了很多不便。
+本渣在整理spine的结构体和类的同时也一点点地review代码，不知看了多久，最后总算在<code>SkeletonRenderer</code>的代码里捉到一处内存泄露bug：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nb nb-Type">void</span><span class="w"> </span><span class="n">SkeletonRenderer</span><span class="p">::</span><span class="n">initialize</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">_atlas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">_debugSlots</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">false</span><span class="p">;</span>
+<span class="w">        </span><span class="n">_debugBones</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">false</span><span class="p">;</span>
+<span class="w">        </span><span class="n">_timeScale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">_worldVertices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MALLOC</span><span class="p">(</span><span class="nb nb-Type">float</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">);</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">Max</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">vertices</span><span class="w"> </span><span class="n">per</span><span class="w"> </span><span class="n">mesh</span><span class="o">.</span>
+
+<span class="w">        </span><span class="n">_batch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PolygonBatch</span><span class="p">::</span><span class="n">createWithCapacity</span><span class="p">(</span><span class="mi">2000</span><span class="p">);</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">Max</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">vertices</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">triangles</span><span class="w"> </span><span class="n">per</span><span class="w"> </span><span class="n">batch</span><span class="o">.</span>
+<span class="w">        </span><span class="n">_batch</span><span class="o">-&gt;</span><span class="n">retain</span><span class="p">();</span>
+
+<span class="w">        </span><span class="n">_blendFunc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BlendFunc</span><span class="p">::</span><span class="n">ALPHA_PREMULTIPLIED</span><span class="p">;</span>
+<span class="w">        </span><span class="n">setOpacityModifyRGB</span><span class="p">(</span><span class="bp">true</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">setGLProgram</span><span class="p">(</span><span class="n">ShaderCache</span><span class="p">::</span><span class="n">getInstance</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">getGLProgram</span><span class="p">(</span><span class="n">GLProgram</span><span class="p">::</span><span class="n">SHADER_NAME_POSITION_TEXTURE_COLOR</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="n">SkeletonRenderer</span><span class="p">::</span><span class="n">SkeletonRenderer</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="p">}</span>
+
+<span class="n">SkeletonRenderer</span><span class="p">::</span><span class="n">SkeletonRenderer</span><span class="w"> </span><span class="p">(</span><span class="n">spSkeletonData</span><span class="w"> </span><span class="o">*</span><span class="n">skeletonData</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">bool</span><span class="w"> </span><span class="n">ownsSkeletonData</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">initWithData</span><span class="p">(</span><span class="n">skeletonData</span><span class="p">,</span><span class="w"> </span><span class="n">ownsSkeletonData</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">SkeletonRenderer</span><span class="p">::</span><span class="n">SkeletonRenderer</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">skeletonDataFile</span><span class="p">,</span><span class="w"> </span><span class="n">spAtlas</span><span class="o">*</span><span class="w"> </span><span class="n">atlas</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">scale</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">initWithFile</span><span class="p">(</span><span class="n">skeletonDataFile</span><span class="p">,</span><span class="w"> </span><span class="n">atlas</span><span class="p">,</span><span class="w"> </span><span class="n">scale</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">SkeletonRenderer</span><span class="p">::</span><span class="n">SkeletonRenderer</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">skeletonDataFile</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">atlasFile</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">scale</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">initWithFile</span><span class="p">(</span><span class="n">skeletonDataFile</span><span class="p">,</span><span class="w"> </span><span class="n">atlasFile</span><span class="p">,</span><span class="w"> </span><span class="n">scale</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nb nb-Type">void</span><span class="w"> </span><span class="n">SkeletonRenderer</span><span class="p">::</span><span class="n">initWithData</span><span class="w"> </span><span class="p">(</span><span class="n">spSkeletonData</span><span class="o">*</span><span class="w"> </span><span class="n">skeletonData</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">bool</span><span class="w"> </span><span class="n">ownsSkeletonData</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">setSkeletonData</span><span class="p">(</span><span class="n">skeletonData</span><span class="p">,</span><span class="w"> </span><span class="n">ownsSkeletonData</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">initialize</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="nb nb-Type">void</span><span class="w"> </span><span class="n">SkeletonRenderer</span><span class="p">::</span><span class="n">initWithFile</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">skeletonDataFile</span><span class="p">,</span><span class="w"> </span><span class="n">spAtlas</span><span class="o">*</span><span class="w"> </span><span class="n">atlas</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">scale</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">spSkeletonJson</span><span class="o">*</span><span class="w"> </span><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spSkeletonJson_create</span><span class="p">(</span><span class="n">atlas</span><span class="p">);</span>
+<span class="w">        </span><span class="n">json</span><span class="o">-&gt;</span><span class="n">scale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scale</span><span class="p">;</span>
+<span class="w">        </span><span class="n">spSkeletonData</span><span class="o">*</span><span class="w"> </span><span class="n">skeletonData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spSkeletonJson_readSkeletonDataFile</span><span class="p">(</span><span class="n">json</span><span class="p">,</span><span class="w"> </span><span class="n">skeletonDataFile</span><span class="o">.</span><span class="n">c_str</span><span class="p">());</span>
+<span class="w">        </span><span class="n">CCASSERT</span><span class="p">(</span><span class="n">skeletonData</span><span class="p">,</span><span class="w"> </span><span class="n">json</span><span class="o">-&gt;</span><span class="n">error</span><span class="w"> </span><span class="err">?</span><span class="w"> </span><span class="n">json</span><span class="o">-&gt;</span><span class="n">error</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Error reading skeleton data.&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">spSkeletonJson_dispose</span><span class="p">(</span><span class="n">json</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">setSkeletonData</span><span class="p">(</span><span class="n">skeletonData</span><span class="p">,</span><span class="w"> </span><span class="bp">true</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">initialize</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="nb nb-Type">void</span><span class="w"> </span><span class="n">SkeletonRenderer</span><span class="p">::</span><span class="n">initWithFile</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">skeletonDataFile</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">atlasFile</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">scale</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">_atlas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spAtlas_createFromFile</span><span class="p">(</span><span class="n">atlasFile</span><span class="o">.</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="n">CCASSERT</span><span class="p">(</span><span class="n">_atlas</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Error reading atlas file.&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">spSkeletonJson</span><span class="o">*</span><span class="w"> </span><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spSkeletonJson_create</span><span class="p">(</span><span class="n">_atlas</span><span class="p">);</span>
+<span class="w">        </span><span class="n">json</span><span class="o">-&gt;</span><span class="n">scale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scale</span><span class="p">;</span>
+<span class="w">        </span><span class="n">spSkeletonData</span><span class="o">*</span><span class="w"> </span><span class="n">skeletonData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spSkeletonJson_readSkeletonDataFile</span><span class="p">(</span><span class="n">json</span><span class="p">,</span><span class="w"> </span><span class="n">skeletonDataFile</span><span class="o">.</span><span class="n">c_str</span><span class="p">());</span>
+<span class="w">        </span><span class="n">CCASSERT</span><span class="p">(</span><span class="n">skeletonData</span><span class="p">,</span><span class="w"> </span><span class="n">json</span><span class="o">-&gt;</span><span class="n">error</span><span class="w"> </span><span class="err">?</span><span class="w"> </span><span class="n">json</span><span class="o">-&gt;</span><span class="n">error</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Error reading skeleton data file.&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">spSkeletonJson_dispose</span><span class="p">(</span><span class="n">json</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">setSkeletonData</span><span class="p">(</span><span class="n">skeletonData</span><span class="p">,</span><span class="w"> </span><span class="bp">true</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">initialize</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+
+<p>注意，<code>SkeletonRenderer::initWithFile</code>里为成员变量<code>_atlas</code>申请了内存空间，随后调用<code>SkeletonRenderer::initialize</code>，竟重置了这一指针，却没有释放内存！话说spine这段代码的C++类构造函数写得也真是醉：既然调用完<code>initWithFile</code>后不需要访问<code>_atlas</code>，那干脆用一个临时变量就可以了，何必用成员变量；而且<code>initialize</code>函数的不少赋值操作放在构造函数的初始化列表里比较合适。不过简单一点改，就直接调整下函数调用次序就好：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">SkeletonRenderer</span><span class="p">::</span><span class="n">SkeletonRenderer</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">initialize</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="n">SkeletonRenderer</span><span class="p">::</span><span class="n">SkeletonRenderer</span><span class="w"> </span><span class="p">(</span><span class="n">spSkeletonData</span><span class="w"> </span><span class="o">*</span><span class="n">skeletonData</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">bool</span><span class="w"> </span><span class="n">ownsSkeletonData</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">initialize</span><span class="p">();</span>
+<span class="w">    </span><span class="n">initWithData</span><span class="p">(</span><span class="n">skeletonData</span><span class="p">,</span><span class="w"> </span><span class="n">ownsSkeletonData</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">SkeletonRenderer</span><span class="p">::</span><span class="n">SkeletonRenderer</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">skeletonDataFile</span><span class="p">,</span><span class="w"> </span><span class="n">spAtlas</span><span class="o">*</span><span class="w"> </span><span class="n">atlas</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">scale</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">initialize</span><span class="p">();</span>
+<span class="w">    </span><span class="n">initWithFile</span><span class="p">(</span><span class="n">skeletonDataFile</span><span class="p">,</span><span class="w"> </span><span class="n">atlas</span><span class="p">,</span><span class="w"> </span><span class="n">scale</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">SkeletonRenderer</span><span class="p">::</span><span class="n">SkeletonRenderer</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">skeletonDataFile</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">atlasFile</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">scale</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">initialize</span><span class="p">();</span>
+<span class="w">    </span><span class="n">initWithFile</span><span class="p">(</span><span class="n">skeletonDataFile</span><span class="p">,</span><span class="w"> </span><span class="n">atlasFile</span><span class="p">,</span><span class="w"> </span><span class="n">scale</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="nb nb-Type">void</span><span class="w"> </span><span class="n">SkeletonRenderer</span><span class="p">::</span><span class="n">initWithData</span><span class="w"> </span><span class="p">(</span><span class="n">spSkeletonData</span><span class="o">*</span><span class="w"> </span><span class="n">skeletonData</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">bool</span><span class="w"> </span><span class="n">ownsSkeletonData</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">setSkeletonData</span><span class="p">(</span><span class="n">skeletonData</span><span class="p">,</span><span class="w"> </span><span class="n">ownsSkeletonData</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nb nb-Type">void</span><span class="w"> </span><span class="n">SkeletonRenderer</span><span class="p">::</span><span class="n">initWithFile</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">skeletonDataFile</span><span class="p">,</span><span class="w"> </span><span class="n">spAtlas</span><span class="o">*</span><span class="w"> </span><span class="n">atlas</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">scale</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">spSkeletonJson</span><span class="o">*</span><span class="w"> </span><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spSkeletonJson_create</span><span class="p">(</span><span class="n">atlas</span><span class="p">);</span>
+<span class="w">        </span><span class="n">json</span><span class="o">-&gt;</span><span class="n">scale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scale</span><span class="p">;</span>
+<span class="w">        </span><span class="n">spSkeletonData</span><span class="o">*</span><span class="w"> </span><span class="n">skeletonData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spSkeletonJson_readSkeletonDataFile</span><span class="p">(</span><span class="n">json</span><span class="p">,</span><span class="w"> </span><span class="n">skeletonDataFile</span><span class="o">.</span><span class="n">c_str</span><span class="p">());</span>
+<span class="w">        </span><span class="n">CCASSERT</span><span class="p">(</span><span class="n">skeletonData</span><span class="p">,</span><span class="w"> </span><span class="n">json</span><span class="o">-&gt;</span><span class="n">error</span><span class="w"> </span><span class="err">?</span><span class="w"> </span><span class="n">json</span><span class="o">-&gt;</span><span class="n">error</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Error reading skeleton data.&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">spSkeletonJson_dispose</span><span class="p">(</span><span class="n">json</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">setSkeletonData</span><span class="p">(</span><span class="n">skeletonData</span><span class="p">,</span><span class="w"> </span><span class="bp">true</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nb nb-Type">void</span><span class="w"> </span><span class="n">SkeletonRenderer</span><span class="p">::</span><span class="n">initWithFile</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">skeletonDataFile</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">atlasFile</span><span class="p">,</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="n">scale</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">_atlas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spAtlas_createFromFile</span><span class="p">(</span><span class="n">atlasFile</span><span class="o">.</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="n">CCASSERT</span><span class="p">(</span><span class="n">_atlas</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Error reading atlas file.&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">spSkeletonJson</span><span class="o">*</span><span class="w"> </span><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spSkeletonJson_create</span><span class="p">(</span><span class="n">_atlas</span><span class="p">);</span>
+<span class="w">        </span><span class="n">json</span><span class="o">-&gt;</span><span class="n">scale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scale</span><span class="p">;</span>
+<span class="w">        </span><span class="n">spSkeletonData</span><span class="o">*</span><span class="w"> </span><span class="n">skeletonData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spSkeletonJson_readSkeletonDataFile</span><span class="p">(</span><span class="n">json</span><span class="p">,</span><span class="w"> </span><span class="n">skeletonDataFile</span><span class="o">.</span><span class="n">c_str</span><span class="p">());</span>
+<span class="w">        </span><span class="n">CCASSERT</span><span class="p">(</span><span class="n">skeletonData</span><span class="p">,</span><span class="w"> </span><span class="n">json</span><span class="o">-&gt;</span><span class="n">error</span><span class="w"> </span><span class="err">?</span><span class="w"> </span><span class="n">json</span><span class="o">-&gt;</span><span class="n">error</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Error reading skeleton data file.&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">spSkeletonJson_dispose</span><span class="p">(</span><span class="n">json</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">setSkeletonData</span><span class="p">(</span><span class="n">skeletonData</span><span class="p">,</span><span class="w"> </span><span class="bp">true</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+
+<p>改完这个bug，再重新跑<code>Instruments</code>的<code>Leaks</code>工具，结果之前的内存泄露都没有了，看来<code>SkeletonRenderer</code>的这处bug就是被检测出来的所有spine内存泄露的罪魁祸首！</p>
+<p>等到本渣兴高采烈想去提交一个PR时才发现，原来<code>spine</code>的repo上早有了fix该bug的<a href="https://github.com/EsotericSoftware/spine-runtimes/pull/461">patch</a>，cocos2d-x也有相同的<a href="https://github.com/cocos2d/cocos2d-x/issues/13150">patch</a>，看来还是要多跟进官方repo的进展啊......这次查bug真是白耗精力，而且看了些spine的烂坑对自己也木有帮助，不开森:(</p></p>
+        </div>
+    </div>
+
+<div class="fh5co-narrow-content">
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
+</div>
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <div id="disqus_thread"></div>
+</div>
+
+<script>
+var disqus_config = function () { 
+  this.language = "en";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
+<div class="fh5co-footer">
+    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
+    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
+
+</div>                
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="../../../../theme/js/jquery.min.js"></script>
+    <!-- jQuery Easing -->
+    <script src="../../../../theme/js/jquery.easing.1.3.js"></script>
+    <!-- Bootstrap -->
+    <script src="../../../../theme/js/bootstrap.min.js"></script>
+    <!-- Waypoints -->
+    <script src="../../../../theme/js/jquery.waypoints.min.js"></script>
+    <!-- Flexslider -->
+    <script src="../../../../theme/js/jquery.flexslider-min.js"></script>
+
+
+    <!-- MAIN JS -->
+    <script src="../../../../theme/js/main.js"></script>
+    </body>
+</html>

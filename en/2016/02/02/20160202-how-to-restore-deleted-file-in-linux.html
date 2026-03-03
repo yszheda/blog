@@ -1,0 +1,250 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" dir="" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" dir="" class="no-js"> <!--<![endif]-->
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>小记Linux/UNIX下错删文件恢复</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="author" content="Galoisplusplus" />
+    <meta name="description" content="一个月前，我的洁癖犯了，想执行find . -name "*~" -exec rm {} \;清下某目录下由vim生成的~文件，不料漏打了~，把一些文件删掉了...好在有用git做版本控制 …" />
+    <meta name="keywords" content="Linux, CS, tech, linux, 文件恢复, recover, lsof, extundelete, debugfs, PhotoRec">
+<!-- Facebook and Twitter integration -->
+<meta property="og:site_name" content="Galoisplusplus"/>
+<meta property="og:title" content="小记Linux/UNIX下错删文件恢复"/>
+<meta property="og:description" content="一个月前，我的洁癖犯了，想执行find . -name "*~" -exec rm {} \;清下某目录下由vim生成的~文件，不料漏打了~，把一些文件删掉了...好在有用git做版本控制 …"/>
+<meta property="og:url" content="../../../2016/02/02/20160202-how-to-restore-deleted-file-in-linux.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2016-02-02 22:43:00+08:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="../../../author/galoisplusplus.html">
+<meta property="article:section" content="tech"/>
+    <meta property="article:tag" content="Linux"/>
+    <meta property="article:tag" content="CS"/>
+    <meta property="article:tag" content="tech"/>
+    <meta property="article:tag" content="linux"/>
+    <meta property="article:tag" content="文件恢复"/>
+    <meta property="article:tag" content="recover"/>
+    <meta property="article:tag" content="lsof"/>
+    <meta property="article:tag" content="extundelete"/>
+    <meta property="article:tag" content="debugfs"/>
+    <meta property="article:tag" content="PhotoRec"/>
+    <meta property="og:image" content="static/images/trebleclef.png">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="../../../../theme/css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="../../../../theme/css/icomoon.css">
+    <!-- Bootstrap  -->
+    <link rel="stylesheet" href="../../../../theme/css/bootstrap.css">
+    <!-- Flexslider  -->
+    <link rel="stylesheet" href="../../../../theme/css/flexslider.css">
+    <!-- Theme style  -->
+    <link rel="stylesheet" href="../../../../theme/css/style.css">
+    <!-- Custom style  -->
+    <link rel="stylesheet" href="../../../../theme/css/custom.css">
+    <!-- pygments code highlight -->
+    <link rel="stylesheet" href="../../../../theme/css/pygments.css">
+    <!-- tipue search -->
+    <link rel="stylesheet" href="../../../../theme/tipuesearch/css/tipuesearch.css">
+
+    <!-- Modernizr JS -->
+    <script src="../../../../theme/js/modernizr-2.6.2.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="/theme/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+    </head>
+    <body>
+    <div id="fh5co-page">
+        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+
+            <nav class="fh5co-main-menu" role="navigation">
+    <ul class="language-navigation">
+        <li>
+                <a href="https://yszheda.github.io/blog/">zh</a>
+                <a class="lang-active" href="https://yszheda.github.io/blog/en/">en</a>
+        </li>
+    </ul>
+            </nav>
+            <div class="clearfix"></div>
+            <h1  id="fh5co-logo">
+                <a href="../../../index.html">
+                    <img src="static/images/trebleclef.png" />
+                </a>
+            </h1>
+                <a href="../../../index.html">
+                    <img src="static/images/trebleclef.png" />
+                </a>
+            </h1>
+            <nav class="fh5co-main-menu" role="navigation">
+<ul>
+    <!-- home link -->
+    <li><a href="../../../">Home</a></li>
+
+    <!-- page links -->
+
+    <!-- categories -->
+        <li class="nav-title">Categories</li>
+            <li><a href="../../../category/misc.html">misc</a></li>
+            <li><a href="../../../category/music.html">music</a></li>
+            <li><a href="../../../category/reading.html">reading</a></li>
+            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
+
+    <!-- tags -->
+        <li><a href="../../../tags.html">Tags</a></li>
+
+    <!-- additional menu items from config -->
+
+</ul>
+            </nav>
+
+<ul id="social">
+            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
+
+            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
+
+</ul>
+        </aside>
+
+        <div id="fh5co-main">
+
+    <div class="fh5co-narrow-content article-content">
+        <h1 class="fh5co-heading-colored">小记Linux/UNIX下错删文件恢复</h1>
+
+        <div>by
+                <span dir="ltr">
+                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
+ - <span dir="ltr">二 02 2月 2016</span>
+        </div>
+
+            <div><span>Tags</span>
+                    <span><a href="../../../tag/linux.html">#Linux</a> </span>
+                    <span><a href="../../../tag/cs.html">#CS</a> </span>
+                    <span><a href="../../../tag/tech.html">#tech</a> </span>
+                    <span><a href="../../../tag/linux.html">#linux</a> </span>
+                    <span><a href="../../../tag/wen-jian-hui-fu.html">#文件恢复</a> </span>
+                    <span><a href="../../../tag/recover.html">#recover</a> </span>
+                    <span><a href="../../../tag/lsof.html">#lsof</a> </span>
+                    <span><a href="../../../tag/extundelete.html">#extundelete</a> </span>
+                    <span><a href="../../../tag/debugfs.html">#debugfs</a> </span>
+                    <span><a href="../../../tag/photorec.html">#PhotoRec</a> </span>
+            </div>
+        <span dir="ltr">
+        </span>
+
+        <div class="animate-box" data-animate-effect="fadeInLeft">
+            <p class="animate-box" data-animate-effect="fadeInLeft"><p>一个月前，我的洁癖犯了，想执行<code>find . -name "*~" -exec rm {} \;</code>清下某目录下由vim生成的~文件，不料漏打了<code>~</code>，把一些文件删掉了...好在有用<code>git</code>做版本控制，即使<code>.git/index</code>也被删没了，但也可以通过<code>git reset</code>恢复，之后再用<code>git</code>恢复版本管理中的其他被删文件即可。不料今天二月二号，我又犯二了，被做死历史<code>find . -name "*" -exec rm {} \;</code>坑了一把...这次被删的还有不少特意不放在版本控制的配置文件，这次不得不做文件恢复了。</p>
+<p>最简单的情况是被删除的文件被某个进程打开，这个时候可以通过该进程在<code>/proc</code>下的文件描述符来恢复。首先由<code>lsof</code>找到打开文件的进程，有了<code>PID</code>和<code>FD</code>之后，就可以执行以下命令恢复文件：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>cp /proc/&lt;PID&gt;/fd/&lt;FD&gt; &lt;recovered-file&gt;
+</code></pre></div></td></tr></table></div>
+
+<p>不幸的是，我删的文件并没有被打开...所以不能用这种方式了。<code>df -T</code>查到被删文件所在的文件系统是ext4，于是可以试试ext的文件恢复方法。</p>
+<p>ext3/ext4文件系统的恢复可以用<code>extundelete</code>，例如恢复被误删的目录可以用：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>extundelete /dev/&lt;device&gt; --restore-directory &lt;path&gt;
+</code></pre></div></td></tr></table></div>
+
+<p>恢复被误删的文件可以用：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>extundelete --restore-file &lt;path/to/deleted/file&gt;
+</code></pre></div></td></tr></table></div>
+
+<p>此外也可以用<code>debugfs</code>工具，相较<code>extundelete</code>，<code>debugfs</code>适用于ext2/ext3/ext4文件系统</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>debugfs -w /dev/&lt;device&gt;
+</code></pre></div></td></tr></table></div>
+
+<p>在<code>debugfs</code>中用<code>lsdel</code>查找最近的删除操作，找到被删文件的inode：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">debugfs</span><span class="o">:</span><span class="w"> </span><span class="n">lsdel</span>
+</code></pre></div></td></tr></table></div>
+
+<p>接下来当然还是可以用<code>extundelete</code>：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>extundelete --restore-inode &lt;inode&gt;
+</code></pre></div></td></tr></table></div>
+
+<p>不过也可以用<code>debugfs</code>：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">debugfs</span><span class="o">:</span><span class="w"> </span><span class="n">dump</span><span class="w"> </span><span class="o">&lt;</span><span class="n">inode</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&lt;</span><span class="n">recovered</span><span class="o">-</span><span class="n">file</span><span class="o">&gt;</span>
+</code></pre></div></td></tr></table></div>
+
+<p>不少资料还提到，可以先在<code>debugfs</code>中用：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">debugfs</span><span class="o">:</span><span class="w"> </span><span class="n">logdump</span><span class="w"> </span><span class="o">-</span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="n">inode</span><span class="o">&gt;</span>
+</code></pre></div></td></tr></table></div>
+
+<p>找到以下信息</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>Blocks: (&lt;block id&gt;): &lt;block offset&gt;
+</code></pre></div></td></tr></table></div>
+
+<p>再通过<code>dd</code>命令恢复文件。</p>
+<p>不过<code>extundelete</code>和<code>debugfs</code>可谓是段誉的六脉神剑，时灵时不灵的，我的问题竟也无法通过它们搞定，最后无奈只好动用<a href="http://www.cgsecurity.org/wiki/PhotoRec">PhotoRec</a>“黑科技”了...PhotoRec恢复后的文件名好乱，好在我还有<a href="https://github.com/ggreer/the_silver_searcher">ag</a>这种大杀器，找到被删的配置文件是分分钟的事XDD</p>
+<p>哎，恢复文件真是麻烦，又想起了Zoom大妈的名言“冗余不做，日子甭过；备份不做，十恶不赦！”...</p>
+<h1 id="_1">参考资料</h1>
+<p>[1]<a href="http://man7.org/linux/man-pages/man5/proc.5.html">man proc</a></p>
+<p>[2]<a href="http://www.ibm.com/developerworks/aix/library/au-lsof.html">Finding open files with lsof</a></p>
+<p>[3]<a href="http://archive09.linux.com/feature/58142">Bring back deleted files with lsof</a></p>
+<p>[4]<a href="http://superuser.com/questions/283102/how-to-recover-deleted-file-if-it-is-still-opened-by-some-process">How to recover deleted file if it is still opened by some process?</a></p>
+<p>[5]身为Arch党自然要安利一发Archwiki：<a href="https://wiki.archlinux.org/index.php/File_recovery">File recovery</a></p>
+<p>[6]<a href="http://www.tech-g.com/2014/01/27/recovering-files-from-ext4-partition/">Recovering files from ext4 partition</a></p>
+<p>[7]<a href="http://linux.die.net/man/8/debugfs">man debugfs</a></p>
+<p>[8]<a href="http://www.cyberciti.biz/tips/linux-ext3-ext4-deleted-files-recovery-howto.html">Linux debugfs Hack: Undelete Files</a></p>
+<p>[9]<a href="http://stackoverflow.com/questions/18197365/linux-file-deleted-recovery">Linux file deleted recovery</a></p>
+<p>[10]<a href="http://unix.stackexchange.com/questions/122305/undelete-a-just-deleted-file-on-ext4-with-extundelete">undelete a just deleted file on ext4 with extundelete</a></p>
+<p>[11]<a href="http://unix.stackexchange.com/questions/80270/unix-linux-undelete-recover-deleted-files">Unix/Linux undelete/recover deleted files</a></p>
+<p>[12]<a href="http://sundayhut.is-programmer.com/posts/50859.html">debugfs总结</a></p>
+<p>[13]<a href="http://coolshell.cn/articles/1265.html">恢复Ext3下被删除的文件</a></p>
+<p>[14]这里有一些<a href="http://www.cgsecurity.org/wiki/After_Using_PhotoRec">脚本</a>用来整理PhotoRec恢复的文件</p></p>
+        </div>
+    </div>
+
+<div class="fh5co-narrow-content">
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
+</div>
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <div id="disqus_thread"></div>
+</div>
+
+<script>
+var disqus_config = function () { 
+  this.language = "en";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
+<div class="fh5co-footer">
+    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
+    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
+
+</div>                
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="../../../../theme/js/jquery.min.js"></script>
+    <!-- jQuery Easing -->
+    <script src="../../../../theme/js/jquery.easing.1.3.js"></script>
+    <!-- Bootstrap -->
+    <script src="../../../../theme/js/bootstrap.min.js"></script>
+    <!-- Waypoints -->
+    <script src="../../../../theme/js/jquery.waypoints.min.js"></script>
+    <!-- Flexslider -->
+    <script src="../../../../theme/js/jquery.flexslider-min.js"></script>
+
+
+    <!-- MAIN JS -->
+    <script src="../../../../theme/js/main.js"></script>
+    </body>
+</html>

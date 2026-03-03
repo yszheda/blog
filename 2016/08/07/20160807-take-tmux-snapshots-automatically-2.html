@@ -1,0 +1,300 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="zh" dir="" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="zh" dir="" class="no-js"> <!--<![endif]-->
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Take Tmux Snapshots Automatically (2)</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="author" content="Galoisplusplus" />
+    <meta name="description" content="还记得本渣以前写的给tmux现场做备胎的脚本吗？其实后来本渣就没再去拓展这个脚本了，不是因为之前的脚本运行得够好不需要再改了，而 …" />
+    <meta name="keywords" content="tmux, tech, CS, snapshots, cron, bash, shell, 脚本, Archlinux, linux, Linux, UNIX">
+<!-- Facebook and Twitter integration -->
+<meta property="og:site_name" content="Galoisplusplus"/>
+<meta property="og:title" content="Take Tmux Snapshots Automatically (2)"/>
+<meta property="og:description" content="还记得本渣以前写的给tmux现场做备胎的脚本吗？其实后来本渣就没再去拓展这个脚本了，不是因为之前的脚本运行得够好不需要再改了，而 …"/>
+<meta property="og:url" content="../../../2016/08/07/20160807-take-tmux-snapshots-automatically-2.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2016-08-07 16:12:00+08:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="../../../author/galoisplusplus.html">
+<meta property="article:section" content="tech"/>
+    <meta property="article:tag" content="tmux"/>
+    <meta property="article:tag" content="tech"/>
+    <meta property="article:tag" content="CS"/>
+    <meta property="article:tag" content="snapshots"/>
+    <meta property="article:tag" content="cron"/>
+    <meta property="article:tag" content="bash"/>
+    <meta property="article:tag" content="shell"/>
+    <meta property="article:tag" content="脚本"/>
+    <meta property="article:tag" content="Archlinux"/>
+    <meta property="article:tag" content="linux"/>
+    <meta property="article:tag" content="Linux"/>
+    <meta property="article:tag" content="UNIX"/>
+    <meta property="og:image" content="static/images/trebleclef.png">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="../../../theme/css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="../../../theme/css/icomoon.css">
+    <!-- Bootstrap  -->
+    <link rel="stylesheet" href="../../../theme/css/bootstrap.css">
+    <!-- Flexslider  -->
+    <link rel="stylesheet" href="../../../theme/css/flexslider.css">
+    <!-- Theme style  -->
+    <link rel="stylesheet" href="../../../theme/css/style.css">
+    <!-- Custom style  -->
+    <link rel="stylesheet" href="../../../theme/css/custom.css">
+    <!-- pygments code highlight -->
+    <link rel="stylesheet" href="../../../theme/css/pygments.css">
+    <!-- tipue search -->
+    <link rel="stylesheet" href="../../../theme/tipuesearch/css/tipuesearch.css">
+
+    <!-- Modernizr JS -->
+    <script src="../../../theme/js/modernizr-2.6.2.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="/theme/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+    </head>
+    <body>
+    <div id="fh5co-page">
+        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+
+            <nav class="fh5co-main-menu" role="navigation">
+    <ul class="language-navigation">
+        <li>
+                <a class="lang-active" href="https://yszheda.github.io/blog/">zh</a>
+                <a href="https://yszheda.github.io/blog/en/">en</a>
+        </li>
+    </ul>
+            </nav>
+            <div class="clearfix"></div>
+            <h1  id="fh5co-logo">
+                <a href="../../../index.html">
+                    <img src="static/images/trebleclef.png" />
+                </a>
+            </h1>
+                <a href="../../../index.html">
+                    <img src="static/images/trebleclef.png" />
+                </a>
+            </h1>
+            <nav class="fh5co-main-menu" role="navigation">
+<ul>
+    <!-- home link -->
+    <li><a href="../../../">Home</a></li>
+
+    <!-- page links -->
+
+    <!-- categories -->
+        <li class="nav-title">Categories</li>
+            <li><a href="../../../category/misc.html">misc</a></li>
+            <li><a href="../../../category/music.html">music</a></li>
+            <li><a href="../../../category/reading.html">reading</a></li>
+            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
+
+    <!-- tags -->
+        <li><a href="../../../tags.html">Tags</a></li>
+
+    <!-- additional menu items from config -->
+
+</ul>
+            </nav>
+
+<ul id="social">
+            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
+
+            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
+
+</ul>
+        </aside>
+
+        <div id="fh5co-main">
+
+    <div class="fh5co-narrow-content article-content">
+        <h1 class="fh5co-heading-colored">Take Tmux Snapshots Automatically (2)</h1>
+
+        <div>by
+                <span dir="ltr">
+                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
+ - <span dir="ltr">日 07 8月 2016</span>
+        </div>
+
+            <div><span>Tags</span>
+                    <span><a href="../../../tag/tmux.html">#tmux</a> </span>
+                    <span><a href="../../../tag/tech.html">#tech</a> </span>
+                    <span><a href="../../../tag/cs.html">#CS</a> </span>
+                    <span><a href="../../../tag/snapshots.html">#snapshots</a> </span>
+                    <span><a href="../../../tag/cron.html">#cron</a> </span>
+                    <span><a href="../../../tag/bash.html">#bash</a> </span>
+                    <span><a href="../../../tag/shell.html">#shell</a> </span>
+                    <span><a href="../../../tag/jiao-ben.html">#脚本</a> </span>
+                    <span><a href="../../../tag/archlinux.html">#Archlinux</a> </span>
+                    <span><a href="../../../tag/linux.html">#linux</a> </span>
+                    <span><a href="../../../tag/linux.html">#Linux</a> </span>
+                    <span><a href="../../../tag/unix.html">#UNIX</a> </span>
+            </div>
+        <span dir="ltr">
+        </span>
+
+        <div class="animate-box" data-animate-effect="fadeInLeft">
+            <p class="animate-box" data-animate-effect="fadeInLeft"><p>还记得本渣以前写的<a href="http://galoisplusplus.coding.me/blog/2014/02/23/take-tmux-snapshots-automatically/">给tmux现场做备胎的脚本</a>吗？其实后来本渣就没再去拓展<a href="https://gist.github.com/yszheda/9138288">这个脚本</a>了，不是因为之前的脚本运行得够好不需要再改了，而是在写好那个脚本那年，有一个工具横空出世，让本渣觉得再也不用造轮子了——好了，不卖关子了，这个工具就是<code>tmux</code>的<a href="https://github.com/tmux-plugins/tmux-resurrect">resurrect插件</a>！</p>
+<p>resurrect官方有一个<a href="https://vimeo.com/104763018">使用录屏</a></p>
+<iframe src="https://player.vimeo.com/video/104763018" width="640" height="360" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+<p><a href="https://vimeo.com/104763018">Tmux Resurrect plugin</a> from <a href="https://vimeo.com/brunosutic">Bruno Sutic</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
+
+<p>怎么样？狂拽酷炫屌！我们想要有的功能基本都有了吧！而且resurrect还部分支持<a href="https://github.com/tmux-plugins/tmux-resurrect/blob/master/docs/restoring_programs.md">恢复panel里运行的程序</a>啊有木有！要知道这并不好实现，以前本渣写备胎脚本时也折腾过，当时还只能在恢复panel时给出上次运行程序的提示。
+不过resurrect插件需要手动保存和恢复<code>tmux</code>现场，如果需要自动化的话，可以再配合<a href="https://github.com/tmux-plugins/tmux-continuum">continuum插件</a>来使用。</p>
+<p>好了，软文就写到这么多了，下面我们来看看如何安装使用。</p>
+<p>首先查看<code>tmux</code>版本：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>tmux -V
+</code></pre></div></td></tr></table></div>
+
+<p>resurrect插件需要<code>tmux</code>1.9以上的版本。如果你的版本低于1.9，那么升级是必须的，其实把<code>tmux</code>升级到1.9以上还是蛮推荐的。</p>
+<p>这里推荐安装<a href="https://github.com/tmux-plugins/tpm">tpm (Tmux Plugin Manager)</a>做<code>tmux</code>插件管理，再通过<code>tpm</code>安装continuum等插件：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+</code></pre></div></td></tr></table></div>
+
+<p>编辑<code>~/.tmux.conf</code>，在文件末尾加入以下几行:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="k">Set</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">shell</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">zsh</span>
+<span class="err">#</span><span class="w"> </span><span class="k">set</span><span class="o">-</span><span class="k">option</span><span class="w"> </span><span class="o">-</span><span class="n">g</span><span class="w"> </span><span class="k">default</span><span class="o">-</span><span class="n">shell</span><span class="w"> </span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">zsh</span>
+
+<span class="err">#</span><span class="w"> </span><span class="k">Use</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">following</span><span class="w"> </span><span class="n">line</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">fix</span><span class="w"> </span><span class="n">OS</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="n">tmux</span><span class="w"> </span><span class="n">problems</span>
+<span class="err">#</span><span class="w"> </span><span class="k">set</span><span class="o">-</span><span class="k">option</span><span class="w"> </span><span class="o">-</span><span class="n">g</span><span class="w"> </span><span class="k">default</span><span class="o">-</span><span class="n">command</span><span class="w"> </span><span class="ss">&quot;reattach-to-user-namespace -l zsh&quot;</span>
+
+<span class="err">#</span><span class="w"> </span><span class="n">List</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">plugins</span>
+<span class="k">set</span><span class="w"> </span><span class="o">-</span><span class="n">g</span><span class="w"> </span><span class="nv">@plugin</span><span class="w"> </span><span class="s1">&#39;tmux-plugins/tpm&#39;</span>
+<span class="k">set</span><span class="w"> </span><span class="o">-</span><span class="n">g</span><span class="w"> </span><span class="nv">@plugin</span><span class="w"> </span><span class="s1">&#39;tmux-plugins/tmux-sensible&#39;</span>
+<span class="k">set</span><span class="w"> </span><span class="o">-</span><span class="n">g</span><span class="w"> </span><span class="nv">@plugin</span><span class="w"> </span><span class="s1">&#39;tmux-plugins/tmux-resurrect&#39;</span>
+<span class="k">set</span><span class="w"> </span><span class="o">-</span><span class="n">g</span><span class="w"> </span><span class="nv">@plugin</span><span class="w"> </span><span class="s1">&#39;tmux-plugins/tmux-continuum&#39;</span>
+
+<span class="err">#</span><span class="w"> </span><span class="n">Other</span><span class="w"> </span><span class="nl">examples</span><span class="p">:</span>
+<span class="err">#</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="o">-</span><span class="n">g</span><span class="w"> </span><span class="nv">@plugin</span><span class="w"> </span><span class="s1">&#39;github_username/plugin_name&#39;</span>
+<span class="err">#</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="o">-</span><span class="n">g</span><span class="w"> </span><span class="nv">@plugin</span><span class="w"> </span><span class="s1">&#39;git@github.com/user/plugin&#39;</span>
+<span class="err">#</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="o">-</span><span class="n">g</span><span class="w"> </span><span class="nv">@plugin</span><span class="w"> </span><span class="s1">&#39;git@bitbucket.com/user/plugin&#39;</span>
+
+<span class="err">#</span><span class="w"> </span><span class="n">Enable</span><span class="w"> </span><span class="n">automatic</span><span class="w"> </span><span class="k">restore</span>
+<span class="k">set</span><span class="w"> </span><span class="o">-</span><span class="n">g</span><span class="w"> </span><span class="nv">@continuum</span><span class="o">-</span><span class="k">restore</span><span class="w"> </span><span class="s1">&#39;on&#39;</span>
+
+<span class="err">#</span><span class="w"> </span><span class="k">Initialize</span><span class="w"> </span><span class="n">TMUX</span><span class="w"> </span><span class="n">plugin</span><span class="w"> </span><span class="n">manager</span><span class="w"> </span><span class="p">(</span><span class="n">keep</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="n">line</span><span class="w"> </span><span class="k">at</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">very</span><span class="w"> </span><span class="n">bottom</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">tmux</span><span class="p">.</span><span class="n">conf</span><span class="p">)</span>
+<span class="n">run</span><span class="w"> </span><span class="s1">&#39;~/.tmux/plugins/tpm/tpm&#39;</span>
+</code></pre></div></td></tr></table></div>
+
+<p>如果你的默认shell是<code>zsh</code>，请把这句的注释去掉：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>set-option -g default-shell /bin/zsh
+</code></pre></div></td></tr></table></div>
+
+<p>如果你用的是Mac OSX，把这句的注释也去掉：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>set-option -g default-command &quot;reattach-to-user-namespace -l zsh&quot;
+</code></pre></div></td></tr></table></div>
+
+<p>这主要是<code>tmux</code>在OSX下水土不服（更详细的问题描述可以看这篇文章：<a href="http://www.economyofeffort.com/2013/07/29/reattach-to-user-namespace-the-fix-for-your-tmux-in-os-x-woes/">Reattach-to-user-namespace: The Fix for Your Tmux in OS X Woes</a>），需要用<a href="https://github.com/ChrisJohnsen/tmux-MacOSX-pasteboard">reattach-to-user-namespace</a>黑科技，所以你最好也用<a href="http://www.macports.org"><em>MacPorts</em></a>或者<a href="http://brew.sh"><em>Homebrew</em></a>装下这个工具：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>port install tmux-pasteboard
+</code></pre></div></td></tr></table></div>
+
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>brew install reattach-to-user-namespace
+</code></pre></div></td></tr></table></div>
+
+<p>在终端下执行以下命令更新<code>tmux</code>配置，运行<code>tpm</code>：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>tmux source ~/.tmux.conf
+</code></pre></div></td></tr></table></div>
+
+<p>最后在<code>tmux</code>下运行<code>prefix + I</code>（如果你没改键绑定的话就是<code>&lt;Ctrl&gt;-b + &lt;Shift&gt;-i</code>）安装插件。你还可以通过<code>prefix + U</code>（<code>&lt;Ctrl&gt;-b + &lt;Shift&gt;-u</code>）更新插件，用<code>prefix + &lt;Alt&gt; + u</code>删除插件。</p>
+<p>安装完成之后，你可以在<code>~/.tmux/plugins/</code>里找到每个插件的代码目录。resurrect插件还有一个<code>run_tests</code>脚本用于检查是否安装正确，不过要运行这个脚本需要装上虚拟化神器<a href="https://www.vagrantup.com">vagrant</a>。</p>
+<p>如果安装正确，continuum插件会每隔15分钟产生一份备胎，我们也可以用<code>prefix + &lt;Ctrl&gt;-s</code>手动备份，用<code>prefix + &lt;Ctrl&gt;-r</code>手动恢复——vimer吐槽一记，这热键定义得好emacs风...</p>
+<p>下面我们来看看resurrect插件产生的<code>tmux</code>环境备胎。在<code>tmux</code>环境备胎生成之后，在<code>~/.tmux/resurrect/</code>目录下就会有名为<code>tmux_resurrect_$(date).txt</code>的文本文件，同时会有一个叫<code>last</code>的软链接指向最新的<code>tmux_resurrect_$(date).txt</code>。那么这个神秘的txt文件里有啥呢？这里本渣随意贴上一份：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="s s-Atom">pane</span>    <span class="mi">0</span>       <span class="mi">0</span>       <span class="o">:</span><span class="s s-Atom">apt</span><span class="o">-</span><span class="s s-Atom">fast</span>       <span class="mi">1</span>       <span class="o">:*</span>      <span class="mi">0</span>       <span class="o">:/</span><span class="s s-Atom">home</span><span class="o">/</span><span class="s s-Atom">ys</span>    <span class="mi">1</span>       <span class="s s-Atom">sudo</span>  <span class="o">:</span><span class="s s-Atom">sudo</span> <span class="s s-Atom">apt</span><span class="o">-</span><span class="s s-Atom">fast</span> <span class="s s-Atom">install</span> <span class="s s-Atom">linux</span><span class="o">-</span><span class="s s-Atom">image</span><span class="o">-</span><span class="mf">3.13.0</span><span class="o">-</span><span class="mi">70</span><span class="o">-</span><span class="s s-Atom">generic</span><span class="o">-</span><span class="s s-Atom">dbgsym</span>
+<span class="s s-Atom">pane</span>    <span class="mi">0</span>       <span class="mi">1</span>       <span class="o">:~</span>      <span class="mi">0</span>       <span class="o">:</span>       <span class="mi">0</span>       <span class="o">:/</span><span class="s s-Atom">home</span><span class="o">/</span><span class="s s-Atom">ys</span>    <span class="mi">1</span>       <span class="s s-Atom">zsh</span>     <span class="o">:</span>
+<span class="s s-Atom">pane</span>    <span class="mi">0</span>       <span class="mi">2</span>       <span class="o">:~</span>      <span class="mi">0</span>       <span class="o">:-</span>      <span class="mi">0</span>       <span class="o">:/</span><span class="s s-Atom">home</span><span class="o">/</span><span class="s s-Atom">ys</span>    <span class="mi">1</span>       <span class="s s-Atom">zsh</span>     <span class="o">:</span>
+<span class="s s-Atom">window</span>  <span class="mi">0</span>       <span class="mi">0</span>       <span class="mi">1</span>       <span class="o">:*</span>      <span class="s s-Atom">c51d</span><span class="p">,</span><span class="mi">95</span><span class="s s-Atom">x28</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span>
+<span class="s s-Atom">window</span>  <span class="mi">0</span>       <span class="mi">1</span>       <span class="mi">0</span>       <span class="o">:</span>       <span class="s s-Atom">c51e</span><span class="p">,</span><span class="mi">95</span><span class="s s-Atom">x28</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span>
+<span class="s s-Atom">window</span>  <span class="mi">0</span>       <span class="mi">2</span>       <span class="mi">0</span>       <span class="o">:-</span>      <span class="s s-Atom">c51f</span><span class="p">,</span><span class="mi">95</span><span class="s s-Atom">x28</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span>
+<span class="s s-Atom">state</span>   <span class="mi">0</span>
+</code></pre></div></td></tr></table></div>
+
+<p>啊哈，看起来思路和本渣<a href="https://gist.github.com/yszheda/9138288">之前脚本</a>的<a href="http://galoisplusplus.coding.me/blog/2014/02/23/take-tmux-snapshots-automatically/">思路</a>差不多嘛！只不过resurrect插件记录的信息更详细，还做了键绑定。resurrect的代码也不难懂，如果你对它的实现感兴趣的话可以去阅读一下啦～</p></p>
+        </div>
+    </div>
+
+<div class="fh5co-narrow-content">
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
+</div>
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <div id="disqus_thread"></div>
+</div>
+
+<script>
+var disqus_config = function () { 
+  this.language = "zh";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
+<div class="fh5co-footer">
+    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
+    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
+
+</div>                
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="../../../theme/js/jquery.min.js"></script>
+    <!-- jQuery Easing -->
+    <script src="../../../theme/js/jquery.easing.1.3.js"></script>
+    <!-- Bootstrap -->
+    <script src="../../../theme/js/bootstrap.min.js"></script>
+    <!-- Waypoints -->
+    <script src="../../../theme/js/jquery.waypoints.min.js"></script>
+    <!-- Flexslider -->
+    <script src="../../../theme/js/jquery.flexslider-min.js"></script>
+
+
+    <!-- MAIN JS -->
+    <script src="../../../theme/js/main.js"></script>
+    </body>
+</html>

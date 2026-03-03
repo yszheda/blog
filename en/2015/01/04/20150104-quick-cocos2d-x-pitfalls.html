@@ -1,0 +1,307 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" dir="" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" dir="" class="no-js"> <!--<![endif]-->
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>quick-cocos2d-x踩坑记——问题与解决方案</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="author" content="Galoisplusplus" />
+    <meta name="description" content="本渣最近一个月来开始接触quick-cocos2d-x，用lua开发比c++要快些，但也因为quickx目前的一些坑——当然有些其实应该算是2dx引擎本身的坑——让本渣折腾了不少时间。在此做点记录 …" />
+    <meta name="keywords" content="cocos2d-x, CS, tech, quick, quickx, quick-cocos2d-x, cocos, cocos2d, 游戏开发, 手游开发, mobile game, game devolopment">
+<!-- Facebook and Twitter integration -->
+<meta property="og:site_name" content="Galoisplusplus"/>
+<meta property="og:title" content="quick-cocos2d-x踩坑记——问题与解决方案"/>
+<meta property="og:description" content="本渣最近一个月来开始接触quick-cocos2d-x，用lua开发比c++要快些，但也因为quickx目前的一些坑——当然有些其实应该算是2dx引擎本身的坑——让本渣折腾了不少时间。在此做点记录 …"/>
+<meta property="og:url" content="../../../2015/01/04/20150104-quick-cocos2d-x-pitfalls.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2015-01-04 02:00:00+08:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="../../../author/galoisplusplus.html">
+<meta property="article:section" content="tech"/>
+    <meta property="article:tag" content="cocos2d-x"/>
+    <meta property="article:tag" content="CS"/>
+    <meta property="article:tag" content="tech"/>
+    <meta property="article:tag" content="quick"/>
+    <meta property="article:tag" content="quickx"/>
+    <meta property="article:tag" content="quick-cocos2d-x"/>
+    <meta property="article:tag" content="cocos"/>
+    <meta property="article:tag" content="cocos2d"/>
+    <meta property="article:tag" content="游戏开发"/>
+    <meta property="article:tag" content="手游开发"/>
+    <meta property="article:tag" content="mobile game"/>
+    <meta property="article:tag" content="game devolopment"/>
+    <meta property="og:image" content="static/images/trebleclef.png">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="../../../../theme/css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="../../../../theme/css/icomoon.css">
+    <!-- Bootstrap  -->
+    <link rel="stylesheet" href="../../../../theme/css/bootstrap.css">
+    <!-- Flexslider  -->
+    <link rel="stylesheet" href="../../../../theme/css/flexslider.css">
+    <!-- Theme style  -->
+    <link rel="stylesheet" href="../../../../theme/css/style.css">
+    <!-- Custom style  -->
+    <link rel="stylesheet" href="../../../../theme/css/custom.css">
+    <!-- pygments code highlight -->
+    <link rel="stylesheet" href="../../../../theme/css/pygments.css">
+    <!-- tipue search -->
+    <link rel="stylesheet" href="../../../../theme/tipuesearch/css/tipuesearch.css">
+
+    <!-- Modernizr JS -->
+    <script src="../../../../theme/js/modernizr-2.6.2.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="/theme/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+    </head>
+    <body>
+    <div id="fh5co-page">
+        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+
+            <nav class="fh5co-main-menu" role="navigation">
+    <ul class="language-navigation">
+        <li>
+                <a href="https://yszheda.github.io/blog/">zh</a>
+                <a class="lang-active" href="https://yszheda.github.io/blog/en/">en</a>
+        </li>
+    </ul>
+            </nav>
+            <div class="clearfix"></div>
+            <h1  id="fh5co-logo">
+                <a href="../../../index.html">
+                    <img src="static/images/trebleclef.png" />
+                </a>
+            </h1>
+                <a href="../../../index.html">
+                    <img src="static/images/trebleclef.png" />
+                </a>
+            </h1>
+            <nav class="fh5co-main-menu" role="navigation">
+<ul>
+    <!-- home link -->
+    <li><a href="../../../">Home</a></li>
+
+    <!-- page links -->
+
+    <!-- categories -->
+        <li class="nav-title">Categories</li>
+            <li><a href="../../../category/misc.html">misc</a></li>
+            <li><a href="../../../category/music.html">music</a></li>
+            <li><a href="../../../category/reading.html">reading</a></li>
+            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
+
+    <!-- tags -->
+        <li><a href="../../../tags.html">Tags</a></li>
+
+    <!-- additional menu items from config -->
+
+</ul>
+            </nav>
+
+<ul id="social">
+            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
+
+            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
+
+</ul>
+        </aside>
+
+        <div id="fh5co-main">
+
+    <div class="fh5co-narrow-content article-content">
+        <h1 class="fh5co-heading-colored">quick-cocos2d-x踩坑记——问题与解决方案</h1>
+
+        <div>by
+                <span dir="ltr">
+                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
+ - <span dir="ltr">日 04 1月 2015</span>
+        </div>
+
+            <div><span>Tags</span>
+                    <span><a href="../../../tag/cocos2d-x.html">#cocos2d-x</a> </span>
+                    <span><a href="../../../tag/cs.html">#CS</a> </span>
+                    <span><a href="../../../tag/tech.html">#tech</a> </span>
+                    <span><a href="../../../tag/quick.html">#quick</a> </span>
+                    <span><a href="../../../tag/quickx.html">#quickx</a> </span>
+                    <span><a href="../../../tag/quick-cocos2d-x.html">#quick-cocos2d-x</a> </span>
+                    <span><a href="../../../tag/cocos.html">#cocos</a> </span>
+                    <span><a href="../../../tag/cocos2d.html">#cocos2d</a> </span>
+                    <span><a href="../../../tag/you-xi-kai-fa.html">#游戏开发</a> </span>
+                    <span><a href="../../../tag/shou-you-kai-fa.html">#手游开发</a> </span>
+                    <span><a href="../../../tag/mobile-game.html">#mobile game</a> </span>
+                    <span><a href="../../../tag/game-devolopment.html">#game devolopment</a> </span>
+            </div>
+        <span dir="ltr">
+        </span>
+
+        <div class="animate-box" data-animate-effect="fadeInLeft">
+            <p class="animate-box" data-animate-effect="fadeInLeft"><p>本渣最近一个月来开始接触quick-cocos2d-x，用lua开发比c++要快些，但也因为quickx目前的一些坑——当然有些其实应该算是2dx引擎本身的坑——让本渣折腾了不少时间。在此做点记录，希望能让别人少走些弯路。本文将不时更新。</p>
+<!-- more -->
+
+<h2 id="quickxuiloadercocostudio-v15windowsjson">quickx的uiloader只能解析CocoStudio v1.5（windows版）的json</h2>
+<h3 id="_1">现象</h3>
+<p>CocoStudio的Mac版v1导出的json用uiloader解析有问题，另外cocostuio v2暂无导出json的功能，而uiloader只能解析json格式。</p>
+<h3 id="_2">建议</h3>
+<ul>
+<li>如果大量使用quickx的ui类，还是用CocoStudio v1.5为好。</li>
+<li>如果不想切换UI编辑器，可以直接用cocos2d-x的CSLoader，但要小心与quickx的ui类混用的情况（下文会提及）。</li>
+<li>如果不怕折腾，可以研究下CocoStudio v1.5的json格式，改quickx的源代码。</li>
+</ul>
+<h2 id="quickxcocos2d-x">quickx独立的触摸响应与cocos2d-x的存在不兼容问题</h2>
+<h3 id="_3">现象</h3>
+<p>在同时使用cocos2d-x的Widget类和quickx的ui类时，quickx的ui类没有接受响应事件。
+在此仅举一个典型例子，在quickx的UIScrollView中加入一个CSLoader解析的Widget，则UIScrollView无法滚动。
+照理说，Widget的触摸事件的priority是0（graph priority），quickx的LuaEventNode的priority是-1（fixed priority），应该是LuaEventNode先接收touch进行处理才对，
+但是Widget是单点触摸，而LuaEventNode是多点触摸，再加上cocos2d-x是先处理单点再处理多点的，所以触摸事件反而是先到了Widget了。
+不幸的是Widget默认是swallow touch的，所以触摸事件不会到LuaEventNode。</p>
+<h3 id="_4">建议</h3>
+<ul>
+<li>彻底杜绝此类混用。但由于之前提到的uiloader的问题，可能无法完全使用quickx的ui类。</li>
+<li>[workaround]如果不需要多点触摸，可以把LuaEventNode改成单点触摸。</li>
+</ul>
+<h2 id="quickxuiscrollviewuilistviewbug">quickx的UIScrollView/UIListView的bug</h2>
+<p>老实说，这两个ui类确实不够成熟。</p>
+<ul>
+<li>用local node space坐标与world space坐标做比较。引起的问题有：没有惯性滚动；<code>UIListView</code>的item没完全移除viewRect就被remove掉等等。本渣向quickx提交了两个PR：前一个<a href="https://github.com/dualface/v3quick/pull/348">PR#348</a>过了几周才被处理，代码有conflict，最后还是开发者再提了新的PR去merge了；后一个<a href="https://github.com/dualface/v3quick/pull/407">PR#407</a>很快就被merge了。所以目前更新代码就可以了。</li>
+<li><code>UIListView</code>若是所设的item size小于item的<code>cascadeBoundingBox</code>大小，滚动时会有死循环，反复load item和remove item。开发者后来加了个<a href="https://github.com/dualface/v3quick/commit/c233f785019200033f767e15073392c221b1c48f">patch</a>，该bug重现变少了，但还是存在的。本渣trace源代码后发现，死循环的根源在于<code>UIListView:increaseOrReduceItem_</code>函数。本渣实在无法理解quickx开发者为何要把这个每帧会被调用到的函数设计成这么一个计算量很大的递归函数，这不是作死地拉低FPS拉低性能么...于是本渣就把递归调用那部分去掉了...</li>
+<li><code>UIScrollView</code>的惯性滚动行为很不用户友好，于是本渣仿照2dx中<code>CCScrollView</code>的做法实现了这部分逻辑。</li>
+</ul>
+<h2 id="luaeventnode">LuaEventNode崩溃</h2>
+<h3 id="_5">现象</h3>
+<p>点击crash，是cocos2d-x C++的内存管理报错。
+已有人向quickx报过<a href="https://github.com/dualface/v3quick/issues/318">bug</a>，但开发者回复中提到的patch被没有解决问题。</p>
+<h3 id="_6">建议</h3>
+<p>在<code>LuaEventNode</code>的构造函数时retain参数node，在析构函数中release。</p>
+<p><em><em>更新</em>：又有与该issue相关的新patch，或许该bug已经被修好了。</em></p>
+<h2 id="cocostudio">CocoStudio的文字标签加描边后字体颜色会改变</h2>
+<h3 id="_7">现象</h3>
+<p>给CocoStudio的<code>UIText</code>对象加上描边后字体颜色也变掉了。
+这个bug其实是2dx引擎的<code>CSLoader</code>的bug，<code>CSLoader</code>在解析包括<code>UIText</code>的UI组件、并设置它们相应的颜色时，调用的都是<code>node</code>的<code>setColor</code>，而非调用<code>Label</code>自身的<code>setTextColor</code>接口，这就导致了描边颜色和node颜色的混合。</p>
+<h3 id="_8">建议</h3>
+<p>我用了如下的workaround去拿到编辑器中设置的字体颜色，并重置node本身的颜色：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kr">function</span> <span class="nc">MyPackage</span><span class="p">.</span><span class="nf">formatUIText</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">formatFunc</span><span class="p">)</span>
+    <span class="kd">local</span> <span class="n">color</span> <span class="o">=</span> <span class="n">label</span><span class="p">:</span><span class="n">getColor</span><span class="p">()</span>
+    <span class="n">color</span><span class="p">.</span><span class="n">a</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">label</span><span class="p">:</span><span class="n">setColor</span><span class="p">(</span><span class="n">cc</span><span class="p">.</span><span class="n">c3b</span><span class="p">(</span><span class="mh">0xff</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">))</span>
+    <span class="n">label</span><span class="p">:</span><span class="n">setTextColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+    <span class="n">formatFunc</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+<span class="kr">end</span>
+</code></pre></div></td></tr></table></div>
+
+<p>这样就可以用来正常设置描边了，例如：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nv">MyPackage</span>.<span class="nv">formatUIText</span><span class="ss">(</span><span class="nv">testLabel</span>,<span class="w"> </span><span class="nv">function</span><span class="ss">(</span><span class="nv">label</span><span class="ss">)</span>
+<span class="nv">label</span>:<span class="nv">setOutline</span><span class="ss">(</span><span class="nv">cc</span>.<span class="nv">color</span>.<span class="nv">BLUE</span>,<span class="w"> </span><span class="mi">2</span><span class="ss">)</span>
+<span class="k">end</span><span class="ss">)</span>
+</code></pre></div></td></tr></table></div>
+
+<p>当UI的字体较多时，对每一个<code>UIText</code>都调用一遍<code>MyPackage.formatUIText</code>去加同样的描边显然不现实，所以我又加了一个接口：</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="cm">--[[</span>
+<span class="cm">format all labels under root layout</span>
+<span class="cm">]]</span>
+<span class="kr">function</span> <span class="nc">MyPackage</span><span class="p">.</span><span class="nf">formatAllLabels</span><span class="p">(</span><span class="n">layout</span><span class="p">,</span> <span class="n">formatFunc</span><span class="p">)</span>
+    <span class="kd">local</span> <span class="n">children</span> <span class="o">=</span> <span class="n">layout</span><span class="p">:</span><span class="n">getChildren</span><span class="p">()</span>
+    <span class="kd">local</span> <span class="n">childCount</span> <span class="o">=</span> <span class="n">layout</span><span class="p">:</span><span class="n">getChildrenCount</span><span class="p">()</span>
+    <span class="kr">if</span> <span class="n">childCount</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="kr">then</span>
+        <span class="kr">return</span>
+    <span class="kr">end</span>
+    <span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">childCount</span> <span class="kr">do</span>
+        <span class="kr">if</span> <span class="n">tolua</span><span class="p">.</span><span class="n">type</span><span class="p">(</span><span class="n">children</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">==</span> <span class="s2">&quot;ccui.Text&quot;</span> <span class="kr">then</span>
+            <span class="n">MyPackage</span><span class="p">.</span><span class="n">formatUIText</span><span class="p">(</span><span class="n">children</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">formatFunc</span><span class="p">)</span>
+        <span class="kr">end</span>
+        <span class="n">MyPackage</span><span class="p">.</span><span class="n">formatAllLabels</span><span class="p">(</span><span class="n">children</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">formatFunc</span><span class="p">)</span>
+    <span class="kr">end</span>
+<span class="kr">end</span>
+</code></pre></div></td></tr></table></div>
+
+<p><em>NOTE:关于<code>MyPackage</code>请参见<a href="http://galoisplusplus.coding.me/blog/2015/05/01/quickx-tips/">另一篇博文</a></em></p>
+<h2 id="quickx">quickx按钮显示异常</h2>
+<h3 id="_9">现象</h3>
+<p>quickx的按钮在某些清理<code>TextureCache</code>/<code>SpriteFrameCache</code>的情况下（例如在app切换到后台/收到内存警告时调用<code>removeUnusedSpriteFrames</code>/<code>removeUnuserdTextures</code>）会出现显示问题，一种常见的问题便是按钮的点击状态和正常状态的图片不同，在点击时按钮会消失不见。
+这个现象的原因是quickx的<code>UIButton</code>实现只<code>addChild</code>了当前状态的<code>sprite</code>，其他状态的<code>sprite</code>未曾被<code>retain</code>，只是在状态切换时才动态生成，这就导致了非当前状态的Texture/SpriteFrame很可能会因为<code>reference count</code>（关于何为<code>reference count</code>可以参考本渣另一篇博文<a href="http://galoisplusplus.coding.me/blog/2014/07/30/memory-management-in-cocos2d-x-v3/">cocos2d-x V3.x内存管理分析</a>）不大于1而被清理出内存。</p>
+<h3 id="_10">建议</h3>
+<p>本渣改了quickx <code>UIButton</code>的内部实现，采用了类似2dx中<code>Widget</code>类<code>ccui.Button</code>的方式，保证在初始化按钮时它的每个状态的<code>sprite</code>都被<code>retain</code>过。
+本渣的改动请参考<a href="http://galoisplusplus.coding.me/blog/2015/07/06/patch-for-quickx-button/">另一篇博文</a>。</p></p>
+        </div>
+    </div>
+
+<div class="fh5co-narrow-content">
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
+</div>
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <div id="disqus_thread"></div>
+</div>
+
+<script>
+var disqus_config = function () { 
+  this.language = "en";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
+<div class="fh5co-footer">
+    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
+    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
+
+</div>                
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="../../../../theme/js/jquery.min.js"></script>
+    <!-- jQuery Easing -->
+    <script src="../../../../theme/js/jquery.easing.1.3.js"></script>
+    <!-- Bootstrap -->
+    <script src="../../../../theme/js/bootstrap.min.js"></script>
+    <!-- Waypoints -->
+    <script src="../../../../theme/js/jquery.waypoints.min.js"></script>
+    <!-- Flexslider -->
+    <script src="../../../../theme/js/jquery.flexslider-min.js"></script>
+
+
+    <!-- MAIN JS -->
+    <script src="../../../../theme/js/main.js"></script>
+    </body>
+</html>
