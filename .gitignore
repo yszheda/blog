@@ -26,6 +26,7 @@ var/
 Thumbs.db
 .vscode/
 .idea/
+*~
 *.swp
 *.swo
 *.sublime-project
