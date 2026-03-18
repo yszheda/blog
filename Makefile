@@ -14,6 +14,7 @@ publish:
 	cp -r static output/
 	pelican content -s publishconf.py -o output
 	cp -r static/images output/ && cp -r static/* output/static/
+	cp -r themes/pelican-fh5co-marble output/theme/
 
 preview:
 	make clean && make html && make serve
