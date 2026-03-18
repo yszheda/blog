@@ -1,16 +1,20 @@
-{% extends "base.html" %}
-
-{% block head %}
-{{ super() }}
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    tex2jax: {
-      inlineMath: [['$', '$'], ['\(', '\)']],
-      displayMath: [['$$', '$$'], ['\[', '\]']],
-      processEscapes: true,
-      processEnvironments: true
-    }
-  });
-</script>
-<script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<!DOCTYPE html>
+<html lang="{{ DEFAULT_LANG }}">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{% block title %}{{ SITENAME }}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ SITEURL }}/theme/css/animate.css">
+    <link rel="stylesheet" href="{{ SITEURL }}/theme/css/icomoon.css">
+    <link rel="stylesheet" href="{{ SITEURL }}/theme/css/bootstrap.css">
+    <link rel="stylesheet" href="{{ SITEURL }}/theme/css/style.css">
+    <link rel="stylesheet" href="{{ SITEURL }}/theme/css/custom.css">
+    {% block head %}{% endblock %}
+</head>
+<body>
+{% block body %}
+{% block content %}{% endblock %}
 {% endblock %}
+</body>
+</html>
