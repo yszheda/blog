@@ -1,149 +1,40 @@
-
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="zh" dir="" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="zh" dir="" class="no-js"> <!--<![endif]-->
-    <head>
+<html lang="zh">
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>cocos2d-x文本类Label的一些坑</title>
-
+    <title>Galoisplusplus - cocos2d-x文本类Label的一些坑</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <meta name="author" content="Galoisplusplus" />
-    <meta name="description" content="cocos2d-x v3.2的Label实现bug真是不少，前段时间恰好排查了几个与之相关的问题，在此记录一下。 文字换行 文字换行是一个困扰我们挺长时间的问题：之 …" />
-    <meta name="keywords" content="cocos2d-x, CS, tech, cocos, cocos2d, 游戏开发, 手游开发, mobile game, game devolopment">
-<!-- Facebook and Twitter integration -->
-<meta property="og:site_name" content="Galoisplusplus"/>
-<meta property="og:title" content="cocos2d-x文本类Label的一些坑"/>
-<meta property="og:description" content="cocos2d-x v3.2的Label实现bug真是不少，前段时间恰好排查了几个与之相关的问题，在此记录一下。 文字换行 文字换行是一个困扰我们挺长时间的问题：之 …"/>
-<meta property="og:url" content="../../../2016/03/04/20160304-label-pitfalls-in-cocos2d-x.html"/>
-<meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2016-03-04 11:22:00+08:00"/>
-<meta property="article:modified_time" content=""/>
-<meta property="article:author" content="../../../author/galoisplusplus.html">
-<meta property="article:section" content="tech"/>
-    <meta property="article:tag" content="cocos2d-x"/>
-    <meta property="article:tag" content="CS"/>
-    <meta property="article:tag" content="tech"/>
-    <meta property="article:tag" content="cocos"/>
-    <meta property="article:tag" content="cocos2d"/>
-    <meta property="article:tag" content="游戏开发"/>
-    <meta property="article:tag" content="手游开发"/>
-    <meta property="article:tag" content="mobile game"/>
-    <meta property="article:tag" content="game devolopment"/>
-    <meta property="og:image" content="/blog/static/images/trebleclef.png">
-
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
-
-    <!-- Animate.css -->
     <link rel="stylesheet" href="../../../theme/css/animate.css">
-    <!-- Icomoon Icon Fonts-->
     <link rel="stylesheet" href="../../../theme/css/icomoon.css">
-    <!-- Bootstrap  -->
     <link rel="stylesheet" href="../../../theme/css/bootstrap.css">
-    <!-- Flexslider  -->
-    <link rel="stylesheet" href="../../../theme/css/flexslider.css">
-    <!-- Theme style  -->
     <link rel="stylesheet" href="../../../theme/css/style.css">
-    <!-- Custom style  -->
     <link rel="stylesheet" href="../../../theme/css/custom.css">
-    <!-- pygments code highlight -->
-    <link rel="stylesheet" href="../../../theme/css/pygments.css">
-    <!-- tipue search -->
-    <link rel="stylesheet" href="../../../theme/tipuesearch/css/tipuesearch.css">
-
-    <!-- Modernizr JS -->
-    <script src="../../../theme/js/modernizr-2.6.2.min.js"></script>
-    <!-- FOR IE9 below -->
-    <!--[if lt IE 9]>
-    <script src="/theme/js/respond.min.js"></script>
-    <![endif]-->
+  
 
 
+    <meta name="description" content="Label pitfalls in cocos2d-x" />
 
-    </head>
-    <body>
-    <div id="fh5co-page">
-        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
-        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+    <meta name="tags" content="cocos2d-x" />
+    <meta name="tags" content="CS" />
+    <meta name="tags" content="tech" />
+    <meta name="tags" content="cocos" />
+    <meta name="tags" content="cocos2d" />
+    <meta name="tags" content="游戏开发" />
+    <meta name="tags" content="手游开发" />
+    <meta name="tags" content="mobile game" />
+    <meta name="tags" content="game devolopment" />
 
-            <nav class="fh5co-main-menu" role="navigation">
-    <ul class="language-navigation">
-        <li>
-                <a class="lang-active" href="https://yszheda.github.io/blog/">zh</a>
-                <a href="https://yszheda.github.io/blog/en/">en</a>
-        </li>
-    </ul>
-            </nav>
-            <div class="clearfix"></div>
-            <h1  id="fh5co-logo">
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-            <nav class="fh5co-main-menu" role="navigation">
-<ul>
-    <!-- home link -->
-    <li><a href="../../../">Home</a></li>
-
-    <!-- page links -->
-
-    <!-- categories -->
-        <li class="nav-title">Categories</li>
-            <li><a href="../../../category/misc.html">misc</a></li>
-            <li><a href="../../../category/music.html">music</a></li>
-            <li><a href="../../../category/reading.html">reading</a></li>
-            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
-
-    <!-- tags -->
-        <li><a href="../../../tags.html">Tags</a></li>
-
-    <!-- additional menu items from config -->
-
-</ul>
-            </nav>
-
-<ul id="social">
-            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
-
-            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
-
-</ul>
-        </aside>
-
-        <div id="fh5co-main">
-
-    <div class="fh5co-narrow-content article-content">
-        <h1 class="fh5co-heading-colored">cocos2d-x文本类Label的一些坑</h1>
-
-        <div>by
-                <span dir="ltr">
-                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
- - <span dir="ltr">五 04 3月 2016</span>
-        </div>
-
-            <div><span>Tags</span>
-                    <span><a href="../../../tag/cocos2d-x.html">#cocos2d-x</a> </span>
-                    <span><a href="../../../tag/cs.html">#CS</a> </span>
-                    <span><a href="../../../tag/tech.html">#tech</a> </span>
-                    <span><a href="../../../tag/cocos.html">#cocos</a> </span>
-                    <span><a href="../../../tag/cocos2d.html">#cocos2d</a> </span>
-                    <span><a href="../../../tag/you-xi-kai-fa.html">#游戏开发</a> </span>
-                    <span><a href="../../../tag/shou-you-kai-fa.html">#手游开发</a> </span>
-                    <span><a href="../../../tag/mobile-game.html">#mobile game</a> </span>
-                    <span><a href="../../../tag/game-devolopment.html">#game devolopment</a> </span>
-            </div>
-        <span dir="ltr">
-        </span>
-
-        <div class="animate-box" data-animate-effect="fadeInLeft">
-            <p class="animate-box" data-animate-effect="fadeInLeft"><p>cocos2d-x v3.2的Label实现bug真是不少，前段时间恰好排查了几个与之相关的问题，在此记录一下。</p>
+</head>
+<body>
+  <article>
+    <header>
+      <h2>
+        <a href="../../../2016/03/04/20160304-label-pitfalls-in-cocos2d-x.html" rel="bookmark"
+           title="Permalink to cocos2d-x文本类Label的一些坑">cocos2d-x文本类Label的一些坑</a></h2>
+      
+    </header>
+    <p>cocos2d-x v3.2的Label实现bug真是不少，前段时间恰好排查了几个与之相关的问题，在此记录一下。</p>
 <h1 id="_1">文字换行</h1>
 <p>文字换行是一个困扰我们挺长时间的问题：之前就常常有文字超过指定长度却没有换行的情况出现，后来加入韩文、泰文等“奇葩”文字后问题就更严重了。cocos2d-x引擎在v3.2后大改了这部分的实现，但由于涉及的改动太多，无法作为一个独立的patch单独apply过来，而且更新引擎版本对我们上线的游戏代价太大，也不可行。好在本渣不久前终于从各种游戏系统开发中抽出时间，完整地把这部分代码review了一遍，结果发现全是<code>LabelTextFormatter::multilineText</code>中几行代码惹的祸，缩小了排查范围便不难fix了：</p>
 <!-- more -->
@@ -779,51 +670,30 @@
 <span class="w">     </span><span class="err">}</span>
 
 <span class="w">     </span><span class="n">s_cacheFontData</span><span class="o">[</span><span class="n">_fontName</span><span class="o">]</span><span class="p">.</span><span class="n">referenceCount</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-</code></pre></div></td></tr></table></div></p>
-        </div>
-    </div>
-
-<div class="fh5co-narrow-content">
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
-</div>
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <div id="disqus_thread"></div>
-</div>
-
-<script>
-var disqus_config = function () { 
-  this.language = "zh";
-};
-(function() { // DON'T EDIT BELOW THIS LINE
-var d = document, s = d.createElement('script');
-s.src = 'https://.disqus.com/embed.js';
-s.setAttribute('data-timestamp', +new Date());
-(d.head || d.body).appendChild(s);
-})();
-</script>
-<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
-<div class="fh5co-footer">
-    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
-    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
-
-</div>                
-        </div>
-    </div>
-
-    <!-- jQuery -->
-    <script src="../../../theme/js/jquery.min.js"></script>
-    <!-- jQuery Easing -->
-    <script src="../../../theme/js/jquery.easing.1.3.js"></script>
-    <!-- Bootstrap -->
-    <script src="../../../theme/js/bootstrap.min.js"></script>
-    <!-- Waypoints -->
-    <script src="../../../theme/js/jquery.waypoints.min.js"></script>
-    <!-- Flexslider -->
-    <script src="../../../theme/js/jquery.flexslider-min.js"></script>
-
-
-    <!-- MAIN JS -->
-    <script src="../../../theme/js/main.js"></script>
-    </body>
+</code></pre></div></td></tr></table></div>
+    <footer>
+      <p>Published: <time datetime="2016-03-04T11:22:00+08:00">
+        Fri 04 March 2016
+      </time></p>
+        <address>
+          By             <a href="../../../author/galoisplusplus.html">Galoisplusplus</a>
+        </address>
+        <p>
+          Category: <a href="../../../category/tech.html">tech</a>
+        </p>
+        <p>
+          Tags:
+            <a href="../../../tag/cocos2d-x.html">cocos2d-x</a>
+            <a href="../../../tag/cs.html">CS</a>
+            <a href="../../../tag/tech.html">tech</a>
+            <a href="../../../tag/cocos.html">cocos</a>
+            <a href="../../../tag/cocos2d.html">cocos2d</a>
+            <a href="../../../tag/you-xi-kai-fa.html">游戏开发</a>
+            <a href="../../../tag/shou-you-kai-fa.html">手游开发</a>
+            <a href="../../../tag/mobile-game.html">mobile game</a>
+            <a href="../../../tag/game-devolopment.html">game devolopment</a>
+        </p>
+    </footer>
+  </article>
+</body>
 </html>

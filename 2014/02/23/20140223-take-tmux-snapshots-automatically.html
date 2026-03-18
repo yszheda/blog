@@ -1,155 +1,43 @@
-
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="zh" dir="" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="zh" dir="" class="no-js"> <!--<![endif]-->
-    <head>
+<html lang="zh">
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Take Tmux Snapshots Automatically</title>
-
+    <title>Galoisplusplus - Take Tmux Snapshots Automatically</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <meta name="author" content="Galoisplusplus" />
-    <meta name="description" content="前段时间学校的EECS楼发生火灾，最近隔三差五停电检修，打断我在server上跑的实验。 而且我习惯上用tmux开多个session和window，一遇到停电我的tmux现场就悲剧了。 复电重开机之后要把tmux现场手动重新建好也很麻烦，于 …" />
-    <meta name="keywords" content="tmux, cron, tech, CS, snapshots, bash, shell, 脚本, Archlinux, linux, Linux, UNIX">
-<!-- Facebook and Twitter integration -->
-<meta property="og:site_name" content="Galoisplusplus"/>
-<meta property="og:title" content="Take Tmux Snapshots Automatically"/>
-<meta property="og:description" content="前段时间学校的EECS楼发生火灾，最近隔三差五停电检修，打断我在server上跑的实验。 而且我习惯上用tmux开多个session和window，一遇到停电我的tmux现场就悲剧了。 复电重开机之后要把tmux现场手动重新建好也很麻烦，于 …"/>
-<meta property="og:url" content="../../../2014/02/23/20140223-take-tmux-snapshots-automatically.html"/>
-<meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2014-02-23 16:12:00+08:00"/>
-<meta property="article:modified_time" content=""/>
-<meta property="article:author" content="../../../author/galoisplusplus.html">
-<meta property="article:section" content="tech"/>
-    <meta property="article:tag" content="tmux"/>
-    <meta property="article:tag" content="cron"/>
-    <meta property="article:tag" content="tech"/>
-    <meta property="article:tag" content="CS"/>
-    <meta property="article:tag" content="snapshots"/>
-    <meta property="article:tag" content="bash"/>
-    <meta property="article:tag" content="shell"/>
-    <meta property="article:tag" content="脚本"/>
-    <meta property="article:tag" content="Archlinux"/>
-    <meta property="article:tag" content="linux"/>
-    <meta property="article:tag" content="Linux"/>
-    <meta property="article:tag" content="UNIX"/>
-    <meta property="og:image" content="/blog/static/images/trebleclef.png">
-
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
-
-    <!-- Animate.css -->
     <link rel="stylesheet" href="../../../theme/css/animate.css">
-    <!-- Icomoon Icon Fonts-->
     <link rel="stylesheet" href="../../../theme/css/icomoon.css">
-    <!-- Bootstrap  -->
     <link rel="stylesheet" href="../../../theme/css/bootstrap.css">
-    <!-- Flexslider  -->
-    <link rel="stylesheet" href="../../../theme/css/flexslider.css">
-    <!-- Theme style  -->
     <link rel="stylesheet" href="../../../theme/css/style.css">
-    <!-- Custom style  -->
     <link rel="stylesheet" href="../../../theme/css/custom.css">
-    <!-- pygments code highlight -->
-    <link rel="stylesheet" href="../../../theme/css/pygments.css">
-    <!-- tipue search -->
-    <link rel="stylesheet" href="../../../theme/tipuesearch/css/tipuesearch.css">
-
-    <!-- Modernizr JS -->
-    <script src="../../../theme/js/modernizr-2.6.2.min.js"></script>
-    <!-- FOR IE9 below -->
-    <!--[if lt IE 9]>
-    <script src="/theme/js/respond.min.js"></script>
-    <![endif]-->
+  
 
 
+    <meta name="description" content="Take Tmux Snapshots Automatically" />
 
-    </head>
-    <body>
-    <div id="fh5co-page">
-        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
-        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+    <meta name="tags" content="tmux" />
+    <meta name="tags" content="cron" />
+    <meta name="tags" content="tech" />
+    <meta name="tags" content="CS" />
+    <meta name="tags" content="snapshots" />
+    <meta name="tags" content="bash" />
+    <meta name="tags" content="shell" />
+    <meta name="tags" content="脚本" />
+    <meta name="tags" content="Archlinux" />
+    <meta name="tags" content="linux" />
+    <meta name="tags" content="Linux" />
+    <meta name="tags" content="UNIX" />
 
-            <nav class="fh5co-main-menu" role="navigation">
-    <ul class="language-navigation">
-        <li>
-                <a class="lang-active" href="https://yszheda.github.io/blog/">zh</a>
-                <a href="https://yszheda.github.io/blog/en/">en</a>
-        </li>
-    </ul>
-            </nav>
-            <div class="clearfix"></div>
-            <h1  id="fh5co-logo">
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-            <nav class="fh5co-main-menu" role="navigation">
-<ul>
-    <!-- home link -->
-    <li><a href="../../../">Home</a></li>
-
-    <!-- page links -->
-
-    <!-- categories -->
-        <li class="nav-title">Categories</li>
-            <li><a href="../../../category/misc.html">misc</a></li>
-            <li><a href="../../../category/music.html">music</a></li>
-            <li><a href="../../../category/reading.html">reading</a></li>
-            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
-
-    <!-- tags -->
-        <li><a href="../../../tags.html">Tags</a></li>
-
-    <!-- additional menu items from config -->
-
-</ul>
-            </nav>
-
-<ul id="social">
-            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
-
-            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
-
-</ul>
-        </aside>
-
-        <div id="fh5co-main">
-
-    <div class="fh5co-narrow-content article-content">
-        <h1 class="fh5co-heading-colored">Take Tmux Snapshots Automatically</h1>
-
-        <div>by
-                <span dir="ltr">
-                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
- - <span dir="ltr">日 23 2月 2014</span>
-        </div>
-
-            <div><span>Tags</span>
-                    <span><a href="../../../tag/tmux.html">#tmux</a> </span>
-                    <span><a href="../../../tag/cron.html">#cron</a> </span>
-                    <span><a href="../../../tag/tech.html">#tech</a> </span>
-                    <span><a href="../../../tag/cs.html">#CS</a> </span>
-                    <span><a href="../../../tag/snapshots.html">#snapshots</a> </span>
-                    <span><a href="../../../tag/bash.html">#bash</a> </span>
-                    <span><a href="../../../tag/shell.html">#shell</a> </span>
-                    <span><a href="../../../tag/jiao-ben.html">#脚本</a> </span>
-                    <span><a href="../../../tag/archlinux.html">#Archlinux</a> </span>
-                    <span><a href="../../../tag/linux.html">#linux</a> </span>
-                    <span><a href="../../../tag/linux.html">#Linux</a> </span>
-                    <span><a href="../../../tag/unix.html">#UNIX</a> </span>
-            </div>
-        <span dir="ltr">
-        </span>
-
-        <div class="animate-box" data-animate-effect="fadeInLeft">
-            <p class="animate-box" data-animate-effect="fadeInLeft"><p>前段时间学校的EECS楼发生火灾，最近隔三差五停电检修，打断我在server上跑的实验。
+</head>
+<body>
+  <article>
+    <header>
+      <h2>
+        <a href="../../../2014/02/23/20140223-take-tmux-snapshots-automatically.html" rel="bookmark"
+           title="Permalink to Take Tmux Snapshots Automatically">Take Tmux Snapshots Automatically</a></h2>
+      
+    </header>
+    <p>前段时间学校的EECS楼发生火灾，最近隔三差五停电检修，打断我在server上跑的实验。
 而且我习惯上用tmux开多个session和window，一遇到停电我的tmux现场就悲剧了。
 复电重开机之后要把tmux现场手动重新建好也很麻烦，于是我就挤出一点时间琢磨着写个简单的script去自动保存和重载tmux的副本。</p>
 <!-- more -->
@@ -303,51 +191,33 @@ ps<span class="w"> </span>aux<span class="p">|</span>grep<span class="w"> </span
 <h2 id="_1">后续</h2>
 <p>我搜到一些相关的文章，有用perl来写类似脚本的，可供大家参考：</p>
 <p>[1]<a href="http://blog.edsantiago.com/articles/tmux-session-preserve/">Preserving (some) session state with tmux and bash</a></p>
-<p>[2]<a href="http://brainscraps.wikia.com/wiki/Resurrecting_tmux_Sessions_After_Reboot">Resurrecting tmux Sessions After Reboot</a></p></p>
-        </div>
-    </div>
-
-<div class="fh5co-narrow-content">
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
-</div>
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <div id="disqus_thread"></div>
-</div>
-
-<script>
-var disqus_config = function () { 
-  this.language = "zh";
-};
-(function() { // DON'T EDIT BELOW THIS LINE
-var d = document, s = d.createElement('script');
-s.src = 'https://.disqus.com/embed.js';
-s.setAttribute('data-timestamp', +new Date());
-(d.head || d.body).appendChild(s);
-})();
-</script>
-<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
-<div class="fh5co-footer">
-    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
-    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
-
-</div>                
-        </div>
-    </div>
-
-    <!-- jQuery -->
-    <script src="../../../theme/js/jquery.min.js"></script>
-    <!-- jQuery Easing -->
-    <script src="../../../theme/js/jquery.easing.1.3.js"></script>
-    <!-- Bootstrap -->
-    <script src="../../../theme/js/bootstrap.min.js"></script>
-    <!-- Waypoints -->
-    <script src="../../../theme/js/jquery.waypoints.min.js"></script>
-    <!-- Flexslider -->
-    <script src="../../../theme/js/jquery.flexslider-min.js"></script>
-
-
-    <!-- MAIN JS -->
-    <script src="../../../theme/js/main.js"></script>
-    </body>
+<p>[2]<a href="http://brainscraps.wikia.com/wiki/Resurrecting_tmux_Sessions_After_Reboot">Resurrecting tmux Sessions After Reboot</a></p>
+    <footer>
+      <p>Published: <time datetime="2014-02-23T16:12:00+08:00">
+        Sun 23 February 2014
+      </time></p>
+        <address>
+          By             <a href="../../../author/galoisplusplus.html">Galoisplusplus</a>
+        </address>
+        <p>
+          Category: <a href="../../../category/tech.html">tech</a>
+        </p>
+        <p>
+          Tags:
+            <a href="../../../tag/tmux.html">tmux</a>
+            <a href="../../../tag/cron.html">cron</a>
+            <a href="../../../tag/tech.html">tech</a>
+            <a href="../../../tag/cs.html">CS</a>
+            <a href="../../../tag/snapshots.html">snapshots</a>
+            <a href="../../../tag/bash.html">bash</a>
+            <a href="../../../tag/shell.html">shell</a>
+            <a href="../../../tag/jiao-ben.html">脚本</a>
+            <a href="../../../tag/archlinux.html">Archlinux</a>
+            <a href="../../../tag/linux.html">linux</a>
+            <a href="../../../tag/linux.html">Linux</a>
+            <a href="../../../tag/unix.html">UNIX</a>
+        </p>
+    </footer>
+  </article>
+</body>
 </html>

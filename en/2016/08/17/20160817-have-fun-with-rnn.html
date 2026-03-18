@@ -1,141 +1,36 @@
-
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="en" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="en" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="en" dir="" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="en" dir="" class="no-js"> <!--<![endif]-->
-    <head>
+<html lang="en">
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>RNN(Recurrent Neural Networks)的有趣实验</title>
-
+    <title>Galoisplusplus - RNN(Recurrent Neural Networks)的有趣实验</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <meta name="author" content="Galoisplusplus" />
-    <meta name="description" content="前段时间fracting兄分享了Andrej Karpathy一篇介绍RNN(Recurrent Neural Networks)的文章，我看了之后觉得非常有趣，也用作者Andrej Karpathy写的char-rnn跑了一些实验玩玩。 代码实验 作为码农，我最开 …" />
-    <meta name="keywords" content="CS, tech, RNN, machine learning, data mining">
-<!-- Facebook and Twitter integration -->
-<meta property="og:site_name" content="Galoisplusplus"/>
-<meta property="og:title" content="RNN(Recurrent Neural Networks)的有趣实验"/>
-<meta property="og:description" content="前段时间fracting兄分享了Andrej Karpathy一篇介绍RNN(Recurrent Neural Networks)的文章，我看了之后觉得非常有趣，也用作者Andrej Karpathy写的char-rnn跑了一些实验玩玩。 代码实验 作为码农，我最开 …"/>
-<meta property="og:url" content="../../../2016/08/17/20160817-have-fun-with-rnn.html"/>
-<meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2016-08-17 10:12:00+08:00"/>
-<meta property="article:modified_time" content=""/>
-<meta property="article:author" content="../../../author/galoisplusplus.html">
-<meta property="article:section" content="tech"/>
-    <meta property="article:tag" content="CS"/>
-    <meta property="article:tag" content="tech"/>
-    <meta property="article:tag" content="RNN"/>
-    <meta property="article:tag" content="machine learning"/>
-    <meta property="article:tag" content="data mining"/>
-    <meta property="og:image" content="/blog/static/images/trebleclef.png">
-
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
-
-    <!-- Animate.css -->
-    <link rel="stylesheet" href="../../../../theme/css/animate.css">
-    <!-- Icomoon Icon Fonts-->
-    <link rel="stylesheet" href="../../../../theme/css/icomoon.css">
-    <!-- Bootstrap  -->
-    <link rel="stylesheet" href="../../../../theme/css/bootstrap.css">
-    <!-- Flexslider  -->
-    <link rel="stylesheet" href="../../../../theme/css/flexslider.css">
-    <!-- Theme style  -->
-    <link rel="stylesheet" href="../../../../theme/css/style.css">
-    <!-- Custom style  -->
-    <link rel="stylesheet" href="../../../../theme/css/custom.css">
-    <!-- pygments code highlight -->
-    <link rel="stylesheet" href="../../../../theme/css/pygments.css">
-    <!-- tipue search -->
-    <link rel="stylesheet" href="../../../../theme/tipuesearch/css/tipuesearch.css">
-
-    <!-- Modernizr JS -->
-    <script src="../../../../theme/js/modernizr-2.6.2.min.js"></script>
-    <!-- FOR IE9 below -->
-    <!--[if lt IE 9]>
-    <script src="/theme/js/respond.min.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" href="../../../theme/css/animate.css">
+    <link rel="stylesheet" href="../../../theme/css/icomoon.css">
+    <link rel="stylesheet" href="../../../theme/css/bootstrap.css">
+    <link rel="stylesheet" href="../../../theme/css/style.css">
+    <link rel="stylesheet" href="../../../theme/css/custom.css">
+  
 
 
+    <meta name="description" content="Have Fun With RNN" />
 
-    </head>
-    <body>
-    <div id="fh5co-page">
-        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
-        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+    <meta name="tags" content="CS" />
+    <meta name="tags" content="tech" />
+    <meta name="tags" content="RNN" />
+    <meta name="tags" content="machine learning" />
+    <meta name="tags" content="data mining" />
 
-            <nav class="fh5co-main-menu" role="navigation">
-    <ul class="language-navigation">
-        <li>
-                <a href="https://yszheda.github.io/blog/">zh</a>
-                <a class="lang-active" href="https://yszheda.github.io/blog/en/">en</a>
-        </li>
-    </ul>
-            </nav>
-            <div class="clearfix"></div>
-            <h1  id="fh5co-logo">
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-            <nav class="fh5co-main-menu" role="navigation">
-<ul>
-    <!-- home link -->
-    <li><a href="../../../">Home</a></li>
-
-    <!-- page links -->
-
-    <!-- categories -->
-        <li class="nav-title">Categories</li>
-            <li><a href="../../../category/misc.html">misc</a></li>
-            <li><a href="../../../category/music.html">music</a></li>
-            <li><a href="../../../category/reading.html">reading</a></li>
-            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
-
-    <!-- tags -->
-        <li><a href="../../../tags.html">Tags</a></li>
-
-    <!-- additional menu items from config -->
-
-</ul>
-            </nav>
-
-<ul id="social">
-            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
-
-            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
-
-</ul>
-        </aside>
-
-        <div id="fh5co-main">
-
-    <div class="fh5co-narrow-content article-content">
-        <h1 class="fh5co-heading-colored">RNN(Recurrent Neural Networks)的有趣实验</h1>
-
-        <div>by
-                <span dir="ltr">
-                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
- - <span dir="ltr">三 17 8月 2016</span>
-        </div>
-
-            <div><span>Tags</span>
-                    <span><a href="../../../tag/cs.html">#CS</a> </span>
-                    <span><a href="../../../tag/tech.html">#tech</a> </span>
-                    <span><a href="../../../tag/rnn.html">#RNN</a> </span>
-                    <span><a href="../../../tag/machine-learning.html">#machine learning</a> </span>
-                    <span><a href="../../../tag/data-mining.html">#data mining</a> </span>
-            </div>
-        <span dir="ltr">
-        </span>
-
-        <div class="animate-box" data-animate-effect="fadeInLeft">
-            <p class="animate-box" data-animate-effect="fadeInLeft"><p>前段时间fracting兄分享了<a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">Andrej Karpathy一篇介绍RNN(Recurrent Neural Networks)的文章</a>，我看了之后觉得非常有趣，也用作者Andrej Karpathy写的<a href="https://github.com/karpathy/char-rnn">char-rnn</a>跑了一些实验玩玩。</p>
+</head>
+<body>
+  <article>
+    <header>
+      <h2>
+        <a href="../../../2016/08/17/20160817-have-fun-with-rnn.html" rel="bookmark"
+           title="Permalink to RNN(Recurrent Neural Networks)的有趣实验">RNN(Recurrent Neural Networks)的有趣实验</a></h2>
+      
+    </header>
+    <p>前段时间fracting兄分享了<a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">Andrej Karpathy一篇介绍RNN(Recurrent Neural Networks)的文章</a>，我看了之后觉得非常有趣，也用作者Andrej Karpathy写的<a href="https://github.com/karpathy/char-rnn">char-rnn</a>跑了一些实验玩玩。</p>
 <h1 id="_1">代码实验</h1>
 <p>作为码农，我最开始自然地想到用<code>rnn</code>来训练代码啦！</p>
 <h2 id="lua">lua源代码</h2>
@@ -753,51 +648,26 @@
 <p>即使有了纸卷这种能较精确还原音乐的载体，还有一个关键问题，那就是如何把这种图像转化成文本，而且这种编解码转换应该是可逆的。我发现，就算对于精确度稍逊的乐谱来说，这种要求也很难实现。Andrej Karpathy那篇博文里提到一篇采用rnn训练音乐的<a href="https://highnoongmt.wordpress.com/2015/05/22/lisls-stis-recurrent-neural-networks-for-folk-music-generation/">文章</a>，里面用了一种很简单的<a href="http://abcnotation.com/blog/2010/01/31/how-to-understand-abc-the-basics/">ABC记谱法</a>来把乐谱转成文本，再把<code>rnn</code>生成的文本转成midi。不过这种记谱法实在是太简陋了，连和弦都无法表示，更遑论多声部的旋律了。</p>
 </li>
 </ul>
-<p>说到编解码，我还想到上个月听的巴西生物艺术家<a href="http://ekac.org/">Eduardo Kac</a>的一场讲座。其中他早年的一件作品<a href="http://www.ekac.org/geninfo2.html">Genesis</a>给我的印象很深：Kac从《圣经》里摘了一句话“Let man have dominion over the fish of the sea, and over the fowl of the air, and over every living thing that moves upon the earth.”，把它转成莫尔斯码，又把莫尔斯码转换成ACTG序列。他将这段序列植入细菌中，然后邀请观众对细菌施以紫外光照，让细菌产生变异。在展览结束后，Kac把这段变异后的DNA重新转成莫尔斯码，最后再转成英语（编解码过程和结果可以看<a href="http://www.ekac.org/genseries.html">这个网页</a>的前两张图）。 Kac的这个作品给了我一些启发，我也由此开下脑洞：如果把某段DNA序列拿给rnn做训练，采样得到新的DNA序列，那么后者将合成什么样的蛋白质、表现出怎样的性状？这想法太疯狂啦，还好我不是biohacker XD</p></p>
-        </div>
-    </div>
-
-<div class="fh5co-narrow-content">
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
-</div>
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <div id="disqus_thread"></div>
-</div>
-
-<script>
-var disqus_config = function () { 
-  this.language = "en";
-};
-(function() { // DON'T EDIT BELOW THIS LINE
-var d = document, s = d.createElement('script');
-s.src = 'https://.disqus.com/embed.js';
-s.setAttribute('data-timestamp', +new Date());
-(d.head || d.body).appendChild(s);
-})();
-</script>
-<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
-<div class="fh5co-footer">
-    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
-    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
-
-</div>                
-        </div>
-    </div>
-
-    <!-- jQuery -->
-    <script src="../../../../theme/js/jquery.min.js"></script>
-    <!-- jQuery Easing -->
-    <script src="../../../../theme/js/jquery.easing.1.3.js"></script>
-    <!-- Bootstrap -->
-    <script src="../../../../theme/js/bootstrap.min.js"></script>
-    <!-- Waypoints -->
-    <script src="../../../../theme/js/jquery.waypoints.min.js"></script>
-    <!-- Flexslider -->
-    <script src="../../../../theme/js/jquery.flexslider-min.js"></script>
-
-
-    <!-- MAIN JS -->
-    <script src="../../../../theme/js/main.js"></script>
-    </body>
+<p>说到编解码，我还想到上个月听的巴西生物艺术家<a href="http://ekac.org/">Eduardo Kac</a>的一场讲座。其中他早年的一件作品<a href="http://www.ekac.org/geninfo2.html">Genesis</a>给我的印象很深：Kac从《圣经》里摘了一句话“Let man have dominion over the fish of the sea, and over the fowl of the air, and over every living thing that moves upon the earth.”，把它转成莫尔斯码，又把莫尔斯码转换成ACTG序列。他将这段序列植入细菌中，然后邀请观众对细菌施以紫外光照，让细菌产生变异。在展览结束后，Kac把这段变异后的DNA重新转成莫尔斯码，最后再转成英语（编解码过程和结果可以看<a href="http://www.ekac.org/genseries.html">这个网页</a>的前两张图）。 Kac的这个作品给了我一些启发，我也由此开下脑洞：如果把某段DNA序列拿给rnn做训练，采样得到新的DNA序列，那么后者将合成什么样的蛋白质、表现出怎样的性状？这想法太疯狂啦，还好我不是biohacker XD</p>
+    <footer>
+      <p>Published: <time datetime="2016-08-17T10:12:00+08:00">
+        Wed 17 August 2016
+      </time></p>
+        <address>
+          By             <a href="../../../author/galoisplusplus.html">Galoisplusplus</a>
+        </address>
+        <p>
+          Category: <a href="../../../category/tech.html">tech</a>
+        </p>
+        <p>
+          Tags:
+            <a href="../../../tag/cs.html">CS</a>
+            <a href="../../../tag/tech.html">tech</a>
+            <a href="../../../tag/rnn.html">RNN</a>
+            <a href="../../../tag/machine-learning.html">machine learning</a>
+            <a href="../../../tag/data-mining.html">data mining</a>
+        </p>
+    </footer>
+  </article>
+</body>
 </html>

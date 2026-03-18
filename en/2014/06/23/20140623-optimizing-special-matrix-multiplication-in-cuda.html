@@ -1,159 +1,45 @@
-
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="en" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="en" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="en" dir="" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="en" dir="" class="no-js"> <!--<![endif]-->
-    <head>
+<html lang="en">
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>加速CUDA中的一类特殊矩阵乘法</title>
-
+    <title>Galoisplusplus - 加速CUDA中的一类特殊矩阵乘法</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <meta name="author" content="Galoisplusplus" />
-    <meta name="description" content="矩阵乘法是利用GPU加速一般运算的经典范例，在NVIDIA官方的CUDA C Programming Guide和CUDA C Best Practices Guide也都有示范代码来说明如何加速矩阵乘法。本渣这里要介绍的是如何加 …" />
-    <meta name="keywords" content="CUDA, tech, CS, GPGPU, GPU, 矩阵乘法, Reed-Solomon, Galois Field, matrix multiplication, c++, c, template, cuBLAS, MAGMA">
-<!-- Facebook and Twitter integration -->
-<meta property="og:site_name" content="Galoisplusplus"/>
-<meta property="og:title" content="加速CUDA中的一类特殊矩阵乘法"/>
-<meta property="og:description" content="矩阵乘法是利用GPU加速一般运算的经典范例，在NVIDIA官方的CUDA C Programming Guide和CUDA C Best Practices Guide也都有示范代码来说明如何加速矩阵乘法。本渣这里要介绍的是如何加 …"/>
-<meta property="og:url" content="../../../2014/06/23/20140623-optimizing-special-matrix-multiplication-in-cuda.html"/>
-<meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2014-06-23 20:56:00+08:00"/>
-<meta property="article:modified_time" content=""/>
-<meta property="article:author" content="../../../author/galoisplusplus.html">
-<meta property="article:section" content="tech"/>
-    <meta property="article:tag" content="CUDA"/>
-    <meta property="article:tag" content="tech"/>
-    <meta property="article:tag" content="CS"/>
-    <meta property="article:tag" content="GPGPU"/>
-    <meta property="article:tag" content="GPU"/>
-    <meta property="article:tag" content="矩阵乘法"/>
-    <meta property="article:tag" content="Reed-Solomon"/>
-    <meta property="article:tag" content="Galois Field"/>
-    <meta property="article:tag" content="matrix multiplication"/>
-    <meta property="article:tag" content="c++"/>
-    <meta property="article:tag" content="c"/>
-    <meta property="article:tag" content="template"/>
-    <meta property="article:tag" content="cuBLAS"/>
-    <meta property="article:tag" content="MAGMA"/>
-    <meta property="og:image" content="/blog/static/images/trebleclef.png">
-
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
-
-    <!-- Animate.css -->
-    <link rel="stylesheet" href="../../../../theme/css/animate.css">
-    <!-- Icomoon Icon Fonts-->
-    <link rel="stylesheet" href="../../../../theme/css/icomoon.css">
-    <!-- Bootstrap  -->
-    <link rel="stylesheet" href="../../../../theme/css/bootstrap.css">
-    <!-- Flexslider  -->
-    <link rel="stylesheet" href="../../../../theme/css/flexslider.css">
-    <!-- Theme style  -->
-    <link rel="stylesheet" href="../../../../theme/css/style.css">
-    <!-- Custom style  -->
-    <link rel="stylesheet" href="../../../../theme/css/custom.css">
-    <!-- pygments code highlight -->
-    <link rel="stylesheet" href="../../../../theme/css/pygments.css">
-    <!-- tipue search -->
-    <link rel="stylesheet" href="../../../../theme/tipuesearch/css/tipuesearch.css">
-
-    <!-- Modernizr JS -->
-    <script src="../../../../theme/js/modernizr-2.6.2.min.js"></script>
-    <!-- FOR IE9 below -->
-    <!--[if lt IE 9]>
-    <script src="/theme/js/respond.min.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" href="../../../theme/css/animate.css">
+    <link rel="stylesheet" href="../../../theme/css/icomoon.css">
+    <link rel="stylesheet" href="../../../theme/css/bootstrap.css">
+    <link rel="stylesheet" href="../../../theme/css/style.css">
+    <link rel="stylesheet" href="../../../theme/css/custom.css">
+  
 
 
+    <meta name="description" content="Optimizing Special Matrix Multiplication in CUDA" />
 
-    </head>
-    <body>
-    <div id="fh5co-page">
-        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
-        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+    <meta name="tags" content="CUDA" />
+    <meta name="tags" content="tech" />
+    <meta name="tags" content="CS" />
+    <meta name="tags" content="GPGPU" />
+    <meta name="tags" content="GPU" />
+    <meta name="tags" content="矩阵乘法" />
+    <meta name="tags" content="Reed-Solomon" />
+    <meta name="tags" content="Galois Field" />
+    <meta name="tags" content="matrix multiplication" />
+    <meta name="tags" content="c++" />
+    <meta name="tags" content="c" />
+    <meta name="tags" content="template" />
+    <meta name="tags" content="cuBLAS" />
+    <meta name="tags" content="MAGMA" />
 
-            <nav class="fh5co-main-menu" role="navigation">
-    <ul class="language-navigation">
-        <li>
-                <a href="https://yszheda.github.io/blog/">zh</a>
-                <a class="lang-active" href="https://yszheda.github.io/blog/en/">en</a>
-        </li>
-    </ul>
-            </nav>
-            <div class="clearfix"></div>
-            <h1  id="fh5co-logo">
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-            <nav class="fh5co-main-menu" role="navigation">
-<ul>
-    <!-- home link -->
-    <li><a href="../../../">Home</a></li>
-
-    <!-- page links -->
-
-    <!-- categories -->
-        <li class="nav-title">Categories</li>
-            <li><a href="../../../category/misc.html">misc</a></li>
-            <li><a href="../../../category/music.html">music</a></li>
-            <li><a href="../../../category/reading.html">reading</a></li>
-            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
-
-    <!-- tags -->
-        <li><a href="../../../tags.html">Tags</a></li>
-
-    <!-- additional menu items from config -->
-
-</ul>
-            </nav>
-
-<ul id="social">
-            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
-
-            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
-
-</ul>
-        </aside>
-
-        <div id="fh5co-main">
-
-    <div class="fh5co-narrow-content article-content">
-        <h1 class="fh5co-heading-colored">加速CUDA中的一类特殊矩阵乘法</h1>
-
-        <div>by
-                <span dir="ltr">
-                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
- - <span dir="ltr">一 23 6月 2014</span>
-        </div>
-
-            <div><span>Tags</span>
-                    <span><a href="../../../tag/cuda.html">#CUDA</a> </span>
-                    <span><a href="../../../tag/tech.html">#tech</a> </span>
-                    <span><a href="../../../tag/cs.html">#CS</a> </span>
-                    <span><a href="../../../tag/gpgpu.html">#GPGPU</a> </span>
-                    <span><a href="../../../tag/gpu.html">#GPU</a> </span>
-                    <span><a href="../../../tag/ju-zhen-cheng-fa.html">#矩阵乘法</a> </span>
-                    <span><a href="../../../tag/reed-solomon.html">#Reed-Solomon</a> </span>
-                    <span><a href="../../../tag/galois-field.html">#Galois Field</a> </span>
-                    <span><a href="../../../tag/matrix-multiplication.html">#matrix multiplication</a> </span>
-                    <span><a href="../../../tag/c.html">#c++</a> </span>
-                    <span><a href="../../../tag/c.html">#c</a> </span>
-                    <span><a href="../../../tag/template.html">#template</a> </span>
-                    <span><a href="../../../tag/cublas.html">#cuBLAS</a> </span>
-                    <span><a href="../../../tag/magma.html">#MAGMA</a> </span>
-            </div>
-        <span dir="ltr">
-        </span>
-
-        <div class="animate-box" data-animate-effect="fadeInLeft">
-            <p class="animate-box" data-animate-effect="fadeInLeft"><p>矩阵乘法是利用GPU加速一般运算的经典范例，在NVIDIA官方的<a href="http://docs.nvidia.com/cuda/cuda-c-programming-guide">CUDA C Programming Guide</a>和<a href="http://docs.nvidia.com/cuda/cuda-c-best-practices-guide">CUDA C Best Practices Guide</a>也都有示范代码来说明如何加速矩阵乘法。本渣这里要介绍的是如何加速矩阵乘法的一类特殊情况——大小悬殊的两个矩阵的乘法。</p>
+</head>
+<body>
+  <article>
+    <header>
+      <h2>
+        <a href="../../../2014/06/23/20140623-optimizing-special-matrix-multiplication-in-cuda.html" rel="bookmark"
+           title="Permalink to 加速CUDA中的一类特殊矩阵乘法">加速CUDA中的一类特殊矩阵乘法</a></h2>
+      
+    </header>
+    <p>矩阵乘法是利用GPU加速一般运算的经典范例，在NVIDIA官方的<a href="http://docs.nvidia.com/cuda/cuda-c-programming-guide">CUDA C Programming Guide</a>和<a href="http://docs.nvidia.com/cuda/cuda-c-best-practices-guide">CUDA C Best Practices Guide</a>也都有示范代码来说明如何加速矩阵乘法。本渣这里要介绍的是如何加速矩阵乘法的一类特殊情况——大小悬殊的两个矩阵的乘法。</p>
 <p>这里稍稍碎碎念一会，其实这个主题主要来自本渣的论文，而本渣所做的主要是用GPU来加速Reed-Solomon Codes的编解码。这种编解码的过程是矩阵乘法，照例说可以直接使用<a href="https://developer.nvidia.com/cublas">cuBLAS</a>等实现矩阵乘法的CUDA library来做。但由于Reed-Solomon Codes所用到的运算都是定义在伽罗华域（Galois Field）中的，不同于普通的实数运算，所以无法直接调用<a href="https://developer.nvidia.com/cublas">cuBLAS</a>等library。不巧，这些library所开放的API又不允许operator overloading，再加上矩阵乘法的source code也没有开源（<a href="http://icl.cs.utk.edu/magma/">MAGMA</a>倒是个<del>open source</del>公布了代码的library，但是它对矩阵乘法的实现只是调用<a href="https://developer.nvidia.com/cublas">cuBLAS</a>的函数、外加优化某些特殊情况罢了），这使得本渣需要自力更生去琢磨如何加速Reed-Solomon Codes编解码的矩阵乘法。在完成实现之后，本渣发现不少技术细节不足以登学术论文的大雅之堂，于是就想把它们记录进这篇技术文章中。
 在我们的Reed-Solomon Codes的实际应用场景中，用到的是以8-bit byte为一个数值单位的矩阵，矩阵乘法通常是一个小矩阵乘以一个扁长的大矩阵的形式：小矩阵的行数和列数一般不超过三位数，大矩阵的行数即为小矩阵的列数，而大矩阵的列数一般大于百万的数量级。
 虽然本渣的优化主要根据这些实际情况来做，但优化的技巧仍可以拓展到一般的小矩阵乘以大矩阵的情况的。</p>
@@ -604,51 +490,35 @@ CUDA pseudo-code如下：</p>
 </code></pre></div></td></tr></table></div>
 
 <h2 id="_2">后记</h2>
-<p>本渣已通过了答辩，本文所涉及的内容可以参考本渣答辩时的<a href="http://yszheda.github.io/GPU-RSCode/thesis?transition=none#/5">slides</a>，里面做了一些动画。</p></p>
-        </div>
-    </div>
-
-<div class="fh5co-narrow-content">
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
-</div>
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <div id="disqus_thread"></div>
-</div>
-
-<script>
-var disqus_config = function () { 
-  this.language = "en";
-};
-(function() { // DON'T EDIT BELOW THIS LINE
-var d = document, s = d.createElement('script');
-s.src = 'https://.disqus.com/embed.js';
-s.setAttribute('data-timestamp', +new Date());
-(d.head || d.body).appendChild(s);
-})();
-</script>
-<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
-<div class="fh5co-footer">
-    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
-    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
-
-</div>                
-        </div>
-    </div>
-
-    <!-- jQuery -->
-    <script src="../../../../theme/js/jquery.min.js"></script>
-    <!-- jQuery Easing -->
-    <script src="../../../../theme/js/jquery.easing.1.3.js"></script>
-    <!-- Bootstrap -->
-    <script src="../../../../theme/js/bootstrap.min.js"></script>
-    <!-- Waypoints -->
-    <script src="../../../../theme/js/jquery.waypoints.min.js"></script>
-    <!-- Flexslider -->
-    <script src="../../../../theme/js/jquery.flexslider-min.js"></script>
-
-
-    <!-- MAIN JS -->
-    <script src="../../../../theme/js/main.js"></script>
-    </body>
+<p>本渣已通过了答辩，本文所涉及的内容可以参考本渣答辩时的<a href="http://yszheda.github.io/GPU-RSCode/thesis?transition=none#/5">slides</a>，里面做了一些动画。</p>
+    <footer>
+      <p>Published: <time datetime="2014-06-23T20:56:00+08:00">
+        Mon 23 June 2014
+      </time></p>
+        <address>
+          By             <a href="../../../author/galoisplusplus.html">Galoisplusplus</a>
+        </address>
+        <p>
+          Category: <a href="../../../category/tech.html">tech</a>
+        </p>
+        <p>
+          Tags:
+            <a href="../../../tag/cuda.html">CUDA</a>
+            <a href="../../../tag/tech.html">tech</a>
+            <a href="../../../tag/cs.html">CS</a>
+            <a href="../../../tag/gpgpu.html">GPGPU</a>
+            <a href="../../../tag/gpu.html">GPU</a>
+            <a href="../../../tag/ju-zhen-cheng-fa.html">矩阵乘法</a>
+            <a href="../../../tag/reed-solomon.html">Reed-Solomon</a>
+            <a href="../../../tag/galois-field.html">Galois Field</a>
+            <a href="../../../tag/matrix-multiplication.html">matrix multiplication</a>
+            <a href="../../../tag/c.html">c++</a>
+            <a href="../../../tag/c.html">c</a>
+            <a href="../../../tag/template.html">template</a>
+            <a href="../../../tag/cublas.html">cuBLAS</a>
+            <a href="../../../tag/magma.html">MAGMA</a>
+        </p>
+    </footer>
+  </article>
+</body>
 </html>

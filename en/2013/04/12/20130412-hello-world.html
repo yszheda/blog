@@ -1,155 +1,43 @@
-
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="en" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="en" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="en" dir="" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="en" dir="" class="no-js"> <!--<![endif]-->
-    <head>
+<html lang="en">
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Hello World</title>
-
+    <title>Galoisplusplus - Hello World</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <meta name="author" content="Galoisplusplus" />
-    <meta name="description" content="Octopress確實是個好東東，花了半小時折騰了下，現在終於可以用Markdown來寫blog了！ 不過偶還是被它自動生成的_Liquid_模板坑了555，吐嘈一下... 另一個要吐 …" />
-    <meta name="keywords" content="tech, CS, octopress, gitcafe, github, pygments, Archlinux, blog, 博客, 个人博客, github pages, gitcafe pages">
-<!-- Facebook and Twitter integration -->
-<meta property="og:site_name" content="Galoisplusplus"/>
-<meta property="og:title" content="Hello World"/>
-<meta property="og:description" content="Octopress確實是個好東東，花了半小時折騰了下，現在終於可以用Markdown來寫blog了！ 不過偶還是被它自動生成的_Liquid_模板坑了555，吐嘈一下... 另一個要吐 …"/>
-<meta property="og:url" content="../../../2013/04/12/20130412-hello-world.html"/>
-<meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2013-04-12 22:19:00+08:00"/>
-<meta property="article:modified_time" content=""/>
-<meta property="article:author" content="../../../author/galoisplusplus.html">
-<meta property="article:section" content="tech"/>
-    <meta property="article:tag" content="tech"/>
-    <meta property="article:tag" content="CS"/>
-    <meta property="article:tag" content="octopress"/>
-    <meta property="article:tag" content="gitcafe"/>
-    <meta property="article:tag" content="github"/>
-    <meta property="article:tag" content="pygments"/>
-    <meta property="article:tag" content="Archlinux"/>
-    <meta property="article:tag" content="blog"/>
-    <meta property="article:tag" content="博客"/>
-    <meta property="article:tag" content="个人博客"/>
-    <meta property="article:tag" content="github pages"/>
-    <meta property="article:tag" content="gitcafe pages"/>
-    <meta property="og:image" content="/blog/static/images/trebleclef.png">
-
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
-
-    <!-- Animate.css -->
-    <link rel="stylesheet" href="../../../../theme/css/animate.css">
-    <!-- Icomoon Icon Fonts-->
-    <link rel="stylesheet" href="../../../../theme/css/icomoon.css">
-    <!-- Bootstrap  -->
-    <link rel="stylesheet" href="../../../../theme/css/bootstrap.css">
-    <!-- Flexslider  -->
-    <link rel="stylesheet" href="../../../../theme/css/flexslider.css">
-    <!-- Theme style  -->
-    <link rel="stylesheet" href="../../../../theme/css/style.css">
-    <!-- Custom style  -->
-    <link rel="stylesheet" href="../../../../theme/css/custom.css">
-    <!-- pygments code highlight -->
-    <link rel="stylesheet" href="../../../../theme/css/pygments.css">
-    <!-- tipue search -->
-    <link rel="stylesheet" href="../../../../theme/tipuesearch/css/tipuesearch.css">
-
-    <!-- Modernizr JS -->
-    <script src="../../../../theme/js/modernizr-2.6.2.min.js"></script>
-    <!-- FOR IE9 below -->
-    <!--[if lt IE 9]>
-    <script src="/theme/js/respond.min.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" href="../../../theme/css/animate.css">
+    <link rel="stylesheet" href="../../../theme/css/icomoon.css">
+    <link rel="stylesheet" href="../../../theme/css/bootstrap.css">
+    <link rel="stylesheet" href="../../../theme/css/style.css">
+    <link rel="stylesheet" href="../../../theme/css/custom.css">
+  
 
 
+    <meta name="description" content="setup Octopress" />
 
-    </head>
-    <body>
-    <div id="fh5co-page">
-        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
-        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+    <meta name="tags" content="tech" />
+    <meta name="tags" content="CS" />
+    <meta name="tags" content="octopress" />
+    <meta name="tags" content="gitcafe" />
+    <meta name="tags" content="github" />
+    <meta name="tags" content="pygments" />
+    <meta name="tags" content="Archlinux" />
+    <meta name="tags" content="blog" />
+    <meta name="tags" content="博客" />
+    <meta name="tags" content="个人博客" />
+    <meta name="tags" content="github pages" />
+    <meta name="tags" content="gitcafe pages" />
 
-            <nav class="fh5co-main-menu" role="navigation">
-    <ul class="language-navigation">
-        <li>
-                <a href="https://yszheda.github.io/blog/">zh</a>
-                <a class="lang-active" href="https://yszheda.github.io/blog/en/">en</a>
-        </li>
-    </ul>
-            </nav>
-            <div class="clearfix"></div>
-            <h1  id="fh5co-logo">
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-            <nav class="fh5co-main-menu" role="navigation">
-<ul>
-    <!-- home link -->
-    <li><a href="../../../">Home</a></li>
-
-    <!-- page links -->
-
-    <!-- categories -->
-        <li class="nav-title">Categories</li>
-            <li><a href="../../../category/misc.html">misc</a></li>
-            <li><a href="../../../category/music.html">music</a></li>
-            <li><a href="../../../category/reading.html">reading</a></li>
-            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
-
-    <!-- tags -->
-        <li><a href="../../../tags.html">Tags</a></li>
-
-    <!-- additional menu items from config -->
-
-</ul>
-            </nav>
-
-<ul id="social">
-            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
-
-            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
-
-</ul>
-        </aside>
-
-        <div id="fh5co-main">
-
-    <div class="fh5co-narrow-content article-content">
-        <h1 class="fh5co-heading-colored">Hello World</h1>
-
-        <div>by
-                <span dir="ltr">
-                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
- - <span dir="ltr">五 12 4月 2013</span>
-        </div>
-
-            <div><span>Tags</span>
-                    <span><a href="../../../tag/tech.html">#tech</a> </span>
-                    <span><a href="../../../tag/cs.html">#CS</a> </span>
-                    <span><a href="../../../tag/octopress.html">#octopress</a> </span>
-                    <span><a href="../../../tag/gitcafe.html">#gitcafe</a> </span>
-                    <span><a href="../../../tag/github.html">#github</a> </span>
-                    <span><a href="../../../tag/pygments.html">#pygments</a> </span>
-                    <span><a href="../../../tag/archlinux.html">#Archlinux</a> </span>
-                    <span><a href="../../../tag/blog.html">#blog</a> </span>
-                    <span><a href="../../../tag/bo-ke.html">#博客</a> </span>
-                    <span><a href="../../../tag/ge-ren-bo-ke.html">#个人博客</a> </span>
-                    <span><a href="../../../tag/github-pages.html">#github pages</a> </span>
-                    <span><a href="../../../tag/gitcafe-pages.html">#gitcafe pages</a> </span>
-            </div>
-        <span dir="ltr">
-        </span>
-
-        <div class="animate-box" data-animate-effect="fadeInLeft">
-            <p class="animate-box" data-animate-effect="fadeInLeft"><p><em>Octopress</em>確實是個好東東，花了半小時折騰了下，現在終於可以用<em>Markdown</em>來寫blog了！</p>
+</head>
+<body>
+  <article>
+    <header>
+      <h2>
+        <a href="../../../2013/04/12/20130412-hello-world.html" rel="bookmark"
+           title="Permalink to Hello World">Hello World</a></h2>
+      
+    </header>
+    <p><em>Octopress</em>確實是個好東東，花了半小時折騰了下，現在終於可以用<em>Markdown</em>來寫blog了！</p>
 <p>不過偶還是被它自動生成的_Liquid_模板坑了555，吐嘈一下...</p>
 <p>另一個要吐嘈的是在對嵌入的code做syntax highlight時總是無法<code>rake generate</code>成功。查到octopress是用_pygments_來做highlight的，但明明在<code>pygmentize -L</code>中有顯示的programming language（例如C）卻無法正確被highlight！這不科學！</p>
 <p>後來看到這其實是python版本的問題，Archlinux下默認以python開頭的package都是python3的，而octopress所用的<strong>pygments.rb</strong>其實只支持python2！
@@ -165,51 +53,33 @@
 <h2 id="gitcafeoctopress">关于在gitcafe部署octopress</h2>
 <p>gitcafe上等价于github的gh-pages分支的叫做gitcafe-pages，详见<a href="http://blog.gitcafe.com/116.html">gitcafe的官方blog</a>。
 所以首先要改的是把Rakefile里面的所有的gh-pages改为gitcafe-pages。</p>
-<p>另外一个要注意的是，第一次配置时会提示"Enter the read/write url for your repository"，那是在指定git remote add origin后边的url。gitcafe的url格式与github的不一样，应该是git@gitcafe.com:your_username/your_username.git，而非git@github.com:your_username/your_username.github.io.git （这个其实就是执行Rakefile里面setup_github_pages这个task，你可以把提示For example那一行修改掉）。</p></p>
-        </div>
-    </div>
-
-<div class="fh5co-narrow-content">
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
-</div>
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <div id="disqus_thread"></div>
-</div>
-
-<script>
-var disqus_config = function () { 
-  this.language = "en";
-};
-(function() { // DON'T EDIT BELOW THIS LINE
-var d = document, s = d.createElement('script');
-s.src = 'https://.disqus.com/embed.js';
-s.setAttribute('data-timestamp', +new Date());
-(d.head || d.body).appendChild(s);
-})();
-</script>
-<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
-<div class="fh5co-footer">
-    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
-    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
-
-</div>                
-        </div>
-    </div>
-
-    <!-- jQuery -->
-    <script src="../../../../theme/js/jquery.min.js"></script>
-    <!-- jQuery Easing -->
-    <script src="../../../../theme/js/jquery.easing.1.3.js"></script>
-    <!-- Bootstrap -->
-    <script src="../../../../theme/js/bootstrap.min.js"></script>
-    <!-- Waypoints -->
-    <script src="../../../../theme/js/jquery.waypoints.min.js"></script>
-    <!-- Flexslider -->
-    <script src="../../../../theme/js/jquery.flexslider-min.js"></script>
-
-
-    <!-- MAIN JS -->
-    <script src="../../../../theme/js/main.js"></script>
-    </body>
+<p>另外一个要注意的是，第一次配置时会提示"Enter the read/write url for your repository"，那是在指定git remote add origin后边的url。gitcafe的url格式与github的不一样，应该是git@gitcafe.com:your_username/your_username.git，而非git@github.com:your_username/your_username.github.io.git （这个其实就是执行Rakefile里面setup_github_pages这个task，你可以把提示For example那一行修改掉）。</p>
+    <footer>
+      <p>Published: <time datetime="2013-04-12T22:19:00+08:00">
+        Fri 12 April 2013
+      </time></p>
+        <address>
+          By             <a href="../../../author/galoisplusplus.html">Galoisplusplus</a>
+        </address>
+        <p>
+          Category: <a href="../../../category/tech.html">tech</a>
+        </p>
+        <p>
+          Tags:
+            <a href="../../../tag/tech.html">tech</a>
+            <a href="../../../tag/cs.html">CS</a>
+            <a href="../../../tag/octopress.html">octopress</a>
+            <a href="../../../tag/gitcafe.html">gitcafe</a>
+            <a href="../../../tag/github.html">github</a>
+            <a href="../../../tag/pygments.html">pygments</a>
+            <a href="../../../tag/archlinux.html">Archlinux</a>
+            <a href="../../../tag/blog.html">blog</a>
+            <a href="../../../tag/bo-ke.html">博客</a>
+            <a href="../../../tag/ge-ren-bo-ke.html">个人博客</a>
+            <a href="../../../tag/github-pages.html">github pages</a>
+            <a href="../../../tag/gitcafe-pages.html">gitcafe pages</a>
+        </p>
+    </footer>
+  </article>
+</body>
 </html>

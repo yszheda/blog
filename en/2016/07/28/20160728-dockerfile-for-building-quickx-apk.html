@@ -1,151 +1,41 @@
-
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="en" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="en" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="en" dir="" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="en" dir="" class="no-js"> <!--<![endif]-->
-    <head>
+<html lang="en">
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>用Docker容器来生成quick-x/cocos2d-x游戏apk包</title>
-
+    <title>Galoisplusplus - 用Docker容器来生成quick-x/cocos2d-x游戏apk包</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <meta name="author" content="Galoisplusplus" />
-    <meta name="description" content="前段时间本渣在做服务器端开发时，采用了Docker作为解决方案的一部分，最初的动机主要是想用namespace做环境隔离、用cgroups做资源 …" />
-    <meta name="keywords" content="cocos2d-x, Docker, CS, tech, cocos, cocos2d, 游戏开发, 手游开发, mobile game, game devolopment">
-<!-- Facebook and Twitter integration -->
-<meta property="og:site_name" content="Galoisplusplus"/>
-<meta property="og:title" content="用Docker容器来生成quick-x/cocos2d-x游戏apk包"/>
-<meta property="og:description" content="前段时间本渣在做服务器端开发时，采用了Docker作为解决方案的一部分，最初的动机主要是想用namespace做环境隔离、用cgroups做资源 …"/>
-<meta property="og:url" content="../../../2016/07/28/20160728-dockerfile-for-building-quickx-apk.html"/>
-<meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2016-07-28 02:13:00+08:00"/>
-<meta property="article:modified_time" content=""/>
-<meta property="article:author" content="../../../author/galoisplusplus.html">
-<meta property="article:section" content="tech"/>
-    <meta property="article:tag" content="cocos2d-x"/>
-    <meta property="article:tag" content="Docker"/>
-    <meta property="article:tag" content="CS"/>
-    <meta property="article:tag" content="tech"/>
-    <meta property="article:tag" content="cocos"/>
-    <meta property="article:tag" content="cocos2d"/>
-    <meta property="article:tag" content="游戏开发"/>
-    <meta property="article:tag" content="手游开发"/>
-    <meta property="article:tag" content="mobile game"/>
-    <meta property="article:tag" content="game devolopment"/>
-    <meta property="og:image" content="/blog/static/images/trebleclef.png">
-
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
-
-    <!-- Animate.css -->
-    <link rel="stylesheet" href="../../../../theme/css/animate.css">
-    <!-- Icomoon Icon Fonts-->
-    <link rel="stylesheet" href="../../../../theme/css/icomoon.css">
-    <!-- Bootstrap  -->
-    <link rel="stylesheet" href="../../../../theme/css/bootstrap.css">
-    <!-- Flexslider  -->
-    <link rel="stylesheet" href="../../../../theme/css/flexslider.css">
-    <!-- Theme style  -->
-    <link rel="stylesheet" href="../../../../theme/css/style.css">
-    <!-- Custom style  -->
-    <link rel="stylesheet" href="../../../../theme/css/custom.css">
-    <!-- pygments code highlight -->
-    <link rel="stylesheet" href="../../../../theme/css/pygments.css">
-    <!-- tipue search -->
-    <link rel="stylesheet" href="../../../../theme/tipuesearch/css/tipuesearch.css">
-
-    <!-- Modernizr JS -->
-    <script src="../../../../theme/js/modernizr-2.6.2.min.js"></script>
-    <!-- FOR IE9 below -->
-    <!--[if lt IE 9]>
-    <script src="/theme/js/respond.min.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" href="../../../theme/css/animate.css">
+    <link rel="stylesheet" href="../../../theme/css/icomoon.css">
+    <link rel="stylesheet" href="../../../theme/css/bootstrap.css">
+    <link rel="stylesheet" href="../../../theme/css/style.css">
+    <link rel="stylesheet" href="../../../theme/css/custom.css">
+  
 
 
+    <meta name="description" content="Build Quick-x/Cocos2d-x apk on Docker Container" />
 
-    </head>
-    <body>
-    <div id="fh5co-page">
-        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
-        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+    <meta name="tags" content="cocos2d-x" />
+    <meta name="tags" content="Docker" />
+    <meta name="tags" content="CS" />
+    <meta name="tags" content="tech" />
+    <meta name="tags" content="cocos" />
+    <meta name="tags" content="cocos2d" />
+    <meta name="tags" content="游戏开发" />
+    <meta name="tags" content="手游开发" />
+    <meta name="tags" content="mobile game" />
+    <meta name="tags" content="game devolopment" />
 
-            <nav class="fh5co-main-menu" role="navigation">
-    <ul class="language-navigation">
-        <li>
-                <a href="https://yszheda.github.io/blog/">zh</a>
-                <a class="lang-active" href="https://yszheda.github.io/blog/en/">en</a>
-        </li>
-    </ul>
-            </nav>
-            <div class="clearfix"></div>
-            <h1  id="fh5co-logo">
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-            <nav class="fh5co-main-menu" role="navigation">
-<ul>
-    <!-- home link -->
-    <li><a href="../../../">Home</a></li>
-
-    <!-- page links -->
-
-    <!-- categories -->
-        <li class="nav-title">Categories</li>
-            <li><a href="../../../category/misc.html">misc</a></li>
-            <li><a href="../../../category/music.html">music</a></li>
-            <li><a href="../../../category/reading.html">reading</a></li>
-            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
-
-    <!-- tags -->
-        <li><a href="../../../tags.html">Tags</a></li>
-
-    <!-- additional menu items from config -->
-
-</ul>
-            </nav>
-
-<ul id="social">
-            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
-
-            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
-
-</ul>
-        </aside>
-
-        <div id="fh5co-main">
-
-    <div class="fh5co-narrow-content article-content">
-        <h1 class="fh5co-heading-colored">用Docker容器来生成quick-x/cocos2d-x游戏apk包</h1>
-
-        <div>by
-                <span dir="ltr">
-                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
- - <span dir="ltr">四 28 7月 2016</span>
-        </div>
-
-            <div><span>Tags</span>
-                    <span><a href="../../../tag/cocos2d-x.html">#cocos2d-x</a> </span>
-                    <span><a href="../../../tag/docker.html">#Docker</a> </span>
-                    <span><a href="../../../tag/cs.html">#CS</a> </span>
-                    <span><a href="../../../tag/tech.html">#tech</a> </span>
-                    <span><a href="../../../tag/cocos.html">#cocos</a> </span>
-                    <span><a href="../../../tag/cocos2d.html">#cocos2d</a> </span>
-                    <span><a href="../../../tag/you-xi-kai-fa.html">#游戏开发</a> </span>
-                    <span><a href="../../../tag/shou-you-kai-fa.html">#手游开发</a> </span>
-                    <span><a href="../../../tag/mobile-game.html">#mobile game</a> </span>
-                    <span><a href="../../../tag/game-devolopment.html">#game devolopment</a> </span>
-            </div>
-        <span dir="ltr">
-        </span>
-
-        <div class="animate-box" data-animate-effect="fadeInLeft">
-            <p class="animate-box" data-animate-effect="fadeInLeft"><p>前段时间本渣在做服务器端开发时，采用了<code>Docker</code>作为解决方案的一部分，最初的动机主要是想用<code>namespace</code>做环境隔离、用<code>cgroups</code>做资源限制，却也切身体会到<code>Docker</code>所带来的构建上的便利。故而本渣也回头去想之前cocos2d-x客户端的开发工作是否也能<code>Docker</code>化，很快就找到了一个很适合采用<code>Docker</code>的场景，那就是打apk包。从之前<a href="/2014/08/03/20140803-customize-dev-environment-for-cocos2d-x.html">搭建cocos2d-x游戏开发环境的博文</a>中不难发现，要搭建打包环境特别麻烦，不仅需要下一堆软件包，而且安装Android SDK和NDK时还会遇到GFW的问题。也正是因为这个缘故，我们团队只有最开始的三位老司机在开发机上搭好了这套环境，之后陆陆续续来的新人都没做过这项工作，所以平时打包也基本是在这几台开发机上。这简直太应该<code>Docker</code>化了！有了一套配好打包环境的<code>Docker</code> image，再也不用担心小鲜肉跑来要求打包、占用开发机了！而且还可以扔到服务器上去做，多省心啊！想想就excited，于是本渣马上就折腾起<code>Dockerfile</code>来了！</p>
+</head>
+<body>
+  <article>
+    <header>
+      <h2>
+        <a href="../../../2016/07/28/20160728-dockerfile-for-building-quickx-apk.html" rel="bookmark"
+           title="Permalink to 用Docker容器来生成quick-x/cocos2d-x游戏apk包">用Docker容器来生成quick-x/cocos2d-x游戏apk包</a></h2>
+      
+    </header>
+    <p>前段时间本渣在做服务器端开发时，采用了<code>Docker</code>作为解决方案的一部分，最初的动机主要是想用<code>namespace</code>做环境隔离、用<code>cgroups</code>做资源限制，却也切身体会到<code>Docker</code>所带来的构建上的便利。故而本渣也回头去想之前cocos2d-x客户端的开发工作是否也能<code>Docker</code>化，很快就找到了一个很适合采用<code>Docker</code>的场景，那就是打apk包。从之前<a href="/2014/08/03/20140803-customize-dev-environment-for-cocos2d-x.html">搭建cocos2d-x游戏开发环境的博文</a>中不难发现，要搭建打包环境特别麻烦，不仅需要下一堆软件包，而且安装Android SDK和NDK时还会遇到GFW的问题。也正是因为这个缘故，我们团队只有最开始的三位老司机在开发机上搭好了这套环境，之后陆陆续续来的新人都没做过这项工作，所以平时打包也基本是在这几台开发机上。这简直太应该<code>Docker</code>化了！有了一套配好打包环境的<code>Docker</code> image，再也不用担心小鲜肉跑来要求打包、占用开发机了！而且还可以扔到服务器上去做，多省心啊！想想就excited，于是本渣马上就折腾起<code>Dockerfile</code>来了！</p>
 <p>首先要确定基础镜像。本渣一开始以为，配置<code>Linux</code>下的cocos2d-x打包环境需要在执行cocos2d-x代码里的<code>build/install-deps-linux.sh</code>，而这个脚本需要用到<code>Debian</code>系的包管理器，所以就选了<code>Ubuntu</code>作为基础镜像。</p>
 <p>配置apk打包环境自然少不了下载需要的软件包。<code>Ubuntu</code>的<code>apt-get install</code>会询问用户是否安装软件包，在<code>Dockerfile</code>中需要把这一交互性去掉，最好采用：</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">RUN</span> <span class="n">DEBIAN_FRONTEND</span><span class="o">=</span><span class="n">noninteractive</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="o">-</span><span class="n">y</span>
@@ -281,51 +171,31 @@ ENV<span class="w"> </span>PATH<span class="w"> </span><span class="cp">${</span
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>docker pull galoisplusplus/quick-x-apk-docker
 </code></pre></div></td></tr></table></div>
 
-<p>这一<code>Docker</code>镜像对不采用quick-x的cocos2d-x游戏打包也是可以用的，只需要把<code>Dockerfile</code>中quick-x的部分去掉后进行构建即可。</p></p>
-        </div>
-    </div>
-
-<div class="fh5co-narrow-content">
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
-</div>
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <div id="disqus_thread"></div>
-</div>
-
-<script>
-var disqus_config = function () { 
-  this.language = "en";
-};
-(function() { // DON'T EDIT BELOW THIS LINE
-var d = document, s = d.createElement('script');
-s.src = 'https://.disqus.com/embed.js';
-s.setAttribute('data-timestamp', +new Date());
-(d.head || d.body).appendChild(s);
-})();
-</script>
-<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
-<div class="fh5co-footer">
-    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
-    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
-
-</div>                
-        </div>
-    </div>
-
-    <!-- jQuery -->
-    <script src="../../../../theme/js/jquery.min.js"></script>
-    <!-- jQuery Easing -->
-    <script src="../../../../theme/js/jquery.easing.1.3.js"></script>
-    <!-- Bootstrap -->
-    <script src="../../../../theme/js/bootstrap.min.js"></script>
-    <!-- Waypoints -->
-    <script src="../../../../theme/js/jquery.waypoints.min.js"></script>
-    <!-- Flexslider -->
-    <script src="../../../../theme/js/jquery.flexslider-min.js"></script>
-
-
-    <!-- MAIN JS -->
-    <script src="../../../../theme/js/main.js"></script>
-    </body>
+<p>这一<code>Docker</code>镜像对不采用quick-x的cocos2d-x游戏打包也是可以用的，只需要把<code>Dockerfile</code>中quick-x的部分去掉后进行构建即可。</p>
+    <footer>
+      <p>Published: <time datetime="2016-07-28T02:13:00+08:00">
+        Thu 28 July 2016
+      </time></p>
+        <address>
+          By             <a href="../../../author/galoisplusplus.html">Galoisplusplus</a>
+        </address>
+        <p>
+          Category: <a href="../../../category/tech.html">tech</a>
+        </p>
+        <p>
+          Tags:
+            <a href="../../../tag/cocos2d-x.html">cocos2d-x</a>
+            <a href="../../../tag/docker.html">Docker</a>
+            <a href="../../../tag/cs.html">CS</a>
+            <a href="../../../tag/tech.html">tech</a>
+            <a href="../../../tag/cocos.html">cocos</a>
+            <a href="../../../tag/cocos2d.html">cocos2d</a>
+            <a href="../../../tag/you-xi-kai-fa.html">游戏开发</a>
+            <a href="../../../tag/shou-you-kai-fa.html">手游开发</a>
+            <a href="../../../tag/mobile-game.html">mobile game</a>
+            <a href="../../../tag/game-devolopment.html">game devolopment</a>
+        </p>
+    </footer>
+  </article>
+</body>
 </html>

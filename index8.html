@@ -1,173 +1,143 @@
-
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="zh" dir="" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="zh" dir="" class="no-js"> <!--<![endif]-->
-    <head>
+<html lang="zh">
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Home</title>
-
+    <title>Galoisplusplus</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <meta name="description" content="" />
-        <meta name="author" content="Galoisplusplus" />
-
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
-
-    <!-- Animate.css -->
     <link rel="stylesheet" href="./theme/css/animate.css">
-    <!-- Icomoon Icon Fonts-->
     <link rel="stylesheet" href="./theme/css/icomoon.css">
-    <!-- Bootstrap  -->
     <link rel="stylesheet" href="./theme/css/bootstrap.css">
-    <!-- Flexslider  -->
-    <link rel="stylesheet" href="./theme/css/flexslider.css">
-    <!-- Theme style  -->
     <link rel="stylesheet" href="./theme/css/style.css">
-    <!-- Custom style  -->
     <link rel="stylesheet" href="./theme/css/custom.css">
-    <!-- pygments code highlight -->
-    <link rel="stylesheet" href="./theme/css/pygments.css">
-    <!-- tipue search -->
-    <link rel="stylesheet" href="./theme/tipuesearch/css/tipuesearch.css">
-
-    <!-- Modernizr JS -->
-    <script src="./theme/js/modernizr-2.6.2.min.js"></script>
-    <!-- FOR IE9 below -->
-    <!--[if lt IE 9]>
-    <script src="/theme/js/respond.min.js"></script>
-    <![endif]-->
+</head>
+<body>
+        <h2>All articles</h2>
 
 
+        <article>
+            <header> <h2><a href="./2014/04/03/20140403-cuda-host-memory-models.html" rel="bookmark" title="Permalink to CUDA Host Memory Models">CUDA Host Memory Models</a></h2> </header>
+            <section><p>之前写CUDA程序时光顾着如何加速跑在device(GPU)端的kernel function了，没太关注host(CPU)端的代码，直到上个月发现了我某个CUDA程序中的坑——host端内存模型使用不当导致在CPU和GPU之间的数据传输消耗了大量时间，这种overhead甚至占到了总时间的70%以上，成为最主要的瓶颈（bottleneck）。在填完这 …</p></section>
+            <footer>
+                <p>Published: <time datetime="2014-04-03T09:11:00+08:00"> Thu 03 April 2014 </time></p>
+                <address>By
+                        <a href="./author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+            </footer>
+        </article>
+        <article>
+            <header> <h2><a href="./2014/03/15/20140315-the-bfo-concert.html" rel="bookmark" title="Permalink to the BFO Concert">the BFO Concert</a></h2> </header>
+            <section><p>今晚去听布达佩斯节日管弦乐团（Budapest Festival Orchestra）的音乐会。
+BFO成立至今也不过三十年，却早已成为享誉全球的著名乐团，甚至在《留声机》的一次排名中被列 …</p></section>
+            <footer>
+                <p>Published: <time datetime="2014-03-15T20:45:00+08:00"> Sat 15 March 2014 </time></p>
+                <address>By
+                        <a href="./author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+            </footer>
+        </article>
+        <article>
+            <header> <h2><a href="./2014/03/07/20140307-the-lso-concert.html" rel="bookmark" title="Permalink to the LSO Concert">the LSO Concert</a></h2> </header>
+            <section><p>几个月前我就看到了伦敦交响乐团（London Symphony Orchestra）音乐会的消息，当时就觉得这一场不容错过。
+首先是阵容很强大：LSO是一个跟BPO、VPO并称三巨头的<del>腐国</del>英国 …</p></section>
+            <footer>
+                <p>Published: <time datetime="2014-03-07T20:45:00+08:00"> Fri 07 March 2014 </time></p>
+                <address>By
+                        <a href="./author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+            </footer>
+        </article>
+        <article>
+            <header> <h2><a href="./2014/03/02/20140302-angela-hewitt-piano-recital.html" rel="bookmark" title="Permalink to Angela Hewitt Piano Recital">Angela Hewitt Piano Recital</a></h2> </header>
+            <section><p>昨晚去听了Angela Hewitt的钢琴独奏会。Hewitt的演出还是挺难得的——她08年曾来帝都弹《平均律》，对观众的表现留下了不好的印象，之后就已经基本不来大陆了。这次的曲目也很有意思，上 …</p></section>
+            <footer>
+                <p>Published: <time datetime="2014-03-02T20:45:00+08:00"> Sun 02 March 2014 </time></p>
+                <address>By
+                        <a href="./author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+            </footer>
+        </article>
+        <article>
+            <header> <h2><a href="./2014/02/23/20140223-take-tmux-snapshots-automatically.html" rel="bookmark" title="Permalink to Take Tmux Snapshots Automatically">Take Tmux Snapshots Automatically</a></h2> </header>
+            <section><p>前段时间学校的EECS楼发生火灾，最近隔三差五停电检修，打断我在server上跑的实验。
+而且我习惯上用tmux开多个session和window，一遇到停电我的tmux现场就悲剧了。
+复电重开机之后要把tmux现场手动重新建好也很麻烦，于 …</p></section>
+            <footer>
+                <p>Published: <time datetime="2014-02-23T16:12:00+08:00"> Sun 23 February 2014 </time></p>
+                <address>By
+                        <a href="./author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+            </footer>
+        </article>
+        <article>
+            <header> <h2><a href="./2014/01/21/20140121-r-dot-i-p-claudio-abbado.html" rel="bookmark" title="Permalink to R.I.P. Maestro Claudio Abbado">R.I.P. Maestro Claudio Abbado</a></h2> </header>
+            <section><p>一开始看到阿巴多大师辞世的消息还以为是网上的谣言，等到查了wiki上的链接才确信了这一古典音乐界的噩耗。
+尽管与肺癌斗争了十余年，大师在复出后仍然精力 …</p></section>
+            <footer>
+                <p>Published: <time datetime="2014-01-21T00:25:00+08:00"> Tue 21 January 2014 </time></p>
+                <address>By
+                        <a href="./author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+            </footer>
+        </article>
+        <article>
+            <header> <h2><a href="./2013/12/21/20131221-the-art-of-loving-reading-notes.html" rel="bookmark" title="Permalink to 弗洛姆《爱的艺术》读书笔记">弗洛姆《爱的艺术》读书笔记</a></h2> </header>
+            <section><p>最近跟舍友小书虫借了一本心理学家弗洛姆的著名作品《爱的艺术》：</p>
+<p>与浩如烟海的扯淡文艺书不同，这本一百来页的小书 …</p></section>
+            <footer>
+                <p>Published: <time datetime="2013-12-21T13:00:00+08:00"> Sat 21 December 2013 </time></p>
+                <address>By
+                        <a href="./author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+            </footer>
+        </article>
+        <article>
+            <header> <h2><a href="./2013/11/21/20131121-upgrading-compilers-on-centos.html" rel="bookmark" title="Permalink to Upgrading Compilers on CentOS">Upgrading Compilers on CentOS</a></h2> </header>
+            <section><p>这篇日志应该叫「六美分历险记」的，「六美分」顾名思义嘛，自然是指CentOS-6。</p>
+<p>下面扯扯为何对本屌来说是「历险」和为虾米要「历险」：
+偶对 …</p></section>
+            <footer>
+                <p>Published: <time datetime="2013-11-21T00:45:00+08:00"> Thu 21 November 2013 </time></p>
+                <address>By
+                        <a href="./author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+            </footer>
+        </article>
+        <article>
+            <header> <h2><a href="./2013/11/15/20131115-the-cbso-concert.html" rel="bookmark" title="Permalink to the CBSO Concert">the CBSO Concert</a></h2> </header>
+            <section><p>CBSO (City of Birmingham Symphony Orchestra)的这场音乐会还是偶在台北听的第一场音乐会。</p>
+<p>&lt;剧透&gt;下面容我碎碎念一会~&lt;/剧透&gt;</p>
+<p>&lt;碎碎念&gt;</p>
+<p>说来惭愧，偶去年来 …</p></section>
+            <footer>
+                <p>Published: <time datetime="2013-11-15T11:45:00+08:00"> Fri 15 November 2013 </time></p>
+                <address>By
+                        <a href="./author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+            </footer>
+        </article>
+        <article>
+            <header> <h2><a href="./2013/09/19/20130919-have-fun-with-vim-wiki.html" rel="bookmark" title="Permalink to have fun with vim wiki">have fun with vim wiki</a></h2> </header>
+            <section><p>写blog确实是一种消化和深入理解知识的方式，但往往要整理一个完整的主题相当的耗时间。
+平时我也想记一记一些有用然而散乱的tips，慢慢积累起来。
+作为一位Vim忠实粉 …</p></section>
+            <footer>
+                <p>Published: <time datetime="2013-09-19T15:31:00+08:00"> Thu 19 September 2013 </time></p>
+                <address>By
+                        <a href="./author/galoisplusplus.html">Galoisplusplus</a>
+                </address>
+            </footer>
+        </article>
 
-    </head>
-    <body>
-    <div id="fh5co-page">
-        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
-        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
-
-            <nav class="fh5co-main-menu" role="navigation">
-    <ul class="language-navigation">
-        <li>
-                <a class="lang-active" href="https://yszheda.github.io/blog/">zh</a>
-                <a href="https://yszheda.github.io/blog/en/">en</a>
-        </li>
+  <nav>
+    <ul>
+        <li><a href="./index.html">&Lang;</a></li>
+        <li><a href="./index7.html">&lang;</a></li>
+      <li>Page 8 / 9</li>
+        <li><a href="./index9.html">&rang;</a></li>
+        <li><a href="./index9.html">&Rang;</a></li>
     </ul>
-            </nav>
-            <div class="clearfix"></div>
-            <h1  id="fh5co-logo">
-                <a href="./index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-                <a href="./index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-            <nav class="fh5co-main-menu" role="navigation">
-<ul>
-    <!-- home link -->
-    <li class="fh5co-active"><a href="./">Home</a></li>
+  </nav>
 
-    <!-- page links -->
-
-    <!-- categories -->
-        <li class="nav-title">Categories</li>
-            <li><a href="./category/misc.html">misc</a></li>
-            <li><a href="./category/music.html">music</a></li>
-            <li><a href="./category/reading.html">reading</a></li>
-            <li><a href="./category/tech.html">tech</a></li>
-
-    <!-- tags -->
-        <li><a href="./tags.html">Tags</a></li>
-
-    <!-- additional menu items from config -->
-
-</ul>
-            </nav>
-
-<ul id="social">
-            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
-
-            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
-
-</ul>
-        </aside>
-
-        <div id="fh5co-main">
-
-    <div class="fh5co-narrow-content">
-    <h2 class="fh5co-heading animate-box" data-animate-effect="fadeInLeft">Recent articles</h2>
-    <div class="row row-bottom-padded-md">
-<div class="col-md-3 col-sm-6 col-padding animate-box" data-animate-effect="fadeInLeft">
-    <div class="blog-entry">
-        <div class="desc">
-            <h3><a href="./2023/12/28/2023-12-28-Someone-Is-Going-To-Come-reading-notes.html">《有人将至》随想</a></h3>
-            <span><small>四 28 12月 2023</small></span>
-            <span><small>by Galoisplusplus</small> / <small>reading</small></span>
-            <p><p>我是在福瑟最近获得诺奖后才开始了解这位作家，阅读他的作品。读完《有人将至》和《秋之梦》这两本福瑟戏剧作品中译本后 …</p></p>
-            <a href="./2023/12/28/2023-12-28-Someone-Is-Going-To-Come-reading-notes.html" class="btn btn-primary">Read more <i class="icon-arrow-left3"></i></a>
-        </div>
-    </div>
-</div><div class="col-md-3 col-sm-6 col-padding animate-box" data-animate-effect="fadeInLeft">
-    <div class="blog-entry">
-        <div class="desc">
-            <h3><a href="./2023/12/18/20231218-Beckett-happy-days-reading-notes.html">《开心的日子》杂想</a></h3>
-            <span><small>一 18 12月 2023</small></span>
-            <span><small>by Galoisplusplus</small> / <small>reading</small></span>
-            <p><h1 id="_1">伪装成对话的独白</h1>
-<p>斯丛狄的《现代戏剧理论》论述了戏剧的三大要素（当下性、人际关系和事件）如何遭遇现代性危机、不同的 …</p></p>
-            <a href="./2023/12/18/20231218-Beckett-happy-days-reading-notes.html" class="btn btn-primary">Read more <i class="icon-arrow-left3"></i></a>
-        </div>
-    </div>
-</div><div class="col-md-3 col-sm-6 col-padding animate-box" data-animate-effect="fadeInLeft">
-    <div class="blog-entry">
-        <div class="desc">
-            <h3><a href="./2022/12/29/2022-12-29-Sasameyuki-reading-notes.html">《细雪》中疾病的隐喻</a></h3>
-            <span><small>四 29 12月 2022</small></span>
-            <span><small>by Galoisplusplus</small> / <small>reading</small></span>
-            <p><p>柄谷行人在《日本现代文学的起源》中以德富芦花的《不如归》和正冈子规的《六尺病床》为例，比较了日本文学中对于疾病的两 …</p></p>
-            <a href="./2022/12/29/2022-12-29-Sasameyuki-reading-notes.html" class="btn btn-primary">Read more <i class="icon-arrow-left3"></i></a>
-        </div>
-    </div>
-</div><div class="col-md-3 col-sm-6 col-padding animate-box" data-animate-effect="fadeInLeft">
-    <div class="blog-entry">
-        <div class="desc">
-            <h3><a href="./2019/04/07/20190407-macbeth-by-tang-shu-wing.html">《麦克白》的布莱希特剧场实践</a></h3>
-            <span><small>日 07 4月 2019</small></span>
-            <span><small>by Galoisplusplus</small> / <small>music</small></span>
-            <p><p>之前我曾对莎剧中<a href="/2016/04/03/20160403-nt-live-kinglear-and-othello.html">某些“间离”元素</a>感到好奇，但也怀疑采用布莱希特（Bertolt Brecht）理论来制作莎剧是否可行，这种疑虑直到前段时 …</p></p>
-            <a href="./2019/04/07/20190407-macbeth-by-tang-shu-wing.html" class="btn btn-primary">Read more <i class="icon-arrow-left3"></i></a>
-        </div>
-    </div>
-</div>    </div>
-
-
-
-
-<div class="fh5co-footer">
-    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
-    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
-
-</div>                
-        </div>
-    </div>
-
-    <!-- jQuery -->
-    <script src="./theme/js/jquery.min.js"></script>
-    <!-- jQuery Easing -->
-    <script src="./theme/js/jquery.easing.1.3.js"></script>
-    <!-- Bootstrap -->
-    <script src="./theme/js/bootstrap.min.js"></script>
-    <!-- Waypoints -->
-    <script src="./theme/js/jquery.waypoints.min.js"></script>
-    <!-- Flexslider -->
-    <script src="./theme/js/jquery.flexslider-min.js"></script>
-
-
-    <!-- MAIN JS -->
-    <script src="./theme/js/main.js"></script>
-    </body>
+</body>
 </html>

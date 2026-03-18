@@ -1,163 +1,47 @@
-
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="zh" dir="" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="zh" dir="" class="no-js"> <!--<![endif]-->
-    <head>
+<html lang="zh">
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>LaTeX Tips</title>
-
+    <title>Galoisplusplus - LaTeX Tips</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <meta name="author" content="Galoisplusplus" />
-    <meta name="description" content="早先我用MS office或open source的OOo来编辑文档，后来渐渐转向google docs和LibreOffice，学会了$\LaTeX$后，由于$\LaTeX$所见即所得（WYSIWYG）的特征节省了我不少排版的时间，所 …" />
-    <meta name="keywords" content="tech, CS, LaTeX, latex, tex, BibTeX, mendeley, chapterbib, listings, minted, xypic, Graphviz, media9, bibtex2html, HEVEA, ocaml">
-<!-- Facebook and Twitter integration -->
-<meta property="og:site_name" content="Galoisplusplus"/>
-<meta property="og:title" content="LaTeX Tips"/>
-<meta property="og:description" content="早先我用MS office或open source的OOo来编辑文档，后来渐渐转向google docs和LibreOffice，学会了$\LaTeX$后，由于$\LaTeX$所见即所得（WYSIWYG）的特征节省了我不少排版的时间，所 …"/>
-<meta property="og:url" content="../../../2013/04/13/20130413-latex-tips.html"/>
-<meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2013-04-13 17:21:00+08:00"/>
-<meta property="article:modified_time" content=""/>
-<meta property="article:author" content="../../../author/galoisplusplus.html">
-<meta property="article:section" content="tech"/>
-    <meta property="article:tag" content="tech"/>
-    <meta property="article:tag" content="CS"/>
-    <meta property="article:tag" content="LaTeX"/>
-    <meta property="article:tag" content="latex"/>
-    <meta property="article:tag" content="tex"/>
-    <meta property="article:tag" content="BibTeX"/>
-    <meta property="article:tag" content="mendeley"/>
-    <meta property="article:tag" content="chapterbib"/>
-    <meta property="article:tag" content="listings"/>
-    <meta property="article:tag" content="minted"/>
-    <meta property="article:tag" content="xypic"/>
-    <meta property="article:tag" content="Graphviz"/>
-    <meta property="article:tag" content="media9"/>
-    <meta property="article:tag" content="bibtex2html"/>
-    <meta property="article:tag" content="HEVEA"/>
-    <meta property="article:tag" content="ocaml"/>
-    <meta property="og:image" content="/blog/static/images/trebleclef.png">
-
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
-
-    <!-- Animate.css -->
     <link rel="stylesheet" href="../../../theme/css/animate.css">
-    <!-- Icomoon Icon Fonts-->
     <link rel="stylesheet" href="../../../theme/css/icomoon.css">
-    <!-- Bootstrap  -->
     <link rel="stylesheet" href="../../../theme/css/bootstrap.css">
-    <!-- Flexslider  -->
-    <link rel="stylesheet" href="../../../theme/css/flexslider.css">
-    <!-- Theme style  -->
     <link rel="stylesheet" href="../../../theme/css/style.css">
-    <!-- Custom style  -->
     <link rel="stylesheet" href="../../../theme/css/custom.css">
-    <!-- pygments code highlight -->
-    <link rel="stylesheet" href="../../../theme/css/pygments.css">
-    <!-- tipue search -->
-    <link rel="stylesheet" href="../../../theme/tipuesearch/css/tipuesearch.css">
-
-    <!-- Modernizr JS -->
-    <script src="../../../theme/js/modernizr-2.6.2.min.js"></script>
-    <!-- FOR IE9 below -->
-    <!--[if lt IE 9]>
-    <script src="/theme/js/respond.min.js"></script>
-    <![endif]-->
+  
 
 
+    <meta name="description" content="Tips for using LaTeX" />
 
-    </head>
-    <body>
-    <div id="fh5co-page">
-        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
-        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+    <meta name="tags" content="tech" />
+    <meta name="tags" content="CS" />
+    <meta name="tags" content="LaTeX" />
+    <meta name="tags" content="latex" />
+    <meta name="tags" content="tex" />
+    <meta name="tags" content="BibTeX" />
+    <meta name="tags" content="mendeley" />
+    <meta name="tags" content="chapterbib" />
+    <meta name="tags" content="listings" />
+    <meta name="tags" content="minted" />
+    <meta name="tags" content="xypic" />
+    <meta name="tags" content="Graphviz" />
+    <meta name="tags" content="media9" />
+    <meta name="tags" content="bibtex2html" />
+    <meta name="tags" content="HEVEA" />
+    <meta name="tags" content="ocaml" />
 
-            <nav class="fh5co-main-menu" role="navigation">
-    <ul class="language-navigation">
-        <li>
-                <a class="lang-active" href="https://yszheda.github.io/blog/">zh</a>
-                <a href="https://yszheda.github.io/blog/en/">en</a>
-        </li>
-    </ul>
-            </nav>
-            <div class="clearfix"></div>
-            <h1  id="fh5co-logo">
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-            <nav class="fh5co-main-menu" role="navigation">
-<ul>
-    <!-- home link -->
-    <li><a href="../../../">Home</a></li>
-
-    <!-- page links -->
-
-    <!-- categories -->
-        <li class="nav-title">Categories</li>
-            <li><a href="../../../category/misc.html">misc</a></li>
-            <li><a href="../../../category/music.html">music</a></li>
-            <li><a href="../../../category/reading.html">reading</a></li>
-            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
-
-    <!-- tags -->
-        <li><a href="../../../tags.html">Tags</a></li>
-
-    <!-- additional menu items from config -->
-
-</ul>
-            </nav>
-
-<ul id="social">
-            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
-
-            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
-
-</ul>
-        </aside>
-
-        <div id="fh5co-main">
-
-    <div class="fh5co-narrow-content article-content">
-        <h1 class="fh5co-heading-colored">LaTeX Tips</h1>
-
-        <div>by
-                <span dir="ltr">
-                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
- - <span dir="ltr">六 13 4月 2013</span>
-        </div>
-
-            <div><span>Tags</span>
-                    <span><a href="../../../tag/tech.html">#tech</a> </span>
-                    <span><a href="../../../tag/cs.html">#CS</a> </span>
-                    <span><a href="../../../tag/latex.html">#LaTeX</a> </span>
-                    <span><a href="../../../tag/latex.html">#latex</a> </span>
-                    <span><a href="../../../tag/tex.html">#tex</a> </span>
-                    <span><a href="../../../tag/bibtex.html">#BibTeX</a> </span>
-                    <span><a href="../../../tag/mendeley.html">#mendeley</a> </span>
-                    <span><a href="../../../tag/chapterbib.html">#chapterbib</a> </span>
-                    <span><a href="../../../tag/listings.html">#listings</a> </span>
-                    <span><a href="../../../tag/minted.html">#minted</a> </span>
-                    <span><a href="../../../tag/xypic.html">#xypic</a> </span>
-                    <span><a href="../../../tag/graphviz.html">#Graphviz</a> </span>
-                    <span><a href="../../../tag/media9.html">#media9</a> </span>
-                    <span><a href="../../../tag/bibtex2html.html">#bibtex2html</a> </span>
-                    <span><a href="../../../tag/hevea.html">#HEVEA</a> </span>
-                    <span><a href="../../../tag/ocaml.html">#ocaml</a> </span>
-            </div>
-        <span dir="ltr">
-        </span>
-
-        <div class="animate-box" data-animate-effect="fadeInLeft">
-            <p class="animate-box" data-animate-effect="fadeInLeft"><p>早先我用MS office或open source的<a href="http://www.openoffice.org/">OOo</a>来编辑文档，后来渐渐转向google docs和LibreOffice，学会了$\LaTeX$后，由于$\LaTeX$所见即所得（WYSIWYG）的特征节省了我不少排版的时间，所以如今成为我撰写文档、幻灯片（beamer）的主要工具。以下主要是我折腾$\LaTeX$的点点滴滴，有些也许很少能被用到（例如插入u3d来显示3D物体），大部分与也主要是一些不错的辅助工具和如何解决我遇到的一些问题，如果你只是初学者、想系统地学习$\LaTeX$，那么我建议你看一下大名鼎鼎的<a href="http://www.ctan.org/tex-archive/info/lshort/">A (Not So) Short In­tro­duc­tion to $\LaTeX$</a>；如果你看完这篇文章觉得有些工具不错、想继续深入了解，我想最科学的方式还是阅读官方文档、订阅官方的user maillist，当然也欢迎与我交流啦XD</p>
+</head>
+<body>
+  <article>
+    <header>
+      <h2>
+        <a href="../../../2013/04/13/20130413-latex-tips.html" rel="bookmark"
+           title="Permalink to LaTeX Tips">LaTeX Tips</a></h2>
+      
+    </header>
+    <p>早先我用MS office或open source的<a href="http://www.openoffice.org/">OOo</a>来编辑文档，后来渐渐转向google docs和LibreOffice，学会了$\LaTeX$后，由于$\LaTeX$所见即所得（WYSIWYG）的特征节省了我不少排版的时间，所以如今成为我撰写文档、幻灯片（beamer）的主要工具。以下主要是我折腾$\LaTeX$的点点滴滴，有些也许很少能被用到（例如插入u3d来显示3D物体），大部分与也主要是一些不错的辅助工具和如何解决我遇到的一些问题，如果你只是初学者、想系统地学习$\LaTeX$，那么我建议你看一下大名鼎鼎的<a href="http://www.ctan.org/tex-archive/info/lshort/">A (Not So) Short In­tro­duc­tion to $\LaTeX$</a>；如果你看完这篇文章觉得有些工具不错、想继续深入了解，我想最科学的方式还是阅读官方文档、订阅官方的user maillist，当然也欢迎与我交流啦XD</p>
 <!-- more -->
 
 <h2 id="_1">关于参考文献</h2>
@@ -498,51 +382,37 @@ xleftmargin=0.1<span class="k">\linewidth</span>
 <p>有时候用$\LaTeX$生成文档后常常想把它的内容直接作为一个网页（例如项目的介绍），我很早前就对这个很感兴趣，甚至想自己折腾一个～巧得很，在法国实习的时候，我所在的组里有两位大牛是<a href="https://www.lri.fr/~filliatr/bibtex2html/">bibtex2html</a>的作者，其中一位researcher（当时还是我组里的vice leader）的个人主页就是用latex文档转成html生成的，也正是他的主页让我发现了之前寻觅已久的工具：<a href="http://hevea.inria.fr/">HEVEA</a>（PS.如今这位researcher的主页已经改由<a href="https://www.lri.fr/~filliatr/yamlpp.en.html">yamlpp</a>生成）。</p>
 <p>由于法国人对Ocaml编程语言有着一种特殊偏好，HEVEA同样也是由Ocaml所写，可以处理公式、图片、表格、参考文献等等，现在还支持html5，效果不错。以下是我github page的一篇essay的转换效果：
 <a href="http://yszheda.github.com/2009-11-01-GBClassicalMusic.html">http://yszheda.github.com/2009-11-01-GBClassicalMusic.html</a>
-PS.这篇essay是我以前写的一篇关于<del>大英腐国</del>大不列颠古典音乐发展的拙见~</p></p>
-        </div>
-    </div>
-
-<div class="fh5co-narrow-content">
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
-</div>
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <div id="disqus_thread"></div>
-</div>
-
-<script>
-var disqus_config = function () { 
-  this.language = "zh";
-};
-(function() { // DON'T EDIT BELOW THIS LINE
-var d = document, s = d.createElement('script');
-s.src = 'https://.disqus.com/embed.js';
-s.setAttribute('data-timestamp', +new Date());
-(d.head || d.body).appendChild(s);
-})();
-</script>
-<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
-<div class="fh5co-footer">
-    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
-    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
-
-</div>                
-        </div>
-    </div>
-
-    <!-- jQuery -->
-    <script src="../../../theme/js/jquery.min.js"></script>
-    <!-- jQuery Easing -->
-    <script src="../../../theme/js/jquery.easing.1.3.js"></script>
-    <!-- Bootstrap -->
-    <script src="../../../theme/js/bootstrap.min.js"></script>
-    <!-- Waypoints -->
-    <script src="../../../theme/js/jquery.waypoints.min.js"></script>
-    <!-- Flexslider -->
-    <script src="../../../theme/js/jquery.flexslider-min.js"></script>
-
-
-    <!-- MAIN JS -->
-    <script src="../../../theme/js/main.js"></script>
-    </body>
+PS.这篇essay是我以前写的一篇关于<del>大英腐国</del>大不列颠古典音乐发展的拙见~</p>
+    <footer>
+      <p>Published: <time datetime="2013-04-13T17:21:00+08:00">
+        Sat 13 April 2013
+      </time></p>
+        <address>
+          By             <a href="../../../author/galoisplusplus.html">Galoisplusplus</a>
+        </address>
+        <p>
+          Category: <a href="../../../category/tech.html">tech</a>
+        </p>
+        <p>
+          Tags:
+            <a href="../../../tag/tech.html">tech</a>
+            <a href="../../../tag/cs.html">CS</a>
+            <a href="../../../tag/latex.html">LaTeX</a>
+            <a href="../../../tag/latex.html">latex</a>
+            <a href="../../../tag/tex.html">tex</a>
+            <a href="../../../tag/bibtex.html">BibTeX</a>
+            <a href="../../../tag/mendeley.html">mendeley</a>
+            <a href="../../../tag/chapterbib.html">chapterbib</a>
+            <a href="../../../tag/listings.html">listings</a>
+            <a href="../../../tag/minted.html">minted</a>
+            <a href="../../../tag/xypic.html">xypic</a>
+            <a href="../../../tag/graphviz.html">Graphviz</a>
+            <a href="../../../tag/media9.html">media9</a>
+            <a href="../../../tag/bibtex2html.html">bibtex2html</a>
+            <a href="../../../tag/hevea.html">HEVEA</a>
+            <a href="../../../tag/ocaml.html">ocaml</a>
+        </p>
+    </footer>
+  </article>
+</body>
 </html>

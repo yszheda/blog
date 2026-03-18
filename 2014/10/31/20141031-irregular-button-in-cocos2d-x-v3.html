@@ -1,167 +1,49 @@
-
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="zh" dir="" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="zh" dir="" class="no-js"> <!--<![endif]-->
-    <head>
+<html lang="zh">
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>cocos2d-x V3.x不规则按钮</title>
-
+    <title>Galoisplusplus - cocos2d-x V3.x不规则按钮</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <meta name="author" content="Galoisplusplus" />
-    <meta name="description" content="cocos2d-x的按钮默认是以长方形作为点击区域的，实际使用时这确实很蛋疼。之前有大牛研究了如何获取图片的透明度实现不规则点击区域的方法，例如： cocos2d-x开发笔记：获取Sprite上某一个点的透明度，制作 …" />
-    <meta name="keywords" content="cocos2d-x, CS, tech, cocos, cocos2d, button, widget, irregular, 不规则按钮, UI, 按钮, opengl, gl, OpenGL ES, 游戏开发, 手游开发, mobile game, game devolopment">
-<!-- Facebook and Twitter integration -->
-<meta property="og:site_name" content="Galoisplusplus"/>
-<meta property="og:title" content="cocos2d-x V3.x不规则按钮"/>
-<meta property="og:description" content="cocos2d-x的按钮默认是以长方形作为点击区域的，实际使用时这确实很蛋疼。之前有大牛研究了如何获取图片的透明度实现不规则点击区域的方法，例如： cocos2d-x开发笔记：获取Sprite上某一个点的透明度，制作 …"/>
-<meta property="og:url" content="../../../2014/10/31/20141031-irregular-button-in-cocos2d-x-v3.html"/>
-<meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2014-10-31 23:23:00+08:00"/>
-<meta property="article:modified_time" content=""/>
-<meta property="article:author" content="../../../author/galoisplusplus.html">
-<meta property="article:section" content="tech"/>
-    <meta property="article:tag" content="cocos2d-x"/>
-    <meta property="article:tag" content="CS"/>
-    <meta property="article:tag" content="tech"/>
-    <meta property="article:tag" content="cocos"/>
-    <meta property="article:tag" content="cocos2d"/>
-    <meta property="article:tag" content="button"/>
-    <meta property="article:tag" content="widget"/>
-    <meta property="article:tag" content="irregular"/>
-    <meta property="article:tag" content="不规则按钮"/>
-    <meta property="article:tag" content="UI"/>
-    <meta property="article:tag" content="按钮"/>
-    <meta property="article:tag" content="opengl"/>
-    <meta property="article:tag" content="gl"/>
-    <meta property="article:tag" content="OpenGL ES"/>
-    <meta property="article:tag" content="游戏开发"/>
-    <meta property="article:tag" content="手游开发"/>
-    <meta property="article:tag" content="mobile game"/>
-    <meta property="article:tag" content="game devolopment"/>
-    <meta property="og:image" content="/blog/static/images/trebleclef.png">
-
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
-
-    <!-- Animate.css -->
     <link rel="stylesheet" href="../../../theme/css/animate.css">
-    <!-- Icomoon Icon Fonts-->
     <link rel="stylesheet" href="../../../theme/css/icomoon.css">
-    <!-- Bootstrap  -->
     <link rel="stylesheet" href="../../../theme/css/bootstrap.css">
-    <!-- Flexslider  -->
-    <link rel="stylesheet" href="../../../theme/css/flexslider.css">
-    <!-- Theme style  -->
     <link rel="stylesheet" href="../../../theme/css/style.css">
-    <!-- Custom style  -->
     <link rel="stylesheet" href="../../../theme/css/custom.css">
-    <!-- pygments code highlight -->
-    <link rel="stylesheet" href="../../../theme/css/pygments.css">
-    <!-- tipue search -->
-    <link rel="stylesheet" href="../../../theme/tipuesearch/css/tipuesearch.css">
-
-    <!-- Modernizr JS -->
-    <script src="../../../theme/js/modernizr-2.6.2.min.js"></script>
-    <!-- FOR IE9 below -->
-    <!--[if lt IE 9]>
-    <script src="/theme/js/respond.min.js"></script>
-    <![endif]-->
+  
 
 
+    <meta name="description" content="Irregular Button in cocos2d-x V3.x" />
 
-    </head>
-    <body>
-    <div id="fh5co-page">
-        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
-        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+    <meta name="tags" content="cocos2d-x" />
+    <meta name="tags" content="CS" />
+    <meta name="tags" content="tech" />
+    <meta name="tags" content="cocos" />
+    <meta name="tags" content="cocos2d" />
+    <meta name="tags" content="button" />
+    <meta name="tags" content="widget" />
+    <meta name="tags" content="irregular" />
+    <meta name="tags" content="不规则按钮" />
+    <meta name="tags" content="UI" />
+    <meta name="tags" content="按钮" />
+    <meta name="tags" content="opengl" />
+    <meta name="tags" content="gl" />
+    <meta name="tags" content="OpenGL ES" />
+    <meta name="tags" content="游戏开发" />
+    <meta name="tags" content="手游开发" />
+    <meta name="tags" content="mobile game" />
+    <meta name="tags" content="game devolopment" />
 
-            <nav class="fh5co-main-menu" role="navigation">
-    <ul class="language-navigation">
-        <li>
-                <a class="lang-active" href="https://yszheda.github.io/blog/">zh</a>
-                <a href="https://yszheda.github.io/blog/en/">en</a>
-        </li>
-    </ul>
-            </nav>
-            <div class="clearfix"></div>
-            <h1  id="fh5co-logo">
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-            <nav class="fh5co-main-menu" role="navigation">
-<ul>
-    <!-- home link -->
-    <li><a href="../../../">Home</a></li>
-
-    <!-- page links -->
-
-    <!-- categories -->
-        <li class="nav-title">Categories</li>
-            <li><a href="../../../category/misc.html">misc</a></li>
-            <li><a href="../../../category/music.html">music</a></li>
-            <li><a href="../../../category/reading.html">reading</a></li>
-            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
-
-    <!-- tags -->
-        <li><a href="../../../tags.html">Tags</a></li>
-
-    <!-- additional menu items from config -->
-
-</ul>
-            </nav>
-
-<ul id="social">
-            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
-
-            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
-
-</ul>
-        </aside>
-
-        <div id="fh5co-main">
-
-    <div class="fh5co-narrow-content article-content">
-        <h1 class="fh5co-heading-colored">cocos2d-x V3.x不规则按钮</h1>
-
-        <div>by
-                <span dir="ltr">
-                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
- - <span dir="ltr">五 31 10月 2014</span>
-        </div>
-
-            <div><span>Tags</span>
-                    <span><a href="../../../tag/cocos2d-x.html">#cocos2d-x</a> </span>
-                    <span><a href="../../../tag/cs.html">#CS</a> </span>
-                    <span><a href="../../../tag/tech.html">#tech</a> </span>
-                    <span><a href="../../../tag/cocos.html">#cocos</a> </span>
-                    <span><a href="../../../tag/cocos2d.html">#cocos2d</a> </span>
-                    <span><a href="../../../tag/button.html">#button</a> </span>
-                    <span><a href="../../../tag/widget.html">#widget</a> </span>
-                    <span><a href="../../../tag/irregular.html">#irregular</a> </span>
-                    <span><a href="../../../tag/bu-gui-ze-an-niu.html">#不规则按钮</a> </span>
-                    <span><a href="../../../tag/ui.html">#UI</a> </span>
-                    <span><a href="../../../tag/an-niu.html">#按钮</a> </span>
-                    <span><a href="../../../tag/opengl.html">#opengl</a> </span>
-                    <span><a href="../../../tag/gl.html">#gl</a> </span>
-                    <span><a href="../../../tag/opengl-es.html">#OpenGL ES</a> </span>
-                    <span><a href="../../../tag/you-xi-kai-fa.html">#游戏开发</a> </span>
-                    <span><a href="../../../tag/shou-you-kai-fa.html">#手游开发</a> </span>
-                    <span><a href="../../../tag/mobile-game.html">#mobile game</a> </span>
-                    <span><a href="../../../tag/game-devolopment.html">#game devolopment</a> </span>
-            </div>
-        <span dir="ltr">
-        </span>
-
-        <div class="animate-box" data-animate-effect="fadeInLeft">
-            <p class="animate-box" data-animate-effect="fadeInLeft"><p>cocos2d-x的按钮默认是以长方形作为点击区域的，实际使用时这确实很蛋疼。之前有大牛研究了如何获取图片的透明度实现不规则点击区域的方法，例如：</p>
+</head>
+<body>
+  <article>
+    <header>
+      <h2>
+        <a href="../../../2014/10/31/20141031-irregular-button-in-cocos2d-x-v3.html" rel="bookmark"
+           title="Permalink to cocos2d-x V3.x不规则按钮">cocos2d-x V3.x不规则按钮</a></h2>
+      
+    </header>
+    <p>cocos2d-x的按钮默认是以长方形作为点击区域的，实际使用时这确实很蛋疼。之前有大牛研究了如何获取图片的透明度实现不规则点击区域的方法，例如：</p>
 <ul>
 <li>
 <p><a href="http://www.cnblogs.com/Androider123/p/3795050.html">cocos2d-x开发笔记：获取Sprite上某一个点的透明度，制作不规则按钮</a></p>
@@ -582,51 +464,39 @@
 <span class="w">    </span><span class="p">}</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre></div></td></tr></table></div></p>
-        </div>
-    </div>
-
-<div class="fh5co-narrow-content">
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
-</div>
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <div id="disqus_thread"></div>
-</div>
-
-<script>
-var disqus_config = function () { 
-  this.language = "zh";
-};
-(function() { // DON'T EDIT BELOW THIS LINE
-var d = document, s = d.createElement('script');
-s.src = 'https://.disqus.com/embed.js';
-s.setAttribute('data-timestamp', +new Date());
-(d.head || d.body).appendChild(s);
-})();
-</script>
-<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
-<div class="fh5co-footer">
-    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
-    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
-
-</div>                
-        </div>
-    </div>
-
-    <!-- jQuery -->
-    <script src="../../../theme/js/jquery.min.js"></script>
-    <!-- jQuery Easing -->
-    <script src="../../../theme/js/jquery.easing.1.3.js"></script>
-    <!-- Bootstrap -->
-    <script src="../../../theme/js/bootstrap.min.js"></script>
-    <!-- Waypoints -->
-    <script src="../../../theme/js/jquery.waypoints.min.js"></script>
-    <!-- Flexslider -->
-    <script src="../../../theme/js/jquery.flexslider-min.js"></script>
-
-
-    <!-- MAIN JS -->
-    <script src="../../../theme/js/main.js"></script>
-    </body>
+</code></pre></div></td></tr></table></div>
+    <footer>
+      <p>Published: <time datetime="2014-10-31T23:23:00+08:00">
+        Fri 31 October 2014
+      </time></p>
+        <address>
+          By             <a href="../../../author/galoisplusplus.html">Galoisplusplus</a>
+        </address>
+        <p>
+          Category: <a href="../../../category/tech.html">tech</a>
+        </p>
+        <p>
+          Tags:
+            <a href="../../../tag/cocos2d-x.html">cocos2d-x</a>
+            <a href="../../../tag/cs.html">CS</a>
+            <a href="../../../tag/tech.html">tech</a>
+            <a href="../../../tag/cocos.html">cocos</a>
+            <a href="../../../tag/cocos2d.html">cocos2d</a>
+            <a href="../../../tag/button.html">button</a>
+            <a href="../../../tag/widget.html">widget</a>
+            <a href="../../../tag/irregular.html">irregular</a>
+            <a href="../../../tag/bu-gui-ze-an-niu.html">不规则按钮</a>
+            <a href="../../../tag/ui.html">UI</a>
+            <a href="../../../tag/an-niu.html">按钮</a>
+            <a href="../../../tag/opengl.html">opengl</a>
+            <a href="../../../tag/gl.html">gl</a>
+            <a href="../../../tag/opengl-es.html">OpenGL ES</a>
+            <a href="../../../tag/you-xi-kai-fa.html">游戏开发</a>
+            <a href="../../../tag/shou-you-kai-fa.html">手游开发</a>
+            <a href="../../../tag/mobile-game.html">mobile game</a>
+            <a href="../../../tag/game-devolopment.html">game devolopment</a>
+        </p>
+    </footer>
+  </article>
+</body>
 </html>

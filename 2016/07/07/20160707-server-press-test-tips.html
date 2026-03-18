@@ -1,151 +1,41 @@
-
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="zh" dir="" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="zh" dir="" class="no-js"> <!--<![endif]-->
-    <head>
+<html lang="zh">
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>用ab和wrk做压力测试</title>
-
+    <title>Galoisplusplus - 用ab和wrk做压力测试</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <meta name="author" content="Galoisplusplus" />
-    <meta name="description" content="之前一直在做cocos2d-x手游客户端开发，最近被组织上安排去做服务器开发了。虽然一开始接触OpenResty，遇到不少问题，但由于本渣重用了大量以前的 …" />
-    <meta name="keywords" content="Linux, CS, tech, ab, wrk, press test, test, 压力测试, 压测, 测试">
-<!-- Facebook and Twitter integration -->
-<meta property="og:site_name" content="Galoisplusplus"/>
-<meta property="og:title" content="用ab和wrk做压力测试"/>
-<meta property="og:description" content="之前一直在做cocos2d-x手游客户端开发，最近被组织上安排去做服务器开发了。虽然一开始接触OpenResty，遇到不少问题，但由于本渣重用了大量以前的 …"/>
-<meta property="og:url" content="../../../2016/07/07/20160707-server-press-test-tips.html"/>
-<meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2016-07-07 11:22:00+08:00"/>
-<meta property="article:modified_time" content=""/>
-<meta property="article:author" content="../../../author/galoisplusplus.html">
-<meta property="article:section" content="tech"/>
-    <meta property="article:tag" content="Linux"/>
-    <meta property="article:tag" content="CS"/>
-    <meta property="article:tag" content="tech"/>
-    <meta property="article:tag" content="ab"/>
-    <meta property="article:tag" content="wrk"/>
-    <meta property="article:tag" content="press test"/>
-    <meta property="article:tag" content="test"/>
-    <meta property="article:tag" content="压力测试"/>
-    <meta property="article:tag" content="压测"/>
-    <meta property="article:tag" content="测试"/>
-    <meta property="og:image" content="/blog/static/images/trebleclef.png">
-
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
-
-    <!-- Animate.css -->
     <link rel="stylesheet" href="../../../theme/css/animate.css">
-    <!-- Icomoon Icon Fonts-->
     <link rel="stylesheet" href="../../../theme/css/icomoon.css">
-    <!-- Bootstrap  -->
     <link rel="stylesheet" href="../../../theme/css/bootstrap.css">
-    <!-- Flexslider  -->
-    <link rel="stylesheet" href="../../../theme/css/flexslider.css">
-    <!-- Theme style  -->
     <link rel="stylesheet" href="../../../theme/css/style.css">
-    <!-- Custom style  -->
     <link rel="stylesheet" href="../../../theme/css/custom.css">
-    <!-- pygments code highlight -->
-    <link rel="stylesheet" href="../../../theme/css/pygments.css">
-    <!-- tipue search -->
-    <link rel="stylesheet" href="../../../theme/tipuesearch/css/tipuesearch.css">
-
-    <!-- Modernizr JS -->
-    <script src="../../../theme/js/modernizr-2.6.2.min.js"></script>
-    <!-- FOR IE9 below -->
-    <!--[if lt IE 9]>
-    <script src="/theme/js/respond.min.js"></script>
-    <![endif]-->
+  
 
 
+    <meta name="description" content="ab and wrk Tips" />
 
-    </head>
-    <body>
-    <div id="fh5co-page">
-        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
-        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+    <meta name="tags" content="Linux" />
+    <meta name="tags" content="CS" />
+    <meta name="tags" content="tech" />
+    <meta name="tags" content="ab" />
+    <meta name="tags" content="wrk" />
+    <meta name="tags" content="press test" />
+    <meta name="tags" content="test" />
+    <meta name="tags" content="压力测试" />
+    <meta name="tags" content="压测" />
+    <meta name="tags" content="测试" />
 
-            <nav class="fh5co-main-menu" role="navigation">
-    <ul class="language-navigation">
-        <li>
-                <a class="lang-active" href="https://yszheda.github.io/blog/">zh</a>
-                <a href="https://yszheda.github.io/blog/en/">en</a>
-        </li>
-    </ul>
-            </nav>
-            <div class="clearfix"></div>
-            <h1  id="fh5co-logo">
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-            <nav class="fh5co-main-menu" role="navigation">
-<ul>
-    <!-- home link -->
-    <li><a href="../../../">Home</a></li>
-
-    <!-- page links -->
-
-    <!-- categories -->
-        <li class="nav-title">Categories</li>
-            <li><a href="../../../category/misc.html">misc</a></li>
-            <li><a href="../../../category/music.html">music</a></li>
-            <li><a href="../../../category/reading.html">reading</a></li>
-            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
-
-    <!-- tags -->
-        <li><a href="../../../tags.html">Tags</a></li>
-
-    <!-- additional menu items from config -->
-
-</ul>
-            </nav>
-
-<ul id="social">
-            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
-
-            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
-
-</ul>
-        </aside>
-
-        <div id="fh5co-main">
-
-    <div class="fh5co-narrow-content article-content">
-        <h1 class="fh5co-heading-colored">用ab和wrk做压力测试</h1>
-
-        <div>by
-                <span dir="ltr">
-                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
- - <span dir="ltr">四 07 7月 2016</span>
-        </div>
-
-            <div><span>Tags</span>
-                    <span><a href="../../../tag/linux.html">#Linux</a> </span>
-                    <span><a href="../../../tag/cs.html">#CS</a> </span>
-                    <span><a href="../../../tag/tech.html">#tech</a> </span>
-                    <span><a href="../../../tag/ab.html">#ab</a> </span>
-                    <span><a href="../../../tag/wrk.html">#wrk</a> </span>
-                    <span><a href="../../../tag/press-test.html">#press test</a> </span>
-                    <span><a href="../../../tag/test.html">#test</a> </span>
-                    <span><a href="../../../tag/ya-li-ce-shi.html">#压力测试</a> </span>
-                    <span><a href="../../../tag/ya-ce.html">#压测</a> </span>
-                    <span><a href="../../../tag/ce-shi.html">#测试</a> </span>
-            </div>
-        <span dir="ltr">
-        </span>
-
-        <div class="animate-box" data-animate-effect="fadeInLeft">
-            <p class="animate-box" data-animate-effect="fadeInLeft"><p>之前一直在做cocos2d-x手游客户端开发，最近被组织上安排去做服务器开发了。虽然一开始接触<code>OpenResty</code>，遇到不少问题，但由于本渣重用了大量以前的代码，倒也很快就完成了一个可以正常运作的版本。只是本渣毕竟是新手，所做的功能也没有前人踩坑的经验，对自己代码的性能不放心，所以这段时间也在折腾压力测试，这次就来分享一些做压测的tips。</p>
+</head>
+<body>
+  <article>
+    <header>
+      <h2>
+        <a href="../../../2016/07/07/20160707-server-press-test-tips.html" rel="bookmark"
+           title="Permalink to 用ab和wrk做压力测试">用ab和wrk做压力测试</a></h2>
+      
+    </header>
+    <p>之前一直在做cocos2d-x手游客户端开发，最近被组织上安排去做服务器开发了。虽然一开始接触<code>OpenResty</code>，遇到不少问题，但由于本渣重用了大量以前的代码，倒也很快就完成了一个可以正常运作的版本。只是本渣毕竟是新手，所做的功能也没有前人踩坑的经验，对自己代码的性能不放心，所以这段时间也在折腾压力测试，这次就来分享一些做压测的tips。</p>
 <p>首先，<code>Apache</code>的<code>ab</code>可以很方便地产生大量（并发）的同一请求，<code>ab</code>上手也很容易，是做简单压测的首选工具之一。</p>
 <p>使用<code>ab</code>需要注意几个选项：</p>
 <ul>
@@ -246,51 +136,31 @@
 <li>
 <p><a href="https://blog.satikey.com/p/5768.html">wrk — 小巧轻盈的 http 性能测试工具</a></p>
 </li>
-</ul></p>
-        </div>
-    </div>
-
-<div class="fh5co-narrow-content">
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
-</div>
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <div id="disqus_thread"></div>
-</div>
-
-<script>
-var disqus_config = function () { 
-  this.language = "zh";
-};
-(function() { // DON'T EDIT BELOW THIS LINE
-var d = document, s = d.createElement('script');
-s.src = 'https://.disqus.com/embed.js';
-s.setAttribute('data-timestamp', +new Date());
-(d.head || d.body).appendChild(s);
-})();
-</script>
-<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
-<div class="fh5co-footer">
-    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
-    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
-
-</div>                
-        </div>
-    </div>
-
-    <!-- jQuery -->
-    <script src="../../../theme/js/jquery.min.js"></script>
-    <!-- jQuery Easing -->
-    <script src="../../../theme/js/jquery.easing.1.3.js"></script>
-    <!-- Bootstrap -->
-    <script src="../../../theme/js/bootstrap.min.js"></script>
-    <!-- Waypoints -->
-    <script src="../../../theme/js/jquery.waypoints.min.js"></script>
-    <!-- Flexslider -->
-    <script src="../../../theme/js/jquery.flexslider-min.js"></script>
-
-
-    <!-- MAIN JS -->
-    <script src="../../../theme/js/main.js"></script>
-    </body>
+</ul>
+    <footer>
+      <p>Published: <time datetime="2016-07-07T11:22:00+08:00">
+        Thu 07 July 2016
+      </time></p>
+        <address>
+          By             <a href="../../../author/galoisplusplus.html">Galoisplusplus</a>
+        </address>
+        <p>
+          Category: <a href="../../../category/tech.html">tech</a>
+        </p>
+        <p>
+          Tags:
+            <a href="../../../tag/linux.html">Linux</a>
+            <a href="../../../tag/cs.html">CS</a>
+            <a href="../../../tag/tech.html">tech</a>
+            <a href="../../../tag/ab.html">ab</a>
+            <a href="../../../tag/wrk.html">wrk</a>
+            <a href="../../../tag/press-test.html">press test</a>
+            <a href="../../../tag/test.html">test</a>
+            <a href="../../../tag/ya-li-ce-shi.html">压力测试</a>
+            <a href="../../../tag/ya-ce.html">压测</a>
+            <a href="../../../tag/ce-shi.html">测试</a>
+        </p>
+    </footer>
+  </article>
+</body>
 </html>

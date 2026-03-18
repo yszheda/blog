@@ -1,141 +1,36 @@
-
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="zh" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="zh" dir="" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="zh" dir="" class="no-js"> <!--<![endif]-->
-    <head>
+<html lang="zh">
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>ARM NEON编程初探——一个简单的BGR888转YUV444实例详解</title>
-
+    <title>Galoisplusplus - ARM NEON编程初探——一个简单的BGR888转YUV444实例详解</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <meta name="author" content="Galoisplusplus" />
-    <meta name="description" content="最近在学习ARM的SIMD指令集NEON，发现这方面的资料真是太少了，我便来给NEON凑凑人气，姑且以这篇入门文章来分享一些心得吧。 学习一门新技术，总 …" />
-    <meta name="keywords" content="CS, tech, ARM, NEON, assembly">
-<!-- Facebook and Twitter integration -->
-<meta property="og:site_name" content="Galoisplusplus"/>
-<meta property="og:title" content="ARM NEON编程初探——一个简单的BGR888转YUV444实例详解"/>
-<meta property="og:description" content="最近在学习ARM的SIMD指令集NEON，发现这方面的资料真是太少了，我便来给NEON凑凑人气，姑且以这篇入门文章来分享一些心得吧。 学习一门新技术，总 …"/>
-<meta property="og:url" content="../../../2017/06/10/20170610-use-arm-neon-to-accelerate-bgr888-to-yuv444.html"/>
-<meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2017-06-10 13:00:00+08:00"/>
-<meta property="article:modified_time" content=""/>
-<meta property="article:author" content="../../../author/galoisplusplus.html">
-<meta property="article:section" content="tech"/>
-    <meta property="article:tag" content="CS"/>
-    <meta property="article:tag" content="tech"/>
-    <meta property="article:tag" content="ARM"/>
-    <meta property="article:tag" content="NEON"/>
-    <meta property="article:tag" content="assembly"/>
-    <meta property="og:image" content="/blog/static/images/trebleclef.png">
-
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
-
-    <!-- Animate.css -->
     <link rel="stylesheet" href="../../../theme/css/animate.css">
-    <!-- Icomoon Icon Fonts-->
     <link rel="stylesheet" href="../../../theme/css/icomoon.css">
-    <!-- Bootstrap  -->
     <link rel="stylesheet" href="../../../theme/css/bootstrap.css">
-    <!-- Flexslider  -->
-    <link rel="stylesheet" href="../../../theme/css/flexslider.css">
-    <!-- Theme style  -->
     <link rel="stylesheet" href="../../../theme/css/style.css">
-    <!-- Custom style  -->
     <link rel="stylesheet" href="../../../theme/css/custom.css">
-    <!-- pygments code highlight -->
-    <link rel="stylesheet" href="../../../theme/css/pygments.css">
-    <!-- tipue search -->
-    <link rel="stylesheet" href="../../../theme/tipuesearch/css/tipuesearch.css">
-
-    <!-- Modernizr JS -->
-    <script src="../../../theme/js/modernizr-2.6.2.min.js"></script>
-    <!-- FOR IE9 below -->
-    <!--[if lt IE 9]>
-    <script src="/theme/js/respond.min.js"></script>
-    <![endif]-->
+  
 
 
+    <meta name="description" content="Use ARM NEON to Accelerate BGR888ToYUV444" />
 
-    </head>
-    <body>
-    <div id="fh5co-page">
-        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
-        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+    <meta name="tags" content="CS" />
+    <meta name="tags" content="tech" />
+    <meta name="tags" content="ARM" />
+    <meta name="tags" content="NEON" />
+    <meta name="tags" content="assembly" />
 
-            <nav class="fh5co-main-menu" role="navigation">
-    <ul class="language-navigation">
-        <li>
-                <a class="lang-active" href="https://yszheda.github.io/blog/">zh</a>
-                <a href="https://yszheda.github.io/blog/en/">en</a>
-        </li>
-    </ul>
-            </nav>
-            <div class="clearfix"></div>
-            <h1  id="fh5co-logo">
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-            <nav class="fh5co-main-menu" role="navigation">
-<ul>
-    <!-- home link -->
-    <li><a href="../../../">Home</a></li>
-
-    <!-- page links -->
-
-    <!-- categories -->
-        <li class="nav-title">Categories</li>
-            <li><a href="../../../category/misc.html">misc</a></li>
-            <li><a href="../../../category/music.html">music</a></li>
-            <li><a href="../../../category/reading.html">reading</a></li>
-            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
-
-    <!-- tags -->
-        <li><a href="../../../tags.html">Tags</a></li>
-
-    <!-- additional menu items from config -->
-
-</ul>
-            </nav>
-
-<ul id="social">
-            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
-
-            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
-
-</ul>
-        </aside>
-
-        <div id="fh5co-main">
-
-    <div class="fh5co-narrow-content article-content">
-        <h1 class="fh5co-heading-colored">ARM NEON编程初探——一个简单的BGR888转YUV444实例详解</h1>
-
-        <div>by
-                <span dir="ltr">
-                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
- - <span dir="ltr">六 10 6月 2017</span>
-        </div>
-
-            <div><span>Tags</span>
-                    <span><a href="../../../tag/cs.html">#CS</a> </span>
-                    <span><a href="../../../tag/tech.html">#tech</a> </span>
-                    <span><a href="../../../tag/arm.html">#ARM</a> </span>
-                    <span><a href="../../../tag/neon.html">#NEON</a> </span>
-                    <span><a href="../../../tag/assembly.html">#assembly</a> </span>
-            </div>
-        <span dir="ltr">
-        </span>
-
-        <div class="animate-box" data-animate-effect="fadeInLeft">
-            <p class="animate-box" data-animate-effect="fadeInLeft"><p>最近在学习ARM的SIMD指令集<a href="https://developer.arm.com/technologies/neon">NEON</a>，发现这方面的资料真是太少了，我便来给NEON凑凑人气，姑且以这篇入门文章来分享一些心得吧。</p>
+</head>
+<body>
+  <article>
+    <header>
+      <h2>
+        <a href="../../../2017/06/10/20170610-use-arm-neon-to-accelerate-bgr888-to-yuv444.html" rel="bookmark"
+           title="Permalink to ARM NEON编程初探——一个简单的BGR888转YUV444实例详解">ARM NEON编程初探——一个简单的BGR888转YUV444实例详解</a></h2>
+      
+    </header>
+    <p>最近在学习ARM的SIMD指令集<a href="https://developer.arm.com/technologies/neon">NEON</a>，发现这方面的资料真是太少了，我便来给NEON凑凑人气，姑且以这篇入门文章来分享一些心得吧。</p>
 <p>学习一门新技术，总是有一些经典是绕不开的，对于NEON来说，这份必备的武林秘籍自然就是ARM官方的《NEON Programmer's Guide》（以下简称Guide）啦。别看这份Guide有四百多页，其实只有一百来页是正文，后面都是供查阅的手册，通读一番还是不难的。所以这里我也就不打算把Guide里的内容翻译过来敷衍了事了。在此我想借一个简单例子，展示我是如何把一个没采用NEON的普通程序改写为NEON程序、中间又是如何debug、如何调优的。当然，作为一枚ARM小白，我接触NEON指令集毕竟也才两周左右时间，错误在所难免，还请各位方家多多指正。</p>
 <!-- more -->
 
@@ -1007,51 +902,26 @@ $<span class="w"> </span>gdb<span class="w"> </span>&lt;program&gt;
 <h2 id="_2">继续优化</h2>
 <p>个人认为，在写intrinsics程序的阶段就要力求用尽可能少的intrinsics来实现功能，这样能保证生成的汇编指令尽可能精简。在指令足够精简之后，一项最重要的工作就是instruction reordering/scheduling，减少诸如RAW、WAW等memory dependency引起的stall。</p>
 <p>这个时候你需要对每条指令重要阶段的时钟周期了然于心。如何查到相关资料呢？你可以到<a href="http://infocenter.arm.com/help/index.jsp">ARM 信息中心</a>，查你所用的ARM处理器的Technical Reference Manual，其中就有一章Instruction Cycle Timing。另外，WebShaker为Cortex A8做了一个网页版<a href="http://pulsar.webshaker.net/ccc/index.php?lng=us">Cycle Counter for Cortex A8</a>，如果你在使用这一处理器，这是一个很值得使用和参考的工具。</p>
-<p>最后，对于实际处理器的NEON汇编调优，考虑到ARM指令和NEON指令走的是不同流水线、dual issue（详见Guide第五章）等等因素，如何达到最优scheduling仍是很有挑战性的问题。个人觉得，像我这种小白，还是需要有intruction-level profiler来定位性能热点进行优化，可惜目前为止尚未找到趁手的工具。另外，以前我在玩CUDA时，有不少不错的tutorial（CUDA玩家想必都会看过的要算Mark Harris的parallel reduction了）给出了step-by-step的优化思路、指标和方法，对新手快速上手CUDA、并迅速应用到新问题上很有帮助。但ARM在这方面确实很欠缺，即使是Guide里的三章Examples，也多半是告诉了最终答案而没有思路和方法。如果有ARM大神知道如何做step-by-step性能分析和优化，还望多多赐教。</p></p>
-        </div>
-    </div>
-
-<div class="fh5co-narrow-content">
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
-</div>
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <div id="disqus_thread"></div>
-</div>
-
-<script>
-var disqus_config = function () { 
-  this.language = "zh";
-};
-(function() { // DON'T EDIT BELOW THIS LINE
-var d = document, s = d.createElement('script');
-s.src = 'https://.disqus.com/embed.js';
-s.setAttribute('data-timestamp', +new Date());
-(d.head || d.body).appendChild(s);
-})();
-</script>
-<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
-<div class="fh5co-footer">
-    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
-    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
-
-</div>                
-        </div>
-    </div>
-
-    <!-- jQuery -->
-    <script src="../../../theme/js/jquery.min.js"></script>
-    <!-- jQuery Easing -->
-    <script src="../../../theme/js/jquery.easing.1.3.js"></script>
-    <!-- Bootstrap -->
-    <script src="../../../theme/js/bootstrap.min.js"></script>
-    <!-- Waypoints -->
-    <script src="../../../theme/js/jquery.waypoints.min.js"></script>
-    <!-- Flexslider -->
-    <script src="../../../theme/js/jquery.flexslider-min.js"></script>
-
-
-    <!-- MAIN JS -->
-    <script src="../../../theme/js/main.js"></script>
-    </body>
+<p>最后，对于实际处理器的NEON汇编调优，考虑到ARM指令和NEON指令走的是不同流水线、dual issue（详见Guide第五章）等等因素，如何达到最优scheduling仍是很有挑战性的问题。个人觉得，像我这种小白，还是需要有intruction-level profiler来定位性能热点进行优化，可惜目前为止尚未找到趁手的工具。另外，以前我在玩CUDA时，有不少不错的tutorial（CUDA玩家想必都会看过的要算Mark Harris的parallel reduction了）给出了step-by-step的优化思路、指标和方法，对新手快速上手CUDA、并迅速应用到新问题上很有帮助。但ARM在这方面确实很欠缺，即使是Guide里的三章Examples，也多半是告诉了最终答案而没有思路和方法。如果有ARM大神知道如何做step-by-step性能分析和优化，还望多多赐教。</p>
+    <footer>
+      <p>Published: <time datetime="2017-06-10T13:00:00+08:00">
+        Sat 10 June 2017
+      </time></p>
+        <address>
+          By             <a href="../../../author/galoisplusplus.html">Galoisplusplus</a>
+        </address>
+        <p>
+          Category: <a href="../../../category/tech.html">tech</a>
+        </p>
+        <p>
+          Tags:
+            <a href="../../../tag/cs.html">CS</a>
+            <a href="../../../tag/tech.html">tech</a>
+            <a href="../../../tag/arm.html">ARM</a>
+            <a href="../../../tag/neon.html">NEON</a>
+            <a href="../../../tag/assembly.html">assembly</a>
+        </p>
+    </footer>
+  </article>
+</body>
 </html>

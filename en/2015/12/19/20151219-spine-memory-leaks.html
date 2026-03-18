@@ -1,155 +1,43 @@
-
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="en" dir="" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="en" dir="" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="en" dir="" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="en" dir="" class="no-js"> <!--<![endif]-->
-    <head>
+<html lang="en">
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>记一次spine内存泄露排查</title>
-
+    <title>Galoisplusplus - 记一次spine内存泄露排查</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <meta name="author" content="Galoisplusplus" />
-    <meta name="description" content="最近用Instruments的Leaks工具排查我们cocos2d-x游戏的一些内存泄露问题，大部分属于之前我们C++代码的bug，还有几个是lua代码中sqlite使用不当造成的内存泄露（例如 …" />
-    <meta name="keywords" content="cocos2d-x, CS, tech, quick, quickx, quick-cocos2d-x, cocos, cocos2d, 游戏开发, 手游开发, mobile game, game devolopment">
-<!-- Facebook and Twitter integration -->
-<meta property="og:site_name" content="Galoisplusplus"/>
-<meta property="og:title" content="记一次spine内存泄露排查"/>
-<meta property="og:description" content="最近用Instruments的Leaks工具排查我们cocos2d-x游戏的一些内存泄露问题，大部分属于之前我们C++代码的bug，还有几个是lua代码中sqlite使用不当造成的内存泄露（例如 …"/>
-<meta property="og:url" content="../../../2015/12/19/20151219-spine-memory-leaks.html"/>
-<meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2015-12-19 11:22:00+08:00"/>
-<meta property="article:modified_time" content=""/>
-<meta property="article:author" content="../../../author/galoisplusplus.html">
-<meta property="article:section" content="tech"/>
-    <meta property="article:tag" content="cocos2d-x"/>
-    <meta property="article:tag" content="CS"/>
-    <meta property="article:tag" content="tech"/>
-    <meta property="article:tag" content="quick"/>
-    <meta property="article:tag" content="quickx"/>
-    <meta property="article:tag" content="quick-cocos2d-x"/>
-    <meta property="article:tag" content="cocos"/>
-    <meta property="article:tag" content="cocos2d"/>
-    <meta property="article:tag" content="游戏开发"/>
-    <meta property="article:tag" content="手游开发"/>
-    <meta property="article:tag" content="mobile game"/>
-    <meta property="article:tag" content="game devolopment"/>
-    <meta property="og:image" content="/blog/static/images/trebleclef.png">
-
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
-
-    <!-- Animate.css -->
-    <link rel="stylesheet" href="../../../../theme/css/animate.css">
-    <!-- Icomoon Icon Fonts-->
-    <link rel="stylesheet" href="../../../../theme/css/icomoon.css">
-    <!-- Bootstrap  -->
-    <link rel="stylesheet" href="../../../../theme/css/bootstrap.css">
-    <!-- Flexslider  -->
-    <link rel="stylesheet" href="../../../../theme/css/flexslider.css">
-    <!-- Theme style  -->
-    <link rel="stylesheet" href="../../../../theme/css/style.css">
-    <!-- Custom style  -->
-    <link rel="stylesheet" href="../../../../theme/css/custom.css">
-    <!-- pygments code highlight -->
-    <link rel="stylesheet" href="../../../../theme/css/pygments.css">
-    <!-- tipue search -->
-    <link rel="stylesheet" href="../../../../theme/tipuesearch/css/tipuesearch.css">
-
-    <!-- Modernizr JS -->
-    <script src="../../../../theme/js/modernizr-2.6.2.min.js"></script>
-    <!-- FOR IE9 below -->
-    <!--[if lt IE 9]>
-    <script src="/theme/js/respond.min.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" href="../../../theme/css/animate.css">
+    <link rel="stylesheet" href="../../../theme/css/icomoon.css">
+    <link rel="stylesheet" href="../../../theme/css/bootstrap.css">
+    <link rel="stylesheet" href="../../../theme/css/style.css">
+    <link rel="stylesheet" href="../../../theme/css/custom.css">
+  
 
 
+    <meta name="description" content="Spine Memory Leak" />
 
-    </head>
-    <body>
-    <div id="fh5co-page">
-        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
-        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+    <meta name="tags" content="cocos2d-x" />
+    <meta name="tags" content="CS" />
+    <meta name="tags" content="tech" />
+    <meta name="tags" content="quick" />
+    <meta name="tags" content="quickx" />
+    <meta name="tags" content="quick-cocos2d-x" />
+    <meta name="tags" content="cocos" />
+    <meta name="tags" content="cocos2d" />
+    <meta name="tags" content="游戏开发" />
+    <meta name="tags" content="手游开发" />
+    <meta name="tags" content="mobile game" />
+    <meta name="tags" content="game devolopment" />
 
-            <nav class="fh5co-main-menu" role="navigation">
-    <ul class="language-navigation">
-        <li>
-                <a href="https://yszheda.github.io/blog/">zh</a>
-                <a class="lang-active" href="https://yszheda.github.io/blog/en/">en</a>
-        </li>
-    </ul>
-            </nav>
-            <div class="clearfix"></div>
-            <h1  id="fh5co-logo">
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-                <a href="../../../index.html">
-                    <img src="/blog/static/images/trebleclef.png" />
-                </a>
-            </h1>
-            <nav class="fh5co-main-menu" role="navigation">
-<ul>
-    <!-- home link -->
-    <li><a href="../../../">Home</a></li>
-
-    <!-- page links -->
-
-    <!-- categories -->
-        <li class="nav-title">Categories</li>
-            <li><a href="../../../category/misc.html">misc</a></li>
-            <li><a href="../../../category/music.html">music</a></li>
-            <li><a href="../../../category/reading.html">reading</a></li>
-            <li class="fh5co-active"><a href="../../../category/tech.html">tech</a></li>
-
-    <!-- tags -->
-        <li><a href="../../../tags.html">Tags</a></li>
-
-    <!-- additional menu items from config -->
-
-</ul>
-            </nav>
-
-<ul id="social">
-            <li><a href="https://github.com/yszheda" alt="GitHub"><i class="icon-github"></i></a></li>
-
-            <li><a href="https://twitter.com/yszheda" alt="Twitter"><i class="icon-twitter2"></i></a></li>
-
-</ul>
-        </aside>
-
-        <div id="fh5co-main">
-
-    <div class="fh5co-narrow-content article-content">
-        <h1 class="fh5co-heading-colored">记一次spine内存泄露排查</h1>
-
-        <div>by
-                <span dir="ltr">
-                <a href="author/galoisplusplus.html">Galoisplusplus</a>                </span>
- - <span dir="ltr">六 19 12月 2015</span>
-        </div>
-
-            <div><span>Tags</span>
-                    <span><a href="../../../tag/cocos2d-x.html">#cocos2d-x</a> </span>
-                    <span><a href="../../../tag/cs.html">#CS</a> </span>
-                    <span><a href="../../../tag/tech.html">#tech</a> </span>
-                    <span><a href="../../../tag/quick.html">#quick</a> </span>
-                    <span><a href="../../../tag/quickx.html">#quickx</a> </span>
-                    <span><a href="../../../tag/quick-cocos2d-x.html">#quick-cocos2d-x</a> </span>
-                    <span><a href="../../../tag/cocos.html">#cocos</a> </span>
-                    <span><a href="../../../tag/cocos2d.html">#cocos2d</a> </span>
-                    <span><a href="../../../tag/you-xi-kai-fa.html">#游戏开发</a> </span>
-                    <span><a href="../../../tag/shou-you-kai-fa.html">#手游开发</a> </span>
-                    <span><a href="../../../tag/mobile-game.html">#mobile game</a> </span>
-                    <span><a href="../../../tag/game-devolopment.html">#game devolopment</a> </span>
-            </div>
-        <span dir="ltr">
-        </span>
-
-        <div class="animate-box" data-animate-effect="fadeInLeft">
-            <p class="animate-box" data-animate-effect="fadeInLeft"><p>最近用<code>Instruments</code>的<code>Leaks</code>工具排查我们cocos2d-x游戏的一些内存泄露问题，大部分属于之前我们<code>C++</code>代码的bug，还有几个是<code>lua</code>代码中<code>sqlite</code>使用不当造成的内存泄露（例如数据库连接没有<code>close</code>，<code>prepare</code>的<code>stmt</code>没有<code>finalize</code>），总的来说这些都不难改。而且由于我们主要用的是<code>lua</code>，<code>lua</code>有垃圾回收，所以<code>Leaks</code>显示的内存泄露问题也不多。倒是spine的内存泄露问题相对棘手，花了我较长时间。</p>
+</head>
+<body>
+  <article>
+    <header>
+      <h2>
+        <a href="../../../2015/12/19/20151219-spine-memory-leaks.html" rel="bookmark"
+           title="Permalink to 记一次spine内存泄露排查">记一次spine内存泄露排查</a></h2>
+      
+    </header>
+    <p>最近用<code>Instruments</code>的<code>Leaks</code>工具排查我们cocos2d-x游戏的一些内存泄露问题，大部分属于之前我们<code>C++</code>代码的bug，还有几个是<code>lua</code>代码中<code>sqlite</code>使用不当造成的内存泄露（例如数据库连接没有<code>close</code>，<code>prepare</code>的<code>stmt</code>没有<code>finalize</code>），总的来说这些都不难改。而且由于我们主要用的是<code>lua</code>，<code>lua</code>有垃圾回收，所以<code>Leaks</code>显示的内存泄露问题也不多。倒是spine的内存泄露问题相对棘手，花了我较长时间。</p>
 <p><code>Leaks</code>工具定位内存泄露到<code>spine</code>的<code>extension.c</code>中的<code>_malloc</code>函数：</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
@@ -1093,51 +981,33 @@
 </code></pre></div></td></tr></table></div>
 
 <p>改完这个bug，再重新跑<code>Instruments</code>的<code>Leaks</code>工具，结果之前的内存泄露都没有了，看来<code>SkeletonRenderer</code>的这处bug就是被检测出来的所有spine内存泄露的罪魁祸首！</p>
-<p>等到本渣兴高采烈想去提交一个PR时才发现，原来<code>spine</code>的repo上早有了fix该bug的<a href="https://github.com/EsotericSoftware/spine-runtimes/pull/461">patch</a>，cocos2d-x也有相同的<a href="https://github.com/cocos2d/cocos2d-x/issues/13150">patch</a>，看来还是要多跟进官方repo的进展啊......这次查bug真是白耗精力，而且看了些spine的烂坑对自己也木有帮助，不开森:(</p></p>
-        </div>
-    </div>
-
-<div class="fh5co-narrow-content">
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
-</div>
-<div class="animate-box" data-animate-effect="fadeInLeft">
-    <div id="disqus_thread"></div>
-</div>
-
-<script>
-var disqus_config = function () { 
-  this.language = "en";
-};
-(function() { // DON'T EDIT BELOW THIS LINE
-var d = document, s = d.createElement('script');
-s.src = 'https://.disqus.com/embed.js';
-s.setAttribute('data-timestamp', +new Date());
-(d.head || d.body).appendChild(s);
-})();
-</script>
-<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
-<div class="fh5co-footer">
-    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
-    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
-
-</div>                
-        </div>
-    </div>
-
-    <!-- jQuery -->
-    <script src="../../../../theme/js/jquery.min.js"></script>
-    <!-- jQuery Easing -->
-    <script src="../../../../theme/js/jquery.easing.1.3.js"></script>
-    <!-- Bootstrap -->
-    <script src="../../../../theme/js/bootstrap.min.js"></script>
-    <!-- Waypoints -->
-    <script src="../../../../theme/js/jquery.waypoints.min.js"></script>
-    <!-- Flexslider -->
-    <script src="../../../../theme/js/jquery.flexslider-min.js"></script>
-
-
-    <!-- MAIN JS -->
-    <script src="../../../../theme/js/main.js"></script>
-    </body>
+<p>等到本渣兴高采烈想去提交一个PR时才发现，原来<code>spine</code>的repo上早有了fix该bug的<a href="https://github.com/EsotericSoftware/spine-runtimes/pull/461">patch</a>，cocos2d-x也有相同的<a href="https://github.com/cocos2d/cocos2d-x/issues/13150">patch</a>，看来还是要多跟进官方repo的进展啊......这次查bug真是白耗精力，而且看了些spine的烂坑对自己也木有帮助，不开森:(</p>
+    <footer>
+      <p>Published: <time datetime="2015-12-19T11:22:00+08:00">
+        Sat 19 December 2015
+      </time></p>
+        <address>
+          By             <a href="../../../author/galoisplusplus.html">Galoisplusplus</a>
+        </address>
+        <p>
+          Category: <a href="../../../category/tech.html">tech</a>
+        </p>
+        <p>
+          Tags:
+            <a href="../../../tag/cocos2d-x.html">cocos2d-x</a>
+            <a href="../../../tag/cs.html">CS</a>
+            <a href="../../../tag/tech.html">tech</a>
+            <a href="../../../tag/quick.html">quick</a>
+            <a href="../../../tag/quickx.html">quickx</a>
+            <a href="../../../tag/quick-cocos2d-x.html">quick-cocos2d-x</a>
+            <a href="../../../tag/cocos.html">cocos</a>
+            <a href="../../../tag/cocos2d.html">cocos2d</a>
+            <a href="../../../tag/you-xi-kai-fa.html">游戏开发</a>
+            <a href="../../../tag/shou-you-kai-fa.html">手游开发</a>
+            <a href="../../../tag/mobile-game.html">mobile game</a>
+            <a href="../../../tag/game-devolopment.html">game devolopment</a>
+        </p>
+    </footer>
+  </article>
+</body>
 </html>
