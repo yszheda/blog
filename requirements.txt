@@ -1,0 +1,6 @@
+# Pelican static site generator
+pelican>=4.11.0
+markdown>=3.4
+
+# Optional: for local development
+# ghp-import>=2.1.0
