@@ -13,7 +13,7 @@ publish:
 	pelican content -s publishconf.py -o output
 	cp -r static output/
 	pelican content -s publishconf.py -o output
-	cp -r static/* output/static/
+	cp -r static/images output/ && cp -r static/* output/static/
 
 preview:
 	make clean && make html && make serve

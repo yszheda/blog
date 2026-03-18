@@ -100,10 +100,10 @@ TYPOGRIFY = False
 
 
 # Logo for theme (optional)
-LOGO = "static/images/trebleclef.png"
+LOGO = "/blog/static/images/trebleclef.png"
 
 # For GitHub Pages deployment
-RELATIVE_URLS = True
+# For GitHub Pages deployment - use absolute URLs
 
-# For GitHub Pages deployment
+RELATIVE_URLS = False
 RELATIVE_URLS = True

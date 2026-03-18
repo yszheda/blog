@@ -100,4 +100,4 @@ TYPOGRIFY = False
 
 
 # Logo for theme (optional)
-LOGO = "static/images/trebleclef.png"
+LOGO = "/blog/static/images/trebleclef.png"
