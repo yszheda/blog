@@ -43,3 +43,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./output
           keep_files: true  # Keep existing files in gh-pages
+<!-- CDN refresh -->
